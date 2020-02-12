@@ -9,10 +9,10 @@
  */
 
 //Inclui os arquivos necessários para o sistema "Colonization"
-include_once('./includes/geral.php');
-include_once('./includes/imperio.php');
-include_once('./includes/planeta.php');
-include_once('./includes/instalacao.php');
+include_once('includes/geral.php');
+include_once('includes/imperio.php');
+include_once('includes/planeta.php');
+include_once('includes/instalacao.php');
 
 class colonization {
 
@@ -58,14 +58,16 @@ class colonization {
 	***********************/	
 	function colonization_exibe_imperio($atts = [], $content = null) {
 		//Cria o Império
-		if (is_null($atts[id])) {
+		//var_dump($atts);
+		if (isset($atts['id'])) {
 			$imperio = new imperio();
+			//var_dump($atts);
 		} else {
-			$imperio = new imperio($atts[id]);
+			$imperio = new imperio($atts['id']);
 		}
 		
 		//Envia os dados do Império
-		return $imperio.imperio_exibe_imperio();
+		return $imperio->imperio_exibe_imperio();
 	}
 	
 }
