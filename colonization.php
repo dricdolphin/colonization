@@ -60,10 +60,10 @@ class colonization {
 		//Cria o Império
 		//var_dump($atts);
 		if (isset($atts['id'])) {
-			$imperio = new imperio();
+			$imperio = new imperio($atts['id']);
 			//var_dump($atts);
 		} else {
-			$imperio = new imperio($atts['id']);
+			$imperio = new imperio();
 		}
 		
 		//Envia os dados do Império

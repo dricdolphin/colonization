@@ -22,7 +22,7 @@ class imperio
 	function __construct(id_imperio = get_current_user_id())
 	----------------------
 	Inicializa os dados do Império
-	$id_imperio = get_current_user_id() -- Se não for passado um valor, o valor padrão é o id de usuário
+	$id_imperio = null -- Se não for passado um valor, o valor padrão é o id de usuário
 	***********************/
 	function __construct($id_imperio = null) {
 		//TODO - inicializa o Império
