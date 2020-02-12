@@ -12,21 +12,22 @@ class imperio
 //TODO -- Criar a classe
 
 	//TODO -- Criar as variáveis do Império
-	planeta imperio_planetas[];
-	recurso imperio_recursos[];
-	string imperio_nome;
-	int id;
+	//planeta imperio_planetas[];
+	//recurso imperio_recursos[];
+	string $imperio_nome;
+	int $id;
 		
 
 	/***********************
 	function __construct(id_imperio = get_current_user_id())
 	----------------------
 	Inicializa os dados do Império
-	id_imperio = get_current_user_id() -- Se não for passado um valor, o valor padrão é o id de usuário
+	$id_imperio = get_current_user_id() -- Se não for passado um valor, o valor padrão é o id de usuário
 	***********************/
-	function __construct(id_imperio = get_current_user_id()) {
+	function __construct($id_imperio = get_current_user_id()) {
 	//TODO - inicializa o Império
-	$this.id = id_imperio;
+	//TODO - queries para puxar os dados do Império
+	$this.id = $id_imperio;
 	
 	//As funções abaixo ainda serão criadas
 	//$this.imperio_nome = pega_nome_imperio(this.id);
@@ -34,16 +35,13 @@ class imperio
 	}
 
 	/***********************
-	function colonization_exibe_imperio($atts = [], $content = null)
+	function imperio_exibe_imperio()
 	----------------------
-	Chamado pelo shortcode [colonization_exibe_imperio]
-	$atts = [] - lista de atributos dentro do shortcode 
-	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
-	os dados do Império com id="1"
+	Exibe os dados do Império
 	***********************/
-	function colonization_exibe_imperio($atts = [], $content = null) {
+	function imperio_exibe_imperio() {
 	//Exibe os dados do Império
-	//TODO - queries para puxar os dados do Império
+	
 	
 	$html = "<div>".$this.id."</div>";
 	

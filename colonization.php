@@ -14,32 +14,67 @@ include_once('./includes/imperio.php');
 include_once('./includes/planeta.php');
 include_once('./includes/instalacao.php');
 
+class colonization {
+
+	
+	/***********************
+	function __construct()
+	----------------------
+	Inicializa o plugin
+	***********************/
+	function __construct() {
+		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
+		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
+	}
+
+	/******************
+	function colonization_install()
+	-----------
+	Instala o plugin e cria os objetos necessários para rodar o sistema "Colonization"
+	******************/
+	function colonization_install($atts = [], $content = null) {
+	//TODO - Sistema de instalação
+	//Cria o banco de dados
+
+	}
+
+	/******************
+	function colonization_deactivate()
+	-----------
+	Desinstala o plugin.
+	******************/
+	function colonization_deactivate() {
+	//TODO - Rotinas de desativação
+
+	}
+	
+	/***********************
+	function colonization_exibe_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
+	os dados do Império com id="1"
+	***********************/	
+	function colonization_exibe_imperio($atts = [], $content = null) {
+		//Cria o Império
+		if (is_null($atts[id])) {
+			$imperio = new imperio();
+		} else {
+			$imperio = new imperio($atts[id]);
+		}
+		
+		//Envia os dados do Império
+		return $imperio.imperio_exibe_imperio();
+	}
+	
+}
+
+
+//Cria o plugin
+$plugin = new colonization();
+
 //Ganchos de instalação e desinstalação do plugin "Colonization"
-register_activation_hook( __FILE__, 'colonization_install' );
-
-register_deactivation_hook( __FILE__, 'colonization_deactivate' );
-
-/******************
-function colonization_install()
------------
-Instala o plugin e cria os objetos necessários para rodar o sistema "Colonization"
-******************/
-function colonization_install() {
-//TODO - Sistema de instalação
-//Cria o banco de dados
-
-//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
-add_shortcode("colonization_exibe_imperio","colonization_exibe_imperio"); //Exibe os dados do Império
-
-}
-
-/******************
-function colonization_deactivate()
------------
-Desinstala o plugin.
-******************/
-function colonization_deactivate() {
-//TODO - Rotinas de desativação
-}
- 
+register_activation_hook( __FILE__, array($plugin,'colonization_install'));
+register_deactivation_hook( __FILE__, array($plugin,'colonization_deactivate'));
 ?>
