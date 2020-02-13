@@ -13,7 +13,12 @@ include_once('includes/geral.php');
 include_once('includes/imperio.php');
 include_once('includes/planeta.php');
 include_once('includes/instalacao.php');
+include_once('includes/recurso.php');
+include_once('includes/acoes.php');
+include_once('includes/instala_db.php');
 
+//Classe "colonization"
+//Classe principal do plugin
 class colonization {
 
 	
@@ -32,10 +37,11 @@ class colonization {
 	-----------
 	Instala o plugin e cria os objetos necessários para rodar o sistema "Colonization"
 	******************/
-	function colonization_install($atts = [], $content = null) {
-	//TODO - Sistema de instalação
-	//Cria o banco de dados
-
+	function colonization_install() {
+		//TODO - Sistema de instalação
+		
+		//Cria o banco de dados
+		$instala_db = new instala_db();
 	}
 
 	/******************

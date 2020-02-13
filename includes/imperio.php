@@ -27,7 +27,11 @@ class imperio
 	function __construct($id_imperio = null) {
 		//TODO - inicializa o Império
 		//TODO - queries para puxar os dados do Império
-		if (is_null($id_imperio)) {
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+		
+		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
+		if (is_null($id_imperio) || $roles != "administrator") {
 			$this->id = get_current_user_id();
 		} else {
 			$this->id = $id_imperio;
