@@ -75,6 +75,56 @@ class colonization {
 		//Envia os dados do Império
 		return $imperio->imperio_exibe_imperio();
 	}
+
+	/******************
+	function colonization_setup_menu()
+	-----------
+	Adiciona o menu do plugin no menu de Admin do WordPress
+	******************/
+	function colonization_setup_menu() {
+		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Admin ('manage_options')
+		add_menu_page('Gerenciar Impérios','Colonization','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'));
+		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
+		
+	}
+
+	/******************
+	function colonization_admin_menu()
+	-----------
+	Exibe a página principal do plugin
+	******************/
+	function colonization_admin_menu() {
+		$html = "<div><h2>COLONIZATION</h2></div>
+		\n<div><b>NOME DO IMPÉRIO - POPULAÇÃO - PONTUAÇÃO</b></div>";
+		
+		//TODO - Chamar função para popular os Impérios
+		$html .= "\n<div>IMPÉRIO XPTO - 999 - 999</div>";
+
+		$html .= "\n<div><button type='button'>Novo Império</button></div>";
+		
+		echo $html;
+	}
+
+	/******************
+	function colonization_admin_menu()
+	-----------
+	Exibe a opção de rodar turnos
+	******************/
+	function colonization_admin_roda_turno() {
+		$html = "<div><h2>COLONIZATION - RODA TURNO</h2></div>
+		<br>
+		<div><b>TURNO ATUAL - XX</b><br>
+		DATA DO ÚLTIMO TURNO - 01/01/2020</div>
+		<br>
+		<div><button type='button'>Rodar Turno</button></div>
+		";
+		
+		
+		//TODO - Criar sistema de rodar o turno
+		
+		echo $html;
+	}
+
 	
 }
 
@@ -85,4 +135,8 @@ $plugin = new colonization();
 //Ganchos de instalação e desinstalação do plugin "Colonization"
 register_activation_hook( __FILE__, array($plugin,'colonization_install'));
 register_deactivation_hook( __FILE__, array($plugin,'colonization_deactivate'));
+
+//Cria o menu do plugin na área administrativa do WordPress
+add_action('admin_menu', array($plugin, 'colonization_setup_menu'));
+
 ?>
