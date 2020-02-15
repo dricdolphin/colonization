@@ -16,6 +16,7 @@ include_once('includes/instalacao.php');
 include_once('includes/recurso.php');
 include_once('includes/acoes.php');
 include_once('includes/instala_db.php');
+include_once('includes/lista_usuarios.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -94,13 +95,33 @@ class colonization {
 	Exibe a página principal do plugin
 	******************/
 	function colonization_admin_menu() {
-		$html = "<div><h2>COLONIZATION</h2></div>
-		\n<div><b>NOME DO IMPÉRIO - POPULAÇÃO - PONTUAÇÃO</b></div>";
+		global $html_lista_usuarios;
+		$html = "
+		<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
+		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002151913'></script>
+		<script>";
+		
+		$lista_usuarios = new lista_usuarios();
+		$html .= $lista_usuarios->html_lista_usuarios;
+		
+		$html .="</script>
+		<div><h2>COLONIZATION</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' id='tabela_imperios'>
+		<thead>
+		<tr><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
+		</thead>
+		<tbody>";
 		
 		//TODO - Chamar função para popular os Impérios
-		$html .= "\n<div>IMPÉRIO XPTO - 999 - 999</div>";
+		$html .= 
+		"<tr id='imperio_1'><td><div>XPTO 1</div><div><a href='#' onclick='edita_imperio(1);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>
+		<tr id='imperio_2'><td><div>XPTO 2</div><div><a href='#' onclick='edita_imperio(2);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>
+		<tr id='imperio_3'><td><div>XPTO 3</div><div><a href='#' onclick='edita_imperio(3);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>";
 
-		$html .= "\n<div><button type='button'>Novo Império</button></div>";
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
 		
 		echo $html;
 	}
@@ -111,17 +132,42 @@ class colonization {
 	Exibe a opção de rodar turnos
 	******************/
 	function colonization_admin_roda_turno() {
-		$html = "<div><h2>COLONIZATION - RODA TURNO</h2></div>
+		$html = "
+		<style>
+		.colonization_admin_botao {
+		padding: 4px 8px; 
+		text-decoration: none; 
+		background: #f3f5f6; 
+		border: 1px solid #0071a1; 
+		position: relative; 
+		top: 10px;
+		}
+		</style>
+		<div><h2>COLONIZATION - RODA TURNO</h2></div>
 		<br>
 		<div><b>TURNO ATUAL - XX</b><br>
 		DATA DO ÚLTIMO TURNO - 01/01/2020</div>
 		<br>
-		<div><button type='button'>Rodar Turno</button></div>
-		";
+		<div>
+		<table class='wp-list-table widefat fixed striped users'>
+		<thead>
+		<tr><td>Nome do Império</td><td>Última modificação das ações</td><td>Pontuação</td></tr>
+		</thead>
+		<tbody>";
 		
+		//TODO - Chamar função para popular os Impérios
+		$html .= 
+		"<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>
+		<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>
+		<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>";
+
+		$html .= "\n</tbody>
+		</table></div>
+		<br>
+		<div><a href='#' class='page-title-action colonization_admin_botao'>Rodar Turno</a></div>";
 		
 		//TODO - Criar sistema de rodar o turno
-		
+
 		echo $html;
 	}
 
