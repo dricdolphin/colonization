@@ -25,6 +25,7 @@ class imperio
 	$id_imperio = null -- Se não for passado um valor, o valor padrão é o id de usuário
 	***********************/
 	function __construct($id_imperio = null) {
+		global $wpdb;
 		//TODO - inicializa o Império
 		//TODO - queries para puxar os dados do Império
 		$user = wp_get_current_user();
@@ -38,8 +39,8 @@ class imperio
 		}
 		
 		//As funções abaixo ainda serão criadas
-		//$this.imperio_nome = pega_nome_imperio(this.id);
-		//$this.planeta[] = pega_planetas_imperio(this.id);
+		//$this->imperio_nome = $wpdb->get_results("SELECT nome FROM colonization_imperio WHERE id_jogador=".$this->id);
+		//$this->planeta[] = pega_planetas_imperio(this.id);
 	}
 
 	/***********************
@@ -52,6 +53,6 @@ class imperio
 		$html = "<div>".$this->id."</div>";
 		return $html;
 	}
-
+	
 }
 ?>

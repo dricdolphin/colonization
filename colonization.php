@@ -10,6 +10,7 @@
 
 //Inclui os arquivos necessários para o sistema "Colonization"
 include_once('includes/geral.php');
+include_once('includes/colonization_ajax.php');
 include_once('includes/imperio.php');
 include_once('includes/planeta.php');
 include_once('includes/instalacao.php');
@@ -31,6 +32,7 @@ class colonization {
 	function __construct() {
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
+		$colonization_ajax = new colonization_ajax();
 	}
 
 	/******************
@@ -95,10 +97,9 @@ class colonization {
 	Exibe a página principal do plugin
 	******************/
 	function colonization_admin_menu() {
-		global $html_lista_usuarios;
-		$html = "
-		<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002151913'></script>
+		global $html_lista_usuarios, $wpdb;
+		$html = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
+		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002161827'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
@@ -113,11 +114,17 @@ class colonization {
 		</thead>
 		<tbody>";
 		
+		/*
 		//TODO - Chamar função para popular os Impérios
-		$html .= 
-		"<tr id='imperio_1'><td><div>XPTO 1</div><div><a href='#' onclick='edita_imperio(1);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>
-		<tr id='imperio_2'><td><div>XPTO 2</div><div><a href='#' onclick='edita_imperio(2);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>
-		<tr id='imperio_3'><td><div>XPTO 3</div><div><a href='#' onclick='edita_imperio(3);'>Editar</a> | <a href='#'>Excluir</a></div></td><td>Império XPTO</td><td>999</td><td>999</td></tr>";
+		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
+		$i=0;
+		foreach ($lista_id_imperio as $id) {
+			$user = get_user_by('ID',$id); //Pega todos os usuários
+			$imperio = new imperio($id);
+			$lista_imperios .= "<tr id='imperio_".$id."'><td><div>".$user->display_name."</div><div><a href='#' onclick='edita_imperio(".$id.");'>Editar</a> | <a href='#' onclick='excluir_imperio(".$id.");'>Excluir</a></div></td><td></td><td>999</td><td>999</td></tr>";
+		
+		}
+		*/
 
 		$html .= "\n</tbody>
 		</table></div>
@@ -132,17 +139,7 @@ class colonization {
 	Exibe a opção de rodar turnos
 	******************/
 	function colonization_admin_roda_turno() {
-		$html = "
-		<style>
-		.colonization_admin_botao {
-		padding: 4px 8px; 
-		text-decoration: none; 
-		background: #f3f5f6; 
-		border: 1px solid #0071a1; 
-		position: relative; 
-		top: 10px;
-		}
-		</style>
+		$html = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
 		<div><h2>COLONIZATION - RODA TURNO</h2></div>
 		<br>
 		<div><b>TURNO ATUAL - XX</b><br>

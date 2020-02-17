@@ -6,8 +6,8 @@ Cria o objeto "lista_usuarios", que contém uma lista
 com todos os IDs e nomes de usuários
 ***************************/
 
-//Classe "acoes"
-//Contém os dados da instalacao
+//Classe "lista_usuarios"
+//Mostra a lista de usuários, com os IDs
 class lista_usuarios 
 {
 	public $html_lista_usuarios;

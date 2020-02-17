@@ -88,6 +88,43 @@ function edita_imperio(id_imperio) {
 
 }
 
+/******************
+function excluir_imperio(id_imperio)
+--------------------
+Exclui um Império escolhido
+id_imperio -- id do Império a ser deletado
+******************/	
+function excluir_imperio(id_imperio) {
+	if (edicao_imperio) {
+		alert('Não é possível deletar um Império enquanto outro Império está em edição!');
+		return false;
+	}
+	
+	var linha_imperio = document.getElementById('imperio_'+id_imperio);
+	var nome_imperio = linha_imperio.cells[1].innerHTML
+	var confirma = confirm('Tem certeza que deseja deletar o Império "'+nome_imperio+'"?');
+	//Se for mesmo deletar, remove a linha
+	if (confirma) {
+		//Envia a chamada de AJAX para remover o usuário
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				if (this.responseText == "DELETADO!") {
+					linha_imperio.remove(); //Remove a linha
+					edicao_imperio = false;
+				} else {
+					alert(this.responseText);
+					edicao_imperio = false;
+				}
+			}
+		};
+		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send("post_type=POST&action=deleta_imperio&id="+id_imperio);
+		edicao_imperio = true;
+	}
+
+}
 
 /******************
 function salva_imperio(id_imperio = 0)
@@ -103,7 +140,7 @@ function salva_imperio(id_imperio = 0, cancela = false) {
 		var linha_imperio = tabela_imperios.rows[ultima_coluna]; //O Império novo sempre fica na última linha da tabela
 	} else {
 		var linha_imperio = document.getElementById('imperio_'+id_imperio);
-		var tabela_imperios = linha_imperio.ParentNode;
+
 		//Armazena os dados do Império, para o caso do jogador decidir cancelar a edição
 		var id_jogador = id_imperio;
 		var divs = linha_imperio.cells[0].getElementsByTagName('div');
@@ -142,13 +179,29 @@ function salva_imperio(id_imperio = 0, cancela = false) {
 	}
 	
 	//TODO -- Enviar os dados para o Banco de Dados
-	
-	//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
-	linha_imperio.setAttribute("id", "imperio_"+id_imperio);
-	linha_imperio.cells[0].innerHTML = "<div>"+nome_jogador+"</div><div><a href='#' onclick='edita_imperio("+id_imperio+");'>Editar</a> | <a href='#'>Excluir</a></div>";
-	linha_imperio.cells[1].innerHTML = nome_imperio;
-	linha_imperio.cells[2].innerHTML = populacao;
-	linha_imperio.cells[3].innerHTML = pontuacao;
-	
-	edicao_imperio = false; //Libera para adicionar um novo Império ou para edição
+	//Envia a chamada de AJAX para remover o usuário
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if (this.responseText == "SALVO!") {
+				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
+				linha_imperio.setAttribute("id", "imperio_"+id_imperio);
+				linha_imperio.cells[0].innerHTML = "<div>"+nome_jogador+"</div><div><a href='#' onclick='edita_imperio("+id_imperio+");'>Editar</a> | <a href='#' onclick='excluir_imperio("+id_imperio+");'>Excluir</a></div>";
+				linha_imperio.cells[1].innerHTML = nome_imperio;
+				linha_imperio.cells[2].innerHTML = populacao;
+				linha_imperio.cells[3].innerHTML = pontuacao;
+								
+				edicao_imperio = false;
+			} else {
+				alert(this.responseText);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send("post_type=POST&action=salva_imperio&id="+id_imperio+"&nome_imperio="+nome_imperio);
+	edicao_imperio = true;
+
+
+
 }
