@@ -12,7 +12,9 @@ class colonization_ajax {
 		//Adiciona as funções que serão utilizadas
 		//TODO -- Adicionar as funções conforme necessário
 		add_action( 'wp_ajax_salva_imperio', array ($this, 'salva_imperio') );	
-		add_action( 'wp_ajax_deleta_imperio', array ($this, 'deleta_imperio') );	
+		add_action( 'wp_ajax_deleta_imperio', array ($this, 'deleta_imperio') );
+		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_estrela') );	
+		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_estrela') );			
 	}
 	
 	
@@ -66,7 +68,56 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 
 	}
+	/***********************
+	function salva_estrela ()
+	----------------------
+	Salva a Estrela
+	***********************/	
+	function salva_estrela() {
+		global $wpdb; 
 
+		$resposta = $wpdb->query('SELECT ID FROM colonization_estrela WHERE id='. $_POST['id']);
+		
+		if ($resposta === 0) {//Se não existir, cria
+			$resposta = $wpdb->query('INSERT INTO colonization_estrela SET nome = "'.$_POST['nome_estrela'].'", X='.$_POST['X'].', Y='.$_POST['Y'].', Z='.$_POST['Z'].', tipo="'.$_POST['tipo'].'"');
+		} elseif ($resposta === 1) {//Se existir, atualiza
+			$resposta = $wpdb->query('UPDATE colonization_imperio SET nome = "'.$_POST['nome_estrela'].'", X='.$_POST['X'].', Y='.$_POST['Y'].', Z='.$_POST['Z'].', tipo="'.$_POST['tipo'].'" WHERE id = '.$_POST['id']);
+		} else {
+			$html = "Erro! Dump dos dados: \$resposta = '$resposta' array(nome = '{$_POST['nome_estrela']}', X={$_POST['X']}, Y={$_POST['Y']}, Z={$_POST['Z']}, tipo='{$_POST['tipo']}')";
+			echo $html; //Envia a resposta via echo
+			wp_die(); //Termina o script e envia a resposta
+		}
+		
+		if ($resposta !== false) {
+			$html = "SALVO!";
+		} else {
+			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
+		}
+		
+		echo $html; //Envia a resposta via echo
+		wp_die(); //Termina o script e envia a resposta
+	}
+
+	/***********************
+	function deleta_estrela ()
+	----------------------
+	Deleta o Império
+	***********************/	
+	function deleta_estrela() {
+		global $wpdb; 
+		
+		$resposta = $wpdb->query('DELETE FROM colonization_estrela WHERE id='. $_POST['id']);
+
+		if ($resposta !== false) {
+			$html = "DELETADO!";
+		} else {
+			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
+		}
+	
+		echo $html; //Envia a resposta via echo
+		wp_die(); //Termina o script e envia a resposta
+
+	}
 }
 
 
