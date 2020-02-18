@@ -11,29 +11,38 @@ class colonization_ajax {
 	function __construct() {
 		//Adiciona as funções que serão utilizadas
 		//TODO -- Adicionar as funções conforme necessário
-		add_action( 'wp_ajax_salva_imperio', array ($this, 'salva_imperio') );	
-		add_action( 'wp_ajax_deleta_imperio', array ($this, 'deleta_imperio') );
+		add_action( 'wp_ajax_salva_imperio', array ($this, 'salva_objeto') );	
+		add_action( 'wp_ajax_deleta_imperio', array ($this, 'deleta_objeto') );
 		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_estrela') );	
 		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_estrela') );			
 	}
 	
 	
 	/***********************
-	function salva_imperio ()
+	function salva_objeto ()
 	----------------------
-	Salva o Império
+	Salva o objeto desejado
 	***********************/	
-	function salva_imperio() {
+	function salva_objeto() {
 		global $wpdb; 
-
-		$resposta = $wpdb->query('SELECT ID FROM colonization_imperio WHERE id_jogador='. $_POST['id']);
 		
-		if ($resposta === 0) {//Se o Império não existir, cria
-			$resposta = $wpdb->query('INSERT INTO colonization_imperio SET id_jogador = '.$_POST['id'].', nome="'.$_POST['nome_imperio'].'"');
+		$query = "SELECT id FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}";
+		$resposta = $wpdb->query($query);
+
+		foreach ($_POST as $chave => $valor) {
+			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
+				$dados[$chave] = $valor;
+			}
+		}
+		
+		$where[$_POST['where']] = $_POST['id'];
+		
+		if ($resposta === 0) {//Se o objeto não existe, cria
+			$resposta = $wpdb->insert($_POST['tabela'],$dados);
 		} elseif ($resposta === 1) {//Se existir, atualiza
-			$resposta = $wpdb->query('UPDATE colonization_imperio SET nome="'.$_POST['nome_imperio'].'" WHERE id_jogador = '.$_POST['id']);
+			$resposta = $wpdb->update($_POST['tabela'],$query,$where);
 		} else {
-			$html = "Erro! Dump dos dados: \$resposta = '$resposta' array('id_jogador' => ".$_POST['id'].", 'nome_imperio' => ".$_POST['nome_imperio'].")";
+			$html = "Erro!";
 			echo $html; //Envia a resposta via echo
 			wp_die(); //Termina o script e envia a resposta
 		}
@@ -49,64 +58,16 @@ class colonization_ajax {
 	}
 
 	/***********************
-	function deleta_imperio ()
+	function deleta_objeto ()
 	----------------------
-	Deleta o Império
+	Deleta o objeto desejado
 	***********************/	
-	function deleta_imperio() {
+	function deleta_objeto() {
 		global $wpdb; 
 		
-		$resposta = $wpdb->query('DELETE FROM colonization_imperio WHERE id_jogador='. $_POST['id']);
-
-		if ($resposta !== false) {
-			$html = "DELETADO!";
-		} else {
-			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
-		}
-	
-		echo $html; //Envia a resposta via echo
-		wp_die(); //Termina o script e envia a resposta
-
-	}
-	/***********************
-	function salva_estrela ()
-	----------------------
-	Salva a Estrela
-	***********************/	
-	function salva_estrela() {
-		global $wpdb; 
-
-		$resposta = $wpdb->query('SELECT ID FROM colonization_estrela WHERE id='. $_POST['id']);
+		$where[$_POST['where_clause']]=$_POST['where_value'];
 		
-		if ($resposta === 0) {//Se não existir, cria
-			$resposta = $wpdb->query('INSERT INTO colonization_estrela SET nome = "'.$_POST['nome_estrela'].'", X='.$_POST['X'].', Y='.$_POST['Y'].', Z='.$_POST['Z'].', tipo="'.$_POST['tipo'].'"');
-		} elseif ($resposta === 1) {//Se existir, atualiza
-			$resposta = $wpdb->query('UPDATE colonization_imperio SET nome = "'.$_POST['nome_estrela'].'", X='.$_POST['X'].', Y='.$_POST['Y'].', Z='.$_POST['Z'].', tipo="'.$_POST['tipo'].'" WHERE id = '.$_POST['id']);
-		} else {
-			$html = "Erro! Dump dos dados: \$resposta = '$resposta' array(nome = '{$_POST['nome_estrela']}', X={$_POST['X']}, Y={$_POST['Y']}, Z={$_POST['Z']}, tipo='{$_POST['tipo']}')";
-			echo $html; //Envia a resposta via echo
-			wp_die(); //Termina o script e envia a resposta
-		}
-		
-		if ($resposta !== false) {
-			$html = "SALVO!";
-		} else {
-			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
-		}
-		
-		echo $html; //Envia a resposta via echo
-		wp_die(); //Termina o script e envia a resposta
-	}
-
-	/***********************
-	function deleta_estrela ()
-	----------------------
-	Deleta o Império
-	***********************/	
-	function deleta_estrela() {
-		global $wpdb; 
-		
-		$resposta = $wpdb->query('DELETE FROM colonization_estrela WHERE id='. $_POST['id']);
+		$resposta = $wpdb->delete($_POST['tabela'],$where);
 
 		if ($resposta !== false) {
 			$html = "DELETADO!";
@@ -119,6 +80,4 @@ class colonization_ajax {
 
 	}
 }
-
-
 ?>

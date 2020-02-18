@@ -38,7 +38,7 @@ class colonization {
 		
 		//Inicializa os dados básicos, usados na maior parte das funções
 		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002161827'></script>
+		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002181953'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
@@ -106,6 +106,43 @@ class colonization {
 	}
 
 	/******************
+	function colonization_admin_menu()
+	-----------
+	Exibe a página principal do plugin, onde você pode criar e editar Impérios (dados básicos)
+	******************/
+	function colonization_admin_menu() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' id='tabela_imperios'>
+		<thead>
+		<tr><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de impérios
+		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
+		$html_lista_imperios = "";
+		
+		foreach ($lista_id_imperio as $id) {
+			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
+			$imperio = new imperio($id->id_jogador);
+			$html_lista_imperios .= "<tr id='imperio_".$id->id_jogador."'><td><div>".$user->display_name."</div><div><a href='#' onclick='edita_imperio(".$id->id_jogador.");'>Editar</a> | <a href='#' onclick='excluir_imperio(".$id->id_jogador.");'>Excluir</a></div></td><td>".$imperio->imperio_nome."</td><td>999</td><td>999</td></tr>";
+		}
+		
+		$html.= $html_lista_imperios;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
+		
+		echo $html;
+	}
+
+	/******************
 	function colonization_admin_estrelas()
 	-----------
 	Exibe a página de gestão de estrelas
@@ -142,51 +179,14 @@ class colonization {
 		echo $html;
 	}
 
-
-
 	/******************
-	function colonization_admin_menu()
-	-----------
-	Exibe a página principal do plugin, onde você pode criar e editar Impérios (dados básicos)
-	******************/
-	function colonization_admin_menu() {
-		global $wpdb;
-		
-		$html = $this->html_header;
-		
-		$html .= "<div><h2>COLONIZATION</h2></div>
-		<div>
-		<table class='wp-list-table widefat fixed striped users' id='tabela_imperios'>
-		<thead>
-		<tr><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
-		</thead>
-		<tbody>";
-		
-		//Pega a lista de impérios
-		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
-		$html_lista_imperios = "";
-		
-		foreach ($lista_id_imperio as $id) {
-			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
-			$imperio = new imperio($id->id_jogador);
-			$html_lista_imperios .= "<tr id='imperio_".$id->id_jogador."'><td><div>".$user->display_name."</div><div><a href='#' onclick='edita_imperio(".$id->id_jogador.");'>Editar</a> | <a href='#' onclick='excluir_imperio(".$id->id_jogador.");'>Excluir</a></div></td><td>".$imperio->imperio_nome."</td><td>999</td><td>999</td></tr>";
-		}
-		
-		$html.= $html_lista_imperios;
-		
-		$html .= "\n</tbody>
-		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
-		
-		echo $html;
-	}
-
-	/******************
-	function colonization_admin_menu()
+	function colonization_admin_roda_turno()
 	-----------
 	Exibe a opção de rodar turnos
 	******************/
 	function colonization_admin_roda_turno() {
+		global $wpdb;
+		
 		$html = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
 		<div><h2>COLONIZATION - RODA TURNO</h2></div>
 		<br>
@@ -200,12 +200,20 @@ class colonization {
 		</thead>
 		<tbody>";
 		
-		//TODO - Chamar função para popular os Impérios
-		$html .= 
-		"<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>
-		<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>
-		<tr><td><div>Império XPTO</div><div><a href='#'>Editar ações</a></div></td><td>01/01/2020 12:00</td><td>999</td></tr>";
+		//Pega a lista de impérios
+		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
+		$html_lista_imperios = "";
+		
+		foreach ($lista_id_imperio as $id) {
+			$imperio = new imperio($id->id_jogador);
+			//TODO -- Pega a pontuação e a data da última ação
+			$data_ultima_acao = "01/01/2020";
+			$pontuacao = "999";
+			$html_lista_imperios .= "<tr id='imperio_".$id->id_jogador."'><td><div>".$imperio->imperio_nome."</div><div><a href='#' onclick='edita_acoes(".$id->id_jogador.");'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$pontuacao}</td></tr>";
+		}
 
+		$html .= $html_lista_imperios;
+		
 		$html .= "\n</tbody>
 		</table></div>
 		<br>

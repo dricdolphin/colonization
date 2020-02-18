@@ -120,7 +120,7 @@ function excluir_imperio(id_imperio) {
 		};
 		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhttp.send("post_type=POST&action=deleta_imperio&id="+id_imperio);
+		xhttp.send("post_type=POST&action=deleta_imperio&tabela=colonization_imperio&id_jogador="+id_imperio+"&where_clause=id_jogador&where_value="+id_imperio);
 		edicao_imperio = true;
 	}
 
@@ -162,6 +162,7 @@ function salva_imperio(id_imperio = 0, cancela = false) {
 		var id_jogador = lista_jogadores.options[lista_jogadores.selectedIndex].value;	
 		var nome_imperio = document.getElementById('nome_imperio').value;
 		id_imperio = id_jogador.substr(8); //O ID do Império é o mesmo do ID do jogador
+		//TODO -- Calcula População e Pontuação
 		var populacao = 999;
 		var pontuacao = 999;
 	}
@@ -199,9 +200,6 @@ function salva_imperio(id_imperio = 0, cancela = false) {
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("post_type=POST&action=salva_imperio&id="+id_imperio+"&nome_imperio="+nome_imperio);
+	xhttp.send("post_type=POST&action=salva_imperio&tabela=colonization_imperio&id_jogador="+id_imperio+"&nome="+nome_imperio+"&where_clause=id_jogador&where_value="+id_imperio);
 	edicao_imperio = true;
-
-
-
 }
