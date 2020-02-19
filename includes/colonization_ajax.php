@@ -11,8 +11,8 @@ class colonization_ajax {
 	function __construct() {
 		//Adiciona as funções que serão utilizadas
 		//TODO -- Adicionar as funções conforme necessário
-		add_action( 'wp_ajax_salva_imperio', array ($this, 'salva_objeto') );	
-		add_action( 'wp_ajax_deleta_imperio', array ($this, 'deleta_objeto') );
+		add_action( 'wp_ajax_salva_objeto', array ($this, 'salva_objeto') );	
+		add_action( 'wp_ajax_deleta_objeto', array ($this, 'deleta_objeto') );
 		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_estrela') );	
 		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_estrela') );			
 	}
@@ -35,12 +35,12 @@ class colonization_ajax {
 			}
 		}
 		
-		$where[$_POST['where']] = $_POST['id'];
+		$where[$_POST['where_clause']]=$_POST['where_value'];
 		
 		if ($resposta === 0) {//Se o objeto não existe, cria
 			$resposta = $wpdb->insert($_POST['tabela'],$dados);
 		} elseif ($resposta === 1) {//Se existir, atualiza
-			$resposta = $wpdb->update($_POST['tabela'],$query,$where);
+			$resposta = $wpdb->update($_POST['tabela'],$dados,$where);
 		} else {
 			$html = "Erro!";
 			echo $html; //Envia a resposta via echo

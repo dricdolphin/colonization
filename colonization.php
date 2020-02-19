@@ -38,7 +38,7 @@ class colonization {
 		
 		//Inicializa os dados básicos, usados na maior parte das funções
 		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002181953'></script>
+		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002192009'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
