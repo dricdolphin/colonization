@@ -27,8 +27,8 @@ class lista_usuarios
 		id_imperio = 0 -- define qual jogador está selecionado
 		******************/
 		function lista_jogadores_html(id_imperio = 0) {
-			//TODO -- Pegar a lista de jogadores do WordPress
-			var \$html = \"<select id='id_jogador'>\"
+			
+			var \$html = \"<select id=\\\"dados_objeto['nome_jogador']\\\">\"
 			$lista_usuarios
 			+\"</select>\";
 				

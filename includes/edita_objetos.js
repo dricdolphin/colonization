@@ -1,4 +1,4 @@
-var edicao_objeto = false; //Define se está no modo de edição ou não
+var objeto_em_edicao = false; //Define se está no modo de edição ou não
 
 /******************
 function novo_imperio
@@ -6,48 +6,26 @@ function novo_imperio
 Insere um novo Império na lista
 ******************/
 function novo_imperio() {
-	if (edicao_objeto) {
+	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		return false;
 	}
 		
-		edicao_objeto = true; //Bloqueia a edição de outros Impérios
+		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
 		var tabela_imperios = document.getElementById('tabela_imperios');
-		var linha = tabela_imperios.insertRow(-1);
-		var cell_1 = linha.insertCell(0);
-		var cell_2 = linha.insertCell(1);
-		var cell_3 = linha.insertCell(2);
-		var cell_4 = linha.insertCell(3);
+		var linha_nova = tabela_imperios.insertRow(-1);
+		var dados_jogador = linha_nova.insertCell(0);
+		var nome_imperio = linha_nova.insertCell(1);
+		var populacao = linha_nova.insertCell(2);
+		var pontuacao = linha_nova.insertCell(3);
 		
-		//TODO - Pegar a lista de jogadores
-		var lista_jogadores = lista_jogadores_html();
+		var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
 		
-		cell_1.innerHTML = "<div>"+lista_jogadores+"</div><div><a href='#' onclick='salva_objeto();'>Salvar</a> | <span style='color: #DD0000;'><a href='#' onclick='cancela_edicao();'>Cancelar</a></span></div>";
-		cell_2.innerHTML = "<input type='text' id='nome_imperio'></input>";
-		cell_3.innerHTML = "";
-		cell_4.innerHTML = "";
+		dados_jogador.innerHTML = "<div>"+lista_jogadores+"</div><div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <span style='color: #DD0000;'><a href='#' onclick='cancela_edicao(this);'>Cancelar</a></span></div>";
+		nome_imperio.innerHTML = "<input type='text' id=\"dados_objeto['nome_imperio']\"></input>";
+		populacao.innerHTML = "";
+		pontuacao.innerHTML = "";
 }	
-
-
-//Essa função será populada pelo plugin
-/******************
-function lista_jogadores_html(id_imperio =0)
---------------------
-Cria a lista de jogadores
-id_imperio = 0 -- define qual jogador está selecionado
-******************
-function lista_jogadores_html(id_imperio = 0) {
-	//TODO -- Pegar a lista de jogadores do WordPress
-	var $html = "<select id='id_jogador'>"
-		+"<option value='imperio_1'>XPTO 1</option>"
-		+"<option value='imperio_2'>XPTO 2</option>"
-		+"<option value='imperio_3'>XPTO 3</option>"
-		+"<option value='imperio_4'>XPTO 4</option>"
-		+"</select>";
-		
-	return $html;
-}
-***/
 
 
 /******************
@@ -55,53 +33,93 @@ function cancela_edicao
 --------------------
 Cancela a edição do objeto
 ******************/	
-function cancela_edicao() {
-	edicao_objeto = false;
+function cancela_edicao(objeto) {
+	objeto_em_edicao = false;
 	
-	var tabela_imperios = document.getElementById('tabela_imperios');
-	tabela_imperios.deleteRow(-1);
+	var parent_node = objeto.parentNode;
+	//Retroage até achar a tabela
+	while(parent_node.tagName != "TABLE") {
+		parent_node = parent_node.parentNode;
+	}
+	
+	var tabela_objetos = parent_node;
+	tabela_objetos.deleteRow(-1);
 }
 
 /******************
-function edita_imperio(id_imperio)
+function edita_objeto(id_linha)
 --------------------
-Edita um Império específico
+Edita um objeto
 ******************/	
-function edita_imperio(id_imperio) {
-	if (edicao_objeto) {
+function edita_objeto(linha) {
+	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		return false;
 	}
 	
-	edicao_objeto = true;
-	var linha_imperio = document.getElementById('imperio_'+id_imperio);
-	var cell_1 = linha_imperio.cells[0];
-	var cell_2 = linha_imperio.cells[1];
+	objeto_em_edicao = true;
+	var parent_node = linha.parentNode;
+	//Retroage até achar a linha
+	while(parent_node.tagName != "TR") {
+		parent_node = parent_node.parentNode;
+	}
+
+	var linha = parent_node;
+	var celulas = linha.cells;
 	
-	var divs = linha_imperio.cells[0].getElementsByTagName('div');
-	
-	var nome_jogador = divs[0].innerHTML;
-	var nome_imperio = cell_2.innerHTML;
-	
-	cell_1.innerHTML = "<div>"+nome_jogador+"</div><div><a href='#' onclick='salva_objeto("+id_imperio+");'>Salvar</a> | <span style='color: #DD0000;'><a href='#' onclick='this.disabled=true; salva_objeto("+id_imperio+",true);'>Cancelar</a></span></div>";
-	cell_2.innerHTML = "<input type='text' id='nome_imperio' value='"+nome_imperio+"'></input><input type='hidden' id='nome_imperio_original' value='"+nome_imperio+"'></input>";
+	//Pega cada uma das células e altera para o modo de edição, caso seja editável
+	for (index = 0; index < celulas.length; index++) {
+		console.log("index="+index);
+		celula = celulas[index];
+		divs = celula.getElementsByTagName('div');
+		inputs_hidden = celula.getElementsByTagName('input');
+		if (index == 0) { //A linha 0 é tratada à parte
+			//A primeira linha normalmente contém um dado (usualmente o nome do objeto) e um "div" com as opções de "Editar" e "Deletar" o objeto, que será alterado para "Salvar" e "Cancelar" a edição
+			atributo = inputs_hidden[0].id;
+			valor_atributo = divs[0].innerHTML;
+			celula.innerHTML = "<div>"+valor_atributo+"</div><div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <span style='color: #DD0000;'><a href='#' onclick='salva_objeto(this,true);'>Cancelar</a></span></div>";
+		} else {
+			divs = celula.getElementsByTagName('div');
+			inputs_hidden = celula.getElementsByTagName('input');
+			console.log(inputs_hidden);
+			if (typeof inputs_hidden.length > 0) { //Se tem um input, então é editável.
+				atributo = inputs_hidden[0].id;
+				valor_atributo = divs[0].innerHTML;
+				if (inputs_hidden[0].value == "editavel") {
+					celula.innerHTML = "<div><input type='text' id='"+atributo+"' value='"+valor_atributo+"'></input><input type='hidden' id='valor_original' value='"+valor_atributo+"'></input></div>";
+				}
+			}
+		}	
+	}
+
+}
+
+/******************
+function confirma_excluir_imperio(nome_imperio)
+--------------------
+Mensagem de confirmação ao excluir um Império
+nome_imperio - nome do Império
+******************/	
+function confirma_excluir_imperio(nome_imperio) {
+	return confirm('Tem certeza que deseja deletar o Império "'+nome_imperio+'"?');
 }
 
 /******************
 function excluir_objeto(id_imperio)
 --------------------
-Exclui um Império escolhido
-id_imperio -- id do Império a ser deletado
+Exclui um objeto
+id_objeto - id do objeto
 ******************/	
-function excluir_objeto(id_imperio) {
-	if (edicao_objeto) {
+function excluir_objeto(objeto, funcao_confirmacao) {
+	if (objeto_em_edicao) {
 		alert('Não é possível deletar um objeto enquanto outro está em edição!');
 		return false;
 	}
 	
-	var linha_imperio = document.getElementById('imperio_'+id_imperio);
+	var linha_objeto = document.getElementById(id_objeto);
+	
 	var nome_imperio = linha_imperio.cells[1].innerHTML
-	var confirma = confirm('Tem certeza que deseja deletar o Império "'+nome_imperio+'"?');
+	var confirma = funcao_confirmacao.apply(this,valor_confirma); 
 	//Se for mesmo deletar, remove a linha
 	if (confirma) {
 		//Envia a chamada de AJAX para remover o usuário
@@ -110,17 +128,17 @@ function excluir_objeto(id_imperio) {
 			if (this.readyState == 4 && this.status == 200) {
 				if (this.responseText == "DELETADO!") {
 					linha_imperio.remove(); //Remove a linha
-					edicao_objeto = false;
+					objeto_em_edicao = false;
 				} else {
 					alert(this.responseText);
-					edicao_objeto = false;
+					objeto_em_edicao = false;
 				}
 			}
 		};
 		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhttp.send("post_type=POST&action=deleta_imperio&tabela=colonization_imperio&id_jogador="+id_imperio+"&where_clause=id_jogador&where_value="+id_imperio);
-		edicao_objeto = true;
+		xhttp.send("post_type=POST&action=deleta_imperio&tabela=colonization_imperio&id_jogador="+id_objeto+"&where_clause=id_jogador&where_value="+id_objeto);
+		objeto_em_edicao = true;
 	}
 
 }
@@ -138,31 +156,32 @@ pontuacao = pontuação do Império
 ******************/	
 function desabilita_edicao_imperio(linha_imperio, id_imperio, nome_jogador, nome_imperio, populacao, pontuacao) {
 	linha_imperio.setAttribute("id", "imperio_"+id_imperio);
-	linha_imperio.cells[0].innerHTML = "<div>"+nome_jogador+"</div><div><a href='#' onclick='edita_imperio("+id_imperio+");'>Editar</a> | <a href='#' onclick='excluir_objeto("+id_imperio+");'>Excluir</a></div>";
+	linha_imperio.cells[0].innerHTML = "<div>"+nome_jogador+"</div><div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>";
 	linha_imperio.cells[1].innerHTML = nome_imperio;
 	linha_imperio.cells[2].innerHTML = populacao;
 	linha_imperio.cells[3].innerHTML = pontuacao;
 }
 
 /******************
-function salva_objeto(id_imperio = 0)
+function salva_objeto(id_objeto = 0)
 --------------------
 Salva o Império sendo editado.
-id_imperio = 0 -- id do Império sendo editado. Se for 0, então é um novo Império
+id_objeto = 0 -- id do Império sendo editado. Se for 0, então é um novo Império
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
-function salva_objeto(id_imperio = 0, cancela = false) {
-	if (id_imperio == 0) {//Caso esteja salvando um Império novo
-		var tabela_imperios = document.getElementById('tabela_imperios');
-		var ultima_coluna = tabela_imperios.rows.length - 1;
-		var linha_imperio = tabela_imperios.rows[ultima_coluna]; //O Império novo sempre fica na última linha da tabela
+function salva_objeto(id_objeto = 0, cancela = false) {
+	if (id_objeto == 0) {//Caso esteja salvando um Império novo
+		var tabela_objetos = document.getElementById('tabela_imperios');
+		var ultima_coluna = tabela_objetos.rows.length - 1;
+		var linha_objeto = tabela_objetos.rows[ultima_coluna]; //Um objeto novo sempre fica na última linha
 		
+		var dados_linha
 		var id_jogador = lista_jogadores.options[lista_jogadores.selectedIndex].value;	
 		var nome_jogador = lista_jogadores.options[lista_jogadores.selectedIndex].text;
 		var nome_imperio = document.getElementById('nome_imperio').value;
-		id_imperio = id_jogador.substr(8); //O ID do Império é o mesmo do ID do jogador
+		id_objeto = id_jogador.substr(8); //O ID do Império é o mesmo do ID do jogador
 	} else {
-		var linha_imperio = document.getElementById('imperio_'+id_imperio);
+		var linha_imperio = document.getElementById('imperio_'+id_objeto);
 		var divs = linha_imperio.cells[0].getElementsByTagName('div');
 
 		//Armazena os dados do Império, para o caso do jogador decidir cancelar a edição
@@ -177,7 +196,7 @@ function salva_objeto(id_imperio = 0, cancela = false) {
 	if (cancela) {
 		nome_imperio = document.getElementById('nome_imperio_original').value; //Se for para cancelar a edição, mantém os dados originais
 		var desabilita = desabilita_edicao_imperio(linha_imperio, id_imperio, nome_jogador, nome_imperio, populacao, pontuacao);
-		edicao_objeto = false;		
+		objeto_em_edicao = false;		
 		return false;
 	}
 
@@ -207,7 +226,7 @@ function salva_objeto(id_imperio = 0, cancela = false) {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				desabilita_edicao_imperio(linha_imperio, id_imperio, nome_jogador, nome_imperio, populacao, pontuacao);
 
-				edicao_objeto = false;
+				objeto_em_edicao = false;
 			} else {
 				alert(this.responseText);
 			}
@@ -216,5 +235,5 @@ function salva_objeto(id_imperio = 0, cancela = false) {
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("post_type=POST&action=salva_objeto&tabela=colonization_imperio&id_jogador="+id_imperio+"&nome="+nome_imperio+"&where_clause=id_jogador&where_value="+id_imperio);
-	edicao_objeto = true;
+	objeto_em_edicao = true;
 }

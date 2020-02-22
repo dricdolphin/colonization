@@ -38,7 +38,7 @@ class colonization {
 		
 		//Inicializa os dados básicos, usados na maior parte das funções
 		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<script src='../wp-content/plugins/colonization/includes/edita_imperio.js?v=202002192009'></script>
+		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v=202002212154'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
@@ -130,7 +130,12 @@ class colonization {
 		foreach ($lista_id_imperio as $id) {
 			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
 			$imperio = new imperio($id->id_jogador);
-			$html_lista_imperios .= "<tr id='imperio_".$id->id_jogador."'><td><div>".$user->display_name."</div><div><a href='#' onclick='edita_imperio(".$id->id_jogador.");'>Editar</a> | <a href='#' onclick='excluir_imperio(".$id->id_jogador.");'>Excluir</a></div></td><td>".$imperio->imperio_nome."</td><td>999</td><td>999</td></tr>";
+			
+			//TODO -- Calcular População e Pontuação
+			$populacao = 999;
+			$pontuacao = 999;
+		
+			$html_lista_imperios .= "<tr><td><div><input type='hidden' id='nome_imperio'></input>".$user->display_name."</div><div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,confirma_excluir_imperio);'>Excluir</a></div></td><td><input type='hidden' id='nome' value='editavel'></input><div>".$imperio->imperio_nome."</div></td><td><div>{$populacao}</div></td><td><div>{$pontuacao}</div></td></tr>";
 		}
 		
 		$html.= $html_lista_imperios;
