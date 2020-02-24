@@ -6,3 +6,9 @@ border: 1px solid #0071a1;
 position: relative; 
 top: 10px;
 }
+
+td > input[type='text']
+{
+    width: 100%;
+	display: block;
+}

@@ -13,8 +13,8 @@ class colonization_ajax {
 		//TODO -- Adicionar as funções conforme necessário
 		add_action( 'wp_ajax_salva_objeto', array ($this, 'salva_objeto') );	
 		add_action( 'wp_ajax_deleta_objeto', array ($this, 'deleta_objeto') );
-		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_estrela') );	
-		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_estrela') );			
+		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_objeto') );	
+		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_objeto') );			
 	}
 	
 	

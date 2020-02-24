@@ -37,8 +37,9 @@ class colonization {
 		$colonization_ajax = new colonization_ajax();
 		
 		//Inicializa os dados básicos, usados na maior parte das funções
-		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v=202002212154'></script>
+		$today = date("YmdHi"); 
+		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
+		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v={$today}'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
@@ -117,7 +118,7 @@ class colonization {
 		
 		$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' id='tabela_imperios'>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
 		<thead>
 		<tr><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
 		</thead>
@@ -135,7 +136,20 @@ class colonization {
 			$populacao = 999;
 			$pontuacao = 999;
 		
-			$html_lista_imperios .= "<tr><td><div><input type='hidden' id='nome_imperio'></input>".$user->display_name."</div><div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,confirma_excluir_imperio);'>Excluir</a></div></td><td><input type='hidden' id='nome' value='editavel'></input><div>".$imperio->imperio_nome."</div></td><td><div>{$populacao}</div></td><td><div>{$pontuacao}</div></td></tr>";
+			$html_lista_imperios .= "
+			<tr>
+			<td><input type='hidden' data-atributo='id_jogador' value='{$id->id_jogador}'></input>
+				<input type='hidden' data-atributo='id' value='{$imperio->id}'></input>
+				<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>
+				<input type='hidden' data-atributo='where_value' value='{$id->id_jogador}'></input>
+				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
+				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$imperio->imperio_nome}'?\"></input>
+				<div data-atributo='nome_jogador'>{$user->display_name}</div>
+				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
+			</td>
+			<td><div data-atributo='nome' data-valor-original='{$imperio->imperio_nome}' data-editavel='true'>{$imperio->imperio_nome}</div></td>
+			<td><div>{$populacao}</div></td><td><div>{$pontuacao}</div></td>
+			</tr>";
 		}
 		
 		$html.= $html_lista_imperios;
@@ -159,9 +173,9 @@ class colonization {
 		
 		$html .= "<div><h2>COLONIZATION - Estrelas</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' id='tabela_estrelas'>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
 		<thead>
-		<tr><td>Nome da estrela</td><td>Posição (X;Y;Z)</td><td>Tipo de estrela</td></tr>
+		<tr><td>Nome da estrela</td><td style='width: 70px;'>Posição X</td><td style='width: 30px;'>Y</td><td style='width: 30px;'>Z</td><td>Tipo de estrela</td></tr>
 		</thead>
 		<tbody>";
 		
@@ -172,7 +186,19 @@ class colonization {
 		foreach ($lista_id_estrelas as $id) {
 			$estrela = new estrela($id->id);
 			$posicao_estrela = '('.$estrela->X.';'.$estrela->Y.';'.$estrela->Z.')';
-			$html_lista_estrelas .= "<tr id='estrela_".$id->id."'><td><div>".$estrela->nome."</div><div><a href='#' onclick='edita_estrela(".$id->id.");'>Editar</a> | <a href='#' onclick='excluir_estrela(".$id->id.");'>Excluir</a></div></td><td>".$posicao_estrela."</td><td>".$estrela->tipo."</td></tr>";
+			$html_lista_estrelas .= "
+			<tr>
+			<td>
+				<input type='hidden' data-atributo='where_clause' value='id'></input>
+				<input type='hidden' data-atributo='where_value' value='{$estrela->id}'></input>
+				<div data-atributo='nome' data-valor-original='{$estrela->nome}' data-editavel=true>{$estrela->nome}</div>
+				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,\"Deseja mesmo excluir essa estrela?\");'>Excluir</a></div>
+			</td>
+			<td><div data-atributo='X' data-tamanho=3 data-valor-original='{$estrela->X}' data-editavel=true>{$estrela->X}</div></td>
+			<td><div data-atributo='Y' data-tamanho=3 data-valor-original='{$estrela->Y}' data-editavel=true>{$estrela->Y}</div></td>
+			<td><div data-atributo='Z' data-tamanho=3 data-valor-original='{$estrela->Z}' data-editavel=true>{$estrela->Z}</div></td>
+			<td><div data-atributo='tipo' data-valor-original='{$estrela->tipo}' data-editavel=true>{$estrela->tipo}</div></td>
+			</tr>";
 		}
 		
 		$html.= $html_lista_estrelas;

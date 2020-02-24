@@ -16,23 +16,24 @@ class lista_usuarios
 		$users = get_users(array( 'fields' => array( 'ID', 'display_name' ) )); //Pega todos os usuários
 		$lista_usuarios = "";
 		foreach ($users as $user) {
-			$lista_usuarios .= "+\"<option value='imperio_".$user->ID."'>".$user->display_name."</option>\"\n";
+			$lista_usuarios .= "
++\"		<option value='{$user->ID}'>{$user->display_name}</option>\"\n";
 		}
 
 		$this->html_lista_usuarios = 
-		"/******************
-		function lista_jogadores_html(id_imperio =0)
+"		/******************
+		function lista_jogadores_html(id_jogador =0)
 		--------------------
 		Cria a lista de jogadores
 		id_imperio = 0 -- define qual jogador está selecionado
 		******************/
-		function lista_jogadores_html(id_imperio = 0) {
+		function lista_jogadores_html(id_jogador = 0) {
 			
-			var \$html = \"<select id=\\\"dados_objeto['nome_jogador']\\\">\"
+			var html = \"			<select data-atributo='id_jogador'>\"
 			$lista_usuarios
-			+\"</select>\";
+			+\"			</select>\";
 				
-			return \$html;
+			return html;
 		}";
 	}
 }
