@@ -25,35 +25,48 @@ class colonization_ajax {
 	***********************/	
 	function salva_objeto() {
 		global $wpdb; 
+		$wpdb->hide_errors();
 		
-		$query = "SELECT id FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}";
-		$resposta = $wpdb->query($query);
-
 		foreach ($_POST as $chave => $valor) {
 			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
 				$dados[$chave] = $valor;
 			}
 		}
-		
-		$where[$_POST['where_clause']]=$_POST['where_value'];
+
+		if ($_POST['where_value'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$resposta = 0;
+		} else {
+			$query = "SELECT id FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}";
+			$resposta = $wpdb->query($query);
+		}
 		
 		if ($resposta === 0) {//Se o objeto não existe, cria
 			$resposta = $wpdb->insert($_POST['tabela'],$dados);
 		} elseif ($resposta === 1) {//Se existir, atualiza
+			$where[$_POST['where_clause']]=$_POST['where_value'];
 			$resposta = $wpdb->update($_POST['tabela'],$dados,$where);
 		} else {
-			$html = "Erro!";
-			echo $html; //Envia a resposta via echo
+			$dados_salvos['resposta_ajax']	= "ERRO!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
 		if ($resposta !== false) {
-			$html = "SALVO!";
+			//Retorna os dados do objeto e uma variável "resposta" com "SALVO!"
+			$where = "";
+			foreach ($dados as $chave => $valor) {
+				$where .= " AND $chave='$valor'";
+			}
+			$where = substr($where,5);
+			$dados_salvos = $wpdb->get_results("SELECT * FROM {$_POST['tabela']} WHERE {$where}");
+			//$dados_salvos = $dados_salvos[0]; //Queremos apenas a primeira linha
+			$dados_salvos['resposta_ajax'] = "SALVO!";
 		} else {
-			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
+			//$dados_salvos['resposta_ajax'] = $wpdb->last_error;
+			$dados_salvos['resposta_ajax'] = "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
 		}
 		
-		echo $html; //Envia a resposta via echo
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
 
@@ -64,18 +77,19 @@ class colonization_ajax {
 	***********************/	
 	function deleta_objeto() {
 		global $wpdb; 
+		$wpdb->hide_errors();
 		
 		$where[$_POST['where_clause']]=$_POST['where_value'];
 		
 		$resposta = $wpdb->delete($_POST['tabela'],$where);
 
 		if ($resposta !== false) {
-			$html = "DELETADO!";
+			$dados_salvos['resposta_ajax'] = "DELETADO!";
 		} else {
-			$html = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
+			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
 		}
 	
-		echo $html; //Envia a resposta via echo
+		echo json_encode($dados_salvos); //Envia a resposta via echo
 		wp_die(); //Termina o script e envia a resposta
 
 	}

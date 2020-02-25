@@ -102,6 +102,9 @@ class colonization {
 		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Admin ('manage_options')
 		add_menu_page('Gerenciar Impérios','Colonization','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'));
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','manage_options','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
+		add_submenu_page('colonization_admin_menu','Planetas','Planetas','manage_options','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
+		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
+		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 		
 	}
@@ -132,22 +135,14 @@ class colonization {
 			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
 			$imperio = new imperio($id->id_jogador);
 			
+			$html_dados_imperio = $imperio->lista_dados();
 			//TODO -- Calcular População e Pontuação
 			$populacao = 999;
 			$pontuacao = 999;
-		
+			
 			$html_lista_imperios .= "
 			<tr>
-			<td><input type='hidden' data-atributo='id_jogador' value='{$id->id_jogador}'></input>
-				<input type='hidden' data-atributo='id' value='{$imperio->id}'></input>
-				<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>
-				<input type='hidden' data-atributo='where_value' value='{$id->id_jogador}'></input>
-				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
-				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$imperio->imperio_nome}'?\"></input>
-				<div data-atributo='nome_jogador'>{$user->display_name}</div>
-				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
-			</td>
-			<td><div data-atributo='nome' data-valor-original='{$imperio->imperio_nome}' data-editavel='true'>{$imperio->imperio_nome}</div></td>
+			{$html_dados_imperio}
 			<td><div>{$populacao}</div></td><td><div>{$pontuacao}</div></td>
 			</tr>";
 		}
@@ -179,25 +174,17 @@ class colonization {
 		</thead>
 		<tbody>";
 		
-		//Pega a lista de impérios
+		//Pega a lista de estrelas
 		$lista_id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela ORDER BY X,Y,Z");
 		$html_lista_estrelas = "";
 		
 		foreach ($lista_id_estrelas as $id) {
 			$estrela = new estrela($id->id);
-			$posicao_estrela = '('.$estrela->X.';'.$estrela->Y.';'.$estrela->Z.')';
+			$html_dados_estrela = $estrela->lista_dados();
+
 			$html_lista_estrelas .= "
 			<tr>
-			<td>
-				<input type='hidden' data-atributo='where_clause' value='id'></input>
-				<input type='hidden' data-atributo='where_value' value='{$estrela->id}'></input>
-				<div data-atributo='nome' data-valor-original='{$estrela->nome}' data-editavel=true>{$estrela->nome}</div>
-				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,\"Deseja mesmo excluir essa estrela?\");'>Excluir</a></div>
-			</td>
-			<td><div data-atributo='X' data-tamanho=3 data-valor-original='{$estrela->X}' data-editavel=true>{$estrela->X}</div></td>
-			<td><div data-atributo='Y' data-tamanho=3 data-valor-original='{$estrela->Y}' data-editavel=true>{$estrela->Y}</div></td>
-			<td><div data-atributo='Z' data-tamanho=3 data-valor-original='{$estrela->Z}' data-editavel=true>{$estrela->Z}</div></td>
-			<td><div data-atributo='tipo' data-valor-original='{$estrela->tipo}' data-editavel=true>{$estrela->tipo}</div></td>
+			{$html_dados_estrela}
 			</tr>";
 		}
 		
@@ -209,6 +196,100 @@ class colonization {
 		
 		echo $html;
 	}
+
+	/******************
+	function colonization_admin_planetas()
+	-----------
+	Exibe a página de gestão de planetas
+	******************/
+	function colonization_admin_planetas() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Planetas</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
+		<thead>
+		<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td>Posição no sistema estelar</td><td>Classe</td><td>Subclasse</td><td>Tamanho</td>
+		</tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de estrelas
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {
+			$estrela = new recurso($id->id);
+			$html_dados = $recurso->lista_dados();
+
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+		
+		$html.= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_recurso();'>Adicionar novo Recurso</a></div>";
+		
+		echo $html;
+
+	}
+
+	/******************
+	function colonization_admin_recursos()
+	-----------
+	Exibe a página de gestão de recursos
+	******************/
+	function colonization_admin_recursos() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Recursos</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
+		<thead>
+		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td>
+		</tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de estrelas
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {
+			$estrela = new recurso($id->id);
+			$html_dados = $recurso->lista_dados();
+
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+		
+		$html.= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_recurso();'>Adicionar novo Recurso</a></div>";
+		
+		echo $html;
+	}
+	
+	/******************
+	function colonization_admin_instalacoes()
+	-----------
+	Exibe a página de gestão de instalações
+	******************/
+	function colonization_admin_instalacoes() {
+	//TODO
+	}	
 
 	/******************
 	function colonization_admin_roda_turno()

@@ -30,7 +30,8 @@ class instala_db {
 		X INT(6) NOT NULL,
 		Y INT(6) NOT NULL,
 		Z INT(6) NOT NULL,
-		tipo VARCHAR(255) NOT NULL
+		tipo VARCHAR(255) NOT NULL,
+		UNIQUE KEY (X, Y, Z)
 		)");
 
 		//Tabela com os dados dos planetas e corpos celestes (luas e asteróides)
@@ -81,7 +82,7 @@ class instala_db {
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_recurso INT(6) NOT NULL,
 		disponivel INT(6) NOT NULL,
-		turno INT(6)
+		turno INT(6) NOT NULL
 		)");
 
 		//Tabela com as instalações de um planeta
@@ -99,7 +100,7 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		id_recurso INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
-		turno INT(6)
+		turno INT(6) NOT NULL
 		)");
 
 		//Tabela com as colonias do Império
@@ -108,7 +109,7 @@ class instala_db {
 		id_planeta INT(6) NOT NULL,
 		pop INT(6) NOT NULL,
 		poluicao INT(6) NOT NULL,
-		turno INT(6)
+		turno INT(6) NOT NULL
 		)");
 
 		//Tabela com a frota do Império, incluindo os dados de cada nave individualmente
@@ -130,7 +131,7 @@ class instala_db {
 		especiais TEXT DEFAULT NULL,
 		HP INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
-		turno INT(6)
+		turno INT(6) NOT NULL
 		)");
 
 		//Tabela com os dados do turno atual
