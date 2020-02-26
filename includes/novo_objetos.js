@@ -10,8 +10,7 @@ function novo_imperio() {
 	}
 		
 		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
-		var tabela_imperios = document.getElementsByTagName('TABLE');
-		tabela_imperios = tabela_imperios[0];
+		var tabela_imperios = document.getElementsByTagName('TABLE')[0];
 		var linha_nova = tabela_imperios.insertRow(-1);
 		var dados_jogador = linha_nova.insertCell(0);
 		var nome_imperio = linha_nova.insertCell(1);
@@ -26,8 +25,7 @@ function novo_imperio() {
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>"
 		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value=''></input>"
-		+"<div data-atributo='nome_jogador'>"
-		+lista_jogadores+"</div>"
+		+"<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
 		nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 		populacao.innerHTML = "<div></div>";
@@ -46,8 +44,7 @@ function nova_estrela() {
 	}
 		
 		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
-		var tabela_estrelas = document.getElementsByTagName('TABLE');
-		tabela_estrelas = tabela_estrelas[0];
+		var tabela_estrelas = document.getElementsByTagName('TABLE')[0];
 		var linha_nova = tabela_estrelas.insertRow(-1);
 		
 		var nome_estrela = linha_nova.insertCell(0);
@@ -89,7 +86,7 @@ function novo_planeta() {
 		var subclasse = linha_nova.insertCell(4);
 		var tamanho = linha_nova.insertCell(5);
 		
-		var lista_estrelas = lista_estrelas_html(); //Pega a lista de usuários do Fórum
+		var lista_estrelas = lista_estrelas_html();
 		
 		nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='id_estrela' value=''></input>"
@@ -99,7 +96,7 @@ function novo_planeta() {
 		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>"
 		+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-		estrela.innerHTML = "<div data-atributo='nome_estrela'>"+lista_estrelas+"</div>";
+		estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='0'>"+lista_estrelas+"</div>";
 		posicao.innerHTML = "<div data-atributo='posicao' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='posicao' data-ajax='true' style='width: 30px;'></input></div>";
 		classe.innerHTML = "<div data-atributo='classe' data-editavel='true' data-valor-original=''><input type='text' data-atributo='classe' data-ajax='true'></input></div>";
 		subclasse.innerHTML = "<div data-atributo='subclasse' data-editavel='true' data-valor-original=''><input type='text' data-atributo='subclasse' data-ajax='true'></input></div>";
@@ -164,8 +161,44 @@ function nova_instalacao() {
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação e todas suas ligações (recursos produzidos, consumidos etc)?'></input>"
 		+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
 		descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
-		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''>&nbsp;</div>";
+		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+}
+
+/******************
+function novo_instalacao_recurso(consome = 1)
+--------------------
+Insere um novo recurso atrelado à instalação
+consome = 1 -- O recurso é produzido (0) ou consumido (1)
+******************/
+function novo_instalacao_recurso(consome = 1) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		return false;
+	}
+		
+		objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+		var tabela = document.getElementsByTagName('TABLE')[consome];
+		var linha_nova = tabela.insertRow(-1);
+		var id = linha_nova.insertCell(0);
+		var recurso = linha_nova.insertCell(1);
+		var qtd_por_nivel = linha_nova.insertCell(2);
+
+		
+		var lista_recursos = lista_recursos_html();
+		
+		id.innerHTML = 	"<input type='hidden' data-atributo='id' value=''></input>"
+		+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' value='"+id_instalacao+"'></input>"
+		+"<input type='hidden' data-atributo='id_recurso' data-ajax='true' value=''></input>"
+		+"<input type='hidden' data-atributo='consome' data-ajax='true' value='"+consome+"'></input>"
+		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_instalacao_recurso'></input>"
+		+"<div data-atributo='id' data-valor-original=''>#</div>"
+		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
+		recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado = '0' data-valor-original=''>"+lista_recursos+"</div>";
+		qtd_por_nivel.innerHTML = "<div data-atributo='qtd_por_nivel' data-style='width: 50px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='qtd_por_nivel' data-ajax='true' style='width: 50px;'></input></div>";
 }

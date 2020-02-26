@@ -50,18 +50,13 @@ acumulavel BOOLEAN DEFAULT TRUE
 )
 
 
---Tabela com os recursos produzidos por uma instalação
-CREATE TABLE colonization_instalacao_produz_recursos (
+--Tabela com os recursos consumidos ou produzidos por uma instalação
+CREATE TABLE colonization_instalacao_recursos (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_instalacao INT(6) NOT NULL,
 id_recurso INT(6) NOT NULL,
-qtd_por_nivel INT(6) NOT NULL
-)
-
---Tabela com os recursos consumidos por uma instalação
-CREATE TABLE colonization_instalacao_consome_recursos (
-id_instalacao INT(6) NOT NULL,
-id_recurso INT(6) NOT NULL,
-qtd_por_nivel INT(6) NOT NULL
+qtd_por_nivel INT(6) NOT NULL,
+consome BOOLEAN DEFAULT TRUE
 )
 
 --Tabela com os recursos disponíveis do planeta. Refere-se a recursos que podem ser explorados
@@ -84,6 +79,7 @@ turno_destroi INT(6) DEFAULT NULL
 
 --Tabela com os recursos acumulados do Império (não locais)
 CREATE TABLE colonization_imperio_recursos (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_recurso INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
@@ -92,6 +88,7 @@ turno INT(6) NOT NULL
 
 --Tabela com as colonias do Império
 CREATE TABLE colonization_imperio_colonias (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_planeta INT(6) NOT NULL,
 pop INT(6) NOT NULL,
@@ -101,6 +98,7 @@ turno INT(6) NOT NULL
 
 --Tabela com a frota do Império, incluindo os dados de cada nave individualmente
 CREATE TABLE colonization_imperio_frota (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 nome VARCHAR(255) NOT NULL,
 tipo VARCHAR(255) NOT NULL,
@@ -130,6 +128,7 @@ bloqueado BOOLEAN DEFAULT TRUE
 
 --Tabela com as ações
 CREATE TABLE colonization_acoes_turno (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_planeta INT(6) NOT NULL,
 id_instalacao INT(6) NOT NULL,

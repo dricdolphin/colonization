@@ -53,15 +53,11 @@ function atualiza_objeto(objeto, dados) {
 			atributo = divs[index].getAttribute('data-atributo');
 			//HARDCODED -- Adiciona o link para gerenciar os objetos que são gerenciáveis
 			if(divs[index].getAttribute('data-atributo') == "gerenciar") {
-				var aTag = document.createElement('a');
-				aTag.setAttribute('href',"#");
-				aTag.innerText = "Gerenciar Objeto";
-				aTag.addEventListener("click", function () {gerenciar_objeto(objeto);}.bind(objeto));
-				divs[index].innerHTML = "";
-				divs[index].appendChild(aTag);
+				divs[index].childNodes[0].style.visibility="visible";
 			}
 			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
 				divs[index].setAttribute('data-valor-original',dados[atributo]);
+				divs[index].innerHTML = dados[atributo];
 			}
 		}	
 	}
@@ -132,6 +128,9 @@ function edita_objeto(objeto) {
 					if (divs[index_div].getAttribute('data-type') == "checkbox") {
 						inputs = divs[index_div].getElementsByTagName("INPUT");
 						inputs[0].disabled=false;
+					} else if (divs[index_div].getAttribute('data-type') == "select") {
+						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'));
+						divs[index_div].innerHTML = lista;
 					}
 				} else {
 					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' data-ajax='true' value='"+valor_atributo+"'"+data_estilo+"></input>";
@@ -210,7 +209,7 @@ function pega_dados_objeto(objeto) {
 	
 	//Além de INPUT, existe a possibilidade dos dados serem passados via SELECT
 	for (index = 0; index < select_linha.length; index++) {
-		objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+select_linha[index].getAttribute('data-atributo')+"="+select_linha[index].value;
+		objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+select_linha[index].getAttribute('data-atributo')+"="+select_linha[index].options[select_linha[index].selectedIndex].value;
 		objeto_editado[select_linha[index].getAttribute('data-atributo')] = select_linha[index];
 	}
 
@@ -333,7 +332,7 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 
 	var linha = pega_ascendente(objeto,"TR");
 	var inputs = linha.getElementsByTagName('INPUT');
-	var selects = linha.getElementsByTagName('select');
+	var selects = linha.getElementsByTagName('SELECT');
 	var div = "";
 	var checkbox_checked = "";
 	
@@ -366,7 +365,13 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	//Além de INPUT, existe a possibilidade dos dados serem passados via SELECT
 	for (index = 0; index < selects.length; index++) {
 		div = pega_ascendente(selects[index],"DIV");
-		div.innerHTML = selects[index].options[selects[index].selectedIndex].innerHTML;
+		if (cancela) {
+			div.innerHTML = div.getAttribute('data-valor-original');
+		} else {
+			div.setAttribute('data-id-selecionado',selects[index].value);
+			div.setAttribute('data-valor-original',selects[index].options[selects[index].selectedIndex].innerHTML);
+			div.innerHTML = selects[index].options[selects[index].selectedIndex].innerHTML;
+		}
 	}
 	
 	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar

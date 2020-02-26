@@ -12,9 +12,9 @@
 include_once('includes/geral.php');
 include_once('includes/colonization_ajax.php');
 include_once('includes/instalacao.php');
+include_once('includes/recurso_instalacao.php');
 include_once('includes/instala_db.php');
-include_once('includes/lista_usuarios.php');
-include_once('includes/lista_estrelas.php');
+include_once('includes/listas.php');
 include_once('includes/imperio.php');
 include_once('includes/estrela.php');
 include_once('includes/planeta.php');
@@ -46,11 +46,14 @@ class colonization {
 		<script src='../wp-content/plugins/colonization/includes/gerencia_objeto.js?v={$today}'></script>
 		<script>";
 		
-		$lista_usuarios = new lista_usuarios();
-		$this->html_header .= $lista_usuarios->html_lista;
+		$lista = new lista_usuarios();
+		$this->html_header .= $lista->html_lista;
 		
-		$lista_estrelas = new lista_estrelas();
-		$this->html_header .= $lista_estrelas->html_lista;
+		$lista = new lista_estrelas();
+		$this->html_header .= $lista->html_lista;
+		
+		$lista = new lista_recursos();
+		$this->html_header .= $lista->html_lista;
 		
 		$this->html_header .="</script>";
 
@@ -112,6 +115,7 @@ class colonization {
 		add_submenu_page('colonization_admin_menu','Planetas','Planetas','manage_options','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
+		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 	}
 
@@ -297,9 +301,78 @@ class colonization {
 		global $wpdb;
 		
 		$html = $this->html_header;
+		$html_lista = "";
 		
 		if (isset($_GET['id'])) {
-			$html .= "<div><h2>COLONIZATION - EDITANDO A INSTALAÇÃO {$_GET['id']}</h2></div>";
+			$instalacao = new instalacao($_GET['id']);
+			
+			$html .= "<script>
+			var id_instalacao={$_GET['id']};
+			</script>
+			
+			<div><h2>COLONIZATION - editando a Instalação '{$instalacao->nome}'</h2></div>";
+
+			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=0");
+
+			//Recursos produzidos
+			$html .= "<div><h3>Recursos Produzidos</h3>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<thead>
+			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
+			</tr>
+			</thead>
+			<tbody>
+			";
+
+			foreach ($lista_instalacao_recursos as $id) {
+				$recurso_instalacao = new recurso_instalacao($id->id);
+				$html_dados = $recurso_instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(0);'>Adicionar novo recurso PRODUZIDO</a></div>";
+			
+			/*************************************/
+			
+			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=1");
+			$html_lista = "";
+
+			//Recursos consumidos
+			$html .= "<div><h3>Recursos Consumidos</h3>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<thead>
+			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
+			</tr>
+			</thead>
+			<tbody>
+			";
+
+			foreach ($lista_instalacao_recursos as $id) {
+				$recurso_instalacao = new recurso_instalacao($id->id);
+				$html_dados = $recurso_instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+
+			$html.= $html_lista;
+
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(1);'>Adicionar novo recurso CONSUMIDO</a></div>
+			<br>
+			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Instalações</a>";
+			
 		} else {
 			$html .= "<div><h2>COLONIZATION - Instalações</h2></div>
 			<div>
@@ -310,7 +383,123 @@ class colonization {
 			</thead>
 			<tbody>";
 			
-			//Pega a lista de recursos
+			//Pega a lista de instalações
+			$lista_id = $wpdb->get_results("SELECT id FROM colonization_instalacao");
+			$html_lista = "";
+			
+			foreach ($lista_id as $id) {
+				$instalacao = new instalacao($id->id);
+				$html_dados = $instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_instalacao();'>Adicionar nova Instalação</a></div>";
+		}
+		
+		echo $html;
+	}	
+
+
+	/******************
+	function colonization_admin_colonias()
+	-----------
+	Exibe a página de gestão de colônias
+	******************/
+	function colonization_admin_colonias() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		$html_lista = "";
+		
+		if (isset($_GET['id'])) {
+			$instalacao = new instalacao($_GET['id']);
+			
+			$html .= "<script>
+			var id_instalacao={$_GET['id']};
+			</script>
+			
+			<div><h2>COLONIZATION - editando a Instalação '{$instalacao->nome}'</h2></div>";
+
+			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=0");
+
+			//Recursos produzidos
+			$html .= "<div><h3>Recursos Produzidos</h3>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<thead>
+			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
+			</tr>
+			</thead>
+			<tbody>
+			";
+
+			foreach ($lista_instalacao_recursos as $id) {
+				$recurso_instalacao = new recurso_instalacao($id->id);
+				$html_dados = $recurso_instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(0);'>Adicionar novo recurso PRODUZIDO</a></div>";
+			
+			/*************************************/
+			
+			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=1");
+			$html_lista = "";
+
+			//Recursos consumidos
+			$html .= "<div><h3>Recursos Consumidos</h3>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<thead>
+			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
+			</tr>
+			</thead>
+			<tbody>
+			";
+
+			foreach ($lista_instalacao_recursos as $id) {
+				$recurso_instalacao = new recurso_instalacao($id->id);
+				$html_dados = $recurso_instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+
+			$html.= $html_lista;
+
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(1);'>Adicionar novo recurso CONSUMIDO</a></div>
+			<br>
+			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Instalações</a>";
+			
+		} else {
+			$html .= "<div><h2>COLONIZATION - Instalações</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
+			<thead>
+			<tr><td>Nome</td><td>Descrição</td><td>&nbsp;</td>
+			</tr>
+			</thead>
+			<tbody>";
+			
+			//Pega a lista de instalações
 			$lista_id = $wpdb->get_results("SELECT id FROM colonization_instalacao");
 			$html_lista = "";
 			

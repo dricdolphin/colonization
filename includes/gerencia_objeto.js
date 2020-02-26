@@ -16,5 +16,5 @@ function gerenciar_objeto(objeto) {
 	
 	var url_gerencia = window.location.href+"&id="+id_objeto;
 	
-	window.location.assign(url_gerencia);
+	window.location.replace(url_gerencia);
 }

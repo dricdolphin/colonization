@@ -63,18 +63,13 @@ class instala_db {
 		)");
 
 
-		//Tabela com os recursos produzidos por uma instalação
-		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_instalacao_produz_recursos (
+		//Tabela com os recursos consumidos ou produzidos por uma instalação
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_instalacao_recursos (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_instalacao INT(6) NOT NULL,
 		id_recurso INT(6) NOT NULL,
-		qtd_por_nivel INT(6) NOT NULL
-		)");
-
-		//Tabela com os recursos consumidos por uma instalação
-		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_instalacao_consome_recursos (
-		id_instalacao INT(6) NOT NULL,
-		id_recurso INT(6) NOT NULL,
-		qtd_por_nivel INT(6) NOT NULL
+		qtd_por_nivel INT(6) NOT NULL,
+		consome BOOLEAN DEFAULT TRUE
 		)");
 
 		//Tabela com os recursos disponíveis do planeta. Refere-se a recursos que podem ser explorados
@@ -97,6 +92,7 @@ class instala_db {
 
 		//Tabela com os recursos acumulados do Império (não locais)
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_recursos (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
 		id_recurso INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
@@ -105,6 +101,7 @@ class instala_db {
 
 		//Tabela com as colonias do Império
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_colonias (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
 		id_planeta INT(6) NOT NULL,
 		pop INT(6) NOT NULL,
@@ -114,6 +111,7 @@ class instala_db {
 
 		//Tabela com a frota do Império, incluindo os dados de cada nave individualmente
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_frota (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
 		nome VARCHAR(255) NOT NULL,
 		tipo VARCHAR(255) NOT NULL,
@@ -143,6 +141,7 @@ class instala_db {
 
 		//Tabela com as ações
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_acoes_turno (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
 		id_planeta INT(6) NOT NULL,
 		id_instalacao INT(6) NOT NULL,

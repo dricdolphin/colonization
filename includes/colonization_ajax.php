@@ -11,9 +11,10 @@ class colonization_ajax {
 	function __construct() {
 		//Adiciona as funções que serão utilizadas
 		//TODO -- Adicionar as funções conforme necessário
-		add_action( 'wp_ajax_salva_objeto', array ($this, 'salva_objeto') );	
-		add_action( 'wp_ajax_deleta_objeto', array ($this, 'deleta_objeto') );
-		add_action( 'wp_ajax_valida_estrela', array ($this, 'valida_estrela') );		
+		add_action('wp_ajax_salva_objeto', array ($this, 'salva_objeto'));
+		add_action('wp_ajax_deleta_objeto', array ($this, 'deleta_objeto'));
+		add_action('wp_ajax_valida_estrela', array ($this, 'valida_estrela'));
+		add_action('wp_ajax_valida_instalacao_recurso', array ($this, 'valida_instalacao_recurso'));
 	}
 	
 	/***********************
@@ -42,6 +43,33 @@ class colonization_ajax {
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
+
+	/***********************
+	function valida_estrela ()
+	----------------------
+	Salva o objeto desejado
+	***********************/	
+	function valida_instalacao_recurso() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "SELECT id FROM colonization_instalacao_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_instalacao={$_POST['id_instalacao']} AND consome={$_POST['consome']}";
+		} else {
+			$query = "SELECT id FROM colonization_instalacao_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_instalacao={$_POST['id_instalacao']}  AND consome={$_POST['consome']} AND id != {$_POST['id']}";
+		}
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] .= "Você não pode cadastrar o mesmo recurso para a mesma instalação duas vezes!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 	
 	
 	/***********************
@@ -51,7 +79,7 @@ class colonization_ajax {
 	***********************/	
 	function salva_objeto() {
 		global $wpdb; 
-		$wpdb->hide_errors();
+		//$wpdb->hide_errors();
 		
 		foreach ($_POST as $chave => $valor) {
 			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
