@@ -13,8 +13,34 @@ class colonization_ajax {
 		//TODO -- Adicionar as funções conforme necessário
 		add_action( 'wp_ajax_salva_objeto', array ($this, 'salva_objeto') );	
 		add_action( 'wp_ajax_deleta_objeto', array ($this, 'deleta_objeto') );
-		add_action( 'wp_ajax_salva_estrela', array ($this, 'salva_objeto') );	
-		add_action( 'wp_ajax_deleta_estrela', array ($this, 'deleta_objeto') );			
+		add_action( 'wp_ajax_valida_estrela', array ($this, 'valida_estrela') );		
+	}
+	
+	/***********************
+	function valida_estrela ()
+	----------------------
+	Salva o objeto desejado
+	***********************/	
+	function valida_estrela() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "SELECT id FROM colonization_estrela WHERE X={$_POST['X']} AND Y={$_POST['Y']} AND Z={$_POST['Z']}";
+		} else {
+			$query = "SELECT id FROM colonization_estrela WHERE X={$_POST['X']} AND Y={$_POST['Y']} AND Z={$_POST['Z']} AND id != {$_POST['id']}";		
+		}
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] = "Já existe uma estrela nestas coordenadas!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
 	}
 	
 	
@@ -59,11 +85,10 @@ class colonization_ajax {
 			}
 			$where = substr($where,5);
 			$dados_salvos = $wpdb->get_results("SELECT * FROM {$_POST['tabela']} WHERE {$where}");
-			//$dados_salvos = $dados_salvos[0]; //Queremos apenas a primeira linha
 			$dados_salvos['resposta_ajax'] = "SALVO!";
 		} else {
-			//$dados_salvos['resposta_ajax'] = $wpdb->last_error;
-			$dados_salvos['resposta_ajax'] = "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
+			$dados_salvos['resposta_ajax'] = $wpdb->last_error;
+			$dados_salvos['resposta_ajax'] .= "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
 		}
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON

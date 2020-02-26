@@ -23,17 +23,17 @@ class planeta
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_estrela, nome, posicao, classe, subclasse, tamanho FROM colonization_recursos WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_estrela, nome, posicao, classe, subclasse, tamanho FROM colonization_planeta WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
-		$this->id_estrela = $resultad['id_estrela'];
-		$this->nome = $resultad['nome'];
-		$this->posicao = $resultad['posicao'];
-		$this->classe = $resultad['classe'];
-		$this->subclasse = $resultad['subclasse'];
-		$this->tamanho = $resultad['tamanho'];
+		$this->id_estrela = $resultado->id_estrela;
+		$this->nome = $resultado->nome;
+		$this->posicao = $resultado->posicao;
+		$this->classe = $resultado->classe;
+		$this->subclasse = $resultado->subclasse;
+		$this->tamanho = $resultado->tamanho;
 		
-		$estrela = new estrela($this->id_estrela);
+		$this->estrela = new estrela($this->id_estrela);
 	}
 
 	/***********************
@@ -43,18 +43,24 @@ class planeta
 	***********************/
 	function lista_dados() {
 		global $wpdb;
-		
-		//Exibe os dados do Império
-		$html = "				<td>
+
+		//Exibe os dados do Império		
+		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
+				<input type='hidden' data-atributo='id_estrela' data-valor-original='{$this->id_estrela}' value='{$this->id_estrela}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
-				<div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div>
+				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>
+				<div data-atributo='nome' data-editavel='true' data-valor-original='{$this->nome}'>{$this->nome}</div>
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
-			<td><div data-atributo='acumulavel'  data-editavel='true' data-valor-original='{$this->acumulavel}'>{$this->acumulavel}</div></td>";
+			<td><div data-atributo='nome_estrela'>{$this->estrela->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z}</div></td>
+			<td><div data-atributo='posicao' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->posicao}'>{$this->posicao}</div></td>
+			<td><div data-atributo='classe' data-editavel='true' data-valor-original='{$this->classe}'>{$this->classe}</div></td>
+			<td><div data-atributo='subclasse' data-editavel='true' data-valor-original='{$this->subclasse}'>{$this->subclasse}</div></td>
+			<td><div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->tamanho}'>{$this->tamanho}</div></td>";
+		
 		return $html;
 	}
 }

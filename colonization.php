@@ -14,6 +14,7 @@ include_once('includes/colonization_ajax.php');
 include_once('includes/instalacao.php');
 include_once('includes/instala_db.php');
 include_once('includes/lista_usuarios.php');
+include_once('includes/lista_estrelas.php');
 include_once('includes/imperio.php');
 include_once('includes/estrela.php');
 include_once('includes/planeta.php');
@@ -39,11 +40,17 @@ class colonization {
 		//Inicializa os dados básicos, usados na maior parte das funções
 		$today = date("YmdHi"); 
 		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
+		<script src='../wp-content/plugins/colonization/includes/novo_objetos.js?v={$today}'></script>
 		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v={$today}'></script>
+		<script src='../wp-content/plugins/colonization/includes/valida_objetos.js?v={$today}'></script>
+		<script src='../wp-content/plugins/colonization/includes/gerencia_objeto.js?v={$today}'></script>
 		<script>";
 		
 		$lista_usuarios = new lista_usuarios();
-		$this->html_header .= $lista_usuarios->html_lista_usuarios;
+		$this->html_header .= $lista_usuarios->html_lista;
+		
+		$lista_estrelas = new lista_estrelas();
+		$this->html_header .= $lista_estrelas->html_lista;
 		
 		$this->html_header .="</script>";
 
@@ -106,7 +113,6 @@ class colonization {
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
-		
 	}
 
 	/******************
@@ -209,20 +215,20 @@ class colonization {
 		
 		$html .= "<div><h2>COLONIZATION - Planetas</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 		<thead>
-		<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td>Posição no sistema estelar</td><td>Classe</td><td>Subclasse</td><td>Tamanho</td>
+		<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 50px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 60px;'>Tamanho</td>
 		</tr>
 		</thead>
 		<tbody>";
 		
 		//Pega a lista de estrelas
-		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso");
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_planeta");
 		$html_lista = "";
 		
 		foreach ($lista_id as $id) {
-			$estrela = new recurso($id->id);
-			$html_dados = $recurso->lista_dados();
+			$planeta = new planeta($id->id);
+			$html_dados = $planeta->lista_dados();
 
 			$html_lista .= "
 			<tr>
@@ -234,7 +240,7 @@ class colonization {
 		
 		$html .= "\n</tbody>
 		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_recurso();'>Adicionar novo Recurso</a></div>";
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta();'>Adicionar novo Planeta</a></div>";
 		
 		echo $html;
 
@@ -259,12 +265,12 @@ class colonization {
 		</thead>
 		<tbody>";
 		
-		//Pega a lista de estrelas
+		//Pega a lista de recursos
 		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso");
 		$html_lista = "";
 		
 		foreach ($lista_id as $id) {
-			$estrela = new recurso($id->id);
+			$recurso = new recurso($id->id);
 			$html_dados = $recurso->lista_dados();
 
 			$html_lista .= "
@@ -288,7 +294,44 @@ class colonization {
 	Exibe a página de gestão de instalações
 	******************/
 	function colonization_admin_instalacoes() {
-	//TODO
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		if (isset($_GET['id'])) {
+			$html .= "<div><h2>COLONIZATION - EDITANDO A INSTALAÇÃO {$_GET['id']}</h2></div>";
+		} else {
+			$html .= "<div><h2>COLONIZATION - Instalações</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
+			<thead>
+			<tr><td>Nome</td><td>Descrição</td><td>&nbsp;</td>
+			</tr>
+			</thead>
+			<tbody>";
+			
+			//Pega a lista de recursos
+			$lista_id = $wpdb->get_results("SELECT id FROM colonization_instalacao");
+			$html_lista = "";
+			
+			foreach ($lista_id as $id) {
+				$instalacao = new instalacao($id->id);
+				$html_dados = $instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_instalacao();'>Adicionar nova Instalação</a></div>";
+		}
+		
+		echo $html;
 	}	
 
 	/******************

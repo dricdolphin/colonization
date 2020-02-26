@@ -38,7 +38,7 @@ tamanho INT(2) NOT NULL
 CREATE TABLE colonization_instalacao (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(255) NOT NULL,
-descricacao TEXT NOT NULL
+descricao TEXT NOT NULL
 )
 
 --Tabela com os tipos de recursos existentes

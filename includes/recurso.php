@@ -19,12 +19,12 @@ class recurso
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, acumulavel FROM colonization_recursos WHERE id=".$this->id);
-		$resultado = $resultados[0];		
+		$resultados = $wpdb->get_results("SELECT nome, descricao, acumulavel FROM colonization_recurso WHERE id=".$this->id);
+		$resultado = $resultados[0];
 		
-		$this->nome = $resultados['nome'];
-		$this->descricao = $resultados['descricao'];
-		$this->acumulavel = $resultados['acumulavel'];
+		$this->nome = $resultado->nome;
+		$this->descricao = $resultado->descricao;
+		$this->acumulavel = $resultado->acumulavel;
 	}
 
 	/***********************
@@ -34,6 +34,12 @@ class recurso
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+		
+		if ($this->acumulavel == 1) {
+			$acumulavel_checked = "checked";
+		} else {
+			$acumulavel_checked = "";
+		}
 		
 		//Exibe os dados do Império
 		$html = "				<td>
@@ -45,7 +51,7 @@ class recurso
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
-			<td><div data-atributo='acumulavel'  data-editavel='true' data-valor-original='{$this->acumulavel}'>{$this->acumulavel}</div></td>";
+			<td><div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->acumulavel}'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' {$acumulavel_checked} disabled></input></div></td>";
 		return $html;
 	}
 }

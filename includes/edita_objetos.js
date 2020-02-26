@@ -8,6 +8,7 @@ objeto -- objeto escolhido
 tag -- tag do ascendente
 ******************/
 function pega_ascendente(objeto, tag) {
+	if (objeto.tagName == tag) { return objeto; }
 	var parent_node = objeto.parentNode;
 	//Retroage até achar a linha
 	while(parent_node.tagName != tag) {
@@ -16,197 +17,6 @@ function pega_ascendente(objeto, tag) {
 	
 	return parent_node;
 }
-
-/******************
-function valida_imperio(objeto)
---------------------
-Valida os dados do Império
-objeto -- objeto sendo editado
-******************/	
-function valida_imperio(objeto) {
-	
-	var linha = pega_ascendente(objeto,"TR");
-	var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	
-	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "nome" && inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('O nome do Império não pode ser deixado em branco!');
-			return false;
-		}
-	}
-
-	if (typeof select_linha[0] !== "undefined") {
-		var id_jogador = select_linha[0].value;
-		//Verifica se o jogador já tem um Império cadastrado. Cada jogador pode ter apenas um Império.
-		for (index = 0; index < inputs_tabela.length; index++) {
-			if (inputs_tabela[index].getAttribute('data-atributo') == "id_jogador" && inputs_tabela[index].getAttribute('value') == id_jogador) {
-				alert('O jogador selecionado já tem um Império cadastrado! Por favor, escolha outro jogador!');
-				return false;
-			}
-		}
-	}
-
-	return true; //Validou!
-}
-
-/******************
-function valida_estrela(objeto)
---------------------
-Valida os dados da Estrela
-objeto -- objeto sendo editado
-******************/	
-function valida_estrela(objeto) {
-	
-	var linha = pega_ascendente(objeto,"TR");
-	//var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	
-	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
-		}
-	}
-
-	return true; //Validou!
-}
-
-/******************
-function valida_generico(objeto)
---------------------
-Valida os dados de um objeto genérico
-objeto -- objeto sendo editado
-******************/	
-function valida_generico(objeto) {
-	
-	var linha = pega_ascendente(objeto,"TR");
-	//var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	
-	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
-		}
-	}
-
-	return true; //Validou!
-}
-
-
-/******************
-function novo_imperio
---------------------
-Insere um novo Império na lista
-******************/
-function novo_imperio() {
-	if (objeto_em_edicao) {
-		alert('Já existe um objeto em edição!');
-		return false;
-	}
-		
-		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
-		var tabela_imperios = document.getElementsByTagName('TABLE');
-		tabela_imperios = tabela_imperios[0];
-		var linha_nova = tabela_imperios.insertRow(-1);
-		var dados_jogador = linha_nova.insertCell(0);
-		var nome_imperio = linha_nova.insertCell(1);
-		var populacao = linha_nova.insertCell(2);
-		var pontuacao = linha_nova.insertCell(3);
-		
-		var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
-		
-		dados_jogador.innerHTML = "<input type='hidden' data-atributo='id_jogador' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>"
-		+"<input type='hidden' data-atributo='where_value' value=''></input>"
-		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>"
-		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value=''></input>"
-		+"<div data-atributo='nome_jogador'>"
-		+lista_jogadores+"</div>"
-		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-		nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
-		populacao.innerHTML = "<div></div>";
-		pontuacao.innerHTML = "<div></div>";
-}
-
-/******************
-function nova_estrela
---------------------
-Insere uma nova estrela na lista
-******************/
-function nova_estrela() {
-	if (objeto_em_edicao) {
-		alert('Já existe um objeto em edição!');
-		return false;
-	}
-		
-		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
-		var tabela_estrelas = document.getElementsByTagName('TABLE');
-		tabela_estrelas = tabela_estrelas[0];
-		var linha_nova = tabela_estrelas.insertRow(-1);
-		
-		var nome_estrela = linha_nova.insertCell(0);
-		var estrela_x = linha_nova.insertCell(1);
-		var estrela_y = linha_nova.insertCell(2);
-		var estrela_z = linha_nova.insertCell(3);
-		var estrela_tipo = linha_nova.insertCell(4);
-		
-		nome_estrela.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
-		+"<input type='hidden' data-atributo='where_value' value=''></input>"
-		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_estrela'></input>"
-		+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
-		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-		estrela_x.innerHTML = "<div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='X' data-ajax='true' style='width: 100%;'></input></div>";
-		estrela_y.innerHTML = "<div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Y' data-ajax='true' style='width: 100%;'></input></div>";
-		estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";
-		estrela_tipo.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tipo' data-ajax='true'></input></div>";
-}
-
-/******************
-function novo_recurso
---------------------
-Insere um novo recurso
-******************/
-function novo_recurso() {
-	if (objeto_em_edicao) {
-		alert('Já existe um objeto em edição!');
-		return false;
-	}
-		
-		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
-		var tabela = document.getElementsByTagName('TABLE');
-		tabela = tabela[0];
-		var linha_nova = tabela.insertRow(-1);
-		
-		var nome = linha_nova.insertCell(0);
-		var descricao = linha_nova.insertCell(1);
-		var acumulavel = linha_nova.insertCell(2);
-		
-		nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
-		+"<input type='hidden' data-atributo='where_value' value=''></input>"
-		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
-		+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
-		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-		descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
-		acumulavel.innerHTML = "<div data-atributo='acumulavel' data-editavel='true' data-valor-original=''><input type='text' data-atributo='acumulavel' data-ajax='true'></input></div>";
-}
-
 
 /******************
 function cancela_edicao
@@ -232,6 +42,7 @@ function atualiza_objeto(objeto, dados) {
 	var divs = "";
 	var inputs = "";
 	var atributo = "";
+	var where_clause = ""
 	var valor_atributo = "";
 	
 	divs = linha.getElementsByTagName('DIV');
@@ -240,13 +51,29 @@ function atualiza_objeto(objeto, dados) {
 	for (var index = 0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-valor-original') !== null) {
 			atributo = divs[index].getAttribute('data-atributo');
+			//HARDCODED -- Adiciona o link para gerenciar os objetos que são gerenciáveis
+			if(divs[index].getAttribute('data-atributo') == "gerenciar") {
+				var aTag = document.createElement('a');
+				aTag.setAttribute('href',"#");
+				aTag.innerText = "Gerenciar Objeto";
+				aTag.addEventListener("click", function () {gerenciar_objeto(objeto);}.bind(objeto));
+				divs[index].innerHTML = "";
+				divs[index].appendChild(aTag);
+			}
 			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
 				divs[index].setAttribute('data-valor-original',dados[atributo]);
 			}
-		}
+		}	
 	}
 	
 	for (var index = 0; index < inputs.length; index++) {
+		//HARDCODED -- Atualiza o valor do where_value
+		if (inputs[index].getAttribute('data-atributo') == "where_clause") {
+			where_clause = inputs[index].value;
+		}
+		if (inputs[index].getAttribute('data-atributo') == "where_value") {
+			inputs[index].value = dados[where_clause];
+		}		
 		if (inputs[index].getAttribute('data-valor-original') !== null) {
 			atributo = inputs[index].getAttribute('data-atributo');
 			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
@@ -280,6 +107,9 @@ function edita_objeto(objeto) {
 	var valor_atributo = "";
 	var editavel = "";
 	var data_estilo = "";
+	var data_type = "";
+	var data_checked = "";
+	
 	
 	//Pega cada uma das células e altera para o modo de edição, caso seja editável
 	for (var index = 0; index < celulas.length; index++) {
@@ -298,8 +128,14 @@ function edita_objeto(objeto) {
 				if (data_estilo !== "undefined" && data_estilo !== null) {
 					data_estilo = " style='"+data_estilo+"'";
 				}
-				divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' data-ajax='true' value='"+valor_atributo+"'"+data_estilo+"></input>";
-
+				if (divs[index_div].getAttribute('data-type') !== null) {
+					if (divs[index_div].getAttribute('data-type') == "checkbox") {
+						inputs = divs[index_div].getElementsByTagName("INPUT");
+						inputs[0].disabled=false;
+					}
+				} else {
+					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' data-ajax='true' value='"+valor_atributo+"'"+data_estilo+"></input>";
+				}
 			}
 		}
 	}
@@ -337,6 +173,7 @@ function pega_dados_objeto(objeto) {
 	var celulas = linha.cells;
 	var inputs_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
+	var checkbox_checked = "";
 	
 	
 	var funcao_valida_objeto = "";
@@ -357,7 +194,16 @@ function pega_dados_objeto(objeto) {
 			objeto_editado['where_value'] = inputs_linha[index].value;
 		} else {
 			if (inputs_linha[index].getAttribute('data-ajax')) {//Só salva um atributo que seja "passável" para o AJAX. Normalmente é proveniente de um <div> que seja editável
-				objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+				if (inputs_linha[index].type == "checkbox") {
+					if (inputs_linha[index].checked) {
+						checkbox_checked=1;
+					} else {
+						checkbox_checked=0;
+					}
+					objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+checkbox_checked;
+				} else {
+					objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+				}
 			}
 		}
 	}
@@ -383,7 +229,7 @@ cancela = false -- Define se é para salvar ou apenas cancelar a edição
 function salva_objeto(objeto, cancela = false) {
 	if (cancela) {
 		var desabilita = desabilita_edicao_objeto(objeto, cancela);
-		objeto_em_edicao = false;		
+		objeto_em_edicao = false;
 		return false;
 	}
 
@@ -489,6 +335,7 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	var inputs = linha.getElementsByTagName('INPUT');
 	var selects = linha.getElementsByTagName('select');
 	var div = "";
+	var checkbox_checked = "";
 	
 	//Pega cada um dos inputs e tira do modo de edição
 	var tamanho_maximo = inputs.length-1;
@@ -499,6 +346,19 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 				div.innerHTML = div.getAttribute('data-valor-original');
 			} else {
 				div.innerHTML = inputs[index].value;
+			}
+		} else if (inputs[index].type == 'checkbox') {
+			div = pega_ascendente(inputs[index],"DIV");
+				if (div.getAttribute('data-valor-original') == 0) {
+					checkbox_checked = false;
+				} else {
+					checkbox_checked = true;
+				}
+			if (cancela) {
+				inputs[index].checked = checkbox_checked;
+				inputs[index].disabled = true;
+			} else {
+				inputs[index].disabled = true;
 			}
 		}
 	}
