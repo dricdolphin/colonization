@@ -15,7 +15,7 @@ class imperio
 	//planeta imperio_planetas[];
 	//recurso imperio_recursos[];
 	public $id = 0;
-	public $imperio_nome = "";
+	public $nome = "";
 	public $id_jogador = 0;
 		
 
@@ -25,21 +25,21 @@ class imperio
 	Inicializa os dados do Império
 	$id_imperio = null -- Se não for passado um valor, o valor padrão é o id de usuário
 	***********************/
-	function __construct($id_imperio = null) {
+	function __construct($id) {
 		global $wpdb;
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
 		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
-		if (is_null($id_imperio) || $roles != "administrator") {
+		if (is_null($id) || $roles != "administrator") {
 			$this->id_jogador = get_current_user_id();
+			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);;
 		} else {
-			$this->id_jogador = $id_imperio;
+			$this->id = $id;
+			$this->id_jogador = $wpdb->get_var("SELECT id_jogador FROM colonization_imperio WHERE id=".$this->id);
 		}
 		
-		//As funções abaixo ainda serão criadas
-		$this->imperio_nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
-		$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
+		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
 		//$this->planeta[] = pega_planetas_imperio(this.id);
 	}
 
@@ -57,11 +57,11 @@ class imperio
 				<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id_jogador}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
-				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->imperio_nome}'?\"></input>
+				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
 				<div data-atributo='nome_jogador'>{$user->display_name}</div>
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='nome' data-valor-original='{$this->imperio_nome}' data-editavel='true'>{$this->imperio_nome}</div></td>";
+			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>";
 		return $html;
 	}
 
@@ -75,7 +75,7 @@ class imperio
 		//TODO -- Exibe todos os dados do Império numa tabela. Recursos Globais, Planetas e Recursos Locais, e posição das Frotas
 		
 		//Exibe os dados do Império
-		$html = "<div>".$this->id."</div>";
+		$html = "<div>Dados do Império '{$this->name}'</div>";
 		return $html;
 	}
 	
