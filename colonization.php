@@ -133,17 +133,17 @@ class colonization {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
 		<thead>
-		<tr><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
+		<tr><td>ID</td><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
 		</thead>
 		<tbody>";
 		
 		//Pega a lista de impérios
-		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
+		$lista_id_imperio = $wpdb->get_results("SELECT id, id_jogador FROM colonization_imperio");
 		$html_lista_imperios = "";
 		
 		foreach ($lista_id_imperio as $id) {
 			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
-			$imperio = new imperio($id->id_jogador);
+			$imperio = new imperio($id->id);
 			
 			$html_dados_imperio = $imperio->lista_dados();
 			//TODO -- Calcular População e Pontuação

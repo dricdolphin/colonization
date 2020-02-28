@@ -12,21 +12,25 @@ function novo_imperio() {
 		objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
 		var tabela_imperios = document.getElementsByTagName('TABLE')[0];
 		var linha_nova = tabela_imperios.insertRow(-1);
-		var dados_jogador = linha_nova.insertCell(0);
-		var nome_imperio = linha_nova.insertCell(1);
-		var populacao = linha_nova.insertCell(2);
-		var pontuacao = linha_nova.insertCell(3);
+		
+		var id = linha_nova.insertCell(0);
+		var dados_jogador = linha_nova.insertCell(1);
+		var nome_imperio = linha_nova.insertCell(2);
+		var populacao = linha_nova.insertCell(3);
+		var pontuacao = linha_nova.insertCell(4);
 		
 		var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
 		
-		dados_jogador.innerHTML = "<input type='hidden' data-atributo='id_jogador' data-valor-original='' value=''></input>"
+		
+		id.innerHTML = "<input type='hidden' data-atributo='id_jogador' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>"
 		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value=''></input>"
-		+"<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>"
+		+"<div data-atributo='id' data-valor-original=''>#</div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
+		dados_jogador.innerHTML = "<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>";
 		nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 		populacao.innerHTML = "<div></div>";
 		pontuacao.innerHTML = "<div></div>";

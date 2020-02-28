@@ -58,9 +58,10 @@ class imperio
 				<input type='hidden' data-atributo='where_value' value='{$this->id_jogador}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
-				<div data-atributo='nome_jogador'>{$user->display_name}</div>
+				<div data-atributo='ID' >{$this->id}</div>
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
+			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>";
 		return $html;
 	}
@@ -75,7 +76,7 @@ class imperio
 		//TODO -- Exibe todos os dados do Império numa tabela. Recursos Globais, Planetas e Recursos Locais, e posição das Frotas
 		
 		//Exibe os dados do Império
-		$html = "<div>Dados do Império '{$this->name}'</div>";
+		$html = "<div>Dados do Império '{$this->nome}'</div>";
 		return $html;
 	}
 	
