@@ -9,7 +9,7 @@ relativas a estes itens.
 O sistema é integrado à "shortcodes" que permitem exibir dados dos Impérios, bem como exibir boa parte do sistema de ações que 
 os usuários podem interagir.
 
-##O que é Colonization?
+## O que é Colonization?
 Colonization é um jogo de estratégia, no estilo 4X, no qual os jogadores são Imperadores responsáveis pelo desenvolvimento
 de grandes Impérios espaciais. Neste jogo, os Imperadores definem as ações a serem tomadas por seus Impérios, como pesquisas,
 construção de novas instalações, criação de novas colônias, desenvolvimento de naves e frotas e como desejam explorar
