@@ -54,6 +54,9 @@ class colonization {
 		
 		$lista = new lista_recursos();
 		$this->html_header .= $lista->html_lista;
+
+		$lista = new lista_planetas();
+		$this->html_header .= $lista->html_lista;
 		
 		$this->html_header .="</script>";
 
@@ -525,7 +528,7 @@ class colonization {
 				}
 				$html_lista .= "\n</tbody>
 				</table></div>
-				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia();'>Adicionar nova Colônia</a></div>";
+				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia({$imperio->id});'>Adicionar nova Colônia</a></div>";
 
 				$html.= $html_lista;
 			}

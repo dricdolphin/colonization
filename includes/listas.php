@@ -13,12 +13,18 @@ class lista_estrelas
 	
 	function __construct() {
 		global $wpdb;
-		$resultados = $wpdb->get_results("SELECT id, nome, X, Y, Z from colonization_estrela");
+		$resultados = $wpdb->get_results(
+		"SELECT id, nome, X, Y, Z
+		FROM colonization_estrela 
+		ORDER BY colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z");
 
-		$lista = "";
+		$lista_valores = "";
+		$lista_options = "";
+		$index = 0;
 		foreach ($resultados as $resultado) {
-			$lista .= "
-+\"		<option value='{$resultado->id}'>{$resultado->nome} - {$resultado->X};{$resultado->Y};{$resultado->Z}</option>\"\n";
+			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}  - {$resultado->X};{$resultado->Y};{$resultado->Z}</option>\";\n";
+			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$index++;
 		}
 
 		$this->html_lista = 
@@ -30,10 +36,27 @@ class lista_estrelas
 		******************/
 		function lista_estrelas_html(id=0) {
 			
-			var html = \"			<select data-atributo='id_estrela'>\"
-			$lista
-			+\"			</select>\";
-				
+			var lista=[];
+			var lista_valores=[];
+			var selecionado=[];
+{$lista_valores}
+			
+			var html = \"			<select data-atributo='id_planeta'>\";
+			for (var index = 0; index < lista_valores.length; index++) {
+				if (lista_valores[index] == id) {
+					selecionado[index] = 'selected';
+				} else {
+					selecionado[index] = '';
+				}
+			}
+			
+{$lista_options}
+			for (index = 0; index < lista.length; index++) {
+				html = html+lista[index];
+			}
+			html = html +\"			</select>\";
+
+
 			return html;
 		}";
 	}
@@ -79,7 +102,7 @@ class lista_recursos
 	
 	function __construct() {
 		global $wpdb;
-		$resultados = $wpdb->get_results("SELECT id, nome from colonization_recurso");
+		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_recurso");
 
 		$lista_valores = "";
 		$lista_options = "";
@@ -105,6 +128,65 @@ class lista_recursos
 {$lista_valores}
 			
 			var html = \"			<select data-atributo='id_recurso'>\";
+			for (var index = 0; index < lista_valores.length; index++) {
+				if (lista_valores[index] == id) {
+					selecionado[index] = 'selected';
+				} else {
+					selecionado[index] = '';
+				}
+			}
+			
+{$lista_options}
+			for (index = 0; index < lista.length; index++) {
+				html = html+lista[index];
+			}
+			html = html +\"			</select>\";
+
+
+			return html;
+		}";
+	}
+}
+
+//Classe "lista_recursos"
+//Mostra a lista de recursos, com os IDs
+class lista_planetas
+{
+	public $html_lista;
+	
+	function __construct() {
+		global $wpdb;
+		$resultados = $wpdb->get_results(
+		"SELECT colonization_planeta.id, colonization_planeta.nome, colonization_planeta.posicao, colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z
+		FROM colonization_planeta 
+		LEFT JOIN colonization_estrela 
+		ON colonization_estrela.id = colonization_planeta.id_estrela
+		ORDER BY colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z");
+
+		$lista_valores = "";
+		$lista_options = "";
+		$index = 0;
+		foreach ($resultados as $resultado) {
+			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome} - {$resultado->X};{$resultado->Y};{$resultado->Z} / {$resultado->posicao}</option>\";\n";
+			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$index++;
+		}
+
+		$this->html_lista = 
+"		/******************
+		function lista_planetas_html(id=0)
+		--------------------
+		Cria a lista de planetas
+		id -- qual ID está selecionado
+		******************/
+		function lista_planetas_html(id=0) {
+			
+			var lista=[];
+			var lista_valores=[];
+			var selecionado=[];
+{$lista_valores}
+			
+			var html = \"			<select data-atributo='id_planeta'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
