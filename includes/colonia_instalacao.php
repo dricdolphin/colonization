@@ -59,7 +59,7 @@ class colonia_instalacao
 				<div data-atributo='id' data-ajax='true'>{$this->id}</div>
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacao_html' data-id-selecionado='{$this->id_instalacao}' data-valor-original='{$this->instalacao->nome}'>{$this->instalacao->nome}</div></td>
+			<td><div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='{$this->id_instalacao}' data-valor-original='{$this->instalacao->nome}'>{$this->instalacao->nome}</div></td>
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel} data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>

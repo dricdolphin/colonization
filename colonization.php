@@ -21,6 +21,7 @@ include_once('includes/planeta.php');
 include_once('includes/recurso.php');
 include_once('includes/colonia.php');
 include_once('includes/colonia_instalacao.php');
+include_once('includes/colonia_recurso.php');
 include_once('includes/acoes.php');
 
 
@@ -73,8 +74,6 @@ class colonization {
 	Instala o plugin e cria os objetos necessários para rodar o sistema "Colonization"
 	******************/
 	function colonization_install() {
-		//TODO - Sistema de instalação
-		
 		//Cria o banco de dados
 		$instala_db = new instala_db();
 	}
@@ -85,8 +84,7 @@ class colonization {
 	Desinstala o plugin.
 	******************/
 	function colonization_deactivate() {
-	//TODO - Rotinas de desativação
-
+		//TODO - Rotinas de desativação
 	}
 	
 	/***********************
@@ -98,16 +96,12 @@ class colonization {
 	os dados do Império com id="1"
 	***********************/	
 	function colonization_exibe_imperio($atts = [], $content = null) {
-		//Cria o Império
-		//var_dump($atts);
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id']);
-			//var_dump($atts);
 		} else {
 			$imperio = new imperio();
 		}
 		
-		//Envia os dados do Império
 		return $imperio->imperio_exibe_imperio();
 	}
 
@@ -438,12 +432,12 @@ class colonization {
 			
 			<div><h2>COLONIZATION - editando a Colônia '{$planeta->nome}' do Império '{$imperio->nome}'</h2></div>";
 
-			$lista_colonia_recursos = $wpdb->get_results("SELECT id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id}");
+			$lista_colonia_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
 			$html_lista = "";
 
 			//Recursos da Colônia
 			$html .= "<div><h3>Recursos da Colônia</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_recursos'>
 			<thead>
 			<tr><td>ID</td><td>Recurso</td><td>Disponível</td>
 			</tr>
@@ -452,7 +446,7 @@ class colonization {
 			";
 
 			foreach ($lista_colonia_recursos as $id) {
-				$planeta_recurso = new planeta_recurso($id->id);
+				$planeta_recurso = new colonia_recurso($id->id);
 				$html_dados = $planeta_recurso->lista_dados();
 
 				$html_lista .= "
@@ -465,24 +459,24 @@ class colonization {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta_recurso();'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_colonia_recurso({$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
 
-			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id FROM colonization_planeta_instalacoes WHERE id_planeta={$colonia->id}");
+			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
 
 			//Instalações da Colônia
 			$html .= "<div><h3>Instalações da Colônia</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
-			<tr><td>ID</td><td>Nome</td><td>Nível</td><td>Turno Const.</td><td>Destruir Instalação</td>
+			<tr><td>ID</td><td>Nome</td><td style='width: 40px;'>Nível</td><td style='width: 90px;'>Turno Const.</td><td style='width: 90px;'>Turno Destr.</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>
 			";
 
 			foreach ($lista_colonia_instalacoes as $id) {
-				$planeta_instalacao = new planeta_instalacao($id->id);
+				$planeta_instalacao = new colonia_instalacao($id->id);
 				$html_dados = $planeta_instalacao->lista_dados();
 
 				$html_lista .= "
@@ -495,7 +489,7 @@ class colonization {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia_instalacao();'>Adicionar nova Instalação</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia_instalacao({$planeta->id});'>Adicionar nova Instalação</a></div>";
 			
 
 			$html .= "<br>

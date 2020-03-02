@@ -257,51 +257,87 @@ function nova_colonia(id_imperio) {
 }
 
 /******************
-function nova_colonia
+function novo_colonia_recurso
 --------------------
-Insere uma nova Colônia
+Insere um novo recurso numa colônia
 --------
-id_imperio -- id do Império que receberá a colônia
+id_planeta -- id do Planeta que receberá o recurso
 ******************/
-function nova_colonia(id_imperio) {
+function novo_colonia_recurso(id_planeta) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		return false;
 	}
 		
 		objeto_em_edicao = true; //Bloqueia a edição de outros objetos
-		var tabela = document.getElementsByTagName('TABLE');
-		
-		//Determina qual tabela (ou seja, qual Império) está sendo editado
-		for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
-			if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
-				tabela = tabela[index_tabelas];
-				break;
-			}
-		}
+		var tabela = document.getElementsByTagName('TABLE')[0];
 		
 		var linha_nova = tabela.insertRow(-1);
 		var id = linha_nova.insertCell(0);
-		var nome_planeta = linha_nova.insertCell(1);
-		var pop = linha_nova.insertCell(2);
-		var poluicao = linha_nova.insertCell(3);
-		var turno = linha_nova.insertCell(4);		
-		var gerencia = linha_nova.insertCell(5);
+		var nome_recurso = linha_nova.insertCell(1);
+		var disponivel = linha_nova.insertCell(2);
 		
-		var lista_planetas = lista_planetas_html();
+		var lista_recursos = lista_recursos_html();
 		
 		id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
-		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
-		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>"
-		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja remover esta colônia?'></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_recurso'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este recurso?'></input>"
 		+"<div data-atributo='id' data-valor-original=''>#</div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-		nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
-		pop.innerHTML = "<div data-atributo='pop' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop' data-ajax='true' style='width: 30px;'></input></div>";
-		poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;'></input></div>";
+		nome_recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado='' data-valor-original=''>"+lista_recursos+"</div>";
+		disponivel.innerHTML = "<div data-atributo='disponivel' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='disponivel' data-ajax='true' style='width: 50px;'></input></div>";
+}
+
+/******************
+function nova_colonia_instalacao
+--------------------
+Insere uma nova Instalação no Planeta
+--------
+id_planeta -- id do Planeta que receberá a Instalação
+******************/
+function nova_colonia_instalacao(id_planeta) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		return false;
+	}
+		
+		objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+		var tabela = document.getElementsByTagName('TABLE')[1];
+		
+		var linha_nova = tabela.insertRow(-1);
+		var id = linha_nova.insertCell(0);
+		var nome_instalacao = linha_nova.insertCell(1);
+		var nivel = linha_nova.insertCell(2);
+		var turno = linha_nova.insertCell(3);
+		var turno_destroi = linha_nova.insertCell(4);		
+		var gerencia = linha_nova.insertCell(5);
+		
+		var lista_instalacao = lista_instalacoes_html();
+		
+		id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
+		+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_instalacao'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação?'></input>"
+		+"<div data-atributo='id' data-valor-original=''>#</div>"
+		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
+		nome_instalacao.innerHTML = "<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>";
+		nivel.innerHTML = "<div data-atributo='nivel' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='nivel' data-ajax='true' style='width: 30px;'></input></div>";
 		turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
-		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+		turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
+		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='destruir_instalacao(this);' style='visibility: hidden;'>Destruir Instalação</a></div>";
+
+/**
+			<td><div data-atributo='gerenciar'><a href='#' onclick='destruir_instalacao(this);'>Destruir Instalação</a></div></td>";
+
+
+
+**/
+
+
 }
