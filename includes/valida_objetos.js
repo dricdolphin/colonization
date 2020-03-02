@@ -82,6 +82,57 @@ function valida_estrela(objeto) {
 }
 
 /******************
+function valida_colonia(objeto)
+--------------------
+Valida os dados da Estrela
+objeto -- objeto sendo editado
+******************/	
+function valida_colonia(objeto) {
+	
+	var linha = pega_ascendente(objeto,"TR");
+	var celulas = linha.cells;
+	var inputs_linha = linha.getElementsByTagName("INPUT");
+	var select_linha = linha.getElementsByTagName("SELECT");
+	var dados_ajax = "post_type=POST&action=valida_colonia";
+	var retorno = false;
+
+	if (typeof select_linha[0] !== "undefined") {
+		var id_planeta = select_linha[0].value;
+		dados_ajax = dados_ajax +"&id_planeta="+id_planeta;
+	}
+	
+	//Verifica se o nome do Império está preenchido
+	for (index = 0; index < inputs_linha.length; index++) {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id") {
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+		}
+		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
+			alert('Nenhum dado pode ser deixado em branco!');
+			return false;
+		}
+	}
+
+	//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	return retorno;
+}
+
+/******************
 function valida_generico(objeto)
 --------------------
 Valida os dados de um objeto genérico

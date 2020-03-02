@@ -54,6 +54,7 @@ function atualiza_objeto(objeto, dados) {
 			//HARDCODED -- Adiciona o link para gerenciar os objetos que são gerenciáveis
 			if(divs[index].getAttribute('data-atributo') == "gerenciar") {
 				divs[index].childNodes[0].style.visibility="visible";
+				//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
 			}
 			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
 				divs[index].setAttribute('data-valor-original',dados[atributo]);
@@ -224,8 +225,9 @@ function salva_objeto(objeto, cancela = false)
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
+processa_dados = '' -- Função a ser chamada após o processamento dos dados
 ******************/	
-function salva_objeto(objeto, cancela = false) {
+function salva_objeto(objeto, cancela = false, processa_dados = '') {
 	if (cancela) {
 		var desabilita = desabilita_edicao_objeto(objeto, cancela);
 		objeto_em_edicao = false;

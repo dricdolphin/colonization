@@ -148,8 +148,8 @@ class lista_recursos
 	}
 }
 
-//Classe "lista_recursos"
-//Mostra a lista de recursos, com os IDs
+//Classe "lista_planetas"
+//Mostra a lista de planetas, com os IDs
 class lista_planetas
 {
 	public $html_lista;
@@ -180,6 +180,62 @@ class lista_planetas
 		id -- qual ID está selecionado
 		******************/
 		function lista_planetas_html(id=0) {
+			
+			var lista=[];
+			var lista_valores=[];
+			var selecionado=[];
+{$lista_valores}
+			
+			var html = \"			<select data-atributo='id_planeta'>\";
+			for (var index = 0; index < lista_valores.length; index++) {
+				if (lista_valores[index] == id) {
+					selecionado[index] = 'selected';
+				} else {
+					selecionado[index] = '';
+				}
+			}
+			
+{$lista_options}
+			for (index = 0; index < lista.length; index++) {
+				html = html+lista[index];
+			}
+			html = html +\"			</select>\";
+
+
+			return html;
+		}";
+	}
+}
+
+//Classe "lista_instalacoes"
+//Mostra a lista de instalações, com os IDs
+class lista_instalacoes
+{
+	public $html_lista;
+	
+	function __construct() {
+		global $wpdb;
+		$resultados = $wpdb->get_results(
+		"SELECT id, nome
+		FROM colonization_instalacao");
+
+		$lista_valores = "";
+		$lista_options = "";
+		$index = 0;
+		foreach ($resultados as $resultado) {
+			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}</option>\";\n";
+			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$index++;
+		}
+
+		$this->html_lista = 
+"		/******************
+		function lista_instalacoes_html(id=0)
+		--------------------
+		Cria a lista de instalações
+		id -- qual ID está selecionado
+		******************/
+		function lista_instalacoes_html(id=0) {
 			
 			var lista=[];
 			var lista_valores=[];

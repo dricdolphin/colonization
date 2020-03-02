@@ -32,8 +32,8 @@ function novo_imperio() {
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
 		dados_jogador.innerHTML = "<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>";
 		nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
-		populacao.innerHTML = "<div></div>";
-		pontuacao.innerHTML = "<div></div>";
+		populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
+		pontuacao.innerHTML = "<div data-atributo='poluicao' data-valor-original=''></div>";
 }
 
 /******************
@@ -220,48 +220,88 @@ function nova_colonia(id_imperio) {
 	}
 		
 		objeto_em_edicao = true; //Bloqueia a edição de outros objetos
-		var tabela = document.getElementsByTagName('TABLE')[0];
+		var tabela = document.getElementsByTagName('TABLE');
+		
+		//Determina qual tabela (ou seja, qual Império) está sendo editado
+		for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
+			if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
+				tabela = tabela[index_tabelas];
+				break;
+			}
+		}
+		
 		var linha_nova = tabela.insertRow(-1);
 		var id = linha_nova.insertCell(0);
 		var nome_planeta = linha_nova.insertCell(1);
 		var pop = linha_nova.insertCell(2);
 		var poluicao = linha_nova.insertCell(3);
-		var gerencia = linha_nova.insertCell(4);
+		var turno = linha_nova.insertCell(4);		
+		var gerencia = linha_nova.insertCell(5);
 		
 		var lista_planetas = lista_planetas_html();
 		
 		id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-		+"<input type='hidden' data-atributo='id_imperio' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
-		+"<input type='hidden' data-atributo='id_planeta' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>"
 		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja remover esta colônia?'></input>"
-		+"<div data-atributo='id' data-ajax='true'>#</div>"
+		+"<div data-atributo='id' data-valor-original=''>#</div>"
 		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
 		nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
 		pop.innerHTML = "<div data-atributo='pop' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop' data-ajax='true' style='width: 30px;'></input></div>";
 		poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;'></input></div>";
+		turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 }
 
-
-/***
-		$html = "		<td>
-				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='id_imperio' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>
-				<input type='hidden' data-atributo='where_clause' value='id'></input>
-				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>
-				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>
-				<div data-atributo='id' data-ajax='true'>{$this->id}</div>
-				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
-			</td>
-			<td><div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='{$this->id_planeta}' data-valor-original='{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}'>{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}</div></td>
-			<td><div data-atributo='pop' data-style='width: 30px;'>{$this->pop}</div></td>
-			<td><div data-atributo='poluicao' data-style='width: 30px;'>{$this->poluicao}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
-
-
-***/
+/******************
+function nova_colonia
+--------------------
+Insere uma nova Colônia
+--------
+id_imperio -- id do Império que receberá a colônia
+******************/
+function nova_colonia(id_imperio) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		return false;
+	}
+		
+		objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+		var tabela = document.getElementsByTagName('TABLE');
+		
+		//Determina qual tabela (ou seja, qual Império) está sendo editado
+		for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
+			if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
+				tabela = tabela[index_tabelas];
+				break;
+			}
+		}
+		
+		var linha_nova = tabela.insertRow(-1);
+		var id = linha_nova.insertCell(0);
+		var nome_planeta = linha_nova.insertCell(1);
+		var pop = linha_nova.insertCell(2);
+		var poluicao = linha_nova.insertCell(3);
+		var turno = linha_nova.insertCell(4);		
+		var gerencia = linha_nova.insertCell(5);
+		
+		var lista_planetas = lista_planetas_html();
+		
+		id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja remover esta colônia?'></input>"
+		+"<div data-atributo='id' data-valor-original=''>#</div>"
+		+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
+		nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
+		pop.innerHTML = "<div data-atributo='pop' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop' data-ajax='true' style='width: 30px;'></input></div>";
+		poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;'></input></div>";
+		turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
+		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+}

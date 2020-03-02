@@ -14,13 +14,41 @@ class colonization_ajax {
 		add_action('wp_ajax_salva_objeto', array ($this, 'salva_objeto'));
 		add_action('wp_ajax_deleta_objeto', array ($this, 'deleta_objeto'));
 		add_action('wp_ajax_valida_estrela', array ($this, 'valida_estrela'));
+		add_action('wp_ajax_valida_colonia', array ($this, 'valida_colonia'));
 		add_action('wp_ajax_valida_instalacao_recurso', array ($this, 'valida_instalacao_recurso'));
 	}
 	
 	/***********************
+	function valida_colonia ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_colonia() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']}";
+		} else {
+			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND id != {$_POST['id']}";
+		}
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] = "Este planeta já é a colônia de outro Império!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
+	/***********************
 	function valida_estrela ()
 	----------------------
-	Salva o objeto desejado
+	Valida o objeto desejado
 	***********************/	
 	function valida_estrela() {
 		global $wpdb; 

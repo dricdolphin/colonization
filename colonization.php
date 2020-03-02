@@ -19,6 +19,8 @@ include_once('includes/imperio.php');
 include_once('includes/estrela.php');
 include_once('includes/planeta.php');
 include_once('includes/recurso.php');
+include_once('includes/colonia.php');
+include_once('includes/colonia_instalacao.php');
 include_once('includes/acoes.php');
 
 
@@ -56,6 +58,9 @@ class colonization {
 		$this->html_header .= $lista->html_lista;
 
 		$lista = new lista_planetas();
+		$this->html_header .= $lista->html_lista;
+		
+		$lista = new lista_instalacoes();
 		$this->html_header .= $lista->html_lista;
 		
 		$this->html_header .="</script>";
@@ -421,63 +426,34 @@ class colonization {
 		
 		$html = $this->html_header;
 		$html_lista = "";
-		//TODO -- GERENCIA A COLÔNIA
-		/*************************************************************************
+
 		if (isset($_GET['id'])) {
-			$instalacao = new instalacao($_GET['id']);
+			$colonia = new colonia($_GET['id']);
+			$imperio = new imperio($colonia->id_imperio);
+			$planeta = new planeta($colonia->id_planeta);
 			
 			$html .= "<script>
-			var id_instalacao={$_GET['id']};
+			var id_colonia={$_GET['id']};
 			</script>
 			
-			<div><h2>COLONIZATION - editando a Instalação '{$instalacao->nome}'</h2></div>";
+			<div><h2>COLONIZATION - editando a Colônia '{$planeta->nome}' do Império '{$imperio->nome}'</h2></div>";
 
-			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=0");
-
-			//Recursos produzidos
-			$html .= "<div><h3>Recursos Produzidos</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
-			<thead>
-			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
-			</tr>
-			</thead>
-			<tbody>
-			";
-
-			foreach ($lista_instalacao_recursos as $id) {
-				$recurso_instalacao = new recurso_instalacao($id->id);
-				$html_dados = $recurso_instalacao->lista_dados();
-
-				$html_lista .= "
-				<tr>
-				{$html_dados}
-				</tr>";
-			}
-			
-			$html.= $html_lista;
-			
-			$html .= "\n</tbody>
-			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(0);'>Adicionar novo recurso PRODUZIDO</a></div>";
-			
-			/*************************************
-			
-			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=1");
+			$lista_colonia_recursos = $wpdb->get_results("SELECT id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id}");
 			$html_lista = "";
 
-			//Recursos consumidos
-			$html .= "<div><h3>Recursos Consumidos</h3>
+			//Recursos da Colônia
+			$html .= "<div><h3>Recursos da Colônia</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
 			<thead>
-			<tr><td>ID</td><td>Recurso</td><td>Quantidade por Nível</td>
+			<tr><td>ID</td><td>Recurso</td><td>Disponível</td>
 			</tr>
 			</thead>
 			<tbody>
 			";
 
-			foreach ($lista_instalacao_recursos as $id) {
-				$recurso_instalacao = new recurso_instalacao($id->id);
-				$html_dados = $recurso_instalacao->lista_dados();
+			foreach ($lista_colonia_recursos as $id) {
+				$planeta_recurso = new planeta_recurso($id->id);
+				$html_dados = $planeta_recurso->lista_dados();
 
 				$html_lista .= "
 				<tr>
@@ -489,12 +465,44 @@ class colonization {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(1);'>Adicionar novo recurso CONSUMIDO</a></div>
-			<br>
-			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Instalações</a>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta_recurso();'>Adicionar novo Recurso</a></div>";
+
+			/*************************************/
+
+			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id FROM colonization_planeta_instalacoes WHERE id_planeta={$colonia->id}");
+
+			//Instalações da Colônia
+			$html .= "<div><h3>Instalações da Colônia</h3>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
+			<thead>
+			<tr><td>ID</td><td>Nome</td><td>Nível</td><td>Turno Const.</td><td>Destruir Instalação</td>
+			</tr>
+			</thead>
+			<tbody>
+			";
+
+			foreach ($lista_colonia_instalacoes as $id) {
+				$planeta_instalacao = new planeta_instalacao($id->id);
+				$html_dados = $planeta_instalacao->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia_instalacao();'>Adicionar nova Instalação</a></div>";
+			
+
+			$html .= "<br>
+			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Colônias</a>";
 			
 		} else {
-		***************************************************************/
+		
 			$html .= "<div><h2>COLONIZATION - Colônias</h2></div>";
 			
 			//Pega a lista de instalações
@@ -508,9 +516,9 @@ class colonization {
 				$html .= "<br><div><h3>Colônias do Império '{$imperio->nome}'</h3></div>";
 				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$id->id}");
 
-				$html_lista = "			<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias'>
+				$html_lista = "			<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>
 				<thead>
-				<tr><td>ID</td><td>Planeta</td><td>População</td><td>Poluição</td><td>&nbsp;</td>
+				<tr><td>ID</td><td>Planeta</td><td>População</td><td>Poluição</td><td>Turno</td><td>&nbsp;</td>
 				</tr>
 				</thead>
 				<tbody>";
@@ -532,9 +540,7 @@ class colonization {
 
 				$html.= $html_lista;
 			}
-			//$html .= "\n</tbody>
-			//</table></div>";
-		
+		}
 		
 		echo $html;
 	}	

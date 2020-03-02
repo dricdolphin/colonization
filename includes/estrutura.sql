@@ -62,6 +62,7 @@ consome BOOLEAN DEFAULT TRUE
 --Tabela com os recursos disponíveis do planeta. Refere-se a recursos que podem ser explorados
 CREATE TABLE colonization_planeta_recursos (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_planeta INT(6) NOT NULL,
 id_recurso INT(6) NOT NULL,
 disponivel INT(6) NOT NULL,
 turno INT(6) NOT NULL

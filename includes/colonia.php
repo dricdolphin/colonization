@@ -7,7 +7,7 @@ Cria o objeto "colônia"
 
 //Classe "colonia"
 //Contém os dados da colonia
-class planeta 
+class colonia 
 {
 	public $id;
 	public $id_imperio;
@@ -47,8 +47,8 @@ class planeta
 		//Exibe os dados do Império		
 		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='id_imperio' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>
+				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>
@@ -57,12 +57,12 @@ class planeta
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='{$this->id_planeta}' data-valor-original='{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}'>{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}</div></td>
-			<td><div data-atributo='pop' data-editavel='true' data-style='width: 30px;'>{$this->pop}</div></td>
-			<td><div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'>{$this->poluicao}</div></td>
+			<td><div data-atributo='pop' data-editavel='true' data-valor-original='{$this->pop} data-style='width: 30px;'>{$this->pop}</div></td>
+			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>
+			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno} data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
 		
 		return $html;
 	}
 }
-
 ?>
