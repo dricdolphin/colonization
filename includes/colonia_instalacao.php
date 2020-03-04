@@ -13,6 +13,7 @@ class colonia_instalacao
 	public $id;
 	public $id_planeta;
 	public $id_instalacao;
+	public $nivel;
 	public $turno;
 	public $turno_destroi;
 	public $instalacao;
@@ -24,16 +25,17 @@ class colonia_instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, turno, turno_destroi FROM colonization_planeta_instalacoes WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, turno_destroi FROM colonization_planeta_instalacoes WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_planeta = $resultado->id_planeta;
 		$this->id_instalacao = $resultado->id_instalacao;
+		$this->nivel = $resultado->nivel;
 		$this->turno = $resultado->turno;
 		$this->turno_destroi = $resultado->turno_destroi;
 		
 		$this->planeta = new planeta($this->id_planeta);
-		$this->instalacao = new instalacao($this->planeta->id_instalacao);
+		$this->instalacao = new instalacao($this->id_instalacao);
 	}
 
 	/***********************
@@ -60,7 +62,7 @@ class colonia_instalacao
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='{$this->id_instalacao}' data-valor-original='{$this->instalacao->nome}'>{$this->instalacao->nome}</div></td>
-			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel} data-style='width: 30px;'>{$this->nivel}</div></td>
+			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='destruir_instalacao(this);'>Destruir Instalação</a></div></td>";

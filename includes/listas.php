@@ -242,7 +242,7 @@ class lista_instalacoes
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_planeta'>\";
+			var html = \"			<select data-atributo='id_instalacao'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';

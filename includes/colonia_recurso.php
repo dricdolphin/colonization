@@ -13,6 +13,7 @@ class colonia_recurso
 	public $id_planeta;
 	public $id_recurso;
 	public $disponivel;
+	public $recurso;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -22,10 +23,9 @@ class colonia_recurso
 		$resultados = $wpdb->get_results("SELECT id_planeta, id_recurso, disponivel FROM colonization_planeta_recursos WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
-		$this->id_instalacao = $resultado->id_instalacao;
+		$this->id_planeta = $resultado->id_planeta;
 		$this->id_recurso = $resultado->id_recurso;
-		$this->qtd_por_nivel = $resultado->qtd_por_nivel;
-		$this->consome = $resultado->consome;
+		$this->disponivel = $resultado->disponivel;
 		$this->recurso = new recurso($this->id_recurso);
 	}
 

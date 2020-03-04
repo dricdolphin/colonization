@@ -281,6 +281,7 @@ function novo_colonia_recurso(id_planeta) {
 		
 		id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
+		+"<input type='hidden' data-atributo='id_recurso' data-ajax='true' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_recurso'></input>"

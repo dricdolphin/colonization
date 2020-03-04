@@ -16,6 +16,8 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_estrela', array ($this, 'valida_estrela'));
 		add_action('wp_ajax_valida_colonia', array ($this, 'valida_colonia'));
 		add_action('wp_ajax_valida_instalacao_recurso', array ($this, 'valida_instalacao_recurso'));
+		add_action('wp_ajax_valida_colonia_recurso', array ($this, 'valida_colonia_recurso'));
+		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 	}
 	
 	/***********************
@@ -73,9 +75,9 @@ class colonization_ajax {
 	}
 
 	/***********************
-	function valida_estrela ()
+	function valida_instalacao_recurso ()
 	----------------------
-	Salva o objeto desejado
+	Valida o objeto desejado
 	***********************/	
 	function valida_instalacao_recurso() {
 		global $wpdb; 
@@ -99,6 +101,64 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 	
+	/***********************
+	function valida_colonia_recurso ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_colonia_recurso() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']}";
+		} else {
+			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']} AND id != {$_POST['id']}";
+		}
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] .= "Você não pode cadastrar o mesmo recurso para a mesma colônia duas vezes!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
+	/***********************
+	function valida_colonia_instalacao ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_colonia_instalacao() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "
+			SELECT COUNT(cpi.id) as instalacoes FROM 
+			(
+			SELECT id 
+			FROM colonization_planeta_instalacoes WHERE id_planeta={$_POST['id_planeta']}  AND turno_destroi IS NULL
+			) AS cpi";
+		} else {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		}
+		
+		$resposta = $wpdb->get_results($query);
+		$planeta = new planeta($_POST['id_planeta']);
+		if ($resposta[0]->instalacoes < $planeta->tamanho) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 	
 	/***********************
 	function salva_objeto ()
@@ -124,6 +184,7 @@ class colonization_ajax {
 		
 		if ($resposta === 0) {//Se o objeto não existe, cria
 			$resposta = $wpdb->insert($_POST['tabela'],$dados);
+			$dados['id'] = $wpdb->insert_id;
 		} elseif ($resposta === 1) {//Se existir, atualiza
 			$where[$_POST['where_clause']]=$_POST['where_value'];
 			$resposta = $wpdb->update($_POST['tabela'],$dados,$where);

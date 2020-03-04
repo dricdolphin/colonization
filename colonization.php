@@ -345,6 +345,7 @@ class colonization {
 			/*************************************/
 			
 			$lista_instalacao_recursos = $wpdb->get_results("SELECT id FROM colonization_instalacao_recursos WHERE id_instalacao={$instalacao->id} AND consome=1");
+			$html_dados = "";
 			$html_lista = "";
 
 			//Recursos consumidos
@@ -462,11 +463,19 @@ class colonization {
 			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_colonia_recurso({$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
-
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
-
+			$html_dados = "";
+			$html_lista = "";
+			
+			if ($planeta->tamanho == 1) {
+				$max_instalacoes = "{$planeta->tamanho} instalação";
+			} else {
+				$max_instalacoes = "{$planeta->tamanho} instalações";
+			}
+			
 			//Instalações da Colônia
-			$html .= "<div><h3>Instalações da Colônia</h3>
+			$html .= "<br>
+			<div><h3>Instalações da Colônia - Máximo de {$max_instalacoes}</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
 			<tr><td>ID</td><td>Nome</td><td style='width: 40px;'>Nível</td><td style='width: 90px;'>Turno Const.</td><td style='width: 90px;'>Turno Destr.</td><td>&nbsp;</td>
