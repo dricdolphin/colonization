@@ -22,6 +22,7 @@ include_once('includes/recurso.php');
 include_once('includes/colonia.php');
 include_once('includes/colonia_instalacao.php');
 include_once('includes/colonia_recurso.php');
+include_once('includes/turno.php');
 include_once('includes/acoes.php');
 
 

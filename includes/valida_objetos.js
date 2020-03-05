@@ -310,3 +310,50 @@ function valida_colonia_instalacao(objeto) {
 
 	return retorno;
 }
+
+/******************
+function destruir_instalacao(objeto)
+--------------------
+Função para chamar o AJAX de destruir instalação
+objeto -- objeto sendo editado
+******************/
+function destruir_instalacao(objeto) {
+	var linha=pega_ascendente(objeto,"TR");;
+	var inputs=linha.getElementsByTagName("INPUT");
+	var dados_ajax = "post_type=POST&action=destruir_instalacao";
+
+	
+	for (var index = 0; index < inputs.length; index++) {
+		if (inputs[index].getAttribute('data-atributo') == "id") {
+			var id_objeto = inputs[index].value;
+		}
+	}
+	
+	dados_ajax = dados_ajax + "&id=" + id_objeto;
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			objeto_em_edicao = false;
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				if (resposta[0].turno_destroi != "") {
+					objeto.text = "Reparar Instalação";
+				} else {
+					objeto.text = "Destruir Instalação";
+				}
+				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
+				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+	objeto_em_edicao = true;
+	window.event.preventDefault();	
+}

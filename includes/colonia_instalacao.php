@@ -45,11 +45,15 @@ class colonia_instalacao
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+		
+		if ($this->turno_destroi === null) {
+			$texto_destruir	= "Destruir Instalação";
+		} else {
+			$texto_destruir	= "Reparar Instalação";
+		}
+		
 
-		//<tr><td>ID</td><td>Nome</td><td>Nível</td><td>Turno Const.</td><td>Destruir Instalação</td>
-
-
-		//Exibe os dados do Império		
+		//Exibe os dados da colônia
 		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao}' value='{$this->id_planeta}'></input>
@@ -65,7 +69,7 @@ class colonia_instalacao
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='destruir_instalacao(this);'>Destruir Instalação</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='destruir_instalacao(this);'>{$texto_destruir}</a></div></td>";
 		
 		return $html;
 	}

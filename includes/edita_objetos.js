@@ -28,6 +28,7 @@ function cancela_edicao(objeto) {
 	
 	var tabela_objetos = pega_ascendente(objeto,"TABLE");
 	tabela_objetos.deleteRow(-1);
+	window.event.preventDefault();
 }
 
 /******************
@@ -56,9 +57,11 @@ function atualiza_objeto(objeto, dados) {
 				divs[index].childNodes[0].style.visibility="visible";
 				//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
 			}
-			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
-				divs[index].setAttribute('data-valor-original',dados[atributo]);
-				divs[index].innerHTML = dados[atributo];
+			if (typeof dados[atributo] !== "undefined") {
+				if (dados[atributo] !== null) {
+					divs[index].setAttribute('data-valor-original',dados[atributo]);
+					divs[index].innerHTML = dados[atributo];
+				}
 			}
 		}	
 	}
@@ -73,9 +76,11 @@ function atualiza_objeto(objeto, dados) {
 		}		
 		if (inputs[index].getAttribute('data-valor-original') !== null) {
 			atributo = inputs[index].getAttribute('data-atributo');
-			if (typeof dados[atributo] !== "undefined" && dados[atributo] !== null) {
-				inputs[index].setAttribute('data-valor-original',dados[atributo]);
-				inputs[index].setAttribute('value',dados[atributo]);
+			if (typeof dados[atributo] !== "undefined") {
+				if (dados[atributo] !== null) {
+					inputs[index].setAttribute('data-valor-original',dados[atributo]);
+					inputs[index].setAttribute('value',dados[atributo]);
+				}
 			}
 		}
 	}
@@ -139,6 +144,7 @@ function edita_objeto(objeto) {
 			}
 		}
 	}
+	window.event.preventDefault();
 }
 
 /******************
@@ -231,6 +237,7 @@ function salva_objeto(objeto, cancela = false, processa_dados = '') {
 	if (cancela) {
 		var desabilita = desabilita_edicao_objeto(objeto, cancela);
 		objeto_em_edicao = false;
+		window.event.preventDefault();
 		return false;
 	}
 
@@ -249,6 +256,7 @@ function salva_objeto(objeto, cancela = false, processa_dados = '') {
 	}
 	
 	if (!valida_dados) {
+		window.event.preventDefault();
 		return false;
 	}
 
@@ -272,6 +280,7 @@ function salva_objeto(objeto, cancela = false, processa_dados = '') {
 	xhttp.send(objeto_editado['dados_ajax']);
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
+	window.event.preventDefault();
 }
 
 /******************
@@ -320,6 +329,7 @@ function excluir_objeto(objeto) {
 		xhttp.send(objeto_editado['dados_ajax']);
 
 		objeto_em_edicao = true;
+		window.event.preventDefault();
 	}
 }
 
