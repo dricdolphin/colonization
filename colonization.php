@@ -22,6 +22,7 @@ include_once('includes/recurso.php');
 include_once('includes/colonia.php');
 include_once('includes/colonia_instalacao.php');
 include_once('includes/colonia_recurso.php');
+include_once('includes/imperio_recursos.php');
 include_once('includes/turno.php');
 include_once('includes/acoes.php');
 
@@ -114,6 +115,7 @@ class colonization {
 	function colonization_setup_menu() {
 		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Admin ('manage_options')
 		add_menu_page('Gerenciar Impérios','Colonization','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'));
+		add_submenu_page('colonization_admin_menu','Impérios','Impérios','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'));
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','manage_options','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
 		add_submenu_page('colonization_admin_menu','Planetas','Planetas','manage_options','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
@@ -132,39 +134,60 @@ class colonization {
 		
 		$html = $this->html_header;
 		
-		$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
-		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
-		<thead>
-		<tr><td>ID</td><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td></tr>
-		</thead>
-		<tbody>";
+		if (isset($_GET['id'])) {
+			$imperio = new imperio($_GET['id']);
+			$imperio_recursos = new imperio_recursos($_GET['id']);
+			$html_dados_imperio = $imperio_recursos->lista_dados();
+
+			$html .= "<div><h2>COLONIZATION - Recursos do Império '{$imperio->nome}'</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_recursos'>
+			<thead>
+			<tr><td>ID</td><td>Recurso</td><td>Qtd</td></tr>
+			</thead>
+			<tbody>";
+
+			$html .= $html_dados_imperio;
+
+			$html .= "\n</tbody>
+			</table></div>
+			<br>
+			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Impérios</a>";			
+		} else {
 		
-		//Pega a lista de impérios
-		$lista_id_imperio = $wpdb->get_results("SELECT id, id_jogador FROM colonization_imperio");
-		$html_lista_imperios = "";
-		
-		foreach ($lista_id_imperio as $id) {
-			$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
-			$imperio = new imperio($id->id);
+			$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
+			<thead>
+			<tr><td>ID</td><td>Usuário</td><td>Nome do Império</td><td>População</td><td>Pontuação</td><td>&nbsp;</td></tr>
+			</thead>
+			<tbody>";
 			
-			$html_dados_imperio = $imperio->lista_dados();
-			//TODO -- Calcular População e Pontuação
-			$populacao = 999;
-			$pontuacao = 999;
+			//Pega a lista de impérios
+			$lista_id_imperio = $wpdb->get_results("SELECT id, id_jogador FROM colonization_imperio");
+			$html_lista_imperios = "";
 			
-			$html_lista_imperios .= "
-			<tr>
-			{$html_dados_imperio}
-			<td><div>{$populacao}</div></td><td><div>{$pontuacao}</div></td>
-			</tr>";
+			foreach ($lista_id_imperio as $id) {
+				$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
+				$imperio = new imperio($id->id);
+				
+				$html_dados_imperio = $imperio->lista_dados();
+				//TODO -- Calcular População e Pontuação
+				$populacao = 999;
+				$pontuacao = 999;
+				
+				$html_lista_imperios .= "
+				<tr>
+				{$html_dados_imperio}
+				</tr>";
+			}
+			
+			$html.= $html_lista_imperios;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
 		}
-		
-		$html.= $html_lista_imperios;
-		
-		$html .= "\n</tbody>
-		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
 		
 		echo $html;
 	}

@@ -18,6 +18,7 @@ function novo_imperio() {
 	var nome_imperio = linha_nova.insertCell(2);
 	var populacao = linha_nova.insertCell(3);
 	var pontuacao = linha_nova.insertCell(4);
+	var gerencia = linha_nova.insertCell(5);
 	
 	var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
 	
@@ -34,6 +35,7 @@ function novo_imperio() {
 	nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
 	pontuacao.innerHTML = "<div data-atributo='poluicao' data-valor-original=''></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
 	window.event.preventDefault();
 }

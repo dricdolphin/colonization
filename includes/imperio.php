@@ -62,7 +62,11 @@ class imperio
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
-			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>";
+			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
+			<td><div data-atributo='pop' data-valor-original=''>999</div></td>
+			<td><div data-atributo='pontuacao' data-valor-original=''>999</div></td>
+			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
+
 		return $html;
 	}
 
