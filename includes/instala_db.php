@@ -150,6 +150,63 @@ class instala_db {
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP
 		)");
+	
+		//Cria os "triggers"
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER deleta_imperio
+		AFTER DELETE
+		ON colonization_imperio FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_imperio_recursos WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_colonias WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
+		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
+		END$$
+		DELIMITER ;");
+		
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER deleta_planeta
+		AFTER DELETE
+		ON colonization_planeta FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_planeta_recursos WHERE id_planeta = old.id;
+		DELETE FROM colonization_planeta_instalacoes WHERE id_planeta = old.id;
+		DELETE FROM colonization_imperio_colonias WHERE id_planeta = old.id;
+		DELETE FROM colonization_acoes_turno WHERE id_planeta = old.id;
+		END$$
+		DELIMITER ;");
+	
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER deleta_estrela
+		AFTER DELETE
+		ON colonization_estrela FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_planeta WHERE id_estrela = old.id;
+		END$$
+		DELIMITER ;");
+		
+		$wpdb->query("		DELIMITER $$
+		CREATE TRIGGER deleta_recurso
+		AFTER DELETE
+		ON colonization_recurso FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_instalacao_recursos WHERE id_recurso = old.id;
+		DELETE FROM colonization_planeta_recursos WHERE id_recurso = old.id;
+		DELETE FROM colonization_imperio_recursos WHERE id_recurso = old.id;
+		END$$
+		DELIMITER ;");
+		
+		$wpdb->query("		DELIMITER $$
+		CREATE TRIGGER deleta_instalacao
+		AFTER DELETE
+		ON colonization_instalacao FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_instalacao_recursos WHERE id_instalacao = old.id;
+		DELETE FROM colonization_planeta_recursos WHERE id_instalacao = old.id;
+		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
+		END$$
+		DELIMITER ;");
+	
 	}
 }
 ?>

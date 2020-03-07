@@ -194,6 +194,8 @@ function pega_dados_objeto(objeto) {
 		
 		if (inputs_linha[index].getAttribute('data-atributo') == "funcao_validacao") {
 			objeto_editado['funcao_valida_objeto'] = inputs_linha[index].value;
+		} else if (inputs_linha[index].getAttribute('data-atributo') == "funcao_pos_processamento"){
+			objeto_editado['funcao_pos_processamento_objeto'] = inputs_linha[index].value;
 		} else if (inputs_linha[index].getAttribute('data-atributo') == "where_clause") {
 			objeto_editado['where_clause'] = inputs_linha[index].value;
 		} else if (inputs_linha[index].getAttribute('data-atributo') == "where_value") {
@@ -231,18 +233,26 @@ function salva_objeto(objeto, cancela = false)
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
-processa_dados = '' -- Função a ser chamada após o processamento dos dados
 ******************/	
-function salva_objeto(objeto, cancela = false, processa_dados = '') {
+function salva_objeto(objeto, cancela = false) {
+	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	if (typeof objeto_editado['funcao_pos_processamento_objeto'] != "") {
+		var pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
+	}
+	
 	if (cancela) {
-		var desabilita = desabilita_edicao_objeto(objeto, cancela);
+		var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela);
+		
+		var processa = true;
+		if (typeof pos_processamento !== "undefined") {
+			processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
+		}
+		
 		objeto_em_edicao = false;
 		window.event.preventDefault();
 		return false;
 	}
 
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	
 	if (objeto_editado['where_value'] == "") {//Se a o valor do WHERE estiver em branco, significa que estamos criando um objeto novo
 		var where_clause = objeto_editado['where_clause'];
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
@@ -254,7 +264,7 @@ function salva_objeto(objeto, cancela = false, processa_dados = '') {
 	if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
 		valida_dados = chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']);
 	}
-	
+
 	if (!valida_dados) {
 		window.event.preventDefault();
 		return false;
@@ -269,6 +279,9 @@ function salva_objeto(objeto, cancela = false, processa_dados = '') {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+				if (typeof pos_processamento !== "undefined") {
+					var processa = chama_funcao_validacao(objeto_atualizado, pos_processamento);
+				}
 				objeto_em_edicao = false; //Libera a edição de outros objetos
 			} else {
 				alert(resposta.resposta_ajax);
@@ -392,4 +405,19 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a>";
 	
 	return linha;
+}
+
+/******************
+function remove_excluir(objeto) 
+--------------------
+Remove a opção de excluir um objeto
+objeto -- objeto sendo editado
+******************/	
+function remove_excluir(objeto) {
+	var linha = pega_ascendente(objeto,"TR");
+	
+	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
+	var celula = linha.cells[0]
+	var divs = celula.getElementsByTagName("DIV");
+	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a>";
 }
