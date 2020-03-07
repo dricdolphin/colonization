@@ -357,3 +357,60 @@ function destruir_instalacao(objeto) {
 	objeto_em_edicao = true;
 	window.event.preventDefault();	
 }
+
+/******************
+function remove_excluir(objeto) 
+--------------------
+Remove a opção de excluir um objeto
+objeto -- objeto sendo editado
+******************/	
+function remove_excluir(objeto) {
+	var linha = pega_ascendente(objeto,"TR");
+	
+	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
+	var celula = linha.cells[0]
+	var divs = celula.getElementsByTagName("DIV");
+	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a>";
+}
+
+/******************
+function mais_dados_imperio(objeto) 
+--------------------
+Pega dados adicionais do Império
+objeto -- objeto sendo editado
+******************/	
+function mais_dados_imperio(objeto) {
+	var linha = pega_ascendente(objeto,"TR");
+	
+	var linha=pega_ascendente(objeto,"TR");;
+	var inputs=linha.getElementsByTagName("INPUT");
+	var dados_ajax = "post_type=POST&action=dados_imperio";
+
+	
+	for (var index = 0; index < inputs.length; index++) {
+		if (inputs[index].getAttribute('data-atributo') == "id") {
+			var id_objeto = inputs[index].value;
+		}
+	}
+	
+	dados_ajax = dados_ajax + "&id=" + id_objeto;
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			objeto_em_edicao = false;
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
+				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+}

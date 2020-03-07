@@ -23,8 +23,9 @@ include_once('includes/colonia.php');
 include_once('includes/colonia_instalacao.php');
 include_once('includes/colonia_recurso.php');
 include_once('includes/imperio_recursos.php');
-include_once('includes/turno.php');
 include_once('includes/acoes.php');
+include_once('includes/turno.php');
+
 
 
 //Classe "colonization"
@@ -121,6 +122,7 @@ class colonization {
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
+		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 	}
 
@@ -606,6 +608,57 @@ class colonization {
 		
 		echo $html;
 	}	
+	
+	
+	/******************
+	function colonization_admin_acoes()
+	-----------
+	Exibe as ações dos Impérios
+	******************/
+	function colonization_admin_acoes() {
+		global $wpdb;
+		$turno = new turno();
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Ações dos Impérios</h2></div>";
+		
+		
+		//Pega a lista de impérios
+		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		$html_lista = "";
+		
+		foreach ($lista_id_imperio as $id) {
+			$imperio = new imperio($id->id);
+			
+			//TODO -- Pega a data da última ação
+			$html_lista	.= "
+			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
+			<div><b>Recursos Atuais:</b></div>
+			<div><b>Recursos Produzidos:</b></div>
+			<div><b>Recursos Consumidos:</b></div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
+			<thead>
+			<tr><td>Colônia (X;Y;Z)</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+			</thead>
+			<tbody>";
+			
+			//TODO -- Pegar Colônias e Instalações
+			$html_lista .= "<tr><td><div>XPTO (1;2;3)</div></td><td><div>Instalação XPTO</div></td><td><div></div><input type='range' min='0' max='10' value='5'></input></td>
+			<td><div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div></td>
+			</tr>";
+			
+			
+			$html_lista .= "</tbody>
+			</table>";
+		}
+
+		$html .= $html_lista;
+
+		echo $html;
+	}
+
+
 
 	/******************
 	function colonization_admin_roda_turno()
@@ -614,12 +667,14 @@ class colonization {
 	******************/
 	function colonization_admin_roda_turno() {
 		global $wpdb;
+		$turno = new turno();
 		
-		$html = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css'>
-		<div><h2>COLONIZATION - RODA TURNO</h2></div>
+		$html = $this->html_header;
+		
+		$html = "<div><h2>COLONIZATION - RODA TURNO</h2></div>
 		<br>
-		<div><b>TURNO ATUAL - XX</b><br>
-		DATA DO ÚLTIMO TURNO - 01/01/2020</div>
+		<div><b>TURNO ATUAL - {$turno->turno}</b><br>
+		DATA DO ÚLTIMO TURNO - {$turno->data_turno}</div>
 		<br>
 		<div>
 		<table class='wp-list-table widefat fixed striped users'>
@@ -634,10 +689,9 @@ class colonization {
 		
 		foreach ($lista_id_imperio as $id) {
 			$imperio = new imperio($id->id_jogador);
-			//TODO -- Pega a pontuação e a data da última ação
+			//TODO -- Pega a data da última ação
 			$data_ultima_acao = "01/01/2020";
-			$pontuacao = "999";
-			$html_lista_imperios .= "<tr id='imperio_".$id->id_jogador."'><td><div>".$imperio->imperio_nome."</div><div><a href='#' onclick='edita_acoes(".$id->id_jogador.");'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$pontuacao}</td></tr>";
+			$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div><div><a href='#' onclick='edita_acoes({$id->id_jogador});'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$imperio->pontuacao}</td></tr>";
 		}
 
 		$html .= $html_lista_imperios;
@@ -651,8 +705,6 @@ class colonization {
 
 		echo $html;
 	}
-
-	
 }
 
 

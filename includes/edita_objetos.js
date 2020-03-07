@@ -280,7 +280,7 @@ function salva_objeto(objeto, cancela = false) {
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 				if (typeof pos_processamento !== "undefined") {
-					var processa = chama_funcao_validacao(objeto_atualizado, pos_processamento);
+					var processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
 				}
 				objeto_em_edicao = false; //Libera a edição de outros objetos
 			} else {
@@ -405,19 +405,4 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a>";
 	
 	return linha;
-}
-
-/******************
-function remove_excluir(objeto) 
---------------------
-Remove a opção de excluir um objeto
-objeto -- objeto sendo editado
-******************/	
-function remove_excluir(objeto) {
-	var linha = pega_ascendente(objeto,"TR");
-	
-	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
-	var celula = linha.cells[0]
-	var divs = celula.getElementsByTagName("DIV");
-	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a>";
 }

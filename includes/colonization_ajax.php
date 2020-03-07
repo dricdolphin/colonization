@@ -19,6 +19,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_colonia_recurso', array ($this, 'valida_colonia_recurso'));
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
+		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
 	}
 	
 	/***********************
@@ -270,5 +271,39 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 
 	}	
+
+	/***********************
+	function dados_imperio ()
+	----------------------
+	Pega os dados do Império
+	***********************/	
+	function dados_imperio() {
+		global $wpdb; 
+		//$wpdb->hide_errors();
+		$dados_salvos = [];
+		
+		$dados_salvos = $wpdb->get_results("SELECT * FROM colonization_imperio WHERE id={$_POST['id']}");
+		
+		if (isset($dados_salvos[0])) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+			$dados_salvos[0]->pop = $wpdb->get_var("SELECT 
+			(CASE 
+			WHEN SUM(pop) IS NULL THEN 0
+			ELSE SUM(pop)
+			END) AS pop
+			FROM colonization_imperio_colonias
+			WHERE id_imperio={$_POST['id']}");
+			
+			//TODO -- Criar a função para pegar a pontuação do Império
+			$dados_salvos[0]->pontuacao = 999;
+			
+		} else {
+			$dados_salvos['resposta_ajax'] = $wpdb->last_error;
+			$dados_salvos['resposta_ajax'] .= "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 }
 ?>
