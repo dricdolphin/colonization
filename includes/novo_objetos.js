@@ -28,13 +28,14 @@ function novo_imperio() {
 	+"<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>"
+	+"<input type='hidden' data-atributo='funcao_pos_processamento' value='mais_dados_imperio'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value=''></input>"
 	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
 	dados_jogador.innerHTML = "<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>";
 	nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
-	pontuacao.innerHTML = "<div data-atributo='poluicao' data-valor-original=''></div>";
+	pontuacao.innerHTML = "<div data-atributo='pontuacao' data-valor-original=''></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
 	window.event.preventDefault();
@@ -79,8 +80,9 @@ function nova_estrela() {
 function novo_planeta
 --------------------
 Insere um novo Planeta na lista
+id_estrela -- id da estrela (caso esteja adicionando planetas dentro de um sistema estelar específico)
 ******************/
-function novo_planeta() {
+function novo_planeta(id_estrela = 0) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		return false;
@@ -97,7 +99,11 @@ function novo_planeta() {
 	var tamanho = linha_nova.insertCell(5);
 	var gerencia = linha_nova.insertCell(6);
 	
-	var lista_estrelas = lista_estrelas_html();
+	if (id_estrela == 0) {
+		var lista_estrelas = lista_estrelas_html();
+	} else {
+		var lista_estrelas = lista_estrelas_html(id_estrela);
+	}
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_estrela' value=''></input>"
@@ -113,7 +119,12 @@ function novo_planeta() {
 	subclasse.innerHTML = "<div data-atributo='subclasse' data-editavel='true' data-valor-original=''><input type='text' data-atributo='subclasse' data-ajax='true'></input></div>";
 	tamanho.innerHTML = "<div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 30px;'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
-
+	
+	if (id_estrela != 0) {
+		var selects = estrela.getElementsByTagName("select");
+		estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='0'>"+selects[0].options[selects[0].selectedIndex].innerHTML+"</div>";
+	}
+	
 	window.event.preventDefault();
 }
 

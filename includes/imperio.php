@@ -17,7 +17,8 @@ class imperio
 	public $id = 0;
 	public $nome = "";
 	public $id_jogador = 0;
-		
+	public $pop = 0;
+	public $pontuacao = 0;
 
 	/***********************
 	function __construct(id_imperio = null)
@@ -40,7 +41,18 @@ class imperio
 		}
 		
 		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
-		//$this->planeta[] = pega_planetas_imperio(this.id);
+		
+		$this->pop = $wpdb->get_var("SELECT 
+		(CASE 
+		WHEN SUM(pop) IS NULL THEN 0
+		ELSE SUM(pop)
+		END) AS pop
+		FROM colonization_imperio_colonias
+		WHERE id_imperio={$this->id}");
+		
+		//TODO -- Criar a função para pegar a pontuação do Império
+		$this->pontuacao = 999;
+		
 	}
 
 	/***********************
@@ -57,14 +69,15 @@ class imperio
 				<input type='hidden' data-atributo='where_clause' value='id_jogador'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id_jogador}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
+				<input type='hidden' data-atributo='funcao_pos_processamento' value='mais_dados_imperio'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
 				<div data-atributo='ID' >{$this->id}</div>
 				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
-			<td><div data-atributo='pop' data-valor-original=''>999</div></td>
-			<td><div data-atributo='pontuacao' data-valor-original=''>999</div></td>
+			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
+			<td><div data-atributo='pontuacao' data-valor-original=''>{$this->pontuacao}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
 
 		return $html;

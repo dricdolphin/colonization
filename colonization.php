@@ -199,37 +199,72 @@ class colonization {
 	******************/
 	function colonization_admin_estrelas() {
 		global $wpdb;
-		
 		$html = $this->html_header;
-		
-		$html .= "<div><h2>COLONIZATION - Estrelas</h2></div>
-		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
-		<thead>
-		<tr><td>Nome da estrela</td><td style='width: 70px;'>Posição X</td><td style='width: 30px;'>Y</td><td style='width: 30px;'>Z</td><td>Tipo de estrela</td></tr>
-		</thead>
-		<tbody>";
-		
-		//Pega a lista de estrelas
-		$lista_id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela ORDER BY X,Y,Z");
-		$html_lista_estrelas = "";
-		
-		foreach ($lista_id_estrelas as $id) {
-			$estrela = new estrela($id->id);
-			$html_dados_estrela = $estrela->lista_dados();
 
-			$html_lista_estrelas .= "
-			<tr>
-			{$html_dados_estrela}
-			</tr>";
+		
+		if (isset($_GET['id'])) {	
+			$estrela = new estrela($_GET['id']);
+			
+			$html .= "<div><h2>COLONIZATION - Sistema Estelar da estrela '{$estrela->nome}' - {$estrela->X};{$estrela->Y};{$estrela->Z} </h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
+			<thead>
+			<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 50px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 60px;'>Tamanho</td><td>&nbsp;</td>
+			</tr>
+			</thead>
+			<tbody>";
+
+			//Pega a lista de planetas
+			$lista_id = $wpdb->get_results("SELECT id FROM colonization_planeta WHERE id_estrela={$estrela->id}");
+			$html_lista = "";
+			
+			foreach ($lista_id as $id) {
+				$planeta = new planeta($id->id);
+				$html_dados = $planeta->lista_dados();
+
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";
+			}
+			
+			$html.= $html_lista;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta({$estrela->id});'>Adicionar novo Planeta</a></div>
+			<br>
+			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Instalações</a>";
+		
+		} else {
+			$html .= "<div><h2>COLONIZATION - Estrelas</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
+			<thead>
+			<tr><td>Nome da estrela</td><td style='width: 70px;'>Posição X</td><td style='width: 30px;'>Y</td><td style='width: 30px;'>Z</td><td>Tipo de estrela</td><td>&nbsp;</td></tr>
+			</thead>
+			<tbody>";
+			
+			//Pega a lista de estrelas
+			$lista_id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela ORDER BY X,Y,Z");
+			$html_lista_estrelas = "";
+			
+			foreach ($lista_id_estrelas as $id) {
+				$estrela = new estrela($id->id);
+				$html_dados_estrela = $estrela->lista_dados();
+
+				$html_lista_estrelas .= "
+				<tr>
+				{$html_dados_estrela}
+				</tr>";
+			}
+			
+			$html.= $html_lista_estrelas;
+			
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_estrela();'>Adicionar nova Estrela</a></div>";
 		}
-		
-		$html.= $html_lista_estrelas;
-		
-		$html .= "\n</tbody>
-		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_estrela();'>Adicionar nova Estrela</a></div>";
-		
 		echo $html;
 	}
 
@@ -252,7 +287,7 @@ class colonization {
 		</thead>
 		<tbody>";
 		
-		//Pega a lista de estrelas
+		//Pega a lista de planetas
 		$lista_id = $wpdb->get_results("SELECT id FROM colonization_planeta");
 		$html_lista = "";
 		

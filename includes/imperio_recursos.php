@@ -47,13 +47,14 @@ class imperio_recursos
 		}
 		
 		$chave = 0;
-		if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
-			foreach ($this->id as $chave => $valor) {
-				$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_recurso={$this->id_recurso[$chave]}, qtd=0, turno={$this->turno->turno}, id_imperio={$this->id_imperio}");
-				$this->id[$chave] = $wpdb->insert_id;;
+		if (isset($this->id[$chave])) {
+			if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
+				foreach ($this->id as $chave => $valor) {
+					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_recurso={$this->id_recurso[$chave]}, qtd=0, turno={$this->turno->turno}, id_imperio={$this->id_imperio}");
+					$this->id[$chave] = $wpdb->insert_id;;
+				}
 			}
 		}
-		
 	}
 
 	/***********************
@@ -79,7 +80,7 @@ class imperio_recursos
 					<div><a href='#' onclick='edita_objeto(this);'>Editar</a></div>
 				</td>
 				<td><div data-atributo='nome_recurso'>{$recurso->nome}</div></td>
-				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd[$chave]}' data-style='width: 30px;'>{$this->qtd[$chave]}</div></td>
+				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd[$chave]}' data-style='width: 80px;'>{$this->qtd[$chave]}</div></td>
 				</tr>";
 		}
 

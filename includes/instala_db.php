@@ -202,7 +202,7 @@ class instala_db {
 		ON colonization_instalacao FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_instalacao_recursos WHERE id_instalacao = old.id;
-		DELETE FROM colonization_planeta_recursos WHERE id_instalacao = old.id;
+		DELETE FROM colonization_planeta_instalacoes WHERE id_instalacao = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$
 		DELIMITER ;");
