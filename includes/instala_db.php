@@ -97,7 +97,8 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		id_recurso INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
-		turno INT(6) NOT NULL
+		turno INT(6) NOT NULL,
+		disponivel BOOLEAN DEFAULT NOT NULL
 		)");
 
 		//Tabela com as colonias do Império

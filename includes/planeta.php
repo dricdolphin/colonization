@@ -11,12 +11,12 @@ class planeta
 {
 	public $id;
 	public $id_estrela;
-	public $estrela;
 	public $nome;
 	public $posicao;
 	public $classe;
 	public $subclasse;
 	public $tamanho;
+	public $estrela;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -24,7 +24,7 @@ class planeta
 		$this->id = $id;
 
 		$resultados = $wpdb->get_results("SELECT id_estrela, nome, posicao, classe, subclasse, tamanho FROM colonization_planeta WHERE id=".$this->id);
-		$resultado = $resultados[0];				
+		$resultado = $resultados[0];
 		
 		$this->id_estrela = $resultado->id_estrela;
 		$this->nome = $resultado->nome;
@@ -44,7 +44,7 @@ class planeta
 	function lista_dados() {
 		global $wpdb;
 
-		//Exibe os dados do Império		
+		//Exibe os dados do objeto	
 		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_estrela' data-valor-original='{$this->id_estrela}' value='{$this->id_estrela}'></input>
@@ -60,7 +60,7 @@ class planeta
 			<td><div data-atributo='classe' data-editavel='true' data-valor-original='{$this->classe}'>{$this->classe}</div></td>
 			<td><div data-atributo='subclasse' data-editavel='true' data-valor-original='{$this->subclasse}'>{$this->subclasse}</div></td>
 			<td><div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->tamanho}'>{$this->tamanho}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this,\"page=colonization_admin_planetas\");'>Gerenciar Objeto</a></div></td>";
 		
 		return $html;
 	}

@@ -106,23 +106,23 @@ function novo_planeta(id_estrela = 0) {
 	}
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-	+"<input type='hidden' data-atributo='id_estrela' value=''></input>"
+	+"<input type='hidden' data-atributo='id_estrela' value='"+id_estrela+"'></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>"
 	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
 	+"<div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div>";
-	estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='0'>"+lista_estrelas+"</div>";
+	estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='"+id_estrela+"'>"+lista_estrelas+"</div>";
 	posicao.innerHTML = "<div data-atributo='posicao' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='posicao' data-ajax='true' style='width: 30px;'></input></div>";
 	classe.innerHTML = "<div data-atributo='classe' data-editavel='true' data-valor-original=''><input type='text' data-atributo='classe' data-ajax='true'></input></div>";
 	subclasse.innerHTML = "<div data-atributo='subclasse' data-editavel='true' data-valor-original=''><input type='text' data-atributo='subclasse' data-ajax='true'></input></div>";
 	tamanho.innerHTML = "<div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 30px;'></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+		gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='gerenciar_objeto(this,\"page=colonization_admin_planetas\");' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 	
 	if (id_estrela != 0) {
 		var selects = estrela.getElementsByTagName("select");
-		estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='0'>"+selects[0].options[selects[0].selectedIndex].innerHTML+"</div>";
+		estrela.innerHTML = "<input type='hidden' data-atributo='id_estrela' data-ajax='true' value='"+id_estrela+"'></input><div data-atributo='nome_estrela' data-valor-original='"+selects[0].options[selects[0].selectedIndex].innerHTML+"'>"+selects[0].options[selects[0].selectedIndex].innerHTML+"</div>";
 	}
 	
 	window.event.preventDefault();

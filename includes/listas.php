@@ -102,7 +102,7 @@ class lista_recursos
 	
 	function __construct() {
 		global $wpdb;
-		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_recurso");
+		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_recurso ORDER BY nome");
 
 		$lista_valores = "";
 		$lista_options = "";
@@ -161,7 +161,7 @@ class lista_planetas
 		FROM colonization_planeta 
 		LEFT JOIN colonization_estrela 
 		ON colonization_estrela.id = colonization_planeta.id_estrela
-		ORDER BY colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z");
+		ORDER BY colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z, colonization_planeta.posicao");
 
 		$lista_valores = "";
 		$lista_options = "";
@@ -217,7 +217,8 @@ class lista_instalacoes
 		global $wpdb;
 		$resultados = $wpdb->get_results(
 		"SELECT id, nome
-		FROM colonization_instalacao");
+		FROM colonization_instalacao
+		ORDER BY nome");
 
 		$lista_valores = "";
 		$lista_options = "";

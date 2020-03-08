@@ -58,7 +58,8 @@ function atualiza_objeto(objeto, dados) {
 				//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
 			}
 			if (typeof dados[atributo] !== "undefined") {
-				if (dados[atributo] !== null) {
+				//Só atualiza o innerHTML de divs que não contenham objetos
+				if (dados[atributo] !== null && divs[index].childNodes[0].tagName != "INPUT") {
 					divs[index].setAttribute('data-valor-original',dados[atributo]);
 					divs[index].innerHTML = dados[atributo];
 				}
@@ -291,6 +292,7 @@ function salva_objeto(objeto, cancela = false) {
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(objeto_editado['dados_ajax']);
+	console.log(objeto_editado['dados_ajax']);
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	window.event.preventDefault();

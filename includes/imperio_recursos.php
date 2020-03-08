@@ -13,8 +13,8 @@ class imperio_recursos
 	public $id = [];
 	public $id_recurso = [];
 	public $qtd = [];
+	public $disponivel = [];
 	public $turno;
-
 	
 	function __construct($id_imperio) {
 		global $wpdb;
@@ -23,11 +23,11 @@ class imperio_recursos
 		$this->turno = new turno();
 		
 		$resultado = $wpdb->get_results("
-		SELECT cir.id AS id, cr.id AS id_recurso, cir.qtd AS qtd
+		SELECT cir.id AS id, cr.id AS id_recurso, cir.qtd AS qtd, cir.disponivel AS disponivel
 		FROM 
 		(SELECT * FROM colonization_recurso) AS cr
 		LEFT JOIN 
-		(SELECT id, id_recurso, qtd FROM colonization_imperio_recursos 
+		(SELECT id, id_recurso, qtd, disponivel FROM colonization_imperio_recursos 
 		WHERE id_imperio = {$this->id_imperio}
 		AND turno = {$this->turno->turno}) AS cir
 		ON cr.id = cir.id_recurso");
@@ -38,10 +38,12 @@ class imperio_recursos
 				$this->id[$chave] = 0;
 				$this->id_recurso[$chave] = $valor->id_recurso;
 				$this->qtd[$chave] = 0;
+				$this->disponivel[$chave] = 0;
 			} else {
 				$this->id[$chave] = $valor->id;
 				$this->id_recurso[$chave] = $valor->id_recurso;
 				$this->qtd[$chave] = $valor->qtd;
+				$this->disponivel[$chave] = $valor->disponivel;
 			}
 			$chave++;
 		}
@@ -64,9 +66,17 @@ class imperio_recursos
 	***********************/
 	function lista_dados() {
 		global $wpdb;
-
+		
 		$html = "";
+		$disponivel_checked = "";
 		foreach ($this->id AS $chave => $valor) {
+			if ($this->disponivel[$chave] == 1) {
+				$disponivel_checked = "checked";
+			} else {
+				$disponivel_checked = "";
+			}
+
+
 			$recurso = new recurso($this->id_recurso[$chave]);
 			$html .= "<tr><td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
@@ -81,6 +91,7 @@ class imperio_recursos
 				</td>
 				<td><div data-atributo='nome_recurso'>{$recurso->nome}</div></td>
 				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd[$chave]}' data-style='width: 80px;'>{$this->qtd[$chave]}</div></td>
+				<td><div data-atributo='disponivel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->disponivel[$chave]}'><input type='checkbox' data-atributo='disponivel' data-ajax='true' {$disponivel_checked} disabled></input></div></td>
 				</tr>";
 		}
 
