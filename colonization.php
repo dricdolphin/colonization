@@ -41,7 +41,7 @@ class colonization {
 	function __construct() {
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
-
+		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
 	}
 
 	/******************
@@ -80,6 +80,25 @@ class colonization {
 		
 		return $imperio->imperio_exibe_imperio();
 	}
+
+	/***********************
+	function colonization_exibe_colonias_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
+	os dados do Império com id="1"
+	***********************/	
+	function colonization_exibe_colonias_imperio($atts = [], $content = null) {
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		return $imperio->imperio_exibe_colonias_imperio();
+	}
+
 }
 
 

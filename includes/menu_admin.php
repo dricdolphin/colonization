@@ -13,11 +13,8 @@ class menu_admin {
 		
 		//Inicializa os dados básicos, usados na maior parte das funções
 		$today = date("YmdHi"); 
+		
 		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
-		<script src='../wp-content/plugins/colonization/includes/novo_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/valida_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/gerencia_objeto.js?v={$today}'></script>
 		<script>";
 		
 		$lista = new lista_usuarios();
@@ -54,8 +51,41 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
+		
+		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
+		
+		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
 	}
 
+
+	/******************
+	function colonization_admin_scripts()
+	-----------
+	Adiciona os scripts do plugin ao Admin
+	******************/
+	function colonization_admin_scripts ($hook) {
+		if (strpos($hook,"colonization") !== false) {
+			wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js');
+			wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js');
+			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js');
+			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js');
+		} else {
+			return;
+		}
+	}
+	
+	/******************
+	function colonization_scripts()
+	-----------
+	Adiciona os scripts do plugin
+	******************/
+	function colonization_scripts ($hook) {
+		wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js');
+		wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js');
+		wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js');
+		wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js');
+	}	
+	
 	/******************
 	function colonization_admin_menu()
 	-----------

@@ -11,14 +11,12 @@ class imperio
 {
 //TODO -- Criar a classe
 
-	//TODO -- Criar as variáveis do Império
-	//planeta imperio_planetas[];
-	//recurso imperio_recursos[];
-	public $id = 0;
-	public $nome = "";
-	public $id_jogador = 0;
+	public $id;
+	public $nome;
+	public $id_jogador;
 	public $pop = 0;
 	public $pontuacao = 0;
+	public $html_header;
 
 	/***********************
 	function __construct(id_imperio = null)
@@ -28,6 +26,14 @@ class imperio
 	***********************/
 	function __construct($id) {
 		global $wpdb;
+		
+		$today = date("YmdHi"); 
+		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
+		<script src='../wp-content/plugins/colonization/includes/novo_objetos.js?v={$today}'></script>
+		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v={$today}'></script>
+		<script src='../wp-content/plugins/colonization/includes/valida_objetos.js?v={$today}'></script>
+		<script src='../wp-content/plugins/colonization/includes/gerencia_objeto.js?v={$today}'></script>";
+		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
 		
@@ -90,12 +96,45 @@ class imperio
 	Exibe os dados do Império
 	***********************/
 	function imperio_exibe_imperio() {
-		//TODO -- Exibe todos os dados do Império numa tabela. Recursos Globais, Planetas e Recursos Locais, e posição das Frotas
+		global $wpdb;
 		
-		//Exibe os dados do Império
-		$html = "<div>Dados do Império '{$this->nome}'</div>";
+		$total_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		//Exibe os dados básicos do Império
+		$html = "<div>{$this->nome} - População: {$this->pop} - Pontuação: {$this->pontuacao}</div>
+		<div>Total de Colônias: {$total_colonias}</div>";
 		return $html;
 	}
-	
+
+	/***********************
+	function imperio_exibe_colonias_imperio()
+	----------------------
+	Exibe os dados do Império
+	***********************/
+	function imperio_exibe_colonias_imperio() {
+		global $wpdb;
+		
+		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		
+		$html = $this->html_header;
+		
+		$html .= "<table class='wp-list-table widefat fixed striped users'>
+		<thead>
+		<tr><td>Estrela (X;Y;Z)</td><td>Planeta (posição)</td><td>População</td><td>Poluição</td></tr>
+		</thead>
+		<tbody>
+		";
+		
+		foreach ($colonias as $id) {
+			$colonia = new colonia($id->id);
+			$planeta = new planeta($colonia->id_planeta);
+			$estrela = new estrela($planeta->id_estrela);
+			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$planeta->nome} ({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
+		}
+		
+		$html .= "</tbody>
+		</table>";
+
+		return $html;
+	}
 }
 ?>
