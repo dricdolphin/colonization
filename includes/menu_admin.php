@@ -675,11 +675,9 @@ class menu_admin {
 			</thead>
 			<tbody>";
 			
-			//TODO -- Pegar Colônias e Instalações
-			$html_lista .= "<tr><td><div>XPTO (1;2;3)</div></td><td><div>Instalação XPTO</div></td><td><div><input type='range' min='0' max='10' value='5'></input></div></td>
-			<td><div><a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='cancela_edicao(this);'>Cancelar</a></div></td>
-			</tr>";
+			$imperio_acoes = new acoes($imperio->id,$turno->turno);
 			
+			$html_lista .= $imperio_acoes->lista_dados();
 			
 			$html_lista .= "</tbody>
 			</table>";

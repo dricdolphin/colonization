@@ -10,35 +10,72 @@ as ações de um determinado turno de um jogador.
 //Contém os dados da instalacao
 class acoes 
 {
-	public $id;
+	public $id = [];
 	public $id_imperio;
-	public $id_planeta;
-	public $id_instalacao;
-	public $pop;
+	public $id_planeta = [];
+	public $id_instalacao = [];
+	public $pop = [];
 	public $turno;
-	public $data_modifica;
-	public $planeta;
-	public $instalacao;
-	public $estrela;
+	public $data_modifica = [];
 	
-	function __construct($id) {
+	function __construct($id_imperio, $turno=0) {
 		global $wpdb;
 		
-		$this->id = $id;
+		$this->id_imperio = $id_imperio;
+		$this->turno = new turno($turno);
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, id_planeta, id_instalacao, pop, turno, data_modifica FROM colonization_acoes_turno WHERE id=".$this->id);
-		$resultado = $resultados[0];
+		$resultados =$wpdb->get_results("
+			SELECT cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id_instalacao AS id_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
+			FROM colonization_imperio_colonias AS cic 
+			JOIN colonization_planeta_instalacoes AS cpi
+			ON cpi.id_planeta = cic.id_planeta
+			LEFT JOIN 
+			(SELECT id, id_planeta, id_instalacao, id_imperio, pop, data_modifica
+			 FROM colonization_acoes_turno
+			 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+			) AS cat
+			ON cat.id_planeta = cic.id_planeta
+			AND cat.id_instalacao = cpi.id_instalacao
+			AND cat.id_imperio = cic.id_imperio
+			JOIN colonization_instalacao AS ci
+			ON ci.id = cpi.id_instalacao
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cic.id_imperio = {$this->id_imperio}
+			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cpi.id
+			");
 		
-		$this->id_imperio = $resultado->id_imperio;
-		$this->id_planeta = $resultado->id_planeta;
-		$this->id_instalacao = $resultado->id_instalacao;
-		$this->pop = $resultado->pop;
-		$this->turno = $resultado->turno;
-		$this->data_modifica = $resultado->data_modifica;
+		$chave = 0;
+		foreach ($resultados as $valor) {
+			if ($valor->id === null) {
+				$this->id[$chave] = 0;
+				$this->id_planeta[$chave] = $valor->id_planeta;
+				$this->id_instalacao[$chave] = $valor->id_instalacao;
+				$this->pop[$chave] = 0;
+				$this->data_modifica[$chave] = $this->turno->data_turno;
+			} else {
+				$this->id[$chave] = $valor->id;
+				$this->id_planeta[$chave] = $valor->id_planeta;
+				$this->id_instalacao[$chave] = $valor->id_instalacao;
+				$this->pop[$chave] = $valor->pop;
+				$this->data_modifica[$chave] = $valor->data_modifica;
+			}
+			$chave++;
+		}
 		
-		$this->planeta = new planeta($this->id_planeta);
-		$this->instalacao = new instalacao($this->id_instalacao);
-		$this->estrela = new estrela($this->planeta->id_estrela);
+		$chave = 0;
+		if (isset($this->id[$chave])) {
+			if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
+				foreach ($this->id as $chave => $valor) {
+					$wpdb->query("INSERT INTO colonization_acoes_turno 
+					SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
+					pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+					$this->id[$chave] = $wpdb->insert_id;;
+				}
+			}
+		}
 	}
 
 	/***********************
@@ -49,21 +86,28 @@ class acoes
 	function lista_dados() {
 		global $wpdb;
 		
-	
-	$html = "		<td>
-				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_instalacao}' value='{$this->id_instalacao}'></input>
+		$html = "";
+		foreach ($this->id AS $chave => $valor) {
+			$planeta = new planeta($this->id_planeta[$chave]);
+			$estrela = new estrela($planeta->id_estrela);
+			$instalacao = new instalacao($this->id_instalacao[$chave]);
+			
+			$html .= "		<tr><td>
+				<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
+				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
+				<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao[$chave]}' value='{$this->id_instalacao[$chave]}'></input>
+				<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
-				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
+				<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-				<div data-atributo='nome_planeta' data-valor-original='{$this->planeta->nome} ({$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z})'>{$this->planeta->nome} ({$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z})</div>
+				<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</div>
 			</td>
-			<td><div data-atributo='nome_instalacao' data-valor-original='{$this->instalacao->nome}'>{$this->instalacao->nome}</div></td>
-			<td><div data-atributo='pop' data-valor-original='{$this->pop}' data-ajax='true'><input type='range' min='0' max='10' value='{$this->pop}' oninput='altera_acao(this);'></input></div></td>
+			<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome}</div></td>
+			<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true'><input type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='altera_acao(this);'></input></div></td>
 			<td><div style='visibility: hidden;'><a href='#' onclick='salva_acao(this);'>Salvar</a> | <a href='#' onclick='salva_acao(this,true);'>Cancelar</a></div></td>
-			";
+			</tr>";
+		}
 		
 		return $html;
 	

@@ -12,19 +12,23 @@ class turno
 	public $turno;
 	public $data_turno;
 	public $bloqueado;
-	public $Y;
-	public $Z;
-	public $tipo;
 	
 	/***********************
 	function __construct()
 	----------------------
 	Inicializa os dados do turno
 	***********************/
-	function __construct() {
+	function __construct($turno=0) {
 		global $wpdb;
 
-		$resultados = $wpdb->get_results("SELECT MAX(id) AS id, data_turno, bloqueado FROM colonization_turno_atual");
+		if ($turno == 0) {
+			$resultados = $wpdb->get_results("SELECT MAX(id) AS id, data_turno, bloqueado FROM colonization_turno_atual");
+		} else {
+			$resultados = $wpdb->get_results("SELECT id, data_turno, bloqueado FROM colonization_turno_atual WHERE id={$turno}");
+		}
+		if ($resultados == 0) {
+			$resultados = $wpdb->get_results("SELECT MAX(id) AS id, data_turno, bloqueado FROM colonization_turno_atual");
+		}
 		$resultado = $resultados[0];
 		
 		$this->turno = $resultado->id;
