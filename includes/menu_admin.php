@@ -11,28 +11,12 @@ class menu_admin {
 	function __construct() {
 		$colonization_ajax = new colonization_ajax();
 		
-		//Inicializa os dados básicos, usados na maior parte das funções
-		$today = date("YmdHi"); 
-		
-		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
-		<script>";
-		
-		$lista = new lista_usuarios();
-		$this->html_header .= $lista->html_lista;
-		
-		$lista = new lista_estrelas();
-		$this->html_header .= $lista->html_lista;
-		
-		$lista = new lista_recursos();
-		$this->html_header .= $lista->html_lista;
+		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
+		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
 
-		$lista = new lista_planetas();
-		$this->html_header .= $lista->html_lista;
-		
-		$lista = new lista_instalacoes();
-		$this->html_header .= $lista->html_lista;
-		
-		$this->html_header .="</script>";
+		//$this->html_header = "<script src='../wp-content/plugins/colonization/js/listas_js.js?v=1234'>";
+
+		//$this->html_header .="</script>";
 	}
 
 	/******************
@@ -51,10 +35,6 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
-		
-		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
-		
-		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
 	}
 
 
@@ -64,26 +44,31 @@ class menu_admin {
 	Adiciona os scripts do plugin ao Admin
 	******************/
 	function colonization_admin_scripts ($hook) {
+		$hoje = date("YmdHi"); 
 		if (strpos($hook,"colonization") !== false) {
-			wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js');
-			wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js');
-			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js');
-			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js');
+			wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js',false,$hoje);
+			wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js',false,$hoje);
+			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
+			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
+			wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
+			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 		} else {
 			return;
 		}
 	}
-	
+
 	/******************
 	function colonization_scripts()
 	-----------
 	Adiciona os scripts do plugin
 	******************/
 	function colonization_scripts ($hook) {
-		wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js');
-		wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js');
-		wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js');
-		wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js');
+		wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js',false,$hoje);
+		wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js',false,$hoje);
+		wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
+		wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
+		wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
+		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js');
 	}	
 	
 	/******************
