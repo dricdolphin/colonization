@@ -33,7 +33,6 @@ if (file_exists(dirname(__FILE__)."/listas_js.js")) {
 	if (file_get_contents(dirname(__FILE__)."/listas_js.js") == $listas_js->html_header) {
 		return;
 	}
-} else {
-	$arquivo = file_put_contents(dirname(__FILE__)."/listas_js.js",$listas_js->html_header,FILE_TEXT);	
 }
+$arquivo = file_put_contents(dirname(__FILE__)."/listas_js.js",$listas_js->html_header,FILE_TEXT);	
 ?>
