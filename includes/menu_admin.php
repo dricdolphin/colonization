@@ -63,6 +63,7 @@ class menu_admin {
 	Adiciona os scripts do plugin
 	******************/
 	function colonization_scripts ($hook) {
+		$hoje = date("YmdHi"); 
 		wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js',false,$hoje);
 		wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js',false,$hoje);
 		wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
