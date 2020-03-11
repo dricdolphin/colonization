@@ -21,7 +21,7 @@ class imperio_recursos
 		
 		$this->id_imperio = $id_imperio;
 		$this->turno = new turno();
-		
+
 		$resultado = $wpdb->get_results("
 		SELECT cir.id AS id, cr.id AS id_recurso, cir.qtd AS qtd, cir.disponivel AS disponivel
 		FROM 
@@ -50,8 +50,8 @@ class imperio_recursos
 		
 		$chave = 0;
 		if (isset($this->id[$chave])) {
-			if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
-				foreach ($this->id as $chave => $valor) {
+			foreach ($this->id as $chave => $valor) {
+				if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
 					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_recurso={$this->id_recurso[$chave]}, qtd=0, turno={$this->turno->turno}, id_imperio={$this->id_imperio}");
 					$this->id[$chave] = $wpdb->insert_id;;
 				}
