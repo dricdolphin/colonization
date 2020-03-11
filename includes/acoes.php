@@ -104,8 +104,8 @@ class acoes
 				<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</div>
 			</td>
 			<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome}</div></td>
-			<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true'><input type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='altera_acao(this);'></input></div></td>
-			<td><div style='visibility: hidden;'><a href='#' onclick='salva_acao(this);'>Salvar</a> | <a href='#' onclick='salva_acao(this,true);'>Cancelar</a></div></td>
+			<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'><input data-atributo='pop' data-ajax='true' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='altera_acao(this,event);'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop'>{$this->pop[$chave]}</label></div></td>
+			<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='salva_acao(this);'>Salvar</a> | <a href='#' onclick='salva_acao(this,true);'>Cancelar</a></div></td>
 			</tr>";
 		}
 		

@@ -1,4 +1,5 @@
 var objeto_em_edicao = false; //Define se está no modo de edição ou não
+var range_em_edicao = false; //Define se o "range" está em edição
 
 /******************
 function pega_ascendente(objeto,tag)
@@ -85,6 +86,8 @@ function atualiza_objeto(objeto, dados) {
 			}
 		}
 	}
+	
+	return objeto;
 }
 
 /******************
@@ -407,4 +410,124 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a>";
 	
 	return linha;
+}
+
+/******************
+function altera_acao(objeto) 
+--------------------
+Desabilita o modo de edição e atualiza os dados
+objeto -- objeto sendo desabilitado
+cancela = false -- define se pega os dados originais ou os novos
+******************/	
+function altera_acao(objeto) {
+	if (!range_em_edicao || range_em_edicao == objeto) {
+		range_em_edicao = objeto;
+		
+		var linha = pega_ascendente(objeto,"TR");
+		var inputs = linha.getElementsByTagName("INPUT");
+		var selects = linha.getElementsByTagName("SELECT");
+		var label = linha.getElementsByTagName("LABEL");
+			
+		if (linha.childNodes[6].childNodes[0].style.visibility == "hidden") {	
+			linha.childNodes[6].childNodes[0].style.visibility = "visible";
+		}
+		
+		label[0].innerText = objeto.value;
+	} else {
+		alert('Já existe uma ação em edição!');
+		objeto.value = objeto.parentNode.getAttribute('data-valor-original');
+		return false;
+	}
+}
+
+/******************
+function salva_acao(objeto, cancela = false)
+--------------------
+Salva uma Ação sendo editada
+objeto -- objeto sendo editado
+cancela = false -- Define se é para salvar ou apenas cancelar a edição
+******************/	
+function salva_acao(objeto, cancela = false) {
+	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	var linha = pega_ascendente(objeto,"TR");
+	var divs = linha.getElementsByTagName('DIV');
+	var inputs = linha.getElementsByTagName('INPUT');
+	var labels = linha.getElementsByTagName('LABEL');
+	
+	if (cancela) {
+		for (var index=0;index<divs.length;index++) {
+			if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+				divs[index].style.visibility = "hidden";
+			}
+		}
+		
+		for (index=0;index<inputs.length;index++) {
+			if (inputs[index].getAttribute('data-atributo') == "pop") {
+				var index_range_pop = index;
+				inputs[index].value = inputs[index].parentNode.getAttribute("data-valor-original");
+			}
+		}
+
+		for (index=0;index<labels.length;index++) {
+			if (labels[index].getAttribute('data-atributo') == "pop") {
+				labels[index].innerText = inputs[index_range_pop].value;
+			}
+		}
+		
+		range_em_edicao = false;
+		window.event.preventDefault();
+		return false;
+	}
+
+	if (objeto_editado['where_value'] == "") {//Se a o valor do WHERE estiver em branco, significa que estamos criando um objeto novo
+		var where_clause = objeto_editado['where_clause'];
+		objeto_editado['where_value'] = objeto_editado[where_clause].value;
+	}
+	//Cria o string que será passado para o AJAX
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
+	
+	/*****************
+	TODO -- Validação das Ações
+	
+	var valida_dados = true;
+	if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
+		valida_dados = chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']);
+	}
+
+	
+	if (!valida_dados) {
+		window.event.preventDefault();
+		return false;
+	}
+	***************/
+	
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "SALVO!") {
+				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
+				//var objeto_desabilitado = desabilita_edicao_objeto(objeto);
+				var linha = pega_ascendente(objeto,"TR");
+				var objeto_atualizado = atualiza_objeto(linha,resposta[0]); //O objeto salvo está no array resposta[0]
+				var divs = objeto_atualizado.getElementsByTagName("DIV");
+				for (var index=0;index<divs.length;index++) {
+					if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+						divs[index].style.visibility = "hidden";
+					}
+				}
+				range_em_edicao = false;
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(objeto_editado['dados_ajax']);
+	console.log(objeto_editado['dados_ajax']);
+
+	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
+	window.event.preventDefault();
 }
