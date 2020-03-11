@@ -67,11 +67,23 @@ class acoes
 		
 		$chave = 0;
 		if (isset($this->id[$chave])) {
-			if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
-				foreach ($this->id as $chave => $valor) {
-					$wpdb->query("INSERT INTO colonization_acoes_turno 
-					SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
-					pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+			foreach ($this->id as $chave => $valor) {
+				if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
+					//Se tiver um valor no turno anterior, é para mantê-lo no turno atual
+					$turno_anterior = $this->turno->turno - 1;
+					$pop_turno_anterior = $wpdb->get_var("SELECT pop FROM colonization_acoes_turno 
+					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id_instalacao={$this->id_instalacao[$chave]}
+					AND turno={$turno_anterior}");
+					
+					if ($pop_turno_anterior === null) {
+						$wpdb->query("INSERT INTO colonization_acoes_turno 
+						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
+						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+					} else {
+						$wpdb->query("INSERT INTO colonization_acoes_turno 
+						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
+						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+					}
 					$this->id[$chave] = $wpdb->insert_id;;
 				}
 			}
