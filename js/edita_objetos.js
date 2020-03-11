@@ -29,7 +29,8 @@ function cancela_edicao(objeto) {
 	
 	var tabela_objetos = pega_ascendente(objeto,"TABLE");
 	tabela_objetos.deleteRow(-1);
-	window.event.preventDefault();
+	evento.preventDefault();
+	return false;
 }
 
 /******************
@@ -96,7 +97,7 @@ function edita_objeto(objeto)
 Edita um objeto
 objeto -- objeto a ser editado
 ******************/	
-function edita_objeto(objeto) {
+function edita_objeto(evento, objeto) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		return false;
@@ -122,7 +123,7 @@ function edita_objeto(objeto) {
 		celula = celulas[index];
 		divs = celula.getElementsByTagName('div'); //Os dados editáveis ficam sempre dentro de divs
 		if (index == 0) {//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
-			divs[1].innerHTML = "<a href='#' onclick='salva_objeto(this);'>Salvar</a> | <a href='#' onclick='salva_objeto(this,true);'>Cancelar</a>";
+			divs[1].innerHTML = "<a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return salva_objeto(event, this, true);'>Cancelar</a>";
 		}
 		
 		for (var index_div = 0; index_div < divs.length; index_div++) {
@@ -148,7 +149,8 @@ function edita_objeto(objeto) {
 			}
 		}
 	}
-	window.event.preventDefault();
+	
+	evento.preventDefault();
 }
 
 /******************
@@ -238,7 +240,7 @@ Salva o Império sendo editado.
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
-function salva_objeto(objeto, cancela = false) {
+function salva_objeto(evento, objeto, cancela = false) {
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	if (typeof objeto_editado['funcao_pos_processamento_objeto'] != "") {
 		var pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
@@ -253,7 +255,8 @@ function salva_objeto(objeto, cancela = false) {
 		}
 		
 		objeto_em_edicao = false;
-		window.event.preventDefault();
+		
+		evento.preventDefault();
 		return false;
 	}
 
@@ -270,7 +273,7 @@ function salva_objeto(objeto, cancela = false) {
 	}
 
 	if (!valida_dados) {
-		window.event.preventDefault();
+		evento.preventDefault();
 		return false;
 	}
 
@@ -298,7 +301,8 @@ function salva_objeto(objeto, cancela = false) {
 	console.log(objeto_editado['dados_ajax']);
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
-	window.event.preventDefault();
+	evento.preventDefault();
+	return false;
 }
 
 /******************
@@ -308,7 +312,7 @@ Exclui um objeto
 objeto -- objeto sendo editado
 funcato_confirmacao -- mensagem de confirmação a ser exibida para o usuário
 ******************/	
-function excluir_objeto(objeto) {
+function excluir_objeto(evento, objeto) {
 	if (objeto_em_edicao) {
 		alert('Não é possível deletar um objeto enquanto outro está em edição!');
 		return false;
@@ -347,7 +351,8 @@ function excluir_objeto(objeto) {
 		xhttp.send(objeto_editado['dados_ajax']);
 
 		objeto_em_edicao = true;
-		window.event.preventDefault();
+		evento.preventDefault();
+		return false;
 	}
 }
 
@@ -407,7 +412,7 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
 	var celula = linha.cells[0]
 	var divs = celula.getElementsByTagName("DIV");
-	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a>";
+	divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
 	
 	return linha;
 }
@@ -419,7 +424,7 @@ Desabilita o modo de edição e atualiza os dados
 objeto -- objeto sendo desabilitado
 cancela = false -- define se pega os dados originais ou os novos
 ******************/	
-function altera_acao(objeto) {
+function altera_acao(evento, objeto) {
 	if (!range_em_edicao || range_em_edicao == objeto) {
 		range_em_edicao = objeto;
 		
@@ -436,6 +441,7 @@ function altera_acao(objeto) {
 	} else {
 		alert('Já existe uma ação em edição!');
 		objeto.value = objeto.parentNode.getAttribute('data-valor-original');
+		evento.preventDefault();
 		return false;
 	}
 }
@@ -447,7 +453,7 @@ Salva uma Ação sendo editada
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
-function salva_acao(objeto, cancela = false) {
+function salva_acao(evento, objeto, cancela = false) {
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	var linha = pega_ascendente(objeto,"TR");
 	var divs = linha.getElementsByTagName('DIV');
@@ -475,7 +481,7 @@ function salva_acao(objeto, cancela = false) {
 		}
 		
 		range_em_edicao = false;
-		window.event.preventDefault();
+		evento.preventDefault();
 		return false;
 	}
 
@@ -496,7 +502,7 @@ function salva_acao(objeto, cancela = false) {
 
 	
 	if (!valida_dados) {
-		window.event.preventDefault();
+		evento.preventDefault();
 		return false;
 	}
 	***************/
@@ -529,5 +535,6 @@ function salva_acao(objeto, cancela = false) {
 	console.log(objeto_editado['dados_ajax']);
 
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
-	window.event.preventDefault();
+	evento.preventDefault();
+	returno false;
 }

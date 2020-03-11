@@ -133,7 +133,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_imperio();'>Adicionar novo Império</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_imperio(event);'>Adicionar novo Império</a></div>";
 		}
 		
 		echo $html;
@@ -179,7 +179,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta({$estrela->id});'>Adicionar novo Planeta</a></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta(event, {$estrela->id});'>Adicionar novo Planeta</a></div>
 			<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Estrelas</a>";
 		
@@ -212,7 +212,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_estrela();'>Adicionar nova Estrela</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_estrela(event);'>Adicionar nova Estrela</a></div>";
 		}
 		echo $html;
 	}
@@ -263,7 +263,7 @@ class menu_admin {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_colonia_recurso({$planeta->id});'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_colonia_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
@@ -301,7 +301,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia_instalacao({$planeta->id});'>Adicionar nova Instalação</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_colonia_instalacao(event, {$planeta->id});'>Adicionar nova Instalação</a></div>";
 			
 
 			$html .= "<br>
@@ -339,7 +339,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_planeta();'>Adicionar novo Planeta</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta(event);'>Adicionar novo Planeta</a></div>";
 		}
 		echo $html;
 
@@ -382,7 +382,7 @@ class menu_admin {
 		
 		$html .= "\n</tbody>
 		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_recurso();'>Adicionar novo Recurso</a></div>";
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_recurso(event);'>Adicionar novo Recurso</a></div>";
 		
 		echo $html;
 	}
@@ -433,7 +433,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(0);'>Adicionar novo recurso PRODUZIDO</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_instalacao_recurso(event, 0);'>Adicionar novo recurso PRODUZIDO</a></div>";
 			
 			/*************************************/
 			
@@ -465,7 +465,7 @@ class menu_admin {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_instalacao_recurso(1);'>Adicionar novo recurso CONSUMIDO</a></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_instalacao_recurso(event, 1);'>Adicionar novo recurso CONSUMIDO</a></div>
 			<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar às Instalações</a>";
 			
@@ -497,7 +497,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_instalacao();'>Adicionar nova Instalação</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_instalacao(event);'>Adicionar nova Instalação</a></div>";
 		}
 		
 		echo $html;
@@ -553,7 +553,7 @@ class menu_admin {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='novo_colonia_recurso({$planeta->id});'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_colonia_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
@@ -591,7 +591,7 @@ class menu_admin {
 			
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia_instalacao({$planeta->id});'>Adicionar nova Instalação</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_colonia_instalacao(event, {$planeta->id});'>Adicionar nova Instalação</a></div>";
 			
 
 			$html .= "<br>
@@ -632,7 +632,7 @@ class menu_admin {
 				}
 				$html_lista .= "\n</tbody>
 				</table></div>
-				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='nova_colonia({$imperio->id});'>Adicionar nova Colônia</a></div>";
+				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_colonia(event, {$imperio->id});'>Adicionar nova Colônia</a></div>";
 
 				$html.= $html_lista;
 			}
@@ -719,7 +719,7 @@ class menu_admin {
 			$imperio = new imperio($id->id_jogador);
 			//TODO -- Pega a data da última ação
 			$data_ultima_acao = "01/01/2020";
-			$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div><div><a href='#' onclick='edita_acoes({$id->id_jogador});'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$imperio->pontuacao}</td></tr>";
+			$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div><div><a href='#' onclick='return edita_acoes(event, {$id->id_jogador});'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$imperio->pontuacao}</td></tr>";
 		}
 
 		$html .= $html_lista_imperios;

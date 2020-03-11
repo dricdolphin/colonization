@@ -5,7 +5,7 @@ Abre a página de gerenciamento de informações acessórias de um objeto
 objeto -- objeto sendo editado
 redireciona -- Se é para redirecionar para outra página
 ******************/
-function gerenciar_objeto(objeto, redireciona = "") {
+function gerenciar_objeto(evento, objeto, redireciona = "") {
 	//alert(typeof objeto);
 	var linha=pega_ascendente(objeto,"TR");;
 	var inputs=linha.getElementsByTagName("INPUT");

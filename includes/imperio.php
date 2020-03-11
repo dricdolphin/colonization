@@ -78,13 +78,13 @@ class imperio
 				<input type='hidden' data-atributo='funcao_pos_processamento' value='mais_dados_imperio'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
 				<div data-atributo='ID' >{$this->id}</div>
-				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
+				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
 			<td><div data-atributo='pontuacao' data-valor-original=''>{$this->pontuacao}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this);'>Gerenciar Objeto</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 
 		return $html;
 	}

@@ -317,7 +317,7 @@ function destruir_instalacao(objeto)
 Função para chamar o AJAX de destruir instalação
 objeto -- objeto sendo editado
 ******************/
-function destruir_instalacao(objeto) {
+function destruir_instalacao(evento, objeto) {
 	var linha=pega_ascendente(objeto,"TR");;
 	var inputs=linha.getElementsByTagName("INPUT");
 	var dados_ajax = "post_type=POST&action=destruir_instalacao";
@@ -355,7 +355,9 @@ function destruir_instalacao(objeto) {
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 	objeto_em_edicao = true;
-	window.event.preventDefault();	
+	
+	evento.preventDefault();
+	return false;
 }
 
 /******************
@@ -370,7 +372,7 @@ function remove_excluir(objeto) {
 	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
 	var celula = linha.cells[0]
 	var divs = celula.getElementsByTagName("DIV");
-	divs[1].innerHTML = "<a href='#' onclick='edita_objeto(this);'>Editar</a>";
+	divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>";
 }
 
 /******************

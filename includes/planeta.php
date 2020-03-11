@@ -53,14 +53,14 @@ class planeta
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>
 				<div data-atributo='nome' data-editavel='true' data-valor-original='{$this->nome}'>{$this->nome}</div>
-				<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
+				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_estrela'>{$this->estrela->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z}</div></td>
 			<td><div data-atributo='posicao' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->posicao}'>{$this->posicao}</div></td>
 			<td><div data-atributo='classe' data-editavel='true' data-valor-original='{$this->classe}'>{$this->classe}</div></td>
 			<td><div data-atributo='subclasse' data-editavel='true' data-valor-original='{$this->subclasse}'>{$this->subclasse}</div></td>
 			<td><div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->tamanho}'>{$this->tamanho}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='gerenciar_objeto(this,\"page=colonization_admin_planetas\");'>Gerenciar Objeto</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this,\"page=colonization_admin_planetas\");'>Gerenciar Objeto</a></div></td>";
 		
 		return $html;
 	}

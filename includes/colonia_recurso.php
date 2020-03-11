@@ -48,7 +48,7 @@ class colonia_recurso
 			<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_recurso'></input>
 			<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este recurso?'></input>
 			<div data-atributo='id' data-valor-original='{$this->id}'>{$this->id}</div>
-			<div><a href='#' onclick='edita_objeto(this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this);'>Excluir</a></div>
+			<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 		</td>
 		<td><div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado='{$this->id_recurso}' data-valor-original='{$this->recurso->nome}'>{$this->recurso->nome}</div></td>
 		<td><div data-atributo='disponivel' data-editavel='true' data-valor-original='{$this->disponivel}'>{$this->disponivel}</div></td>";

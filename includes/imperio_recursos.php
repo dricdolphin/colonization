@@ -87,7 +87,7 @@ class imperio_recursos
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
 					<input type='hidden' data-atributo='funcao_pos_processamento' value='remove_excluir'></input>
 					<div data-atributo='id' data-ajax='true'>{$this->id[$chave]}</div>
-					<div><a href='#' onclick='edita_objeto(this);'>Editar</a></div>
+					<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a></div>
 				</td>
 				<td><div data-atributo='nome_recurso'>{$recurso->nome}</div></td>
 				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd[$chave]}' data-style='width: 80px;'>{$this->qtd[$chave]}</div></td>
