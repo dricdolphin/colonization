@@ -20,20 +20,6 @@ function pega_ascendente(objeto, tag) {
 }
 
 /******************
-function cancela_edicao
---------------------
-Cancela a edição do objeto
-******************/	
-function cancela_edicao(objeto) {
-	objeto_em_edicao = false;
-	
-	var tabela_objetos = pega_ascendente(objeto,"TABLE");
-	tabela_objetos.deleteRow(-1);
-	evento.preventDefault();
-	return false;
-}
-
-/******************
 function atualiza_objeto(objeto, dados)
 --------------------
 Atualiza os dados do objeto, em particular os dados "hidden" e também os data-valor-original
@@ -92,6 +78,21 @@ function atualiza_objeto(objeto, dados) {
 }
 
 /******************
+function cancela_edicao
+--------------------
+Cancela a edição do objeto
+******************/	
+function cancela_edicao(evento, objeto) {
+	objeto_em_edicao = false;
+	
+	var tabela_objetos = pega_ascendente(objeto,"TABLE");
+	tabela_objetos.deleteRow(-1);
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
 function edita_objeto(objeto)
 --------------------
 Edita um objeto
@@ -100,6 +101,8 @@ objeto -- objeto a ser editado
 function edita_objeto(evento, objeto) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
 		return false;
 	}
 	
@@ -151,6 +154,7 @@ function edita_objeto(evento, objeto) {
 	}
 	
 	evento.preventDefault();
+	return false;
 }
 
 /******************
@@ -229,7 +233,6 @@ function pega_dados_objeto(objeto) {
 	}
 
 	return objeto_editado;
-
 }
 
 
@@ -315,6 +318,8 @@ funcato_confirmacao -- mensagem de confirmação a ser exibida para o usuário
 function excluir_objeto(evento, objeto) {
 	if (objeto_em_edicao) {
 		alert('Não é possível deletar um objeto enquanto outro está em edição!');
+		
+		evento.preventDefault();
 		return false;
 	}
 	
@@ -351,6 +356,7 @@ function excluir_objeto(evento, objeto) {
 		xhttp.send(objeto_editado['dados_ajax']);
 
 		objeto_em_edicao = true;
+		
 		evento.preventDefault();
 		return false;
 	}
@@ -441,6 +447,7 @@ function altera_acao(evento, objeto) {
 	} else {
 		alert('Já existe uma ação em edição!');
 		objeto.value = objeto.parentNode.getAttribute('data-valor-original');
+		
 		evento.preventDefault();
 		return false;
 	}
@@ -481,6 +488,7 @@ function salva_acao(evento, objeto, cancela = false) {
 		}
 		
 		range_em_edicao = false;
+		
 		evento.preventDefault();
 		return false;
 	}
