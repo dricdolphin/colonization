@@ -536,5 +536,5 @@ function salva_acao(evento, objeto, cancela = false) {
 
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
-	returno false;
+	return false;
 }
