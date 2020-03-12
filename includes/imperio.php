@@ -27,13 +27,6 @@ class imperio
 	function __construct($id) {
 		global $wpdb;
 		
-		$today = date("YmdHi"); 
-		$this->html_header = "<link rel='stylesheet' type='text/css' href='../wp-content/plugins/colonization/colonization.css?v={$today}'>
-		<script src='../wp-content/plugins/colonization/includes/novo_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/edita_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/valida_objetos.js?v={$today}'></script>
-		<script src='../wp-content/plugins/colonization/includes/gerencia_objeto.js?v={$today}'></script>";
-		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
 		
@@ -58,7 +51,6 @@ class imperio
 		
 		//TODO -- Criar a função para pegar a pontuação do Império
 		$this->pontuacao = 999;
-		
 	}
 
 	/***********************
@@ -134,6 +126,34 @@ class imperio
 		$html .= "</tbody>
 		</table>";
 
+		return $html;
+	}
+	
+	/***********************
+	function exibe_recursos_atuais()
+	----------------------
+	Exibe os recursos atuais Império
+	***********************/
+	function exibe_recursos_atuais($turno=0) {
+		global $wpdb;
+		
+		$turno = new turno($turno);
+		
+		$resultados = $wpdb->get_results("
+		SELECT cir.qtd, cr.nome
+		FROM colonization_imperio_recursos AS cir
+		JOIN colonization_recurso AS cr
+		ON cr.id=cir.id_recurso
+		WHERE cir.id_imperio = {$this->id} AND turno={$turno->turno}
+		AND cr.acumulavel = true
+		AND cir.disponivel = true
+		");
+		
+		$html = "<b>Recursos atuais:</b> ";
+		foreach ($resultados as $resultado) {
+			$html .= "{$resultado->nome} - {$resultado->qtd}; ";
+		}
+		
 		return $html;
 	}
 }

@@ -19,7 +19,10 @@ class imperio_recursos
 	function __construct($id_imperio) {
 		global $wpdb;
 		
-		$this->id_imperio = $id_imperio;
+		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
+		$imperio = new imperio($id_imperio);
+		$this->id_imperio = $imperio->id;
+
 		$this->turno = new turno();
 
 		$resultado = $wpdb->get_results("

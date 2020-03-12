@@ -526,11 +526,20 @@ function salva_acao(evento, objeto, cancela = false) {
 				var linha = pega_ascendente(objeto,"TR");
 				var objeto_atualizado = atualiza_objeto(linha,resposta[0]); //O objeto salvo está no array resposta[0]
 				var divs = objeto_atualizado.getElementsByTagName("DIV");
+				var inputs = objeto_atualizado.getElementsByTagName("INPUT");
 				for (var index=0;index<divs.length;index++) {
 					if (divs[index].getAttribute('data-atributo') == "gerenciar") {
 						divs[index].style.visibility = "hidden";
+					} 
+				}
+				
+				for (index=0;index<inputs.length;index++) {
+					if(inputs[index].getAttribute('data-atributo') == "id_imperio") {
+						var id_imperio = inputs[index].value;
 					}
 				}
+				atualiza_produtos_acao(id_imperio);
+			
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -545,4 +554,36 @@ function salva_acao(evento, objeto, cancela = false) {
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
 	return false;
+}
+/******************
+function atualiza_produtos_acao(id_imperio)
+--------------------
+Pega os produtos da Ação
+id_imperio -- id do Império
+******************/	
+function atualiza_produtos_acao(id_imperio) {
+	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio;
+	
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				id_produz = "recursos_produzidos_imperio_"+id_imperio;
+				id_consome = "recursos_consumidos_imperio_"+id_imperio;
+				div_produz = document.getElementById(id_produz);
+				div_consome = document.getElementById(id_consome);
+				
+				div_produz.innerHTML = resposta.recursos_produzidos;
+				div_consome.innerHTML = resposta.recursos_consumidos;
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
 }

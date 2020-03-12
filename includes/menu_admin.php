@@ -662,20 +662,25 @@ class menu_admin {
 		
 		foreach ($lista_id_imperio as $id) {
 			$imperio = new imperio($id->id);
+			$imperio_acoes = new acoes($imperio->id,$turno->turno);
+			
+			$recursos_atuais = $imperio->exibe_recursos_atuais();
+			$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
+			$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
 			
 			//TODO -- Pega a data da última ação
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
-			<div><b>Recursos Atuais:</b></div>
-			<div><b>Recursos Produzidos:</b></div>
-			<div><b>Recursos Consumidos:</b></div>
+			<div id='recursos_atuais_imperio_{$imperio->id}'>$recursos_atuais</div>
+			<div id='recursos_produzidos_imperio_{$imperio->id}'>$recursos_produzidos</div>
+			<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
 			<tr><td>Colônia (X;Y;Z)</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 			</thead>
 			<tbody>";
 			
-			$imperio_acoes = new acoes($imperio->id,$turno->turno);
+			
 			
 			$html_lista .= $imperio_acoes->lista_dados();
 			

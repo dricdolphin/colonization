@@ -20,6 +20,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
+		add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
 	}
 	
 	/***********************
@@ -301,6 +302,25 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = $wpdb->last_error;
 			$dados_salvos['resposta_ajax'] .= "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
 		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+	
+	/***********************
+	function dados_imperio ()
+	----------------------
+	Pega os dados do Império
+	***********************/	
+	function produtos_acao() {
+		$dados_salvos = [];
+		
+		$imperio = new imperio($_POST['id_imperio']);
+		$acoes = new acoes($imperio->id);
+		
+		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
+		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
+		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta

@@ -21,7 +21,10 @@ class acoes
 	function __construct($id_imperio, $turno=0) {
 		global $wpdb;
 		
-		$this->id_imperio = $id_imperio;
+		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
+		$imperio = new imperio($id_imperio);
+		$this->id_imperio = $imperio->id;
+
 		$this->turno = new turno($turno);
 
 		$resultados =$wpdb->get_results("
@@ -78,11 +81,11 @@ class acoes
 					if ($pop_turno_anterior === null) {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
-						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 					} else {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
-						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 					}
 					$this->id[$chave] = $wpdb->insert_id;;
 				}
@@ -122,11 +125,63 @@ class acoes
 		}
 		
 		return $html;
-	
-	
 	}
 
+	function exibe_recursos_produzidos() {
+		global $wpdb;
+				
+		$html = "<b>Recursos Produzidos:</b> ";
+		
+		$resultados = $wpdb->get_results(
+		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+		FROM colonization_acoes_turno AS cat
+		JOIN colonization_planeta_instalacoes AS cpi
+		ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+		JOIN colonization_instalacao_recursos AS cir
+		ON cir.id_instalacao = cat.id_instalacao
+		JOIN colonization_recurso AS cr
+		ON cir.id_recurso = cr.id
+		WHERE cat.id_imperio={$this->id_imperio} AND cat.turno={$this->turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL
+		GROUP BY cr.nome
+		"
+		);
 
+		foreach ($resultados as $resultado) {
+			if ($resultado->producao > 0) {
+				$html .= "{$resultado->nome} - {$resultado->producao}; ";
+			}
+		}
+		
+		return $html;
+	}
+
+	function exibe_recursos_consumidos() {
+		global $wpdb;
+		
+		$html = "<b>Recursos Consumidos:</b> ";
+
+		$resultados = $wpdb->get_results(
+		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+		FROM colonization_acoes_turno AS cat
+		JOIN colonization_planeta_instalacoes AS cpi
+		ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+		JOIN colonization_instalacao_recursos AS cir
+		ON cir.id_instalacao = cat.id_instalacao
+		JOIN colonization_recurso AS cr
+		ON cir.id_recurso = cr.id
+		WHERE cat.id_imperio={$this->id_imperio} AND cat.turno={$this->turno->turno} AND cir.consome=true AND cpi.turno_destroi IS NULL
+		GROUP BY cr.nome
+		"
+		);
+
+		foreach ($resultados as $resultado) {
+			if ($resultado->producao > 0) {
+				$html .= "{$resultado->nome} - {$resultado->producao}; ";
+			}
+		}
+		
+		return $html;
+	}
 
 }
 ?>
