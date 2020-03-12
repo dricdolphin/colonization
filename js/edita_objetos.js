@@ -477,7 +477,7 @@ function salva_acao(evento, objeto, cancela = false) {
 		for (index=0;index<inputs.length;index++) {
 			if (inputs[index].getAttribute('data-atributo') == "pop") {
 				var index_range_pop = index;
-				inputs[index].value = inputs[index].parentNode.getAttribute("data-valor-original");
+				inputs[index].value = inputs[index].getAttribute("data-valor-original");
 			}
 		}
 
