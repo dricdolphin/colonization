@@ -41,6 +41,7 @@ class colonization {
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
+		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 	}
 
 	/******************
@@ -83,7 +84,7 @@ class colonization {
 	/***********************
 	function colonization_exibe_colonias_imperio($atts = [], $content = null)
 	----------------------
-	Chamado pelo shortcode [colonization_exibe_imperio]
+	Chamado pelo shortcode [exibe_colonias_imperio]
 	$atts = [] - lista de atributos dentro do shortcode 
 	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
 	os dados do Império com id="1"
@@ -97,6 +98,54 @@ class colonization {
 		
 		return $imperio->imperio_exibe_colonias_imperio();
 	}
+	
+	/***********************
+	function colonization_exibe_acoes_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_acoes_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	(por exemplo, o shortcode [colonization_exibe_acoes_imperio id_imperio="1"] poderia exibir
+	os dados do Império com id="1"
+	***********************/	
+	function colonization_exibe_acoes_imperio($atts = [], $content = null) {
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		if (isset($atts['turno'])) {
+			$turno = new turno ($atts['turno']);
+		} else {
+			$turno = new turno();
+		}
+		
+		$imperio_acoes = new acoes($imperio->id,$turno->turno);
+			
+		$recursos_atuais = $imperio->exibe_recursos_atuais();
+		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
+		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
+		
+		//TODO -- Pega a data da última ação
+		$html_lista	= "
+		<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
+		<div id='recursos_atuais_imperio_{$imperio->id}'>$recursos_atuais</div>
+		<div id='recursos_produzidos_imperio_{$imperio->id}'>$recursos_produzidos</div>
+		<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
+		<thead>
+		<tr><td>Colônia (X;Y;Z)</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		</thead>
+		<tbody>";
+		
+		$html_lista .= $imperio_acoes->lista_dados();
+		
+		$html_lista .= "</tbody>
+		</table>";		
+		
+		return $html_lista;
+	}
+
 
 }
 

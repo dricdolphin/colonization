@@ -446,7 +446,7 @@ function altera_acao(evento, objeto) {
 		label[0].innerText = objeto.value;
 	} else {
 		alert('Já existe uma ação em edição!');
-		objeto.value = objeto.parentNode.getAttribute('data-valor-original');
+		objeto.value = objeto.getAttribute('data-valor-original');
 		
 		evento.preventDefault();
 		return false;
@@ -466,6 +466,7 @@ function salva_acao(evento, objeto, cancela = false) {
 	var divs = linha.getElementsByTagName('DIV');
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
+	var dados = [];
 	
 	if (cancela) {
 		for (var index=0;index<divs.length;index++) {
@@ -497,24 +498,23 @@ function salva_acao(evento, objeto, cancela = false) {
 		var where_clause = objeto_editado['where_clause'];
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
 	}
-	//Cria o string que será passado para o AJAX
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
-	
-	/*****************
-	TODO -- Validação das Ações
-	
-	var valida_dados = true;
-	if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
-		valida_dados = chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']);
-	}
 
+	for (index=0;index<inputs.length;index++) {
+		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
+			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
+		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
+			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value - inputs[index].getAttribute('data-valor-original');
+		}
+	}
 	
-	if (!valida_dados) {
+	if (!valida_acao(dados)) {
 		evento.preventDefault();
 		return false;
 	}
-	***************/
-	
+
+	//Cria o string que será passado para o AJAX
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
+
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -555,6 +555,7 @@ function salva_acao(evento, objeto, cancela = false) {
 	evento.preventDefault();
 	return false;
 }
+
 /******************
 function atualiza_produtos_acao(id_imperio)
 --------------------

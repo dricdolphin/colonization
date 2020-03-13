@@ -416,3 +416,40 @@ function mais_dados_imperio(objeto) {
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 }
+
+/******************
+function valida_acao(id_imperio)
+--------------------
+Pega os produtos da Ação
+id_imperio -- id do Império
+turno
+******************/	
+function valida_acao(dados) {
+	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop'];
+	var retorno = true;
+	
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.status == 400) {
+			
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				if (resposta.balanco_acao != "") {
+					retorno = false;
+					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+resposta.balanco_acao);
+				}
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	return retorno;
+}
