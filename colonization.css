@@ -37,6 +37,12 @@ input[type='range']::-webkit-slider-thumb {
   cursor: pointer;
 }
 
+input[type="range"]::-webkit-slider-track {
+	background: #d3d3d3;
+	border: none;
+	box-shadow: none;
+}
+
 input[type='range']::-moz-range-thumb {
   width: 15px;
   height: 15px;
@@ -50,6 +56,7 @@ input[type="range"]::-moz-range-track {
 	border: none;
 	box-shadow: none;
 }
+
 .wp-list-table {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, sans-serif;
