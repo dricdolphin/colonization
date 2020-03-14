@@ -312,7 +312,7 @@ function valida_colonia_instalacao(objeto) {
 }
 
 /******************
-function destruir_instalacao(objeto)
+function destruir_instalacao(evento, objeto)
 --------------------
 Função para chamar o AJAX de destruir instalação
 objeto -- objeto sendo editado
@@ -343,6 +343,7 @@ function destruir_instalacao(evento, objeto) {
 					objeto.text = "Reparar Instalação";
 				} else {
 					objeto.text = "Destruir Instalação";
+					resposta[0].turno_destroi = "&nbsp;";
 				}
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]

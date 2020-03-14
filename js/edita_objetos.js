@@ -47,9 +47,13 @@ function atualiza_objeto(objeto, dados) {
 			}
 			if (typeof dados[atributo] !== "undefined") {
 				//Só atualiza o innerHTML de divs que não contenham objetos
-				if (dados[atributo] !== null && divs[index].childNodes[0].tagName != "INPUT") {
-					divs[index].setAttribute('data-valor-original',dados[atributo]);
-					divs[index].innerHTML = dados[atributo];
+				if (dados[atributo] !== null) {
+					if (divs[index].hasChildNodes()) {
+						if (divs[index].childNodes[0].tagName != "INPUT") {
+							divs[index].setAttribute('data-valor-original',dados[atributo]);
+							divs[index].innerHTML = dados[atributo];
+						}
+					}
 				}
 			}
 		}	

@@ -13,7 +13,7 @@ input[type='text']
 	display: block;
 }
 
-input[type='range'] {
+input[type=range] {
   -webkit-appearance: none;
   width: 100%;
   height: 10px;
@@ -24,37 +24,43 @@ input[type='range'] {
   transition: opacity .2s;
 }
 
-input[type='range']:hover {
+input[type=range]:hover {
   opacity: 1;
 }
 
-input[type='range']::-webkit-slider-thumb {
+input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 15px;
   height: 15px;
-  background: #0000DD;
+  border: none;
+  box-shadow: none;
+  border-radius: 7px;
+  background: #0000DD !important;
   cursor: pointer;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
+input[type=range]::-webkit-slider-runnable-track {
+	box-shadow: none;
 	background: #d3d3d3;
 	border: none;
-	box-shadow: none;
 }
 
-input[type='range']::-moz-range-thumb {
+input[type=range]::-moz-range-thumb {
   width: 15px;
   height: 15px;
-  background: #0000DD;
+  border: none;
+  box-shadow: none;
+  border-radius: 7px;
+  background: #0000DD !important;
   cursor: pointer;
   border: none;
 }
 
-input[type="range"]::-moz-range-track {
+input[type=range]::-moz-range-track {
+	box-shadow: none;
 	background: #d3d3d3;
 	border: none;
-	box-shadow: none;
 }
 
 .wp-list-table {

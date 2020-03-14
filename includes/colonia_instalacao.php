@@ -48,6 +48,7 @@ class colonia_instalacao
 		
 		if ($this->turno_destroi === null) {
 			$texto_destruir	= "Destruir Instalação";
+			$this->turno_destroi = "&nbsp;";
 		} else {
 			$texto_destruir	= "Reparar Instalação";
 		}
@@ -69,7 +70,7 @@ class colonia_instalacao
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='destruir_instalacao(this);'>{$texto_destruir}</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='return destruir_instalacao(event, this);'>{$texto_destruir}</a></div></td>";
 		
 		return $html;
 	}

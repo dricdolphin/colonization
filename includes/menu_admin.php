@@ -665,6 +665,7 @@ class menu_admin {
 			$imperio = new imperio($id->id);
 			$imperio_acoes = new acoes($imperio->id,$turno->turno);
 			
+			$lista_colonias = $imperio->exibe_lista_colonias();
 			$recursos_atuais = $imperio->exibe_recursos_atuais();
 			$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 			$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
@@ -672,6 +673,7 @@ class menu_admin {
 			//TODO -- Pega a data da última ação
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
+			<div><b>Colônias do Império</b>: {$lista_colonias}</div>
 			<div id='recursos_atuais_imperio_{$imperio->id}'>$recursos_atuais</div>
 			<div id='recursos_produzidos_imperio_{$imperio->id}'>$recursos_produzidos</div>
 			<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>

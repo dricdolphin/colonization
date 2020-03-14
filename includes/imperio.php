@@ -156,5 +156,32 @@ class imperio
 		
 		return $html;
 	}
+	
+	/***********************
+	function exibe_lista_colonias()
+	----------------------
+	Exibe as Colônias atuais Império
+	***********************/
+	function exibe_lista_colonias($turno=0) {
+		global $wpdb;
+		
+		$turno = new turno($turno);
+		
+		$resultados = $wpdb->get_results("
+		SELECT cp.nome, cic.pop
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id=cic.id_planeta
+		WHERE cic.id_imperio = {$this->id}
+		");
+		
+		$html = "<b>Recursos atuais:</b> ";
+		foreach ($resultados as $resultado) {
+			$html .= "{$resultado->nome} - Pop: {$resultado->pop}; ";
+		}
+		
+		return $html;
+	}
+	
 }
 ?>
