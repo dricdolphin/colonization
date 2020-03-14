@@ -42,6 +42,7 @@ class colonization {
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
+		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
 	}
 
 	/******************
@@ -146,9 +147,79 @@ class colonization {
 		return $html_lista;
 	}
 
+	/***********************
+	function colonization_exibe_acoes_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_acoes_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	(por exemplo, o shortcode [colonization_exibe_acoes_imperio id_imperio="1"] poderia exibir
+	os dados do Império com id="1"
+	***********************/	
+	function colonization_exibe_mapa_estelar($atts = [], $content = null) {
+		global $wpdb;
+		
+		$estrelas = $wpdb->get_results("SELECT nome, tipo, X, Y, Z, ROUND(X+Z*(SQRT(2)/2),2) AS X3D, ROUND(Y+Z*(SQRT(2)/2),2) AS Y3D FROM colonization_estrela");
+
+		$html_lista = "    <script type='text/javascript'>
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        
+		var data = new google.visualization.DataTable();
+        data.addColumn('number', 'X');
+        data.addColumn('number', 'Y');
+		data.addColumn({type: 'string', role: 'tooltip'});
+		data.addColumn({type: 'string', role: 'style'});
+
+        data.addRows([";
+		
+		
+		$html_estrela = "";
+	    
+		foreach ($estrelas as $estrela) {
+			//,'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})'
+			if (stripos($estrela->tipo,"amarela") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFFF00; }';
+			} elseif (stripos($estrela->tipo,"branca") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFFFFF; }';
+			} elseif (stripos($estrela->tipo,"vermelha") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FF0000; }';
+			} elseif (stripos($estrela->tipo,"azul") !== false) {
+				$estilo = 'point { size: 4; fill-color: #F0F0FF; }';
+			} elseif (stripos($estrela->tipo,"laranja") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFA500; }';				
+			} else {
+				$estilo = 'point { size: 4; fill-color: #DDDDDD; }';
+			}
+			
+			$html_estrela	.= "[{$estrela->X3D},{$estrela->Y3D},'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})','{$estilo}'],";
+		}
+		
+		$html_estrela = substr($html_estrela,0,-1);
+		
+		$html_lista .= $html_estrela;
+		
+		$html_lista	.= "]);
+        var options = {
+          title: 'Lista das Estrelas',
+		  chartArea: {backgroundColor: '#111111'},
+		  hAxis: {title: 'X', minValue: 0, maxValue: 32, minorGridlines: {count: 0}},
+          vAxis: {title: 'Y', minValue: 0, maxValue: 32, minorGridlines: {count: 0}},
+          legend: 'none'
+        };
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+	    chart.draw(data, options);
+      }
+    </script>
+	<div id='chart_div' style='width: 900px; height: 500px;'></div>";
+	
+		return $html_lista;
+	}
+
 
 }
-
 
 //Cria o plugin
 $plugin = new colonization();
@@ -160,5 +231,4 @@ register_deactivation_hook( __FILE__, array($plugin,'colonization_deactivate'));
 
 //Cria o menu do plugin na área administrativa do WordPress
 add_action('admin_menu', array($menu_admin, 'colonization_setup_menu'));
-
 ?>
