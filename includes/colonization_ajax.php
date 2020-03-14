@@ -337,6 +337,22 @@ class colonization_ajax {
 		//$wpdb->hide_errors();		
 
 		$dados_salvos = [];
+		$dados_salvos['balanco_acao'] = "";
+		
+		$resultados = $wpdb->get_results("SELECT mdo FROM (SELECT (cimc.pop - cat.pop) AS mdo FROM
+			(SELECT turno, id_imperio, id_instalacao, id_planeta, SUM(pop) AS pop
+			FROM colonization_acoes_turno 
+			WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
+			GROUP BY id_planeta
+			) AS cat
+			JOIN colonization_imperio_colonias AS cimc
+			ON cimc.id_imperio = cat.id_imperio AND cimc.id_planeta = cat.id_planeta) AS tabela_balanco
+			WHERE mdo < 0
+			");
+		
+		foreach ($resultados as $resultado) {
+			$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
+		}
 		
 		$resultados = $wpdb->get_results("
 		SELECT nome, (producao-consumo+estoque) AS balanco FROM (
@@ -378,7 +394,6 @@ class colonization_ajax {
 		WHERE (producao-consumo+estoque)<0
 		");
 		
-		$dados_salvos['balanco_acao'] = "";
 		
 		foreach ($resultados as $resultado) {
 			$dados_salvos['balanco_acao'] .= "{$resultado->nome}, ";
