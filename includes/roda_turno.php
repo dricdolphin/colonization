@@ -41,7 +41,7 @@ class roda_turno {
 				$imperio_recursos = new imperio_recursos($imperio->id);	
 
 				//Vamos modificar os estoques!
-				//Primeiro, PRODUZ os recursos
+				//Primeiro, PRODUZ os recursos, e com isso CONSUMIR os Recursos dos Planetas
 				$resultados = $wpdb->get_results(
 				"SELECT cr.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM colonization_acoes_turno AS cat
@@ -56,14 +56,20 @@ class roda_turno {
 
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
-					$qtd = $imperio_recursos->['qtd'] + $resultado->producao;
+					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;
 					
 					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
+					
+					$recursos_disponivel = $wpdb->get_var("SELECT disponivel FROM colonization_planeta_recursos WHERE id_planeta={$resultado->id_planeta} AND id_recurso={$resultado->id_recurso} AND turno={$turno->turno}");
+					if ($recursos_disponivel !== "null") {
+						$recursos_disponivel = $recursos_disponivel - $resultado->producao;
+						$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
+					}
 				}
 				
-				//Depois, CONSOME os recursos, tanto dos
+				//Depois, CONSOME os recursos dos Estoques
 				$resultados = $wpdb->get_results(
-				"SELECT cr.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				"SELECT cr.id_recurso, cr.nome, cpi.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM colonization_acoes_turno AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
@@ -71,17 +77,15 @@ class roda_turno {
 				ON cir.id_instalacao = cat.id_instalacao
 				JOIN colonization_recurso AS cr
 				ON cir.id_recurso = cr.id
-				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
+				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=true AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
 				GROUP BY cr.nome");
 
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
-					$qtd = $imperio_recursos->['qtd'] + $resultado->producao;
-					
+					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;
+				
 					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 				}
-
-
 			}
 		}
 	}

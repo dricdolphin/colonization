@@ -157,7 +157,7 @@ class colonization {
 		$html = "
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno' style='width: 500px;'>
 		<thead>
-		<tr><td style='width: 300px;'>Império</td><td>Pontuação</td></tr>
+		<tr><td style='width: 300px;'><b>Império</b></td><td><b>Pontuação</b></td></tr>
 		</thead>
 		<tbody>";
 		
