@@ -706,38 +706,38 @@ class menu_admin {
 		$turno = new turno();
 		
 		$html = $this->html_header;
+		$proxima_semana = new DateTime($turno->data_turno);
+		$proxima_semana->modify('+7 days');
+		$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 		
 		$html = "<div><h2>COLONIZATION - RODA TURNO</h2></div>
-		<br>
-		<div><b>TURNO ATUAL - {$turno->turno}</b><br>
-		DATA DO ÚLTIMO TURNO - {$turno->data_turno}</div>
-		<br>
-		<div>
+		<h3>TURNO ATUAL - {$turno->turno}</h3>
+		<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
+		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div>
 		<table class='wp-list-table widefat fixed striped users'>
 		<thead>
-		<tr><td>Nome do Império</td><td>Última modificação das ações</td><td>Pontuação</td></tr>
+		<tr><td style='width: 200px;'>Nome do Império</td><td style='width: 200px;'>Última modificação das ações</td><td style='width: 80px;'>Pontuação</td><td style='width: 100%;'>Balanço dos Recursos</td></tr>
 		</thead>
 		<tbody>";
 		
 		//Pega a lista de impérios
-		$lista_id_imperio = $wpdb->get_results("SELECT id_jogador FROM colonization_imperio");
+		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
 		$html_lista_imperios = "";
 		
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id_jogador);
-			//TODO -- Pega a data da última ação
-			$data_ultima_acao = "01/01/2020";
-			$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div><div><a href='#' onclick='return edita_acoes(event, {$id->id_jogador});'>Editar ações</a></div></td><td>{$data_ultima_acao}</td><td>{$imperio->pontuacao}</td></tr>";
+			$imperio = new imperio($id->id);
+			$acoes = new acoes($imperio->id,$turno->turno);
+			$balanco = $acoes->exibe_recursos_balanco();
+			
+			$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div></td><td>{$acoes->max_data_modifica}</td><td>{$imperio->pontuacao}</td><td>{$balanco}</td></tr>";
 		}
 
 		$html .= $html_lista_imperios;
 		
 		$html .= "\n</tbody>
-		</table></div>
+		</table>
 		<br>
-		<div><a href='#' class='page-title-action colonization_admin_botao'>Rodar Turno</a></div>";
-		
-		//TODO - Criar sistema de rodar o turno
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return roda_turno();'>Rodar Turno</a></div>";
 
 		echo $html;
 	}	

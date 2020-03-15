@@ -18,6 +18,7 @@ class acoes
 	public $pop = [];
 	public $turno;
 	public $data_modifica = [];
+	public $max_data_modifica;
 	
 	function __construct($id_imperio, $turno=0) {
 		global $wpdb;
@@ -70,7 +71,7 @@ class acoes
 			}
 			$chave++;
 		}
-		
+
 		$chave = 0;
 		if (isset($this->id[$chave])) {
 			foreach ($this->id as $chave => $valor) {
@@ -94,6 +95,8 @@ class acoes
 				}
 			}
 		}
+	
+		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 	}
 
 	/***********************
@@ -159,6 +162,12 @@ class acoes
 		return $html;
 	}
 
+
+	/***********************
+	function exibe_recursos_produzidos()
+	----------------------
+	Exibe os recursos produzidos pelas ações
+	***********************/
 	function exibe_recursos_produzidos() {
 		global $wpdb;
 				
@@ -187,6 +196,11 @@ class acoes
 		return $html;
 	}
 
+	/***********************
+	function exibe_recursos_consumidos()
+	----------------------
+	Exibe os recursos consumidos pelas ações
+	***********************/
 	function exibe_recursos_consumidos() {
 		global $wpdb;
 		
@@ -210,6 +224,73 @@ class acoes
 			if ($resultado->producao > 0) {
 				$html .= "{$resultado->nome} - {$resultado->producao}; ";
 			}
+		}
+		
+		return $html;
+	}
+
+	/***********************
+	function exibe_recursos_balanco()
+	----------------------
+	Exibe o balanço dos recursos
+	***********************/
+	function exibe_recursos_balanco() {
+		global $wpdb;
+		
+		$html = "";
+
+		$resultados = $wpdb->get_results("
+		SELECT nome, (producao-consumo) AS balanco 
+		FROM (
+			SELECT cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
+			(CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, 
+			cimr.qtd AS estoque 
+			FROM colonization_recurso AS cr
+			LEFT JOIN (
+				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				FROM 
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				FROM colonization_acoes_turno 
+				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+				) AS cat
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				JOIN colonization_instalacao_recursos AS cir
+				ON cir.id_instalacao = cat.id_instalacao
+				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
+				GROUP BY cir.id_recurso
+			) AS tabela_produz
+			ON tabela_produz.id_recurso = cr.id
+			LEFT JOIN (
+			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				FROM 
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				FROM colonization_acoes_turno 
+				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+				) AS cat
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				JOIN colonization_instalacao_recursos AS cir
+				ON cir.id_instalacao = cat.id_instalacao
+				WHERE cir.consome=true AND cpi.turno_destroi IS NULL
+				GROUP BY cir.id_recurso
+			) AS tabela_consome
+			ON tabela_consome.id_recurso = cr.id
+			LEFT JOIN colonization_imperio_recursos AS cimr
+			ON cimr.id_imperio = tabela_produz.id_imperio 
+			AND cimr.id_recurso = tabela_produz.id_recurso 
+			AND cimr.turno = tabela_produz.turno
+		) AS tabela_balanco
+		ORDER BY (producao-consumo) ASC
+		");
+
+		foreach ($resultados as $resultado) {
+			if ($resultado->balanco > 0) {
+				$html .= "{$resultado->nome}: {$resultado->balanco}; ";
+			} elseif ($resultado->balanco < 0) {
+				$html .= "{$resultado->nome}: <span style='color: #FF2222;'>{$resultado->balanco}</span>; ";
+			}
+				
 		}
 		
 		return $html;

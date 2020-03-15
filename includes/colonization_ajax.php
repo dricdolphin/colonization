@@ -355,42 +355,47 @@ class colonization_ajax {
 		}
 		
 		$resultados = $wpdb->get_results("
-		SELECT nome, (producao-consumo+estoque) AS balanco FROM (
-		SELECT tabela_produz.nome, tabela_produz.producao, (CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, cimr.qtd AS estoque FROM (
-		SELECT cir.id_recurso, cat.turno, cat.id_imperio, cr.nome, (CASE WHEN SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) IS NULL THEN 0 ELSE SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) END) AS producao
-			FROM 
-			(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
-			FROM colonization_acoes_turno 
-			UNION ALL
-			SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop
-			) AS cat
-			JOIN colonization_planeta_instalacoes AS cpi
-			ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
-			JOIN colonization_instalacao_recursos AS cir
-			ON cir.id_instalacao = cat.id_instalacao
-			JOIN colonization_recurso AS cr
-			ON cir.id_recurso = cr.id
-			WHERE cat.id_imperio={$_POST['id_imperio']} AND cat.turno={$_POST['turno']} AND cir.consome=false AND cpi.turno_destroi IS NULL
-			GROUP BY cr.nome) AS tabela_produz
-		LEFT JOIN (
-		SELECT cir.id_recurso, cat.turno, cat.id_imperio, cr.nome, (CASE WHEN SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) IS NULL THEN 0 ELSE SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) END) AS producao
-			FROM 
-			(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
-			FROM colonization_acoes_turno 
-			UNION ALL
-			SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop
-			) AS cat
-			JOIN colonization_planeta_instalacoes AS cpi
-			ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
-			JOIN colonization_instalacao_recursos AS cir
-			ON cir.id_instalacao = cat.id_instalacao
-			JOIN colonization_recurso AS cr
-			ON cir.id_recurso = cr.id
-			WHERE cat.id_imperio={$_POST['id_imperio']} AND cat.turno={$_POST['turno']} AND cir.consome=true AND cpi.turno_destroi IS NULL
-			GROUP BY cr.nome) AS tabela_consome
-		ON tabela_consome.id_recurso = tabela_produz.id_recurso AND tabela_consome.turno = tabela_produz.turno AND tabela_consome.id_imperio = tabela_produz.id_imperio
-		LEFT JOIN colonization_imperio_recursos AS cimr
-		ON cimr.id_imperio = tabela_produz.id_imperio AND cimr.id_recurso = tabela_produz.id_recurso AND cimr.turno = tabela_produz.turno) AS tabela_balanco
+		SELECT nome, (producao-consumo+estoque) AS balanco
+		FROM (
+			SELECT cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
+			(CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, 
+			cimr.qtd AS estoque 
+			FROM colonization_recurso AS cr
+			LEFT JOIN (
+				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				FROM 
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				FROM colonization_acoes_turno 
+				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
+				) AS cat
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				JOIN colonization_instalacao_recursos AS cir
+				ON cir.id_instalacao = cat.id_instalacao
+				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
+				GROUP BY cir.id_recurso
+			) AS tabela_produz
+			ON tabela_produz.id_recurso = cr.id
+			LEFT JOIN (
+			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				FROM 
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				FROM colonization_acoes_turno 
+				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
+				) AS cat
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				JOIN colonization_instalacao_recursos AS cir
+				ON cir.id_instalacao = cat.id_instalacao
+				WHERE cir.consome=true AND cpi.turno_destroi IS NULL
+				GROUP BY cir.id_recurso
+			) AS tabela_consome
+			ON tabela_consome.id_recurso = cr.id
+			LEFT JOIN colonization_imperio_recursos AS cimr
+			ON cimr.id_imperio = tabela_produz.id_imperio 
+			AND cimr.id_recurso = tabela_produz.id_recurso 
+			AND cimr.turno = tabela_produz.turno
+		) AS tabela_balanco
 		WHERE (producao-consumo+estoque)<0
 		");
 		
