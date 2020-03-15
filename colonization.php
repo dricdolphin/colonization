@@ -41,6 +41,7 @@ class colonization {
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
+		add_shortcode('colonization_exibe_lista_imperios',array($this,'colonization_exibe_lista_imperios')); //Exibe a lista dos Impérios e suas pontuações
 		add_shortcode('colonization_exibe_recursos_colonias_imperio',array($this,'colonization_exibe_recursos_colonias_imperio')); //Exibe os dados das Colônias do Império
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
@@ -139,6 +140,42 @@ class colonization {
 		
 		return $html;
 	}
+
+	/***********************
+	function colonization_exibe_lista_imperios($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_lista_imperios]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_lista_imperios($atts = [], $content = null) {
+		global $wpdb;
+		
+		//Pega a lista de impérios
+		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		$html_lista_imperios = "";
+		
+		$html = "
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno' style='width: 500px;'>
+		<thead>
+		<tr><td style='width: 300px;'>Império</td><td>Pontuação</td></tr>
+		</thead>
+		<tbody>";
+		
+		foreach ($lista_id_imperio as $id) {
+			$imperio = new imperio($id->id, true);
+			
+			$html .= "<tr><td>{$imperio->nome}</td>
+			<td>{$imperio->pontuacao}</td>
+			</tr>
+			";
+		}
+		
+		$html .= "</tbody></table>";
+		
+		return $html;
+	}
+	
+	
 	
 	/***********************
 	function colonization_exibe_acoes_imperio($atts = [], $content = null)

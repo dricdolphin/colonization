@@ -117,13 +117,10 @@ class menu_admin {
 			$html_lista_imperios = "";
 			
 			foreach ($lista_id_imperio as $id) {
-				$user = get_user_by('ID',$id->id_jogador); //Pega todos os usuários
 				$imperio = new imperio($id->id);
 				
 				$html_dados_imperio = $imperio->lista_dados();
-				//TODO -- Calcular Pontuação
-				$pontuacao = 999;
-				
+
 				$html_lista_imperios .= "
 				<tr>
 				{$html_dados_imperio}

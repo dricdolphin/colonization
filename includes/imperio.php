@@ -19,19 +19,20 @@ class imperio
 	public $html_header;
 
 	/***********************
-	function __construct(id_imperio = null)
+	function __construct($id, $super=false)
 	----------------------
 	Inicializa os dados do Império
 	$id_imperio = null -- Se não for passado um valor, o valor padrão é o id de usuário
+	$super -- Define se é para forçar o objeto (ignora as proteções)
 	***********************/
-	function __construct($id) {
+	function __construct($id, $super=false) {
 		global $wpdb;
 		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
 		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
-		if (is_null($id) || $roles != "administrator") {
+		if ((is_null($id) || $roles != "administrator") && !$super) {
 			$this->id_jogador = get_current_user_id();
 			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);;
 		} else {
