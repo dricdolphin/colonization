@@ -49,8 +49,25 @@ class imperio
 		FROM colonization_imperio_colonias
 		WHERE id_imperio={$this->id}");
 		
-		//TODO -- Criar a função para pegar a pontuação do Império
-		$this->pontuacao = 999;
+		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Estoque + Custo das Naves
+		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		
+		$pontuacao = $wpdb->get_var("SELECT SUM(nivel)*10 
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_imperio_colonias  AS cic
+		ON cic.id_planeta = cpi.id_planeta
+		WHERE cic.id_imperio={$this->id}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+
+		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+
+		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		
+		//TODO - Soma do custo das naves
+
 	}
 
 	/***********************
