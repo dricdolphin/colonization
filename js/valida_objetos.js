@@ -188,8 +188,6 @@ function valida_instalacao_recurso(objeto) {
 		}
 	}
 
-	console.log(dados_ajax);
-	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -239,8 +237,6 @@ function valida_colonia_recurso(objeto) {
 		}
 	}
 
-	console.log(dados_ajax);
-	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -290,8 +286,6 @@ function valida_colonia_instalacao(objeto) {
 		}
 	}
 
-	console.log(dados_ajax);
-	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {

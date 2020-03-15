@@ -24,7 +24,6 @@ function gerenciar_objeto(evento, objeto, redireciona = "") {
 	
 	var url_gerencia = vars[0]+"?"+redireciona+"&id="+id_objeto;
 	url_gerencia = url_gerencia.replace("#","");
-	console.log(url_gerencia);
 	window.location = url_gerencia;
 	
 	evento.preventDefault();

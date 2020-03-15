@@ -305,7 +305,6 @@ function salva_objeto(evento, objeto, cancela = false) {
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(objeto_editado['dados_ajax']);
-	console.log(objeto_editado['dados_ajax']);
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
@@ -471,6 +470,21 @@ function salva_acao(evento, objeto, cancela = false) {
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
 	var dados = [];
+	//Pega a data atual
+	var data_atual = new Date();
+	var dia_atual = data_atual.getDate();
+	var mes_atual = data_atual.getMonth();
+	var ano_atual = data_atual.getFullYear();
+	var hora_atual = data_atual.getHours();
+	var minuto_atual = data_atual.getMinutes();
+	var segundo_atual = data_atual.getSeconds();
+	dia_atual = ("0" + dia_atual).slice(-2);
+	mes_atual = ("0" + (mes_atual + 1)).slice(-2);
+	hora_atual = ("0" + hora_atual).slice(-2);
+	minuto_atual = ("0" + minuto_atual).slice(-2);	
+	segundo_atual = ("0" + segundo_atual).slice(-2);	
+	
+	var data_modifica = ano_atual+"-"+mes_atual+"-"+dia_atual+" "+hora_atual+":"+minuto_atual+":"+segundo_atual;
 	
 	if (cancela) {
 		for (var index=0;index<divs.length;index++) {
@@ -517,7 +531,7 @@ function salva_acao(evento, objeto, cancela = false) {
 	}
 
 	//Cria o string que será passado para o AJAX
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value']+"&data_modifica="+data_modifica;	
 
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
@@ -553,7 +567,6 @@ function salva_acao(evento, objeto, cancela = false) {
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(objeto_editado['dados_ajax']);
-	console.log(objeto_editado['dados_ajax']);
 
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
