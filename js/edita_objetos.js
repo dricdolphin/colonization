@@ -469,7 +469,7 @@ function salva_acao(evento, objeto, cancela = false) {
 	var divs = linha.getElementsByTagName('DIV');
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
-	var dados = [];
+	var dados = []; //Dados que serão enviados para a validação
 	//Pega a data atual
 	var data_atual = new Date();
 	var dia_atual = data_atual.getDate();
@@ -513,7 +513,8 @@ function salva_acao(evento, objeto, cancela = false) {
 		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
-			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value - inputs[index].getAttribute('data-valor-original');
+			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
+			dados['pop'] = inputs[index].value - inputs[index].getAttribute('data-valor-original');
 		}
 	}
 	

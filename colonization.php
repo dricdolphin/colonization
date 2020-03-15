@@ -41,6 +41,7 @@ class colonization {
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
+		add_shortcode('colonization_exibe_recursos_colonias_imperio',array($this,'colonization_exibe_recursos_colonias_imperio')); //Exibe os dados das Colônias do Império
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
 	}
@@ -85,10 +86,8 @@ class colonization {
 	/***********************
 	function colonization_exibe_colonias_imperio($atts = [], $content = null)
 	----------------------
-	Chamado pelo shortcode [exibe_colonias_imperio]
+	Chamado pelo shortcode [colonization_exibe_colonias_imperio]
 	$atts = [] - lista de atributos dentro do shortcode 
-	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
-	os dados do Império com id="1"
 	***********************/	
 	function colonization_exibe_colonias_imperio($atts = [], $content = null) {
 		if (isset($atts['id'])) {
@@ -98,6 +97,47 @@ class colonization {
 		}
 		
 		return $imperio->imperio_exibe_colonias_imperio();
+	}
+
+	/***********************
+	function colonization_exibe_recursos_colonias_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_recursos_colonias_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_recursos_colonias_imperio($atts = [], $content = null) {
+		global $wpdb;
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id}");
+		
+		$html = "
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
+		<thead>
+		<tr><td style='width: 300px;'>Planeta (X;Y;Z)</td><td>Recursos</td></tr>
+		</thead>
+		<tbody>";
+		
+		foreach ($resultados as $resultado) {
+			$colonia = new colonia($resultado->id);
+			
+			$lista_recursos = $colonia->exibe_recursos_colonia();
+			
+			$html .= "<tr><td>{$colonia->planeta->nome} - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
+			<td>{$lista_recursos}</td>
+			</tr>
+			";
+		
+		}
+		
+		$html .= "</tbody></table>";
+		
+		return $html;
 	}
 	
 	/***********************

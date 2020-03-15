@@ -360,7 +360,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td>
+		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td><td>Extrativo</td>
 		</tr>
 		</thead>
 		<tbody>";
@@ -716,7 +716,7 @@ class menu_admin {
 		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div>
 		<table class='wp-list-table widefat fixed striped users'>
 		<thead>
-		<tr><td style='width: 200px;'>Nome do Império</td><td style='width: 200px;'>Última modificação das ações</td><td style='width: 80px;'>Pontuação</td><td style='width: 100%;'>Balanço dos Recursos</td></tr>
+		<tr><td style='width: 200px;'>Nome do Império</td><td style='width: 200px;'>Dt Última Modificação</td><td style='width: 80px;'>Pontuação</td><td style='width: 100%;'>Balanço dos Recursos</td></tr>
 		</thead>
 		<tbody>";
 		

@@ -13,18 +13,20 @@ class recurso
 	public $nome;
 	public $descricao;
 	public $acumulavel;
+	public $extrativo;
 	
 	function __construct($id) {
 		global $wpdb;
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, acumulavel FROM colonization_recurso WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, acumulavel, extrativo FROM colonization_recurso WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
 		$this->acumulavel = $resultado->acumulavel;
+		$this->extrativo = $resultado->extrativo;
 	}
 
 	/***********************
@@ -40,6 +42,12 @@ class recurso
 		} else {
 			$acumulavel_checked = "";
 		}
+
+		if ($this->extrativo == 1) {
+			$extrativo_checked = "checked";
+		} else {
+			$extrativo_checked = "";
+		}
 		
 		//Exibe os dados do Império
 		$html = "				<td>
@@ -51,7 +59,9 @@ class recurso
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
-			<td><div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->acumulavel}'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' {$acumulavel_checked} disabled></input></div></td>";
+			<td><div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->acumulavel}'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' {$acumulavel_checked} disabled></input></div></td>
+			<td><div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='{$this->extrativo}'><input type='checkbox' data-atributo='extrativo' data-ajax='true' {$extrativo_checked} disabled></input></div></td>";			
+
 		return $html;
 	}
 }

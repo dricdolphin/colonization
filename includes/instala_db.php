@@ -59,7 +59,8 @@ class instala_db {
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
 		descricao TEXT NOT NULL,
-		acumulavel BOOLEAN DEFAULT TRUE
+		acumulavel BOOLEAN DEFAULT TRUE,
+		extrativo BOOLEAN DEFAULT TRUE
 		)");
 
 

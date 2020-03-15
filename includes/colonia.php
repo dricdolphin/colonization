@@ -64,5 +64,35 @@ class colonia
 		
 		return $html;
 	}
+
+	/***********************
+	function exibe_recursos_colonia()
+	----------------------
+	Exibe os recursos da Colônia
+	***********************/
+	function exibe_recursos_colonia() {
+		global $wpdb;
+		
+		$resultados = $wpdb->get_results("
+		SELECT cr.nome, cpr.disponivel
+		FROM colonization_planeta_recursos AS cpr
+		JOIN colonization_imperio_colonias AS cic
+		ON cic.id_imperio = {$this->id_imperio} 
+		AND cic.id_planeta = cpr.id_planeta
+		JOIN colonization_recurso AS cr
+		ON cr.id = cpr.id_recurso
+		WHERE cpr.id_planeta={$this->planeta->id}");
+		
+		$html = "";
+		foreach ($resultados as $resultado) {
+			$html .= "{$resultado->nome}: {$resultado->disponivel}, ";
+		}
+		
+		if ($html != "") {
+			$html = substr($html,0,-2);
+		}
+		
+		return $html;
+	}
 }
 ?>

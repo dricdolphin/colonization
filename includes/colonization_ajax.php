@@ -22,6 +22,7 @@ class colonization_ajax {
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
 		add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
+		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 	}
 	
 	/***********************
@@ -339,12 +340,18 @@ class colonization_ajax {
 		$dados_salvos = [];
 		$dados_salvos['balanco_acao'] = "";
 		
-		$resultados = $wpdb->get_results("SELECT mdo FROM (SELECT (cimc.pop - cat.pop) AS mdo FROM
-			(SELECT turno, id_imperio, id_instalacao, id_planeta, SUM(pop) AS pop
-			FROM colonization_acoes_turno 
-			WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
-			GROUP BY id_planeta
-			) AS cat
+		//Verifica se existe MdO suficiente na colônia
+		$resultados = $wpdb->get_results("
+		SELECT mdo 
+		FROM 
+			(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop AS pop
+				FROM colonization_acoes_turno
+				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
+				UNION ALL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+				GROUP BY id_planeta
+				) AS cat
 			JOIN colonization_imperio_colonias AS cimc
 			ON cimc.id_imperio = cat.id_imperio AND cimc.id_planeta = cat.id_planeta) AS tabela_balanco
 			WHERE mdo < 0
@@ -354,6 +361,38 @@ class colonization_ajax {
 			$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
 		}
 		
+		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
+		$resultados = $wpdb->get_results("
+			SELECT cr.nome, tabela_produz.producao, tabela_produz.id_planeta, cpr.id_planeta, cpr.disponivel
+			FROM colonization_recurso AS cr
+            LEFT JOIN (
+				SELECT cir.id_recurso, cat.turno, cat.id_imperio, cat.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				FROM 
+				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				FROM colonization_acoes_turno 
+				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
+				UNION ALL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL				
+				) AS cat
+				LEFT JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				LEFT JOIN colonization_instalacao_recursos AS cir
+				ON cir.id_instalacao = cat.id_instalacao
+				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
+				GROUP BY cir.id_recurso
+			) AS tabela_produz
+			ON tabela_produz.id_recurso = cr.id
+   			LEFT JOIN colonization_planeta_recursos AS cpr
+			ON cpr.id_recurso = cr.id
+            AND cpr.id_planeta={$_POST['id_planeta']}
+			WHERE cr.extrativo=true AND cpr.disponivel < tabela_produz.producao
+		");
+		
+		foreach ($resultados as $resultado) {
+			$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$resultado->nome}, ";
+		}
+		
+		//Faz o balanço dos recursos
 		$resultados = $wpdb->get_results("
 		SELECT nome, (producao-consumo+estoque) AS balanco
 		FROM (
@@ -367,6 +406,8 @@ class colonization_ajax {
 				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
+				UNION ALL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
@@ -382,6 +423,8 @@ class colonization_ajax {
 				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
+				UNION ALL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
@@ -413,5 +456,19 @@ class colonization_ajax {
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
+
+	/***********************
+	function roda_turno ()
+	----------------------
+	Roda o Turno
+	***********************/	
+	function roda_turno() {
+		global $wpdb;
+		
+		$roda_turno = new roda_turno();
+		$html = $roda_turno->executa_roda_turno();
+	}
+
+
 }
 ?>
