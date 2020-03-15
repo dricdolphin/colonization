@@ -464,9 +464,13 @@ class colonization_ajax {
 	***********************/	
 	function roda_turno() {
 		global $wpdb;
+		$html = [];
 		
 		$roda_turno = new roda_turno();
-		$html = $roda_turno->executa_roda_turno();
+		$html['html'] = $roda_turno->executa_roda_turno();
+		
+		echo json_encode($html); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
 	}
 
 
