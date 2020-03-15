@@ -531,7 +531,7 @@ class menu_admin {
 			$html .= "<div><h3>Recursos da Colônia</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_recursos'>
 			<thead>
-			<tr><td>ID</td><td>Recurso</td><td>Disponível</td>
+			<tr><td>ID</td><td>Recurso</td><td>Disponível</td><td style='width: 50px;'>Turno</td>
 			</tr>
 			</thead>
 			<tbody>
@@ -701,6 +701,7 @@ class menu_admin {
 	function colonization_admin_roda_turno() {
 		global $wpdb;
 		$turno = new turno();
+		//$roda_turno = new roda_turno();
 		
 		$html = $this->html_header;
 		$proxima_semana = new DateTime($turno->data_turno);
@@ -734,8 +735,12 @@ class menu_admin {
 		$html .= "\n</tbody>
 		</table>
 		<br>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return roda_turno();'>Rodar Turno</a></div>";
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return roda_turno(event);'>Rodar Turno</a></div>
+		<br>
+		<div id='resultado_turno'>&nbsp;</div>";
 
+		//$html = $roda_turno->executa_roda_turno();
+		
 		echo $html;
 	}	
 	

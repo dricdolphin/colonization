@@ -24,6 +24,8 @@ class roda_turno {
 	Roda o Turno
 	******************/	
 	function executa_roda_turno() {
+		global $wpdb;
+		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
 		
@@ -38,13 +40,14 @@ class roda_turno {
 			
 			$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
 			foreach ($imperios as $id_imperio) {
+				$html .= "<br>";
 				$imperio = new imperio($id_imperio->id);
 				$imperio_recursos = new imperio_recursos($imperio->id);	
 
 				//Vamos modificar os estoques!
 				//Primeiro, PRODUZ os recursos, e com isso CONSUMIR os Recursos dos Planetas
 				$resultados = $wpdb->get_results(
-				"SELECT cr.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				"SELECT cir.id_recurso, cpi.id_planeta, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM colonization_acoes_turno AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
@@ -54,7 +57,8 @@ class roda_turno {
 				ON cir.id_recurso = cr.id
 				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
 				GROUP BY cr.nome");
-
+				
+				$html .= "PRODUZINDO Recursos do Império {$imperio->id}:<br>";
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
 					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;
@@ -63,16 +67,17 @@ class roda_turno {
 					//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 					
 					$recursos_disponivel = $wpdb->get_var("SELECT disponivel FROM colonization_planeta_recursos WHERE id_planeta={$resultado->id_planeta} AND id_recurso={$resultado->id_recurso} AND turno={$turno->turno}");
-					if ($recursos_disponivel !== "null") {
+					if ($recursos_disponivel > 0) {
 						$recursos_disponivel = $recursos_disponivel - $resultado->producao;
 						$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}<br>";
 						//$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 					}
 				}
 				
+				$html .= "<br>CONSUMINDO Recursos do Império {$imperio->id}:<br>";
 				//Depois, CONSOME os recursos dos Estoques
 				$resultados = $wpdb->get_results(
-				"SELECT cr.id_recurso, cr.nome, cpi.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				"SELECT cir.id_recurso,cpi.id_planeta, cr.nome, cpi.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM colonization_acoes_turno AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
@@ -82,7 +87,13 @@ class roda_turno {
 				ON cir.id_recurso = cr.id
 				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=true AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
 				GROUP BY cr.nome");
-
+				
+				//Primeiro consome os ALIMENTOS da Colônia (HARDCODED, futuramente será parte das "Ações Especiais"
+				$qtd = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND turno={$turno->turno} AND id_recurso=7") - $imperio->pop;
+				$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso=7, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
+				//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso=7, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");				
+				
+				//Depois pega os resultados normais
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
 					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;

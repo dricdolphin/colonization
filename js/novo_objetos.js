@@ -327,6 +327,7 @@ function novo_colonia_recurso(evento, id_planeta) {
 	var id = linha_nova.insertCell(0);
 	var nome_recurso = linha_nova.insertCell(1);
 	var disponivel = linha_nova.insertCell(2);
+	var turno = linha_nova.insertCell(3);
 	
 	var lista_recursos = lista_recursos_html();
 	
@@ -341,6 +342,7 @@ function novo_colonia_recurso(evento, id_planeta) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome_recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado='' data-valor-original=''>"+lista_recursos+"</div>";
 	disponivel.innerHTML = "<div data-atributo='disponivel' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='disponivel' data-ajax='true' style='width: 50px;'></input></div>";
+	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;'></input></div>";
 	
 	evento.preventDefault();
 	return false;
@@ -391,4 +393,33 @@ function nova_colonia_instalacao(evento, id_planeta) {
 
 	evento.preventDefault();
 	return false;
+}
+
+/******************
+function nova_colonia_instalacao
+--------------------
+Insere uma nova Instalação no Planeta
+--------
+id_planeta -- id do Planeta que receberá a Instalação
+******************/
+function roda_turno(evento) {
+	var div_resultados = document.getElementById('resultado_turno');
+	div_resultados.innerHTML = "Processando o Turno, aguarde!";
+
+	var dados_ajax = "post_type=POST&action=roda_turno";
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			var div_resultados = document.getElementById('resultado_turno');
+			div_resultados.innerHTML = resposta.html;
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	evento.preventDefault();
+	return false;	
 }
