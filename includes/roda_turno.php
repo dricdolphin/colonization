@@ -58,7 +58,7 @@ class roda_turno {
 				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
 				GROUP BY cr.nome");
 				
-				$html .= "PRODUZINDO Recursos do Império {$imperio->id}:<br>";
+				$html .= "CONSUMINDO Recursos Planetários do Império {$imperio->id}:<br>";
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
 					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;
