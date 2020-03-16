@@ -25,6 +25,7 @@ include_once('includes/colonia_recurso.php');
 include_once('includes/imperio_recursos.php');
 include_once('includes/acoes.php');
 include_once('includes/turno.php');
+include_once('includes/frota.php');
 include_once('includes/roda_turno.php');
 include_once('js/listas_js.php');
 

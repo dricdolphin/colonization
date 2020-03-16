@@ -123,6 +123,7 @@ class instala_db {
 		Z INT(6) NOT NULL,
 		tamanho INT(6) NOT NULL,
 		velocidade INT(6) NOT NULL,
+		alcance INT(6) NOT NULL,
 		PDF_laser INT(6) NOT NULL,
 		PDF_projetil INT(6) NOT NULL,
 		PDF_torpedo INT(6) NOT NULL,

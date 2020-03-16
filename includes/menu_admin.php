@@ -33,6 +33,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
+		add_submenu_page('colonization_admin_menu','Frotas','Frotas','manage_options','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 	}
@@ -639,6 +640,56 @@ class menu_admin {
 		echo $html;
 	}	
 	
+	/******************
+	function colonization_admin_frotas()
+	-----------
+	Exibe as Frotas dos Impérios
+	******************/
+	function colonization_admin_frotas() {
+		global $wpdb;
+		$turno = new turno();
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Frotas dos Impérios</h2></div>";
+		
+		
+		//Pega a lista de impérios
+		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		$html_lista = "";
+		
+		foreach ($lista_id_imperio as $id) {
+			$imperio = new imperio($id->id);
+
+			
+			$html_lista	.= "
+			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_frota'>
+			<thead>
+			<tr><th rowspan='2' style='width: 120px;'>Nome da nave</th><th rowspan='2' style='width: 80px;'>Tipo</th><th colspan='3' style='width: 90px;'>Posição</th><th rowspan='2' style='width: 70px;'>Tamanho</th>
+			<th colspan='3' style='width: 220px;'>Poder de Fogo</th><th rowspan='2' style='width: 80px;'>Blindagem</th><th rowspan='2' style='width: 80px;'>Escudos</th>
+			<th rowspan='2' style='width: 80px;'>Velocidade</th><th rowspan='2' style='width: 80px;'>Alcance</th>
+			<th rowspan='2' style='width: 30px;'>HP</th><th rowspan='2' style='width: 60px;'>Turno</th><th rowspan='2' style='width: 120px;'>&nbsp;</th>
+			</tr>
+			<tr><th style='width: 30px;'>X</th><th style='width: 30px;'>Y</th><th style='width: 30px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
+			</thead>
+			<tbody>";
+			
+			
+			
+			//$html_lista .= $imperio_acoes->lista_dados();
+			
+			$html_lista .= "</tbody>
+			</table>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_nave(event, {$imperio->id});'>Adicionar nova Nave</a></div>";
+		}
+
+		$html .= $html_lista;
+
+		echo $html;
+	}
+
+
 	
 	/******************
 	function colonization_admin_acoes()

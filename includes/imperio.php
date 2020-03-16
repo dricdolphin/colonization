@@ -193,7 +193,7 @@ class imperio
 		WHERE cic.id_imperio = {$this->id}
 		");
 		
-		$html = "<b>Recursos atuais:</b> ";
+		$html = "";
 		foreach ($resultados as $resultado) {
 			$html .= "{$resultado->nome} - Pop: {$resultado->pop}; ";
 		}
