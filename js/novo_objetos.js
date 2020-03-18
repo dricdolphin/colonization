@@ -396,11 +396,82 @@ function nova_colonia_instalacao(evento, id_planeta) {
 }
 
 /******************
-function nova_colonia_instalacao
+function nova_nave
 --------------------
-Insere uma nova Instalação no Planeta
+Insere uma nova Nave (Frota)
 --------
-id_planeta -- id do Planeta que receberá a Instalação
+id_imperio -- id do Império que receberá a nave
+******************/
+function nova_nave(evento, id_imperio) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
+		return false;
+	}
+		
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+	var tabela = document.getElementsByTagName('TABLE');
+	
+	//Determina qual tabela (ou seja, qual Império) está sendo editado
+	for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
+		if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
+			tabela = tabela[index_tabelas];
+			break;
+		}
+	}
+	
+	var linha_nova = tabela.insertRow(-1);
+	var nome = linha_nova.insertCell(0);
+	var tipo = linha_nova.insertCell(1);
+	var X = linha_nova.insertCell(2);
+	var Y = linha_nova.insertCell(3);
+	var Z = linha_nova.insertCell(4);
+	var tamanho = linha_nova.insertCell(5);
+	var PDF_laser = linha_nova.insertCell(6);
+	var PDF_torpedo = linha_nova.insertCell(7);
+	var PDF_projetil = linha_nova.insertCell(8);
+	var blindagem = linha_nova.insertCell(9);
+	var escudos = linha_nova.insertCell(10);
+	var velocidade = linha_nova.insertCell(11);
+	var alcance = linha_nova.insertCell(12);
+	var HP = linha_nova.insertCell(13);
+	var turno = linha_nova.insertCell(14);
+	var gerenciar = linha_nova.insertCell(15);
+	
+	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
+	+"<div data-atributo='nome' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true' style='width: 80px;'></input></div>"
+	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	tipo.innerHTML = "<td><div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 60px;'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 60px;'></input></div></td>";
+	X.innerHTML = "<td><div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div></td>";
+	Y.innerHTML = "<td><div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' style='width: 30px;'></input></div></td>";
+	Z.innerHTML = "<td><div data-atributo='Z' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Z' data-ajax='true' style='width: 30px;'></input></div></td>";
+	tamanho.innerHTML = "<td><div data-atributo='tamanho' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 50px;'></input></div></td>";
+	PDF_laser.innerHTML = "<td><div data-atributo='PDF_laser' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='PDF_laser' data-ajax='true' style='width: 50px;'></input></div></td>";
+	PDF_torpedo.innerHTML = "<td><div data-atributo='PDF_torpedo' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='PDF_torpedo' data-ajax='true' style='width: 50px;'></input></div></td>";
+	PDF_projetil.innerHTML = "<td><div data-atributo='PDF_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='PDF_projetil' data-ajax='true' style='width: 50px;'></input></div></td>";
+	blindagem.innerHTML = "<td><div data-atributo='blindagem' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='blindagem' data-ajax='true' style='width: 50px;'></input></div></td>";
+	escudos.innerHTML = "<td><div data-atributo='escudos' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='escudos' data-ajax='true' style='width: 50px;'></input></div></td>";
+	velocidade.innerHTML = "<td><div data-atributo='velocidade' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='velocidade' data-ajax='true' style='width: 50px;'></input></div></td>";
+	alcance.innerHTML = "<td><div data-atributo='alcance' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='alcance' data-ajax='true' style='width: 50px;'></input></div></td>";
+	HP.innerHTML = "<td><div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;'></input></div></td>";
+	turno.innerHTML = "<td><div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;'></input></div></td>";
+	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+
+	evento.preventDefault();
+	return false;	
+}
+
+/******************
+function roda_turno
+--------------------
+Roda o Turno
+--------
 ******************/
 function roda_turno(evento) {
 	var div_resultados = document.getElementById('resultado_turno');

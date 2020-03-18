@@ -664,9 +664,9 @@ class menu_admin {
 			
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_frota'>
+			<table class='wp-list-table widefat fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
-			<tr><th rowspan='2' style='width: 120px;'>Nome da nave</th><th rowspan='2' style='width: 80px;'>Tipo</th><th colspan='3' style='width: 90px;'>Posição</th><th rowspan='2' style='width: 70px;'>Tamanho</th>
+			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th><th rowspan='2' style='width: 80px;'>Tipo</th><th colspan='3' style='width: 90px;'>Posição</th><th rowspan='2' style='width: 70px;'>Tamanho</th>
 			<th colspan='3' style='width: 220px;'>Poder de Fogo</th><th rowspan='2' style='width: 80px;'>Blindagem</th><th rowspan='2' style='width: 80px;'>Escudos</th>
 			<th rowspan='2' style='width: 80px;'>Velocidade</th><th rowspan='2' style='width: 80px;'>Alcance</th>
 			<th rowspan='2' style='width: 30px;'>HP</th><th rowspan='2' style='width: 60px;'>Turno</th><th rowspan='2' style='width: 120px;'>&nbsp;</th>
@@ -676,7 +676,16 @@ class menu_admin {
 			<tbody>";
 			
 			
-			
+			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
+			foreach ($lista_id_frota as $id_frota) {
+				$frota = new frota($id_frota->id);
+				$html_dados = $frota->lista_dados();
+				
+				$html_lista .= "
+				<tr>
+				{$html_dados}
+				</tr>";	
+			}
 			//$html_lista .= $imperio_acoes->lista_dados();
 			
 			$html_lista .= "</tbody>
