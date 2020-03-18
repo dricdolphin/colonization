@@ -7,10 +7,13 @@ position: relative;
 top: 10px;
 }
 
-input[type='text']
+input[type=text]
 {
-    width: 100%;
+    font-size: 12px;
+	width: 100%;
 	display: block;
+	padding: 1px;
+	
 }
 
 input[type=range] {
