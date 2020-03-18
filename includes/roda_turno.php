@@ -14,8 +14,9 @@ para rodar caso não tenha passado pelo menos 24 horas do último turno.
 //Contém as rotinas para rodar o turno
 class roda_turno {
 
+	
 	function __construct() {
-		
+
 	}
 	
 	/******************
@@ -37,6 +38,13 @@ class roda_turno {
 		if ($roles == "administrator") {//Somente pode rodar o turno se for um Administrador
 			$turno = new turno(); //Pega o turno atual
 			$proximo_turno = $turno->turno + 1;
+			
+			if ($turno->bloqueado) {
+				$html = "Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>
+				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event);'>DESBLOQUEAR TURNO</a></div>
+				";
+				return $html;
+			}
 			
 			$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
 			foreach ($imperios as $id_imperio) {

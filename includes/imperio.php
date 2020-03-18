@@ -67,7 +67,9 @@ class imperio
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
-		//TODO - Soma do custo das naves
+		$pontuacao = $wpdb->get_var("SELECT (SUM(tamanho)*2+SUM(PDF_laser)+SUM(PDF_projetil)+SUM(PDF_torpedo)+SUM(blindagem)+SUM(escudos)+SUM(alcance)) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		
 
 	}
 

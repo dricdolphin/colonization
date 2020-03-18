@@ -95,3 +95,9 @@ function copiar_objeto(evento, objeto, id_imperio) {
 	evento.preventDefault();
 	return false;
 }
+
+function desbloquear_turno(evento) {
+	var confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
+
+	
+}
