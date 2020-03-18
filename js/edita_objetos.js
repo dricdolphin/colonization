@@ -169,12 +169,12 @@ funcao -- função a ser chamada
 objeto -- objeto sendo editado
 ******************/	
 function chama_funcao_validacao(objeto, funcao) {
-	// find object
 	var fn = window[funcao];
-
-	// is object a function?
+	
 	if (typeof fn === "function") {
 		var retorno = fn(objeto);
+	} else {//Caso não encontre a função de validação, usa a validação genérica
+		var retorno = valida_generico(objeto);
 	}
 
 	return retorno;

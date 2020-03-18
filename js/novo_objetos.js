@@ -424,20 +424,22 @@ function nova_nave(evento, id_imperio) {
 	var linha_nova = tabela.insertRow(-1);
 	var nome = linha_nova.insertCell(0);
 	var tipo = linha_nova.insertCell(1);
-	var X = linha_nova.insertCell(2);
-	var Y = linha_nova.insertCell(3);
-	var Z = linha_nova.insertCell(4);
-	var tamanho = linha_nova.insertCell(5);
-	var PDF_laser = linha_nova.insertCell(6);
-	var PDF_torpedo = linha_nova.insertCell(7);
-	var PDF_projetil = linha_nova.insertCell(8);
-	var blindagem = linha_nova.insertCell(9);
-	var escudos = linha_nova.insertCell(10);
-	var velocidade = linha_nova.insertCell(11);
-	var alcance = linha_nova.insertCell(12);
-	var HP = linha_nova.insertCell(13);
-	var turno = linha_nova.insertCell(14);
-	var gerenciar = linha_nova.insertCell(15);
+	var qtd = linha_nova.insertCell(2);
+	var X = linha_nova.insertCell(3);
+	var Y = linha_nova.insertCell(4);
+	var Z = linha_nova.insertCell(5);
+	var tamanho = linha_nova.insertCell(6);
+	var PDF_laser = linha_nova.insertCell(7);
+	var PDF_torpedo = linha_nova.insertCell(8);
+	var PDF_projetil = linha_nova.insertCell(9);
+	var blindagem = linha_nova.insertCell(10);
+	var escudos = linha_nova.insertCell(11);
+	var velocidade = linha_nova.insertCell(12);
+	var alcance = linha_nova.insertCell(13);
+	var HP = linha_nova.insertCell(14);
+	var turno = linha_nova.insertCell(15);
+	var especiais = linha_nova.insertCell(16);
+	var gerenciar = linha_nova.insertCell(17);
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
@@ -445,9 +447,10 @@ function nova_nave(evento, id_imperio) {
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
-	+"<div data-atributo='nome' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true' style='width: 80px;'></input></div>"
+	+"<div data-atributo='nome' data-editavel='true' data-valor-original='' data-style='width: 100px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 80px;'></input></div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
-	tipo.innerHTML = "<td><div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 60px;'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 60px;'></input></div></td>";
+	tipo.innerHTML = "<td><div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 70px;'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 70px;'></input></div></td>";
+	qtd.innerHTML = "<td><div data-atributo='qtd' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 30px;'></input></div></td>";
 	X.innerHTML = "<td><div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div></td>";
 	Y.innerHTML = "<td><div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' style='width: 30px;'></input></div></td>";
 	Z.innerHTML = "<td><div data-atributo='Z' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Z' data-ajax='true' style='width: 30px;'></input></div></td>";
@@ -461,7 +464,8 @@ function nova_nave(evento, id_imperio) {
 	alcance.innerHTML = "<td><div data-atributo='alcance' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='alcance' data-ajax='true' style='width: 50px;'></input></div></td>";
 	HP.innerHTML = "<td><div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;'></input></div></td>";
 	turno.innerHTML = "<td><div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;'></input></div></td>";
-	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	especiais.innerHTML = "<td><div data-atributo='especiais' data-editavel='true' data-valor-original='' data-style='width: 120px;' data-branco='true'><input type='text' data-atributo='especiais' data-ajax='true' style='width: 120px;' data-branco='true'></input></div></td>";
+	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
 
 	evento.preventDefault();
 	return false;	

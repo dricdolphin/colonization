@@ -147,11 +147,13 @@ function valida_generico(objeto) {
 	var inputs_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
 	
-	//Verifica se o nome do Império está preenchido
+	//Verifica se o todos os dados estão preenchidos
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
+			if (inputs_linha[index].parentNode.getAttribute("data-branco") != "true") {//Caso o div tenha o atributo "data-branco", então pode deixar em branco
+				alert('Nenhum dado pode ser deixado em branco!');
+				return false;
+			}
 		}
 	}
 

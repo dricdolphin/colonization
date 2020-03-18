@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 0.1
+ * Version: 1.0.0
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -47,6 +47,7 @@ class colonization {
 		add_shortcode('colonization_exibe_recursos_colonias_imperio',array($this,'colonization_exibe_recursos_colonias_imperio')); //Exibe os dados das Colônias do Império
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
+		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 	}
 
 	/******************
@@ -299,7 +300,35 @@ class colonization {
 		return $html_lista;
 	}
 
+	/***********************
+	function colonization_exibe_frota_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_frota_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_frota_imperio($atts = [], $content = null) {
+		global $wpdb;
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		$turno = new turno();
+		
+		$html = "<div>";
+		
+		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
+		
+		foreach ($lista_frota_imperio as $id) {
+			$frota = new frota($id->id);
+			$html .= $frota->exibe_frota() . "<br>";
+		}
+		$html .= "</div>";
 
+		return $html;
+	}
 }
 
 //Cria o plugin

@@ -666,10 +666,20 @@ class menu_admin {
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
 			<table class='wp-list-table widefat fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
-			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th><th rowspan='2' style='width: 80px;'>Tipo</th><th colspan='3' style='width: 90px;'>Posição</th><th rowspan='2' style='width: 70px;'>Tamanho</th>
-			<th colspan='3' style='width: 220px;'>Poder de Fogo</th><th rowspan='2' style='width: 80px;'>Blindagem</th><th rowspan='2' style='width: 80px;'>Escudos</th>
-			<th rowspan='2' style='width: 80px;'>Velocidade</th><th rowspan='2' style='width: 80px;'>Alcance</th>
-			<th rowspan='2' style='width: 30px;'>HP</th><th rowspan='2' style='width: 60px;'>Turno</th><th rowspan='2' style='width: 120px;'>&nbsp;</th>
+			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th>
+			<th rowspan='2' style='width: 80px;'>Tipo</th>
+			<th rowspan='2' style='width: 30px;'>Qtd</th>
+			<th colspan='3' style='width: 90px;'>Posição</th>
+			<th rowspan='2' style='width: 70px;'>Tamanho</th>
+			<th colspan='3' style='width: 220px;'>Poder de Fogo</th>
+			<th rowspan='2' style='width: 75px;'>Blindagem</th>
+			<th rowspan='2' style='width: 60px;'>Escudos</th>
+			<th rowspan='2' style='width: 75px;'>Velocidade</th>
+			<th rowspan='2' style='width: 60px;'>Alcance</th>
+			<th rowspan='2' style='width: 40px;'>HP</th>
+			<th rowspan='2' style='width: 40px;'>Turno</th>
+			<th rowspan='2' style='width: 120px;'>Especiais</th>
+			<th rowspan='2' style='width: 120px;'>&nbsp;</th>
 			</tr>
 			<tr><th style='width: 30px;'>X</th><th style='width: 30px;'>Y</th><th style='width: 30px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
 			</thead>
