@@ -160,6 +160,7 @@ function novo_recurso(evento) {
 	var descricao = linha_nova.insertCell(1);
 	var acumulavel = linha_nova.insertCell(2);
 	var extrativo = linha_nova.insertCell(3);
+	var local = linha_nova.insertCell(4);
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -170,6 +171,7 @@ function novo_recurso(evento) {
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
 	acumulavel.innerHTML = "<div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' checked></input></div>";
 	extrativo.innerHTML = "<div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='extrativo' data-ajax='true' checked></input></div>";
+	local.innerHTML = "<div data-atributo='local' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='local' data-ajax='true' checked></input></div>";
 
 	evento.preventDefault();
 	return false;

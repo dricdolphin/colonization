@@ -60,7 +60,8 @@ class instala_db {
 		nome VARCHAR(255) NOT NULL,
 		descricao TEXT NOT NULL,
 		acumulavel BOOLEAN DEFAULT TRUE,
-		extrativo BOOLEAN DEFAULT TRUE
+		extrativo BOOLEAN DEFAULT TRUE,
+		local BOOLEAN DEFAULT FALSE
 		)");
 
 

@@ -358,7 +358,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td><td>Extrativo</td>
+		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td><td>Extrativo</td><td>Local</td>
 		</tr>
 		</thead>
 		<tbody>";

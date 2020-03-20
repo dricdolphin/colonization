@@ -254,7 +254,7 @@ class acoes
 			LEFT JOIN (
 				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat
@@ -269,7 +269,7 @@ class acoes
 			LEFT JOIN (
 			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat

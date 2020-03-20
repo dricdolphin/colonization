@@ -28,7 +28,7 @@ class imperio_recursos
 		$resultado = $wpdb->get_results("
 		SELECT cir.id AS id, cr.id AS id_recurso, cir.qtd AS qtd, cir.disponivel AS disponivel
 		FROM 
-		(SELECT * FROM colonization_recurso) AS cr
+		(SELECT * FROM colonization_recurso WHERE local = false) AS cr
 		LEFT JOIN 
 		(SELECT id, id_recurso, qtd, disponivel FROM colonization_imperio_recursos 
 		WHERE id_imperio = {$this->id_imperio}
