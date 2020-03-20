@@ -179,7 +179,7 @@ class acoes
 		$html = "<b>Recursos Produzidos:</b> ";
 		
 		$resultados = $wpdb->get_results(
-		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 		FROM colonization_acoes_turno AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
 		ON cpi.id = cat.id_planeta_instalacoes
@@ -193,6 +193,19 @@ class acoes
 		);
 
 		foreach ($resultados as $resultado) {
+			/***************************************************
+			--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+			***************************************************/
+			//TODO -- Aqui entram os Especiais de cada Império
+			//No caso, tenho apenas o "hard-coded" do Império 3
+			if ($this->id_imperio == 3) {
+				if ($resultado->id_recurso !== null) {
+					if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$resultado->id_recurso}") && $resultado->pop == 10) {
+						$resultado->producao = $resultado->producao + 1;
+					}
+				}
+			}
+
 			if ($resultado->producao > 0) {
 				$html .= "{$resultado->nome} - {$resultado->producao}; ";
 			}
@@ -212,7 +225,7 @@ class acoes
 		$html = "<b>Recursos Consumidos:</b> ";
 
 		$resultados = $wpdb->get_results(
-		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 		FROM colonization_acoes_turno AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
 		ON cpi.id = cat.id_planeta_instalacoes
@@ -245,14 +258,14 @@ class acoes
 		$html = "";
 
 		$resultados = $wpdb->get_results("
-		SELECT nome, (producao-consumo) AS balanco 
+		SELECT pop, id_recurso, nome, (producao-consumo) AS balanco 
 		FROM (
-			SELECT cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
+			SELECT tabela_produz.pop, tabela_produz.id_recurso, cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
 			(CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, 
 			cimr.qtd AS estoque 
 			FROM colonization_recurso AS cr
 			LEFT JOIN (
-				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+				SELECT cat.pop, cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
 				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
@@ -290,6 +303,19 @@ class acoes
 		");
 
 		foreach ($resultados as $resultado) {
+			/***************************************************
+			--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+			***************************************************/
+			//TODO -- Aqui entram os Especiais de cada Império
+			//No caso, tenho apenas o "hard-coded" do Império 3
+			if ($this->id_imperio == 3) {
+				if ($resultado->id_recurso !== null) {
+					if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$resultado->id_recurso}") && $resultado->pop == 10) {
+						$resultado->balanco = $resultado->balanco + 1;
+					}
+				}
+			}
+			
 			if ($resultado->balanco > 0) {
 				$html .= "{$resultado->nome}: {$resultado->balanco}; ";
 			} elseif ($resultado->balanco < 0) {
