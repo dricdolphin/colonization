@@ -96,8 +96,29 @@ function copiar_objeto(evento, objeto, id_imperio) {
 	return false;
 }
 
-function desbloquear_turno(evento) {
+function desbloquear_turno(evento, objeto) {
 	var confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
+	
+	if (confirma) {
+		var dados_ajax = "post_type=POST&action=libera_turno";
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var resposta = JSON.parse(this.responseText);
+				if (resposta.resposta_ajax == "OK!") {
+					retorno = true;
+					objeto.parentNode.style.visibility="hidden";
+					alert('Turno liberado! Favor clicar em Rodar Turno novamente!');
+				} else {
+					alert(resposta.resposta_ajax);
+					retorno = false;
+				}
+			}
+		};
+		xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send(dados_ajax);
+	}
 
 	
 }

@@ -23,6 +23,7 @@ class colonization_ajax {
 		add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
+		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
 	}
 	
 	/***********************
@@ -342,11 +343,11 @@ class colonization_ajax {
 		SELECT mdo 
 		FROM 
 			(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop AS pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
 				FROM colonization_acoes_turno
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
 				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				GROUP BY id_planeta
 				) AS cat
 			JOIN colonization_imperio_colonias AS cimc
@@ -365,14 +366,14 @@ class colonization_ajax {
             LEFT JOIN (
 				SELECT cir.id_recurso, cat.turno, cat.id_imperio, cat.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
 				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL				
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				) AS cat
-				LEFT JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id = cat.id_planeta_instalacoes
 				LEFT JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
@@ -400,14 +401,14 @@ class colonization_ajax {
 			LEFT JOIN (
 				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
 				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				ON cpi.id = cat.id_planeta_instalacoes
 				JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
@@ -417,14 +418,14 @@ class colonization_ajax {
 			LEFT JOIN (
 			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta, pop
+				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
 				FROM colonization_acoes_turno 
 				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
 				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				ON cpi.id = cat.id_planeta_instalacoes
 				JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				WHERE cir.consome=true AND cpi.turno_destroi IS NULL
@@ -455,7 +456,7 @@ class colonization_ajax {
 	}
 
 	/***********************
-	function roda_turno ()
+	function roda_turno()
 	----------------------
 	Roda o Turno
 	***********************/	
@@ -467,6 +468,22 @@ class colonization_ajax {
 		$html['html'] = $roda_turno->executa_roda_turno();
 		
 		echo json_encode($html); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
+	/***********************
+	function libera_turno()
+	----------------------
+	Libera o turno
+	***********************/	
+	function libera_turno() {
+		global $wpdb;
+		
+		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false");
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
 

@@ -40,8 +40,8 @@ class roda_turno {
 			$proximo_turno = $turno->turno + 1;
 			
 			if ($turno->bloqueado) {
-				$html = "Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>
-				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event);'>DESBLOQUEAR TURNO</a></div>
+				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>
+				<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
 				";
 				return $html;
 			}
@@ -58,7 +58,7 @@ class roda_turno {
 				"SELECT cir.id_recurso, cpi.id_planeta, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM colonization_acoes_turno AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				ON cpi.id = cat.id_planeta_instalacoes
 				JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				JOIN colonization_recurso AS cr
@@ -96,7 +96,7 @@ class roda_turno {
 						WHERE id_imperio={$imperio->id} AND turno={$turno->turno}
 						) AS cat
 						JOIN colonization_planeta_instalacoes AS cpi
-						ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+						ON cpi.id = cat.id_planeta_instalacoes
 						JOIN colonization_instalacao_recursos AS cir
 						ON cir.id_instalacao = cat.id_instalacao
 						WHERE cir.consome=false AND cpi.turno_destroi IS NULL
@@ -111,7 +111,7 @@ class roda_turno {
 						WHERE id_imperio={$imperio->id} AND turno={$turno->turno}
 						) AS cat
 						JOIN colonization_planeta_instalacoes AS cpi
-						ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+						ON cpi.id = cat.id_planeta_instalacoes
 						JOIN colonization_instalacao_recursos AS cir
 						ON cir.id_instalacao = cat.id_instalacao
 						WHERE cir.consome=true AND cpi.turno_destroi IS NULL
@@ -138,6 +138,10 @@ class roda_turno {
 					$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
 					//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 				}
+				
+				//Cria poluição
+				
+				//Aumenta a população
 			}
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";

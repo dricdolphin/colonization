@@ -14,6 +14,7 @@ class acoes
 	public $id_imperio;
 	public $id_planeta = [];
 	public $id_instalacao = [];
+	public $id_planeta_instalacoes = [];
 	public $nivel_instalacao = [];
 	public $pop = [];
 	public $turno;
@@ -30,17 +31,18 @@ class acoes
 		$this->turno = new turno($turno);
 
 		$resultados =$wpdb->get_results("
-			SELECT cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
+			SELECT cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
 			FROM colonization_imperio_colonias AS cic 
 			JOIN colonization_planeta_instalacoes AS cpi
 			ON cpi.id_planeta = cic.id_planeta
 			LEFT JOIN 
-			(SELECT id, id_planeta, id_instalacao, id_imperio, pop, data_modifica
+			(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, data_modifica
 			 FROM colonization_acoes_turno
 			 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 			) AS cat
 			ON cat.id_planeta = cic.id_planeta
 			AND cat.id_instalacao = cpi.id_instalacao
+			AND cat.id_planeta_instalacoes = cpi.id
 			AND cat.id_imperio = cic.id_imperio
 			JOIN colonization_instalacao AS ci
 			ON ci.id = cpi.id_instalacao
@@ -49,7 +51,7 @@ class acoes
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
 			WHERE cic.id_imperio = {$this->id_imperio}
-			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cpi.id
+			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, ci.nome, cpi.id
 			");
 		
 		$chave = 0;
@@ -58,6 +60,7 @@ class acoes
 				$this->id[$chave] = 0;
 				$this->id_planeta[$chave] = $valor->id_planeta;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
+				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
 				$this->data_modifica[$chave] = $this->turno->data_turno;
@@ -65,6 +68,7 @@ class acoes
 				$this->id[$chave] = $valor->id;
 				$this->id_planeta[$chave] = $valor->id_planeta;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
+				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = $valor->pop;
 				$this->data_modifica[$chave] = $valor->data_modifica;
@@ -79,19 +83,19 @@ class acoes
 					//Se tiver um valor no turno anterior, é para mantê-lo no turno atual
 					$turno_anterior = $this->turno->turno - 1;
 					$pop_turno_anterior = $wpdb->get_var("SELECT pop FROM colonization_acoes_turno 
-					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id_instalacao={$this->id_instalacao[$chave]}
+					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id={$this->id[$chave]}
 					AND turno={$turno_anterior}");
 					
 					if ($pop_turno_anterior === null) {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
-						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
+						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
 						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 					} else {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
-						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, 
+						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
 						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 					}
-					$this->id[$chave] = $wpdb->insert_id;;
+					$this->id[$chave] = $wpdb->insert_id;
 				}
 			}
 		}
@@ -147,6 +151,7 @@ class acoes
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
 				<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao[$chave]}' value='{$this->id_instalacao[$chave]}'></input>
+				<input type='hidden' data-atributo='id_planeta_instalacoes' data-ajax='true' data-valor-original='{$this->id_planeta_instalacoes[$chave]}' value='{$this->id_planeta_instalacoes[$chave]}'></input>
 				<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
@@ -177,7 +182,7 @@ class acoes
 		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 		FROM colonization_acoes_turno AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
-		ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+		ON cpi.id = cat.id_planeta_instalacoes
 		JOIN colonization_instalacao_recursos AS cir
 		ON cir.id_instalacao = cat.id_instalacao
 		JOIN colonization_recurso AS cr
@@ -210,7 +215,7 @@ class acoes
 		"SELECT cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 		FROM colonization_acoes_turno AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
-		ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+		ON cpi.id = cat.id_planeta_instalacoes
 		JOIN colonization_instalacao_recursos AS cir
 		ON cir.id_instalacao = cat.id_instalacao
 		JOIN colonization_recurso AS cr
@@ -254,7 +259,7 @@ class acoes
 				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				ON cpi.id = cat.id_planeta_instalacoes
 				JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
@@ -269,7 +274,7 @@ class acoes
 				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id_instalacao = cat.id_instalacao AND cpi.id_planeta = cat.id_planeta
+				ON cpi.id = cat.id_planeta_instalacoes
 				JOIN colonization_instalacao_recursos AS cir
 				ON cir.id_instalacao = cat.id_instalacao
 				WHERE cir.consome=true AND cpi.turno_destroi IS NULL

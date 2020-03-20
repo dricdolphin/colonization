@@ -149,6 +149,7 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		id_planeta INT(6) NOT NULL,
 		id_instalacao INT(6) NOT NULL,
+		id_planeta_instalacoes INT(6) NOT NULL,
 		pop INT(6) NOT NULL,
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
