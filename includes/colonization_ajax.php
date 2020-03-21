@@ -24,8 +24,45 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
+		add_action('wp_ajax_valida_acao_admin', array ($this, 'valida_acao_admin'));
 	}
 	
+	/***********************
+	function valida_acao_admin ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_acao_admin() {
+		global $wpdb; 
+		
+		$recursos = explode(";",$_POST['lista_recursos']);
+		$qtds = explode(";",$_POST['qtd']);
+		$dados_salvos['html'] = "";
+		
+		if (count($recursos) != count($qtds)) {
+			$dados_salvos['resposta_ajax'] = "É necessário que a lista de recursos e de quantidades seja do mesmo tamanho!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+		
+		foreach ($recursos as $chave=>$valor) {
+			$qtd_atual = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$recursos[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}");
+			if ($qtd_atual >= $qtds[$chave]) {
+				$dados_salvos['html'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtds[$chave]} WHERE id_recurso={$recursos[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}<br>";
+				//$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtds[$chave]} WHERE id_recurso={$recursos[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']});
+			} else {
+				$dados_salvos['resposta_ajax'] = "Não foi possível salvar a ação! Os recursos do Império são insuficientes! Favor revisar e tentar novamente!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
+		}
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
+
 	/***********************
 	function valida_colonia ()
 	----------------------

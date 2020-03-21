@@ -449,3 +449,43 @@ function valida_acao(dados) {
 
 	return retorno;
 }
+
+/******************
+function valida_acao_admin(dados)
+--------------------
+Valida as ações do Admin e as executa
+dados -- dados do objeto
+******************/	
+function valida_acao_admin(objeto) {
+
+	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	var dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value+"&lista_recursos="+objeto_editado['lista_recursos'].value+"&qtd="+objeto_editado['qtd'].value+"&descricao="+objeto_editado['descricao'].value;
+	
+	var retorno = true;
+	
+
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.status == 400) {
+			
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				var div_resposta = document.getElementById("div_resposta");
+				div_resposta.innerHTML = resposta.html;
+			} else {
+				alert(resposta.resposta_ajax);
+				var div_resposta = document.getElementById("div_resposta");
+				div_resposta.innerHTML = resposta.html;
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+	
+	return retorno;
+}

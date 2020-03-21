@@ -145,7 +145,8 @@ data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_t
 --Tabela com as ações do Admin
 CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-lista_recurso_consumido VARCHAR(255) NOT NULL,
+id_imperio INT(6) NOT NULL,
+lista_recurso VARCHAR(255) NOT NULL,
 qtd VARCHAR(255) NOT NULL,
 descricao TEXT DEFAULT NULL,
 turno INT(6) NOT NULL,

@@ -35,6 +35,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Frotas','Frotas','manage_options','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
+		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','manage_options','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 	}
 
@@ -166,6 +167,7 @@ class menu_admin {
 			
 			foreach ($lista_id as $id) {
 				$planeta = new planeta($id->id);
+				
 				$html_dados = $planeta->lista_dados();
 
 				$html_lista .= "
@@ -199,6 +201,7 @@ class menu_admin {
 			
 			foreach ($lista_id_estrelas as $id) {
 				$estrela = new estrela($id->id);
+				
 				$html_dados_estrela = $estrela->lista_dados();
 
 				$html_lista_estrelas .= "
@@ -250,6 +253,7 @@ class menu_admin {
 
 			foreach ($lista_colonia_recursos as $id) {
 				$planeta_recurso = new colonia_recurso($id->id);
+				
 				$html_dados = $planeta_recurso->lista_dados();
 
 				$html_lista .= "
@@ -288,6 +292,7 @@ class menu_admin {
 
 			foreach ($lista_colonia_instalacoes as $id) {
 				$planeta_instalacao = new colonia_instalacao($id->id);
+				
 				$html_dados = $planeta_instalacao->lista_dados();
 
 				$html_lista .= "
@@ -326,6 +331,7 @@ class menu_admin {
 			
 			foreach ($lista_id as $id) {
 				$planeta = new planeta($id->id);
+				
 				$html_dados = $planeta->lista_dados();
 
 				$html_lista .= "
@@ -369,6 +375,7 @@ class menu_admin {
 		
 		foreach ($lista_id as $id) {
 			$recurso = new recurso($id->id);
+			
 			$html_dados = $recurso->lista_dados();
 
 			$html_lista .= "
@@ -420,6 +427,7 @@ class menu_admin {
 
 			foreach ($lista_instalacao_recursos as $id) {
 				$recurso_instalacao = new recurso_instalacao($id->id);
+				
 				$html_dados = $recurso_instalacao->lista_dados();
 
 				$html_lista .= "
@@ -452,6 +460,7 @@ class menu_admin {
 
 			foreach ($lista_instalacao_recursos as $id) {
 				$recurso_instalacao = new recurso_instalacao($id->id);
+				
 				$html_dados = $recurso_instalacao->lista_dados();
 
 				$html_lista .= "
@@ -484,6 +493,7 @@ class menu_admin {
 			
 			foreach ($lista_id as $id) {
 				$instalacao = new instalacao($id->id);
+				
 				$html_dados = $instalacao->lista_dados();
 
 				$html_lista .= "
@@ -540,6 +550,7 @@ class menu_admin {
 
 			foreach ($lista_colonia_recursos as $id) {
 				$planeta_recurso = new colonia_recurso($id->id);
+				
 				$html_dados = $planeta_recurso->lista_dados();
 
 				$html_lista .= "
@@ -578,6 +589,7 @@ class menu_admin {
 
 			foreach ($lista_colonia_instalacoes as $id) {
 				$planeta_instalacao = new colonia_instalacao($id->id);
+				
 				$html_dados = $planeta_instalacao->lista_dados();
 
 				$html_lista .= "
@@ -620,6 +632,7 @@ class menu_admin {
 				
 				foreach ($lista_id_colonias as $id_colonia) {
 					$colonia = new colonia($id_colonia->id);
+					
 					$html_dados = $colonia->lista_dados();
 					
 					$html_lista .= "
@@ -689,6 +702,7 @@ class menu_admin {
 			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
 			foreach ($lista_id_frota as $id_frota) {
 				$frota = new frota($id_frota->id);
+				
 				$html_dados = $frota->lista_dados();
 				
 				$html_lista .= "
@@ -737,7 +751,6 @@ class menu_admin {
 			$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 			$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
 			
-			//TODO -- Pega a data da última ação
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
 			<div><b>Colônias do Império</b>: {$lista_colonias}</div>
@@ -750,9 +763,10 @@ class menu_admin {
 			</thead>
 			<tbody>";
 			
+			//O objeto "Ações" é diferente dos demais. A lista_dados() não retorna um único objeto, mas sim TODOS as ações do Império
+			$html_dados = $imperio_acoes->lista_dados();
 			
-			
-			$html_lista .= $imperio_acoes->lista_dados();
+			$html_lista .= $html_dados;
 			
 			$html_lista .= "</tbody>
 			</table>";
@@ -760,6 +774,62 @@ class menu_admin {
 
 		$html .= $html_lista;
 
+		echo $html;
+	}
+
+	/******************
+	function colonization_admin_acoes_admin()
+	-----------
+	Exibe as Ações do Admin
+	******************/
+	function colonization_admin_acoes_admin() {
+		global $wpdb;
+
+		$html = "<div><h2>COLONIZATION - Ações do Admin</h2></div>
+		<div><h3>Lista de Recursos:</h3>";
+	
+		$lista_recursos = $wpdb->get_results("SELECT id FROM colonization_recurso ORDER BY nome");
+		$html_lista = "";
+		
+		foreach ($lista_recursos as $id) {		
+			$recurso = new recurso($id->id);
+			
+			$html_lista .= "{$recurso->nome} - #{$recurso->id}<br>";
+		}
+		
+		if ($html_lista != "") {
+			$html_lista = substr($html_lista,0,-4);
+		}
+		
+		$html .= $html_lista."</div><br>";
+		
+		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>
+		<thead>
+		<tr><td style='width: 120px;'>Nome do Império</td><td style='width: 120px;'>Recursos Consumidos</td><td style='width: 120px;'>Qtd</td><td style='width: 200px;'>Descrição</td><td style='width: 50px;'>Turno</td></tr>
+		</thead>
+		<tbody>";
+
+		$lista_id_acoes = $wpdb->get_results("SELECT id FROM colonization_acoes_admin");
+		$html_lista = "";
+		
+		foreach ($lista_id_acoes as $id) {		
+			$acao_admin = new acao_admin($id->id);
+			
+			$html_dados = $acao_admin->lista_dados();
+			
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+
+		$html .= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_acao_admin(event);'>Adicionar nova Ação Admin</a></div><br>
+		<div id='div_resposta'>&nbsp;</div>";
+		
 		echo $html;
 	}
 
@@ -812,8 +882,7 @@ class menu_admin {
 		//$html = $roda_turno->executa_roda_turno();
 		
 		echo $html;
-	}	
-	
+	}
 }
 
 ?>

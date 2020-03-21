@@ -12,6 +12,9 @@ class listas_js {
 	function __construct() {
 		$lista = new lista_usuarios();
 		$this->html_header .= $lista->html_lista;
+
+		$lista = new lista_imperios();
+		$this->html_header .= $lista->html_lista;
 		
 		$lista = new lista_estrelas();
 		$this->html_header .= $lista->html_lista;
