@@ -40,9 +40,20 @@ class roda_turno {
 			$proximo_turno = $turno->turno + 1;
 			
 			if ($turno->bloqueado) {
-				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>
-				<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
-				";
+				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
+				
+				$data_atual = new DateTime("now");
+				$proxima_semana = new DateTime($turno->data_turno);
+				$proxima_semana->modify('+7 days');
+				$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
+				
+				if (date_diff($data_atual, $proxima_semana) > 0) {
+					$html .= "<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
+					";
+				} else {
+					$html .= "O próximo Turno somente será liberado após {$proxima_semana}<br>";
+				}
+				
 				return $html;
 			}
 			
@@ -86,7 +97,7 @@ class roda_turno {
 						}
 					}
 						$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}<br>";
-						//$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
+						$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 					}
 				}
 				
@@ -160,7 +171,7 @@ class roda_turno {
 					}
 					
 					$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
-					//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$qtd}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
+					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 				}
 				
 				//Cria poluição
@@ -221,9 +232,14 @@ class roda_turno {
 					}
 				
 					$html.= "UPDATE colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno} WHERE id={$colonia->id}<br>";
-					//$wpdb->query("UPDATE colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno} WHERE id={$colonia->id}");
+					$wpdb->query("UPDATE colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno} WHERE id={$colonia->id}");
 				}
 			}
+		
+		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
+		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno={$proxima_semana}<br>";
+		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno={$proxima_semana}");
+		
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";
 		}

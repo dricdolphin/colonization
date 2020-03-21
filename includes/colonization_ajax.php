@@ -479,7 +479,7 @@ class colonization_ajax {
 	function libera_turno() {
 		global $wpdb;
 		
-		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false");
+		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false, data_modifica=data_modifica");
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
