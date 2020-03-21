@@ -794,11 +794,11 @@ class menu_admin {
 		foreach ($lista_recursos as $id) {		
 			$recurso = new recurso($id->id);
 			
-			$html_lista .= "{$recurso->nome} - #{$recurso->id}<br>";
+			$html_lista .= "{$recurso->nome} - #{$recurso->id}; ";
 		}
 		
 		if ($html_lista != "") {
-			$html_lista = substr($html_lista,0,-4);
+			$html_lista = substr($html_lista,0,-2);
 		}
 		
 		$html .= $html_lista."</div><br>";
