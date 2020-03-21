@@ -287,8 +287,8 @@ class colonization {
         var options = {
           title: 'Lista das Estrelas',
 		  chartArea: {backgroundColor: '#111111'},
-		  hAxis: {title: 'X', minValue: 0, maxValue: 32, minorGridlines: {count: 0}},
-          vAxis: {title: 'Y', minValue: 0, maxValue: 32, minorGridlines: {count: 0}},
+		  hAxis: {title: 'X', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
+          vAxis: {title: 'Y', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
           legend: 'none'
         };
 
@@ -296,7 +296,7 @@ class colonization {
 	    chart.draw(data, options);
       }
     </script>
-	<div id='chart_div' style='width: 900px; height: 500px;'></div>";
+	<div id='chart_div' style='width: 800px; height: 500px;'></div>";
 	
 		return $html_lista;
 	}
