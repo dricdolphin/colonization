@@ -15,6 +15,7 @@ class estrela
 	public $Y;
 	public $Z;
 	public $tipo;
+	public $colonias;
 	
 	/***********************
 	function __construct($id_estrela)
@@ -34,6 +35,14 @@ class estrela
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
 		$this->tipo = $resultado->tipo;
+		$this->colonias = $wpdb->get_var("
+		SELECT COUNT(ce.id) FROM 
+		colonization_planeta AS cp
+		JOIN colonization_estrela AS ce
+		ON ce.id = cp.id_estrela
+		AND ce.id = {$this->id}
+		JOIN colonization_imperio_colonias AS cic
+		ON cic.id_planeta = cp.id"); //Pega se tem colônias
 	}
 	
 	/***********************
@@ -44,13 +53,18 @@ class estrela
 	function lista_dados() {
 		global $wpdb;
 		
+		$estilo_colonias = "";
+		if ($this->colonias > 0  ) {
+			$estilo_colonias = "style='font-weight: bold;'";
+		}
+		
 		//Exibe os dados do Império
 		$html = "				<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_estrela'></input>
-				<div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div>
+				<div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true' {$estilo_colonias}>{$this->nome}</div>
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,\"Deseja mesmo excluir esta estrela?\");'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->X}'>{$this->X}</div></td>
