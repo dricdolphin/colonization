@@ -116,7 +116,7 @@ class acoes
 		
 		if (!$turno_atual) {
 			$turno_atual = new turno();
-			if ($this->turno != $turno_atual->turno) {
+			if ($this->turno->turno != $turno_atual->turno) {
 				$disabled = 'disabled';
 			}
 		}
