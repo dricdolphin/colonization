@@ -77,7 +77,7 @@ class roda_turno {
 				ON cir.id_instalacao = cat.id_instalacao
 				JOIN colonization_recurso AS cr
 				ON cir.id_recurso = cr.id
-				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.acumulavel = true
+				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.extrativo=true
 				GROUP BY cr.nome");
 				
 				$html .= "CONSUMINDO Recursos Planetários do Império {$imperio->id}:<br>";
@@ -147,7 +147,7 @@ class roda_turno {
 					ON cimr.id_imperio = {$imperio->id}
 					AND cimr.id_recurso = cr.id 
 					AND cimr.turno = {$turno->turno}
-					WHERE cr.local = false
+					WHERE cr.local=false AND cr.acumulavel=true
 				) AS tabela_balanco
 				ORDER BY (producao-consumo) ASC
 				");				
