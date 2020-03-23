@@ -320,7 +320,7 @@ class colonization {
 		
 		$html = "<div>";
 		
-		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
+		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
 		
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
