@@ -238,7 +238,7 @@ class menu_admin {
 			
 			<div><h2>COLONIZATION - editando o Planeta '{$planeta->nome}'</h2></div>";
 
-			$lista_colonia_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
+			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
 			$html_lista = "";
 
 			//Recursos da Colônia
@@ -251,8 +251,8 @@ class menu_admin {
 			<tbody>
 			";
 
-			foreach ($lista_colonia_recursos as $id) {
-				$planeta_recurso = new colonia_recurso($id->id);
+			foreach ($lista_planeta_recursos as $id) {
+				$planeta_recurso = new planeta_recurso($id->id);
 				
 				$html_dados = $planeta_recurso->lista_dados();
 
@@ -266,7 +266,7 @@ class menu_admin {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_colonia_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
@@ -535,7 +535,7 @@ class menu_admin {
 			
 			<div><h2>COLONIZATION - editando a Colônia '{$planeta->nome}' do Império '{$imperio->nome}'</h2></div>";
 
-			$lista_colonia_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
+			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
 			$html_lista = "";
 
 			//Recursos da Colônia
@@ -548,8 +548,8 @@ class menu_admin {
 			<tbody>
 			";
 
-			foreach ($lista_colonia_recursos as $id) {
-				$planeta_recurso = new colonia_recurso($id->id);
+			foreach ($lista_planeta_recursos as $id) {
+				$planeta_recurso = new planeta_recurso($id->id);
 				
 				$html_dados = $planeta_recurso->lista_dados();
 
@@ -563,7 +563,7 @@ class menu_admin {
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_colonia_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");

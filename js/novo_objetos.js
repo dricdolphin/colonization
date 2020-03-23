@@ -308,13 +308,13 @@ function nova_colonia(evento, id_imperio) {
 }
 
 /******************
-function novo_colonia_recurso
+function novo_planeta_recurso
 --------------------
 Insere um novo recurso numa colônia
 --------
 id_planeta -- id do Planeta que receberá o recurso
 ******************/
-function novo_colonia_recurso(evento, id_planeta) {
+function novo_planeta_recurso(evento, id_planeta) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		
@@ -338,7 +338,7 @@ function novo_colonia_recurso(evento, id_planeta) {
 	+"<input type='hidden' data-atributo='id_recurso' data-ajax='true' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
-	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_recurso'></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_planeta_recurso'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este recurso?'></input>"
 	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";

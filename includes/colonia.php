@@ -72,6 +72,7 @@ class colonia
 	***********************/
 	function exibe_recursos_colonia() {
 		global $wpdb;
+		$turno = new turno();
 		
 		$resultados = $wpdb->get_results("
 		SELECT cr.nome, cpr.disponivel
@@ -81,7 +82,8 @@ class colonia
 		AND cic.id_planeta = cpr.id_planeta
 		JOIN colonization_recurso AS cr
 		ON cr.id = cpr.id_recurso
-		WHERE cpr.id_planeta={$this->planeta->id}");
+		WHERE cpr.id_planeta={$this->planeta->id}
+		AND cpr.turno={$turno->turno}");
 		
 		$html = "";
 		foreach ($resultados as $resultado) {

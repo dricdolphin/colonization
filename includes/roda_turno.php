@@ -38,24 +38,27 @@ class roda_turno {
 		if ($roles == "administrator") {//Somente pode rodar o turno se for um Administrador
 			$turno = new turno(); //Pega o turno atual
 			$proximo_turno = $turno->turno + 1;
-			
+			$proxima_semana = new DateTime($turno->data_turno);
+			$proxima_semana->modify('+7 days');
+
 			if ($turno->bloqueado) {
 				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
 				
 				$data_atual = new DateTime("now");
-				$proxima_semana = new DateTime($turno->data_turno);
-				$proxima_semana->modify('+7 days');
-				$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 				
 				if (date_diff($data_atual, $proxima_semana) > 0) {
 					$html .= "<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
 					";
 				} else {
+					$diff = date_diff($data_atual, $proxima_semana);
+					$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 					$html .= "O próximo Turno somente será liberado após {$proxima_semana}<br>";
 				}
 				
 				return $html;
 			}
+			
+			$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 			
 			$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
 			foreach ($imperios as $id_imperio) {
@@ -237,8 +240,8 @@ class roda_turno {
 			}
 		
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
-		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno={$proxima_semana}<br>";
-		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno={$proxima_semana}");
+		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'<br>";
+		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'");
 		
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";

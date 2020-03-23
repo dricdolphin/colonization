@@ -83,8 +83,7 @@ class acoes
 					//Se tiver um valor no turno anterior, é para mantê-lo no turno atual
 					$turno_anterior = $this->turno->turno - 1;
 					$pop_turno_anterior = $wpdb->get_var("SELECT pop FROM colonization_acoes_turno 
-					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id={$this->id[$chave]}
-					AND turno={$turno_anterior}");
+					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND turno={$turno_anterior} AND id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]}");
 					
 					if ($pop_turno_anterior === null) {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
@@ -94,6 +93,7 @@ class acoes
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
 						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						$this->pop[$chave] = $pop_turno_anterior;
 					}
 					$this->id[$chave] = $wpdb->insert_id;
 				}
@@ -107,9 +107,19 @@ class acoes
 	function lista_dados()
 	----------------------
 	Exibe os dados do objeto
+	----
+	$turno_atual = somente libera para edição se o Turno exibido for o Turno atual
 	***********************/
-	function lista_dados() {
+	function lista_dados($turno_atual=true) {
 		global $wpdb;
+		$disabled = "";
+		
+		if (!$turno_atual) {
+			$turno_atual = new turno();
+			if ($this->turno != $turno_atual->turno) {
+				$disabled = 'disabled';
+			}
+		}
 		
 		$html = "";
 		foreach ($this->id AS $chave => $valor) {

@@ -21,7 +21,7 @@ include_once('includes/planeta.php');
 include_once('includes/recurso.php');
 include_once('includes/colonia.php');
 include_once('includes/colonia_instalacao.php');
-include_once('includes/colonia_recurso.php');
+include_once('includes/planeta_recurso.php');
 include_once('includes/imperio_recursos.php');
 include_once('includes/acoes.php');
 include_once('includes/acoes_admin.php');
@@ -222,7 +222,7 @@ class colonization {
 		</thead>
 		<tbody>";
 		
-		$html_lista .= $imperio_acoes->lista_dados();
+		$html_lista .= $imperio_acoes->lista_dados(false); //Mostra somente o Turno atual
 		
 		$html_lista .= "</tbody>
 		</table>";		

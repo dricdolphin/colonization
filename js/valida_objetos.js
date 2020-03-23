@@ -210,18 +210,18 @@ function valida_instalacao_recurso(objeto) {
 }
 
 /******************
-function valida_colonia_recurso(objeto)
+function valida_planeta_recurso(objeto)
 --------------------
 Valida os recursos da Colônia
 objeto -- objeto sendo editado
 ******************/	
-function valida_colonia_recurso(objeto) {
+function valida_planeta_recurso(objeto) {
 	
 	var linha = pega_ascendente(objeto,"TR");
 	var celulas = linha.cells;
 	var inputs_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_colonia_recurso";
+	var dados_ajax = "post_type=POST&action=valida_planeta_recurso";
 	var retorno = false;
 	
 	if (typeof select_linha[0] !== "undefined") {

@@ -1,13 +1,13 @@
 <?php
 /**************************
-COLONIA_RECURSO.PHP
+PLANETA_RECURSO.PHP
 ----------------
-Cria o objeto "colonia_recurso" 
+Cria o objeto "planeta_recurso" 
 ***************************/
 
-//Classe "colonia_recurso"
-//Contém a lista de recursos da colônia
-class colonia_recurso
+//Classe "planeta_recurso"
+//Contém a lista de recursos do planeta
+class planeta_recurso
 {
 	public $id;
 	public $id_planeta;
@@ -16,9 +16,9 @@ class colonia_recurso
 	public $turno;
 	public $recurso;
 	
-	function __construct($id) {
+	function __construct($id, $turno=0) {
 		global $wpdb;
-		
+
 		$this->id = $id;
 
 		$resultados = $wpdb->get_results("SELECT id_planeta, id_recurso, disponivel, turno FROM colonization_planeta_recursos WHERE id=".$this->id);
@@ -47,7 +47,7 @@ class colonia_recurso
 			<input type='hidden' data-atributo='id_recurso' data-ajax='true' value='{$this->id_recurso}'></input>
 			<input type='hidden' data-atributo='where_clause' value='id'></input>
 			<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
-			<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_recurso'></input>
+			<input type='hidden' data-atributo='funcao_validacao' value='valida_planeta_recurso'></input>
 			<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este recurso?'></input>
 			<div data-atributo='id' data-valor-original='{$this->id}'>{$this->id}</div>
 			<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>

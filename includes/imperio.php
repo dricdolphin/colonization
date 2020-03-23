@@ -27,6 +27,7 @@ class imperio
 	***********************/
 	function __construct($id, $super=false) {
 		global $wpdb;
+		$turno = new turno();
 		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
@@ -64,7 +65,7 @@ class imperio
 		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 
-		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id}");
+		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id} AND turno={$turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");

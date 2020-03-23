@@ -16,7 +16,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_estrela', array ($this, 'valida_estrela'));
 		add_action('wp_ajax_valida_colonia', array ($this, 'valida_colonia'));
 		add_action('wp_ajax_valida_instalacao_recurso', array ($this, 'valida_instalacao_recurso'));
-		add_action('wp_ajax_valida_colonia_recurso', array ($this, 'valida_colonia_recurso'));
+		add_action('wp_ajax_valida_planeta_recurso', array ($this, 'valida_planeta_recurso'));
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
@@ -145,11 +145,11 @@ class colonization_ajax {
 	}
 	
 	/***********************
-	function valida_colonia_recurso ()
+	function valida_planeta_recurso ()
 	----------------------
 	Valida o objeto desejado
 	***********************/	
-	function valida_colonia_recurso() {
+	function valida_planeta_recurso() {
 		global $wpdb; 
 		$wpdb->hide_errors();
 
@@ -516,7 +516,7 @@ class colonization_ajax {
 	function libera_turno() {
 		global $wpdb;
 		
-		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false, data_modifica=data_modifica");
+		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false, data_turno=data_turno");
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		

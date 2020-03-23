@@ -22,12 +22,13 @@ class turno
 		global $wpdb;
 
 		if ($turno == 0) {
-			$resultados = $wpdb->get_results("SELECT MAX(id) AS id, data_turno, bloqueado FROM colonization_turno_atual");
+			$resultados = $wpdb->get_results("SELECT id, data_turno, bloqueado FROM colonization_turno_atual ORDER BY id DESC");
 		} else {
 			$resultados = $wpdb->get_results("SELECT id, data_turno, bloqueado FROM colonization_turno_atual WHERE id={$turno}");
 		}
-		if ($resultados == 0) {
-			$resultados = $wpdb->get_results("SELECT MAX(id) AS id, data_turno, bloqueado FROM colonization_turno_atual");
+
+		if (empty($resultados)) {//Turno inválido!
+			$resultados = $wpdb->get_results("SELECT id, data_turno, bloqueado FROM colonization_turno_atual ORDER BY id DESC");
 		}
 		$resultado = $resultados[0];
 		
