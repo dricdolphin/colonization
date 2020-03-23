@@ -205,7 +205,7 @@ class colonization {
 		$imperio_acoes = new acoes($imperio->id,$turno->turno);
 		
 		$lista_colonias = $imperio->exibe_lista_colonias();
-		$recursos_atuais = $imperio->exibe_recursos_atuais();
+		$recursos_atuais = $imperio->exibe_recursos_atuais($atts['turno']);
 		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
 		
