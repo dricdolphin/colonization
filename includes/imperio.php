@@ -189,7 +189,7 @@ class imperio
 		$turno = new turno($turno);
 		
 		$resultados = $wpdb->get_results("
-		SELECT cp.nome, cic.pop
+		SELECT cp.nome, cic.pop, cic.poluicao
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
 		ON cp.id=cic.id_planeta
@@ -198,7 +198,16 @@ class imperio
 		
 		$html = "";
 		foreach ($resultados as $resultado) {
-			$html .= "{$resultado->nome} - Pop: {$resultado->pop}; ";
+			if ($resultado->poluicao < 25) {
+				$poluicao = "<span style='color: #22FF22;'>{$resultado->poluicao}</span>";
+			} elseif ($resultado->poluicao < 50) {
+				$poluicao = "<span style='color: #ffce00;'>{$resultado->poluicao}</span>";
+			} elseif ($resultado->poluicao < 75) {				
+				$poluicao = "<span style='color: #f1711d;'>{$resultado->poluicao}</span>";
+			} else {
+				$poluicao = "<span style='color: #ee1509;'>{$resultado->poluicao}</span>";
+			}
+			$html .= "{$resultado->nome} - Pop: {$resultado->pop} - Poluição: {$poluicao}; ";
 		}
 		
 		return $html;
