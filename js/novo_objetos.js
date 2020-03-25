@@ -236,10 +236,10 @@ function novo_instalacao_recurso(evento, consome = 1) {
 		
 	var lista_recursos = lista_recursos_html();
 	
-	id.innerHTML = 	"<input type='hidden' data-atributo='id' value=''></input>"
-	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' value='"+id_instalacao+"'></input>"
-	+"<input type='hidden' data-atributo='id_recurso' data-ajax='true' value=''></input>"
-	+"<input type='hidden' data-atributo='consome' data-ajax='true' value='"+consome+"'></input>"
+	id.innerHTML = 	"<input type='hidden' data-atributo='id' value='' data-valor-original=''></input>"
+	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' value='"+id_instalacao+"' data-valor-original='"+id_instalacao+"'></input>"
+	+"<input type='hidden' data-atributo='id_recurso' data-ajax='true' value='' data-valor-original=''></input>"
+	+"<input type='hidden' data-atributo='consome' data-ajax='true' value='"+consome+"' data-valor-original='"+consome+"'></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_instalacao_recurso'></input>"
