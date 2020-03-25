@@ -809,7 +809,7 @@ class menu_admin {
 		</thead>
 		<tbody>";
 
-		$lista_id_acoes = $wpdb->get_results("SELECT id FROM colonization_acoes_admin ORDER BY id_imperio, turno");
+		$lista_id_acoes = $wpdb->get_results("SELECT id FROM colonization_acoes_admin ORDER BY id_imperio, turno, id");
 		$html_lista = "";
 		
 		foreach ($lista_id_acoes as $id) {		
