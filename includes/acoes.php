@@ -217,7 +217,7 @@ class acoes
 			}
 
 			if ($resultado->producao > 0) {
-				$html .= "{$resultado->nome} - {$resultado->producao}; ";
+				$html .= "{$resultado->nome}: {$resultado->producao}; ";
 			}
 		}
 		
@@ -250,7 +250,7 @@ class acoes
 
 		foreach ($resultados as $resultado) {
 			if ($resultado->producao > 0) {
-				$html .= "{$resultado->nome} - {$resultado->producao}; ";
+				$html .= "{$resultado->nome}: {$resultado->producao}; ";
 			}
 		}
 		
