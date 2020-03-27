@@ -12,7 +12,9 @@ class instalacao
 	public $id;
 	public $nome;
 	public $descricao;
+	public $slots;
 	public $autonoma;
+	public $desguarnecida;
 	public $produz_recursos;
 	public $consome_recursos;
 	
@@ -21,12 +23,14 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, autonoma FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, slots, autonoma, desguarnecida FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
+		$this->slots = $resultado->slots;
 		$this->autonoma = $resultado->autonoma;
+		$this->desguarnecida = $resultado->desguarnecida;
 	}
 
 	/***********************
@@ -42,6 +46,12 @@ class instalacao
 		} else {
 			$autonoma_checked = "";
 		}
+
+		if ($this->desguarnecida == 1) {
+			$desguarnecida_checked = "checked";
+		} else {
+			$desguarnecida_checked = "";
+		}
 		
 		//Exibe os dados do objeto
 		$html = "				<td>
@@ -54,7 +64,9 @@ class instalacao
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
+			<td><div data-atributo='slots' data-editavel='true' data-valor-original='{$this->slots}' data-style='width: 30px;'>{$this->slots}</div></td>
 			<td><div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='{$this->autonoma}'><input type='checkbox' data-atributo='autonoma' data-ajax='true' {$autonoma_checked} disabled></input></div></td>
+			<td><div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='{$this->desguarnecida}'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true' {$desguarnecida_checked} disabled></input></div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}

@@ -41,7 +41,7 @@ class lista_estrelas
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_planeta'>\";
+			var html = \"			<select data-atributo='id_planeta' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
@@ -85,7 +85,7 @@ class lista_usuarios
 		******************/
 		function lista_jogadores_html(id_jogador = 0) {
 			
-			var html = \"			<select data-atributo='id_jogador'>\"
+			var html = \"			<select data-atributo='id_jogador' style='width: 100%'>\"
 			$lista_usuarios
 			+\"			</select>\";
 				
@@ -127,7 +127,7 @@ class lista_imperios
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_imperio'>\";
+			var html = \"			<select data-atributo='id_imperio' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
@@ -181,7 +181,7 @@ class lista_recursos
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_recurso'>\";
+			var html = \"			<select data-atributo='id_recurso' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
@@ -240,7 +240,7 @@ class lista_planetas
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_planeta'>\";
+			var html = \"			<select data-atributo='id_planeta' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
@@ -297,7 +297,7 @@ class lista_instalacoes
 			var selecionado=[];
 {$lista_valores}
 			
-			var html = \"			<select data-atributo='id_instalacao'>\";
+			var html = \"			<select data-atributo='id_instalacao' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';

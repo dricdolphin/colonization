@@ -35,11 +35,13 @@ tamanho INT(2) NOT NULL
 )
 
 --Tabela com os tipos de instalações
-CREATE TABLE colonization_instalacao (
+CREATE TABLE IF NOT EXISTS colonization_instalacao (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(255) NOT NULL,
 descricao TEXT NOT NULL,
-autonoma BOOLEAN DEFAULT FALSE
+slots INT(6) DEFAULT 1,
+autonoma BOOLEAN DEFAULT FALSE,
+desguarnecida BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com os tipos de recursos existentes

@@ -156,6 +156,12 @@ class acoes
 				$nivel = "";
 			}
 			
+			if ($instalacao->desguarnecida == 0) {
+				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
+			} else {
+				$exibe_acoes = "&nbsp";
+			}
+
 				$html .= "		<tr><td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
@@ -169,7 +175,7 @@ class acoes
 					<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}</div>
 				</td>
 				<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div></td>
-				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'><input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label></div></td>
+				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>
 				<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
 				</tr>";
 		}
@@ -190,7 +196,13 @@ class acoes
 		
 		$resultados = $wpdb->get_results(
 		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-		FROM colonization_acoes_turno AS cat
+		FROM
+			(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
+			FROM colonization_acoes_turno AS cat
+			JOIN colonization_instalacao AS ci
+			ON ci.id = cat.id_instalacao
+			WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+			) AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
 		ON cpi.id = cat.id_planeta_instalacoes
 		JOIN colonization_instalacao_recursos AS cir
@@ -236,7 +248,13 @@ class acoes
 
 		$resultados = $wpdb->get_results(
 		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-		FROM colonization_acoes_turno AS cat
+		FROM
+			(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
+			FROM colonization_acoes_turno AS cat
+			JOIN colonization_instalacao AS ci
+			ON ci.id = cat.id_instalacao
+			WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+			) AS cat
 		JOIN colonization_planeta_instalacoes AS cpi
 		ON cpi.id = cat.id_planeta_instalacoes
 		JOIN colonization_instalacao_recursos AS cir
@@ -277,8 +295,10 @@ class acoes
 			LEFT JOIN (
 				SELECT cat.pop, cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
-				FROM colonization_acoes_turno 
+				(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
+				FROM colonization_acoes_turno AS cat
+				JOIN colonization_instalacao AS ci
+				ON ci.id = cat.id_instalacao
 				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat
 				JOIN colonization_planeta_instalacoes AS cpi

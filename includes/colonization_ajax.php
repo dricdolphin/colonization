@@ -182,10 +182,13 @@ class colonization_ajax {
 
 		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
 			$query = "
-			SELECT COUNT(cpi.id) as instalacoes FROM 
+			SELECT SUM(cpi.slots) as instalacoes FROM 
 			(
-			SELECT id 
-			FROM colonization_planeta_instalacoes WHERE id_planeta={$_POST['id_planeta']}  AND turno_destroi IS NULL
+			SELECT cpi.id, ci.slots
+			FROM colonization_planeta_instalacoes AS cpi
+			JOIN colonization_instalacao AS ci
+			ON ci.id = cpi.id_instalacao
+			WHERE cpi.id_planeta={$_POST['id_planeta']} AND cpi.turno_destroi IS NULL
 			) AS cpi";
 		} else {
 			$dados_salvos['resposta_ajax'] = "OK!";
@@ -193,7 +196,8 @@ class colonization_ajax {
 		
 		$resposta = $wpdb->get_results($query);
 		$planeta = new planeta($_POST['id_planeta']);
-		if ($resposta[0]->instalacoes < $planeta->tamanho) {
+		$instalacao = new instalacao($_POST['id_instalacao']);
+		if ($resposta[0]->instalacoes + $instalacao->slots <= $planeta->tamanho) {
 			$dados_salvos['resposta_ajax'] = "OK!";
 		} else {
 			$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";

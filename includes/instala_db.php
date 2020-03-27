@@ -52,7 +52,9 @@ class instala_db {
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
 		descricao TEXT NOT NULL,
-		autonoma BOOLEAN DEFAULT FALSE
+		slots INT(6) DEFAULT 1,
+		autonoma BOOLEAN DEFAULT FALSE,
+		desguarnecida BOOLEAN DEFAULT FALSE
 		)");
 
 		//Tabela com os tipos de recursos existentes
