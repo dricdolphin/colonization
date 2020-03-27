@@ -12,6 +12,7 @@ class instalacao
 	public $id;
 	public $nome;
 	public $descricao;
+	public $autonoma;
 	public $produz_recursos;
 	public $consome_recursos;
 	
@@ -20,11 +21,12 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, autonoma FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
+		$this->autonoma = $resultado->autonoma;
 	}
 
 	/***********************
@@ -34,6 +36,12 @@ class instalacao
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+		
+		if ($this->autonoma == 1) {
+			$autonoma_checked = "checked";
+		} else {
+			$autonoma_checked = "";
+		}
 		
 		//Exibe os dados do objeto
 		$html = "				<td>
@@ -46,6 +54,7 @@ class instalacao
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
+			<td><div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='{$this->autonoma}'><input type='checkbox' data-atributo='autonoma' data-ajax='true' {$autonoma_checked} disabled></input></div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}

@@ -50,7 +50,7 @@ class acoes
 			ON cp.id = cic.id_planeta
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
-			WHERE cic.id_imperio = {$this->id_imperio}
+			WHERE cic.id_imperio = {$this->id_imperio} AND cpi.turno_destroi IS NULL
 			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, ci.nome, cpi.id
 			");
 		
@@ -156,22 +156,22 @@ class acoes
 				$nivel = "";
 			}
 			
-			$html .= "		<tr><td>
-				<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
-				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
-				<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao[$chave]}' value='{$this->id_instalacao[$chave]}'></input>
-				<input type='hidden' data-atributo='id_planeta_instalacoes' data-ajax='true' data-valor-original='{$this->id_planeta_instalacoes[$chave]}' value='{$this->id_planeta_instalacoes[$chave]}'></input>
-				<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
-				<input type='hidden' data-atributo='where_clause' value='id'></input>
-				<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
-				<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-				<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</div>
-			</td>
-			<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div></td>
-			<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'><input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label></div></td>
-			<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
-			</tr>";
+				$html .= "		<tr><td>
+					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
+					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+					<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
+					<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao[$chave]}' value='{$this->id_instalacao[$chave]}'></input>
+					<input type='hidden' data-atributo='id_planeta_instalacoes' data-ajax='true' data-valor-original='{$this->id_planeta_instalacoes[$chave]}' value='{$this->id_planeta_instalacoes[$chave]}'></input>
+					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
+					<input type='hidden' data-atributo='where_clause' value='id'></input>
+					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
+					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
+					<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}</div>
+				</td>
+				<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div></td>
+				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'><input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label></div></td>
+				<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
+				</tr>";
 		}
 		
 		return $html;

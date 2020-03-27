@@ -245,7 +245,7 @@ class menu_admin {
 			$html .= "<div><h3>Recursos do Planeta</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_recursos'>
 			<thead>
-			<tr><td>ID</td><td>Recurso</td><td>Disponível</td>
+			<tr><td>ID</td><td>Recurso</td><td>Disponível</td><td>Turno</td>
 			</tr>
 			</thead>
 			<tbody>
@@ -482,7 +482,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
-			<tr><td>Nome</td><td>Descrição</td><td>&nbsp;</td>
+			<tr><td>Nome</td><td>Descrição</td><td>Autônoma</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";
@@ -759,7 +759,7 @@ class menu_admin {
 			<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
-			<tr><td>Colônia (X;Y;Z)</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+			<tr><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 			</thead>
 			<tbody>";
 			

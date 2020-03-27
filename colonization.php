@@ -218,7 +218,7 @@ class colonization {
 		<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr><td>Colônia (X;Y;Z)</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<tr><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		

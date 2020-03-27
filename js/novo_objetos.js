@@ -197,7 +197,8 @@ function nova_instalacao(evento) {
 	
 	var nome = linha_nova.insertCell(0);
 	var descricao = linha_nova.insertCell(1);
-	var gerencia = linha_nova.insertCell(2);
+	var autonoma = linha_nova.insertCell(2);
+	var gerencia = linha_nova.insertCell(3);
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -207,6 +208,7 @@ function nova_instalacao(evento) {
 	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 	
 	evento.preventDefault();	

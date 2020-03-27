@@ -51,7 +51,8 @@ class instala_db {
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_instalacao (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
-		descricao TEXT NOT NULL
+		descricao TEXT NOT NULL,
+		autonoma BOOLEAN DEFAULT FALSE
 		)");
 
 		//Tabela com os tipos de recursos existentes
