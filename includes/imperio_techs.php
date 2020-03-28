@@ -45,6 +45,7 @@ class imperio_techs
 		$html = "";
 
 		$tech = new tech($this->id_tech);
+		
 		$html .= "<tr><td style='width: 300px;'>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>

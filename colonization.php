@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -51,6 +51,7 @@ class colonization {
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
+		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 	}
 
 	/******************
@@ -332,8 +333,64 @@ class colonization {
 
 		return $html;
 	}
-}
 
+	/***********************
+	function colonization_exibe_techs_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_techs_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_techs_imperio($atts = [], $content = null) {
+		global $wpdb;
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		$turno = new turno();
+		
+		$html = "<div>";
+		
+		$lista_techs_imperio = $wpdb->get_results("SELECT cit.id, cit.id_tech, cit.custo_pago 
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id=cit.id_tech
+		WHERE id_imperio={$imperio->id}
+		ORDER BY ct.id_tech_parent, nome
+		");
+		
+		foreach ($lista_techs_imperio as $id) {
+			$tech = new tech($id->id_tech);
+			
+			if ($tech->id_tech_parent !=0) {
+				$id_chave = $tech->id_tech_parent;
+				if ($id->custo_pago != 0) {
+					$html_tech[$id_chave] .= " -> <span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
+				} else {
+					$html_tech[$id_chave] .= " -> ".$tech->nome;
+				}
+			} else {
+				$id_chave = $tech->id;
+				if ($id->custo_pago != 0) {
+					$html_tech[$id_chave] = "<span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
+				} else {
+					$html_tech[$id_chave] = $tech->nome;
+				}
+			}
+		}
+		
+		foreach ($html_tech as $chave => $valor) {
+			$html .= $valor.";<br>";
+		}
+
+		$html .= "</div>";
+
+		return $html;
+	}
+
+}
 //Cria o plugin
 $plugin = new colonization();
 $menu_admin = new menu_admin();
