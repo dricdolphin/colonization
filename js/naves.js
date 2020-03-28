@@ -72,6 +72,9 @@ function calcula_custos(evento, objeto) {
 	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
 	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
 	
+	blindagem = qtd_blindagem*(mk_blindagem*2-1);
+	escudos = qtd_escudos*(mk_escudos*2-1);
+	
 	let custo_blindagem = Math.ceil(chassi/5)*qtd_blindagem*mk_blindagem;
 	let custo_escudos = Math.ceil(chassi/5)*qtd_escudos*mk_escudos;
 
