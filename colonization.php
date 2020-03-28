@@ -361,6 +361,8 @@ class colonization {
 		ORDER BY ct.id_tech_parent, nome
 		");
 		
+		$html_tech = [];
+		
 		foreach ($lista_techs_imperio as $id) {
 			$tech = new tech($id->id_tech);
 			
@@ -380,6 +382,7 @@ class colonization {
 				}
 			}
 		}
+		
 		
 		foreach ($html_tech as $chave => $valor) {
 			$html .= $valor.";<br>";

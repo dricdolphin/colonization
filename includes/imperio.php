@@ -51,7 +51,7 @@ class imperio
 		FROM colonization_imperio_colonias
 		WHERE id_imperio={$this->id}");
 		
-		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves
+		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves + Custo das Techs
 		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
@@ -70,7 +70,15 @@ class imperio
 		
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
-		
+
+		$pontuacao = $wpdb->get_var("SELECT SUM(custo) 
+		FROM
+		(SELECT (CASE WHEN cit.custo_pago > 0 THEN cit.custo_pago ELSE ct.custo END) AS custo
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id=cit.id_tech
+		WHERE cit.id_imperio={$this->id}) AS custo_tech");
+		$this->pontuacao = $this->pontuacao + $pontuacao;		
 
 	}
 
