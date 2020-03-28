@@ -67,7 +67,8 @@ class menu_admin {
 		wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js',false,$hoje);
 		wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
 		wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
-		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js');
+		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
+		wp_enqueue_script('gerencia_naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
 		wp_enqueue_script('google_charts', 'https://www.gstatic.com/charts/loader.js');
 		wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}	
@@ -176,7 +177,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 50px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 60px;'>Tamanho</td><td>&nbsp;</td>
+			<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";

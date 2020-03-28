@@ -118,15 +118,15 @@ class frota
 		
 		$html_armas = "";
 		if ($this->PDF_laser >0) {
-			$html_armas .= " PdF Laser {$this->PDF_laser}/";
+			$html_armas .= " PdF Laser: {$this->PDF_laser}/";
 		}
 
 		if ($this->PDF_torpedo >0) {
-			$html_armas .= " PdF Laser {$this->PDF_laser}/";
+			$html_armas .= " PdF Torpedo: {$this->PDF_laser}/";
 		}
 
 		if ($this->PDF_projetil >0) {
-			$html_armas .= " PdF Laser {$this->PDF_laser}/";
+			$html_armas .= " PdF Projétil: {$this->PDF_laser}/";
 		}
 		
 		if ($html_armas != "") {
