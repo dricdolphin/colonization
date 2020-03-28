@@ -13,10 +13,6 @@ class menu_admin {
 		
 		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
 		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
-
-		//$this->html_header = "<script src='../wp-content/plugins/colonization/js/listas_js.js?v=1234'>";
-
-		//$this->html_header .="</script>";
 	}
 
 	/******************
@@ -31,6 +27,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','manage_options','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
 		add_submenu_page('colonization_admin_menu','Planetas','Planetas','manage_options','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
+		add_submenu_page('colonization_admin_menu','Techs','Techs','manage_options','colonization_admin_techs',array($this,'colonization_admin_techs'));		
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Frotas','Frotas','manage_options','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
@@ -94,15 +91,38 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_recursos'>
 			<thead>
-			<tr><td>ID</td><td>Recurso</td><td>Qtd</td><td>Disponível</tr></tr>
+			<tr><th>ID</th><th>Recurso</th><th>Qtd</th><th>Disponível</th></tr>
 			</thead>
 			<tbody>";
 
 			$html .= $html_dados_imperio;
 
 			$html .= "\n</tbody>
+			</table></div>";
+			
+			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id}");
+			
+			$html_techs_imperio = "";
+			foreach ($resultados as $resultado) {
+				$imperio_techs = new imperio_techs($resultado->id);
+				$html_techs_imperio .= $imperio_techs->lista_dados();
+			}
+			
+			$html .= "<div><h2>COLONIZATION - Techs do Império '{$imperio->nome}'</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
+			<thead>
+			<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Pesquisas Gastas<br>(0 = completado)</th><th style='width: 40px;'>Turno</th></tr>
+			</thead>
+			<tbody>";
+
+			$html .= $html_techs_imperio;
+
+			$html .= "\n</tbody>
 			</table></div>
-			<br>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_imperio(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+			
+			$html .= "<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Impérios</a>";			
 		} else {
 		
@@ -389,6 +409,50 @@ class menu_admin {
 		$html .= "\n</tbody>
 		</table></div>
 		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_recurso(event);'>Adicionar novo Recurso</a></div>";
+		
+		echo $html;
+	}
+
+	/******************
+	function colonization_admin_techs()
+	-----------
+	Exibe a página de gestão de Techs
+	******************/
+	function colonization_admin_techs() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Techs</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_tech'>
+		<thead>
+		<tr>
+		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th>Descrição</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th>
+		</tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de recursos
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_tech");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {
+			$tech = new tech($id->id);
+			
+			$html_dados = $tech->lista_dados();
+
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+		
+		$html.= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech(event);'>Adicionar nova Tech</a></div>";
 		
 		echo $html;
 	}

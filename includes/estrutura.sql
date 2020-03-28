@@ -54,6 +54,14 @@ extrativo BOOLEAN DEFAULT TRUE,
 local BOOLEAN DEFAULT FALSE
 )
 
+--Tabela com as Techs existentes
+CREATE TABLE IF NOT EXISTS colonization_tech (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+nome VARCHAR(255) NOT NULL,
+descricao TEXT NOT NULL,
+custo INT(6) NOT NULL,
+id_tech_parent INT(6)
+)
 
 --Tabela com os recursos consumidos ou produzidos por uma instalação
 CREATE TABLE colonization_instalacao_recursos (
@@ -89,6 +97,15 @@ id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_recurso INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
+turno INT(6) NOT NULL
+)
+
+--Tabela com as Techs do Império
+CREATE TABLE IF NOT EXISTS colonization_imperio_techs (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_tech INT(6) NOT NULL,
+custo_pago INT(6) DEFAULT 0,
 turno INT(6) NOT NULL
 )
 

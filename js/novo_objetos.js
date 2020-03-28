@@ -178,6 +178,86 @@ function novo_recurso(evento) {
 }
 
 /******************
+function nova_tech
+--------------------
+Insere um nova Tech
+******************/
+function nova_tech(evento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
+		return false;
+	}
+		
+	objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
+	var tabela = document.getElementsByTagName('TABLE');
+	tabela = tabela[0];
+	var linha_nova = tabela.insertRow(-1);
+	
+	var id = linha_nova.insertCell(0);
+	var nome = linha_nova.insertCell(1);
+	var descricao = linha_nova.insertCell(2);
+	var custo = linha_nova.insertCell(3);
+	var id_tech_parent = linha_nova.insertCell(4);
+	
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+	+"<div data-atributo='id' data-valor-original=''>#</div>"
+	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
+	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	custo.innerHTML = "<div data-atributo='custo' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='custo' data-ajax='true' style='width: 50px;'></input></div>";
+	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function nova_tech_imperio
+--------------------
+Adiciona um nova Tech à um Império
+******************/
+function nova_tech_imperio(evento, id_imperio) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
+		return false;
+	}
+		
+	
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+	var tabela = document.getElementsByTagName('TABLE');
+	tabela = tabela[1];
+	var linha_nova = tabela.insertRow(-1);
+	
+	var lista_techs = lista_techs_html();
+	
+	var nome_tech = linha_nova.insertCell(0);
+	var custo_pago = linha_nova.insertCell(1);
+	var turno = linha_nova.insertCell(2);
+
+	nome_tech.innerHTML = "<td style='width: 300px;'>"
+	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+	+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+	+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='' data-valor-original=''>"+lista_techs+"</div>"
+	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	custo_pago.innerHTML = "<div data-atributo='custo_pago' data-editavel='true' data-valor-original='0' data-style='width: 30px;'><input type='text' data-atributo='custo_pago' data-ajax='true' style='width: 30px;' value='0'></input></div>";
+	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
 function nova_instalacao
 --------------------
 Insere uma nova instalação

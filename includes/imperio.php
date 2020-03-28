@@ -51,7 +51,7 @@ class imperio
 		FROM colonization_imperio_colonias
 		WHERE id_imperio={$this->id}");
 		
-		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Estoque + Custo das Naves
+		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves
 		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
@@ -199,7 +199,7 @@ class imperio
 		$html = "";
 		foreach ($resultados as $resultado) {
 			if ($resultado->poluicao < 25) {
-				$poluicao = "<span style='color: #22FF22;'>{$resultado->poluicao}</span>";
+				$poluicao = "<span style='color: #007426;'>{$resultado->poluicao}</span>";
 			} elseif ($resultado->poluicao < 50) {
 				$poluicao = "<span style='color: #ffce00;'>{$resultado->poluicao}</span>";
 			} elseif ($resultado->poluicao < 75) {				

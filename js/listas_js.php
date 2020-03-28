@@ -21,6 +21,9 @@ class listas_js {
 			
 		$lista = new lista_recursos();
 		$this->html_header .= $lista->html_lista;
+		
+		$lista = new lista_techs();
+		$this->html_header .= $lista->html_lista;
 
 		$lista = new lista_planetas();
 		$this->html_header .= $lista->html_lista;
