@@ -60,7 +60,7 @@ function calcula_custos(evento, objeto) {
 	if (qtd_dobra*mk_dobra*10 < chassi) {
 		alcance = 0;
 	} else {
-		alcance = Math.floor((qtd_dobra*mk_dobra*10 + qtd_combustivel*15)/chassi);
+		alcance = Math.floor(((qtd_dobra*(mk_dobra*2-1)*10)/chassi)) + Math.ceil(((qtd_combustivel*15)/chassi));
 	}
 
 	if (isNaN(velocidade)) {
