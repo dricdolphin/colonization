@@ -50,7 +50,10 @@ class acoes
 			ON cp.id = cic.id_planeta
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
-			WHERE cic.id_imperio = {$this->id_imperio} AND cpi.turno_destroi IS NULL
+			WHERE cic.id_imperio = {$this->id_imperio} 
+			AND cic.turno = {$this->turno->turno}
+			AND cpi.turno_destroi IS NULL
+			AND cpi.turno <={$this->turno->turno}
 			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, ci.nome, cpi.id
 			");
 		

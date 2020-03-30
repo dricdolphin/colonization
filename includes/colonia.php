@@ -18,7 +18,7 @@ class colonia
 	public $planeta;
 	public $estrela;
 	
-	function __construct($id) {
+	function __construct($id, $turno=0) {
 		global $wpdb;
 		
 		$this->id = $id;
@@ -70,9 +70,9 @@ class colonia
 	----------------------
 	Exibe os recursos da Colônia
 	***********************/
-	function exibe_recursos_colonia() {
+	function exibe_recursos_colonia($turno=0) {
 		global $wpdb;
-		$turno = new turno();
+		$turno = new turno($turno);
 		
 		$resultados = $wpdb->get_results("
 		SELECT cr.nome, cpr.disponivel
@@ -80,10 +80,17 @@ class colonia
 		JOIN colonization_imperio_colonias AS cic
 		ON cic.id_imperio = {$this->id_imperio} 
 		AND cic.id_planeta = cpr.id_planeta
+		AND cic.turno=cpr.turno
 		JOIN colonization_recurso AS cr
 		ON cr.id = cpr.id_recurso
+		JOIN colonization_imperio_recursos AS cir
+		ON cir.id_recurso = cr.id
+		AND cir.turno={$turno->turno}
+		AND cir.id_imperio = {$this->id_imperio}
 		WHERE cpr.id_planeta={$this->planeta->id}
-		AND cpr.turno={$turno->turno}");
+		AND cpr.turno={$turno->turno}
+		AND cir.disponivel = TRUE
+		");
 		
 		$html = "";
 		foreach ($resultados as $resultado) {

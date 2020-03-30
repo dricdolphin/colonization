@@ -17,6 +17,7 @@ class imperio
 	public $pop = 0;
 	public $pontuacao = 0;
 	public $html_header;
+	public $turno;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -24,10 +25,11 @@ class imperio
 	Inicializa os dados do Império
 	$id_imperio = null -- Se não for passado um valor, o valor padrão é o id de usuário
 	$super -- Define se é para forçar o objeto (ignora as proteções)
+	$turno -- Qual turno deve ser exibido
 	***********************/
-	function __construct($id, $super=false) {
+	function __construct($id, $super=false, $turno=0) {
 		global $wpdb;
-		$turno = new turno();
+		$this->turno = new turno($turno);
 		
 		$user = wp_get_current_user();
 		$roles = $user->roles[0];
@@ -49,23 +51,25 @@ class imperio
 		ELSE SUM(pop)
 		END) AS pop
 		FROM colonization_imperio_colonias
-		WHERE id_imperio={$this->id}");
+		WHERE id_imperio={$this->id}
+		AND turno={$this->turno->turno}");
 		
 		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves + Custo das Techs
-		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
 		$pontuacao = $wpdb->get_var("SELECT SUM(nivel)*10 
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_imperio_colonias  AS cic
 		ON cic.id_planeta = cpi.id_planeta
-		WHERE cic.id_imperio={$this->id}");
+		WHERE cic.id_imperio={$this->id}
+		AND cic.turno = {$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 
-		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 
-		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id} AND turno={$turno->turno}");
+		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");
@@ -77,7 +81,9 @@ class imperio
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech
-		WHERE cit.id_imperio={$this->id}) AS custo_tech");
+		WHERE cit.id_imperio={$this->id}
+		AND cit.turno <= {$this->turno->turno}
+		) AS custo_tech");
 		$this->pontuacao = $this->pontuacao + $pontuacao;		
 
 	}
@@ -119,7 +125,8 @@ class imperio
 	function imperio_exibe_imperio() {
 		global $wpdb;
 		
-		$total_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		
+		$total_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		//Exibe os dados básicos do Império
 		$html = "<div>{$this->nome} - População: {$this->pop} - Pontuação: {$this->pontuacao}</div>
 		<div>Total de Colônias: {$total_colonias}</div>";
@@ -134,7 +141,7 @@ class imperio
 	function imperio_exibe_colonias_imperio() {
 		global $wpdb;
 		
-		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id}");
+		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		
 		$html = $this->html_header;
 		
@@ -173,7 +180,7 @@ class imperio
 		FROM colonization_imperio_recursos AS cir
 		JOIN colonization_recurso AS cr
 		ON cr.id=cir.id_recurso
-		WHERE cir.id_imperio = {$this->id} AND turno={$turno->turno}
+		WHERE cir.id_imperio = {$this->id} AND turno={$this->turno->turno}
 		AND cr.acumulavel = true
 		AND cir.disponivel = true
 		");
@@ -202,6 +209,7 @@ class imperio
 		JOIN colonization_planeta AS cp
 		ON cp.id=cic.id_planeta
 		WHERE cic.id_imperio = {$this->id}
+		AND cic.turno = {$this->turno->turno}
 		");
 		
 		$html = "";

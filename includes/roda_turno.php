@@ -7,13 +7,13 @@ Responsável por "rodar" os turnos, ou seja, por alterar os dados do jogo.
 Para acessá-lo, é necessário ter acesso de administrador do Wordpress e do Fórum.
 
 Antes de rodar o turno, verifica qual a data do último turno e não libera 
-para rodar caso não tenha passado pelo menos 24 horas do último turno.
+para rodar caso não tenha passado pelo menos UMA SEMANA do último Turno
 ***************************/
 
 //Classe "roda_turno"
 //Contém as rotinas para rodar o turno
 class roda_turno {
-
+	public $concluido = false;
 	
 	function __construct() {
 
@@ -45,8 +45,9 @@ class roda_turno {
 				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
 				
 				$data_atual = new DateTime("now");
+				$diferenca_datas = $data_atual->diff($proxima_semana);
 				
-				if (date_diff($data_atual, $proxima_semana) > 0) {
+				if ($diferenca_datas->invert == 1) {
 					$html .= "<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
 					";
 				} else {
@@ -180,12 +181,12 @@ class roda_turno {
 				//Cria poluição
 				$html .= "<br>POLUINDO as Colônias e Gerando nova MdO...<br>";
 				
-				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id}");
+				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
 				foreach ($lista_id_colonias as $id_colonia) {
 					$colonia = new colonia($id_colonia->id);
 					$planeta = new planeta($colonia->id_planeta);
 					
-					$poluicao = $wpdb->get_var(" 
+					$poluicao_produz = $wpdb->get_var(" 
 					SELECT SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
 					FROM 
 					(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
@@ -196,16 +197,36 @@ class roda_turno {
 					ON cpi.id = cat.id_planeta_instalacoes
 					JOIN colonization_instalacao_recursos AS cir
 					ON cir.id_instalacao = cat.id_instalacao
-					WHERE cir.id_recurso=16 AND cpi.turno_destroi IS NULL
+					WHERE cir.id_recurso=16 
+					AND cir.consome = false
+					AND  cpi.turno_destroi IS NULL
 					GROUP BY cir.id_recurso");
+
+					$poluicao_consome = $wpdb->get_var(" 
+					SELECT SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
+					FROM 
+					(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
+					FROM colonization_acoes_turno 
+					WHERE id_imperio={$imperio->id} AND turno={$turno->turno} AND id_planeta={$colonia->id_planeta}
+					) AS cat
+					JOIN colonization_planeta_instalacoes AS cpi
+					ON cpi.id = cat.id_planeta_instalacoes
+					JOIN colonization_instalacao_recursos AS cir
+					ON cir.id_instalacao = cat.id_instalacao
+					WHERE cir.id_recurso=16 
+					AND cir.consome = true
+					AND  cpi.turno_destroi IS NULL
+					GROUP BY cir.id_recurso");					
 					
-					if ($poluicao == "") {
-						$poluicao = 0;
+					if ($poluicao_produz == "") {
+						$poluicao_produz = 0;
 					}
-					
-					$poluicao = $colonia->poluicao+$poluicao;
+
+					if ($poluicao_consome == "") {
+						$poluicao_consome = 0;
+					}					
+					$poluicao = $colonia->poluicao + $poluicao_produz - $poluicao_consome;
 					$poluicao = $poluicao-25; //Os planetas conseguem reduzir a poluição em 25 todos os turnos
-					//TODO -- Tecnologias de redução de poluição
 					
 					if ($poluicao<0) {
 						$poluicao=0;
@@ -234,8 +255,8 @@ class roda_turno {
 						}
 					}
 				
-					$html.= "UPDATE colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno} WHERE id={$colonia->id}<br>";
-					$wpdb->query("UPDATE colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno} WHERE id={$colonia->id}");
+					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}<br>";
+					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_imperio={$colonia->id_imperio}");
 				}
 			}
 		
@@ -243,6 +264,7 @@ class roda_turno {
 		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'<br>";
 		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'");
 		
+		$this->concluido = true;
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";
 		}

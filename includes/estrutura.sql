@@ -92,12 +92,13 @@ turno_destroi INT(6) DEFAULT NULL
 )
 
 --Tabela com os recursos acumulados do Império (não locais)
-CREATE TABLE colonization_imperio_recursos (
+CREATE TABLE IF NOT EXISTS colonization_imperio_recursos (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_recurso INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
-turno INT(6) NOT NULL
+turno INT(6) NOT NULL,
+disponivel BOOLEAN DEFAULT NOT NULL
 )
 
 --Tabela com as Techs do Império

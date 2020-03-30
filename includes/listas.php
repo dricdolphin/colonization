@@ -210,7 +210,17 @@ class lista_techs
 	
 	function __construct() {
 		global $wpdb;
-		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_tech ORDER BY id_tech_parent, nome");
+		$resultados = $wpdb->get_results("
+		SELECT ct.id, ct.nome, ct.id_tech_parent
+		FROM 
+		(SELECT id, 
+		(CASE WHEN id_tech_parent = 0 THEN id ELSE id_tech_parent END) AS id_tech_parent
+		FROM colonization_tech
+		) AS ctord
+		JOIN colonization_tech AS ct
+		ON ct.id = ctord.id
+		ORDER BY ctord.id_tech_parent, ct.id
+		");
 
 		$lista_valores = "";
 		$lista_options = "";

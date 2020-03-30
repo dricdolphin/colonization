@@ -177,7 +177,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
+			<tr><td style='width: 100px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";
@@ -247,7 +247,7 @@ class menu_admin {
 	******************/
 	function colonization_admin_planetas() {
 		global $wpdb;
-		
+		$turno = new turno();
 		$html = $this->html_header;
 		
 		if (isset($_GET['id'])) {
@@ -258,8 +258,15 @@ class menu_admin {
 			</script>
 			
 			<div><h2>COLONIZATION - editando o Planeta '{$planeta->nome}'</h2></div>";
+			
+			$max_turnos = $wpdb->get_results("SELECT id_recurso, MAX(turno) as turno FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso, id_planeta");
+			foreach ($max_turnos as $max_turno) {
+				if ($max_turno->turno < $turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
+					$wpdb->query("UPDATE colonization_planeta_recursos SET turno={$turno->turno} WHERE turno={$max_turno->turno} AND id_planeta={$planeta->id} AND id_recurso={$max_turno->id_recurso}");
+				}
+			}
 
-			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
+			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 			$html_lista = "";
 
 			//Recursos da Colônia
@@ -336,7 +343,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 50px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 60px;'>Tamanho</td><td>&nbsp;</td>
+			<tr><td style='width: 100px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";
@@ -588,7 +595,8 @@ class menu_admin {
 		
 		$html = $this->html_header;
 		$html_lista = "";
-
+		$turno = new turno();
+		
 		if (isset($_GET['id'])) {
 			$colonia = new colonia($_GET['id']);
 			$imperio = new imperio($colonia->id_imperio);
@@ -600,7 +608,19 @@ class menu_admin {
 			
 			<div><h2>COLONIZATION - editando a Colônia '{$planeta->nome}' do Império '{$imperio->nome}'</h2></div>";
 
-			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso, MAX(turno) FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso");
+			$max_turnos = $wpdb->get_results("SELECT id_recurso, MAX(turno) as turno FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso, id_planeta");
+			foreach ($max_turnos as $max_turno) {
+				if ($max_turno->turno < $turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
+					$wpdb->query("UPDATE colonization_planeta_recursos SET turno={$turno->turno} WHERE turno={$max_turno->turno} AND id_planeta={$planeta->id} AND id_recurso={$max_turno->id_recurso}");
+				}
+			}
+			
+			$lista_planeta_recursos = $wpdb->get_results("SELECT colonization_planeta_recursos.id, id_recurso, turno 
+			FROM colonization_planeta_recursos
+			JOIN colonization_recurso
+			ON colonization_recurso.id = colonization_planeta_recursos.id_recurso
+			WHERE id_planeta={$planeta->id} 
+			AND turno={$turno->turno} ORDER BY nome");
 			$html_lista = "";
 
 			//Recursos da Colônia
@@ -686,7 +706,7 @@ class menu_admin {
 				//$html_dados = $imperio->lista_dados();
 				
 				$html .= "<br><div><h3>Colônias do Império '{$imperio->nome}'</h3></div>";
-				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$id->id}");
+				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$id->id} AND turno={$turno->turno}");
 
 				$html_lista = "			<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>
 				<thead>
@@ -913,11 +933,11 @@ class menu_admin {
 		$proxima_semana->modify('+7 days');
 		$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 		
-		$html = "<div><h2>COLONIZATION - RODA TURNO</h2></div>
+		$html = "<div id='div_turno'><h2>COLONIZATION - RODA TURNO</h2>
 		<h3>TURNO ATUAL - {$turno->turno}</h3>
 		<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
-		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div>
-		<table class='wp-list-table widefat fixed striped users'>
+		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div></div>
+		<table class='wp-list-table widefat fixed striped users' id='dados_acoes_imperios'>
 		<thead>
 		<tr><td style='width: 200px;'>Nome do Império</td><td style='width: 200px;'>Dt Última Modificação</td><td style='width: 80px;'>Pontuação</td><td style='width: 100%;'>Balanço dos Recursos</td></tr>
 		</thead>

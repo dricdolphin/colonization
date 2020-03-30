@@ -122,8 +122,14 @@ class colonization {
 		} else {
 			$imperio = new imperio();
 		}
+
+		if (isset($atts['turno'])) {
+			$turno = new turno($atts['turno']);
+		} else {
+			$turno = new turno();
+		}
 		
-		$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id}");
+		$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
 		
 		$html = "
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
@@ -135,7 +141,7 @@ class colonization {
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id);
 			
-			$lista_recursos = $colonia->exibe_recursos_colonia();
+			$lista_recursos = $colonia->exibe_recursos_colonia($turno->turno);
 			
 			$html .= "<tr><td>{$colonia->planeta->nome} - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
 			<td>{$lista_recursos}</td>
@@ -208,7 +214,7 @@ class colonization {
 		
 		$imperio_acoes = new acoes($imperio->id,$turno->turno);
 		
-		$lista_colonias = $imperio->exibe_lista_colonias();
+		$lista_colonias = $imperio->exibe_lista_colonias($turno->turno);
 		$recursos_atuais = $imperio->exibe_recursos_atuais($atts['turno']);
 		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();

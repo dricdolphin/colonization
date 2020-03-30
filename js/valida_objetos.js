@@ -230,7 +230,7 @@ function valida_planeta_recurso(objeto) {
 	}
 
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {

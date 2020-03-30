@@ -99,13 +99,14 @@ function novo_planeta(evento, id_estrela = 0) {
 	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
 	var tabela = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela.insertRow(-1);
-	var nome = linha_nova.insertCell(0);
-	var estrela = linha_nova.insertCell(1);
-	var posicao = linha_nova.insertCell(2);
-	var classe = linha_nova.insertCell(3);
-	var subclasse = linha_nova.insertCell(4);
-	var tamanho = linha_nova.insertCell(5);
-	var gerencia = linha_nova.insertCell(6);
+	var id = linha_nova.insertCell(0);
+	var nome = linha_nova.insertCell(1);
+	var estrela = linha_nova.insertCell(2);
+	var posicao = linha_nova.insertCell(3);
+	var classe = linha_nova.insertCell(4);
+	var subclasse = linha_nova.insertCell(5);
+	var tamanho = linha_nova.insertCell(6);
+	var gerencia = linha_nova.insertCell(7);
 	
 	if (id_estrela == 0) {
 		var lista_estrelas = lista_estrelas_html();
@@ -113,14 +114,15 @@ function novo_planeta(evento, id_estrela = 0) {
 		var lista_estrelas = lista_estrelas_html(id_estrela);
 	}
 	
-	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_estrela' value='"+id_estrela+"'></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>"
-	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
+	+"<div data-atributo='id' data-valor-original='' value=''>#</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	estrela.innerHTML = "<div data-atributo='nome_estrela' data-id-selecionado='"+id_estrela+"'>"+lista_estrelas+"</div>";
 	posicao.innerHTML = "<div data-atributo='posicao' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='posicao' data-ajax='true' style='width: 30px;'></input></div>";
 	classe.innerHTML = "<div data-atributo='classe' data-editavel='true' data-valor-original=''><input type='text' data-atributo='classe' data-ajax='true'></input></div>";
@@ -617,8 +619,14 @@ function roda_turno(evento) {
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var resposta = JSON.parse(this.responseText);
-			var div_resultados = document.getElementById('resultado_turno');
+			let div_resultados = document.getElementById('resultado_turno');
 			div_resultados.innerHTML = resposta.html;
+			if (resposta.turno_novo != "") {
+				let div_turno = document.getElementById('div_turno');
+				let div_dados_acoes_imperios = document.getElementById('dados_acoes_imperios');
+				div_dados_acoes_imperios.innerHTML = resposta.dados_acoes_imperios;
+				div_turno.innerHTML = resposta.turno_novo;
+			}
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

@@ -33,7 +33,9 @@ class imperio_recursos
 		(SELECT id, id_recurso, qtd, disponivel FROM colonization_imperio_recursos 
 		WHERE id_imperio = {$this->id_imperio}
 		AND turno = {$this->turno->turno}) AS cir
-		ON cr.id = cir.id_recurso");
+		ON cr.id = cir.id_recurso
+		ORDER BY cir.disponivel DESC, cr.nome
+		");
 		
 		$chave = 0;
 		foreach ($resultado as $valor) {

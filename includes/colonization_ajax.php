@@ -154,9 +154,9 @@ class colonization_ajax {
 		$wpdb->hide_errors();
 
 		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
-			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']}";
+			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']} AND turno={$_POST['turno']}";
 		} else {
-			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']} AND id != {$_POST['id']}";
+			$query = "SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']} AND turno={$_POST['turno']} AND id != {$_POST['id']}";
 		}
 		
 		$resposta = $wpdb->query($query);
@@ -164,7 +164,7 @@ class colonization_ajax {
 		if ($resposta === 0) {
 			$dados_salvos['resposta_ajax'] = "OK!";
 		} else {
-			$dados_salvos['resposta_ajax'] .= "Você não pode cadastrar o mesmo recurso para a mesma colônia duas vezes!";
+			$dados_salvos['resposta_ajax'] .= "Você não pode cadastrar o mesmo recurso para a mesma colônia duas vezes! -- SELECT id FROM colonization_planeta_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_planeta={$_POST['id_planeta']} AND turno={$_POST['turno']} AND id != {$_POST['id']}";
 		}
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -399,6 +399,7 @@ class colonization_ajax {
 				JOIN colonization_imperio_colonias AS cimc
 				ON cimc.id_imperio = cat.id_imperio 
 				AND cimc.id_planeta = cat.id_planeta
+				AND cimc.turno={$_POST['turno']}
 				) AS tabela_balanco
 				WHERE mdo < 0
 				");
@@ -415,7 +416,10 @@ class colonization_ajax {
 					GROUP BY id_planeta
 					) AS cat
 				JOIN colonization_imperio_colonias AS cimc
-				ON cimc.id_imperio = cat.id_imperio AND cimc.id_planeta = cat.id_planeta) AS tabela_balanco
+				ON cimc.id_imperio = cat.id_imperio 
+				AND cimc.id_planeta = cat.id_planeta
+				AND cimc.turno={$_POST['turno']}
+				) AS tabela_balanco
 				WHERE mdo < 0
 				");
 		}
@@ -531,6 +535,43 @@ class colonization_ajax {
 		
 		$roda_turno = new roda_turno();
 		$html['html'] = $roda_turno->executa_roda_turno();
+		
+		if ($roda_turno->concluido) {
+			$turno = new turno();
+			
+			$proxima_semana = new DateTime($turno->data_turno);
+			$proxima_semana->modify('+7 days');
+			$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
+			
+			$html['turno_novo'] = "<div id='div_turno'><h2>COLONIZATION - RODA TURNO</h2>
+			<h3>TURNO ATUAL - {$turno->turno}</h3>
+			<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
+			<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div></div>";
+			
+			$html['dados_acoes_imperios'] = "<thead>
+			<tr><td style='width: 200px;'>Nome do Império</td><td style='width: 200px;'>Dt Última Modificação</td><td style='width: 80px;'>Pontuação</td><td style='width: 100%;'>Balanço dos Recursos</td></tr>
+			</thead>
+			<tbody>";
+		
+			//Pega a lista de impérios
+			$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
+			$html_lista_imperios = "";
+		
+			foreach ($lista_id_imperio as $id) {
+				$imperio = new imperio($id->id);
+				$acoes = new acoes($imperio->id,$turno->turno);
+				$balanco = $acoes->exibe_recursos_balanco();
+			
+				$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div></td><td>{$acoes->max_data_modifica}</td><td>{$imperio->pontuacao}</td><td>{$balanco}</td></tr>";
+			}
+
+			$html['dados_acoes_imperios'] .= $html_lista_imperios;
+		
+			$html['dados_acoes_imperios'] .= "\n</tbody>";
+
+		} else {
+			$html['turno_novo'] = "";
+		}
 		
 		echo json_encode($html); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
