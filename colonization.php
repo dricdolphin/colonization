@@ -200,22 +200,22 @@ class colonization {
 	os dados do Império com id="1"
 	***********************/	
 	function colonization_exibe_acoes_imperio($atts = [], $content = null) {
-		if (isset($atts['id'])) {
-			$imperio = new imperio($atts['id']);
-		} else {
-			$imperio = new imperio();
-		}
-		
 		if (isset($atts['turno'])) {
 			$turno = new turno ($atts['turno']);
 		} else {
 			$turno = new turno();
 		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false,$turno->turno);
+		} else {
+			$imperio = new imperio(0,false,$turno->turno);
+		}
 		
 		$imperio_acoes = new acoes($imperio->id,$turno->turno);
 		
-		$lista_colonias = $imperio->exibe_lista_colonias($turno->turno);
-		$recursos_atuais = $imperio->exibe_recursos_atuais($atts['turno']);
+		$lista_colonias = $imperio->exibe_lista_colonias();
+		$recursos_atuais = $imperio->exibe_recursos_atuais();
 		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
 		
