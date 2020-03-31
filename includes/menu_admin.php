@@ -343,7 +343,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><td style='width: 100px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
+			<tr><td style='width: 120px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td style='width: 90px;'>Inóspito</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";

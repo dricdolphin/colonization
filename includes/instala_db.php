@@ -44,7 +44,8 @@ class instala_db {
 		posicao INT(3) NOT NULL,
 		classe VARCHAR(255) NOT NULL,
 		subclasse VARCHAR(255) DEFAULT NULL,
-		tamanho INT(2) NOT NULL
+		tamanho INT(2) NOT NULL,
+		inospito BOOLEAN DEFAULT TRUE
 		)");
 
 		//Tabela com os tipos de instalações
