@@ -201,7 +201,7 @@ class imperio
 		global $wpdb;
 		
 		$resultados = $wpdb->get_results("
-		SELECT cp.nome, cic.pop, cic.poluicao
+		SELECT cp.nome, cic.pop, cic.poluicao, cic.id_imperio, cic.id_planeta
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
 		ON cp.id=cic.id_planeta
@@ -209,8 +209,14 @@ class imperio
 		AND cic.turno = {$this->turno->turno}
 		");
 		
-		$html = "";
+		$html = "<b>Lista de Colônias:</b> ";
+		if ($resultados[0]->id_imperio != "") {
+			$imperio = new imperio($resultados[0]->id_imperio);
+			$acoes = new acoes($imperio->id);
+		}
+		$mdo = 0;
 		foreach ($resultados as $resultado) {
+			$mdo = $acoes->mdo_planeta($resultado->id_planeta);
 			if ($resultado->poluicao < 25) {
 				$poluicao = "<span style='color: #007426;'>{$resultado->poluicao}</span>";
 			} elseif ($resultado->poluicao < 50) {
@@ -220,7 +226,7 @@ class imperio
 			} else {
 				$poluicao = "<span style='color: #ee1509;'>{$resultado->poluicao}</span>";
 			}
-			$html .= "{$resultado->nome} - Pop: {$resultado->pop} - Poluição: {$poluicao}; ";
+			$html .= "{$resultado->nome} - MdO/Pop: {$mdo}/{$resultado->pop} - Poluição: {$poluicao}; ";
 		}
 		
 		return $html;

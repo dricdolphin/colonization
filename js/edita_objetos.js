@@ -581,11 +581,14 @@ function atualiza_produtos_acao(id_imperio) {
 		if (this.readyState == 4 && this.status == 200) {
 			var resposta = JSON.parse(this.responseText);
 			if (resposta.resposta_ajax == "OK!") {
+				id_colonias = "lista_colonias_imperio_"+id_imperio;
 				id_produz = "recursos_produzidos_imperio_"+id_imperio;
 				id_consome = "recursos_consumidos_imperio_"+id_imperio;
+				div_colonias = document.getElementById(id_colonias);
 				div_produz = document.getElementById(id_produz);
 				div_consome = document.getElementById(id_consome);
 				
+				div_colonias.innerHTML = resposta.lista_colonias
 				div_produz.innerHTML = resposta.recursos_produzidos;
 				div_consome.innerHTML = resposta.recursos_consumidos;
 			} else {

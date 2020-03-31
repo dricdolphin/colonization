@@ -222,10 +222,10 @@ class colonization {
 		//TODO -- Pega a data da última ação
 		$html_lista	= "
 		<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
-		<div><b>Lista de Colônias:</b> {$lista_colonias}</div>
-		<div id='recursos_atuais_imperio_{$imperio->id}'>$recursos_atuais</div>
-		<div id='recursos_produzidos_imperio_{$imperio->id}'>$recursos_produzidos</div>
-		<div id='recursos_consumidos_imperio_{$imperio->id}'>$recursos_consumidos</div>
+		<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div>
+		<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div>
+		<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
+		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
 		<tr><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>

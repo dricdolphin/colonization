@@ -107,6 +107,42 @@ class acoes
 	}
 
 	/***********************
+	function mdo_planeta()
+	----------------------
+	Exibe a MdO alocada em um planeta
+	----
+	$id_planeta = planeta escolhido
+	***********************/
+	function mdo_planeta($id_planeta) {
+		global $wpdb;
+		
+		$mdo = 0;
+
+		for ($chave=0; $chave < count($this->id_planeta); $chave++) {
+			if ($this->id_planeta[$chave] == $id_planeta) {
+				$mdo = $mdo + $this->pop[$chave];
+			}
+		}
+	
+		/***DEBUG!
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+
+		if ($roles == "administrator") {
+			echo ("id_planeta: ".$id_planeta."<br><br>");
+			var_dump($this->id_planeta);
+			echo "<br><br>";
+			var_dump($this->pop);
+			echo "<br><br>";
+			var_dump($chaves);
+			wp_die();
+		}
+		***/
+		
+		return $mdo;
+	}
+
+	/***********************
 	function lista_dados()
 	----------------------
 	Exibe os dados do objeto

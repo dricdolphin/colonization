@@ -359,6 +359,7 @@ class colonization_ajax {
 		$imperio = new imperio($_POST['id_imperio']);
 		$acoes = new acoes($imperio->id);
 		
+		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
 		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
 		$dados_salvos['resposta_ajax'] = "OK!";
