@@ -879,7 +879,7 @@ class menu_admin {
 		foreach ($lista_recursos as $id) {		
 			$recurso = new recurso($id->id);
 			
-			$html_lista .= "{$recurso->nome} - #{$recurso->id}; ";
+			$html_lista .= "#{$recurso->id} - {$recurso->nome}; ";
 		}
 		
 		if ($html_lista != "") {
