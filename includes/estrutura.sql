@@ -7,7 +7,8 @@
 CREATE TABLE colonization_imperio (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(30) NOT NULL,
-id_jogador INT(30) NOT NULL
+id_jogador INT(30) NOT NULL,
+prestigio INT(30) DEFAULT 0
 )
 
 --Tabela com os dados das estrelas

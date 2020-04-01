@@ -53,8 +53,55 @@ class colonization {
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
+		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
+	
 	}
+	
+	/******************
+	function colonization_exibe_prestigio()
+	-----------
+	Exibe o Prestígio do Usuário
+	******************/	
+	function colonization_exibe_prestigio($author_id, $author_posts) {
+		global $asgarosforum, $wpdb;
+		
+		/***DEBUG!
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
 
+		if ($roles == "administrator") {
+			//echo $post->post_author;
+			//var_dump($post);
+			//wp_die();
+			
+			//$prestigio = 0;
+
+			$user_meta=get_userdata($author_id);
+			$user_roles=$user_meta->roles[0];
+			
+			if ($user_roles == "administrator") {
+				$prestigio = "&infin;";
+			} else {
+				$prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id_jogador={$author_id}");
+			}
+			
+			echo "<div>Prestígio: {$prestigio}</div>";
+			return;
+		}
+		//****/
+
+		$user_meta=get_userdata($author_id);
+		$user_roles=$user_meta->roles[0];
+			
+		if ($user_roles == "administrator") {
+			$prestigio = "&infin;";
+		} else {
+			$prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id_jogador={$author_id}");
+		}
+			
+		echo "<div>Prestígio: {$prestigio}</div>";
+	}
+	
 	/******************
 	function colonization_install()
 	-----------

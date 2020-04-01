@@ -389,27 +389,28 @@ class colonization_ajax {
 		$instalacao = new instalacao($_POST['id_instalacao']);
 
 		if ($instalacao->autonoma) {
-		$planeta = new planeta($_POST['id_planeta']);
-		
-		$resultados = $wpdb->get_results("
-			SELECT mdo 
-			FROM 
-				(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-					(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
-					FROM colonization_acoes_turno
-					WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
-					UNION ALL
-					SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-					GROUP BY id_planeta
-					) AS cat
-				JOIN colonization_imperio_colonias AS cimc
-				ON cimc.id_imperio = cat.id_imperio 
-				AND cimc.id_planeta = cat.id_planeta
-				AND cimc.turno={$_POST['turno']}
-				) AS tabela_balanco
-				WHERE mdo < 0
-				");
+			$planeta = new planeta($_POST['id_planeta']);
+			
+			$resultados = $wpdb->get_results("
+				SELECT mdo 
+				FROM 
+					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
+						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
+						FROM colonization_acoes_turno
+						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
+						UNION ALL
+						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+						) AS cat
+					JOIN colonization_imperio_colonias AS cimc
+					ON cimc.id_imperio = cat.id_imperio 
+					AND cimc.id_planeta = cat.id_planeta
+					AND cimc.turno={$_POST['turno']}
+					) AS tabela_balanco
+					WHERE mdo < 0
+					");
 		} else {
+			//Para construções locais, precisa verificar se tem MdO suficiente no planeta E também se o MdO do sistema não está sendo ultrapassado
+			
 			$resultados = $wpdb->get_results("
 			SELECT mdo 
 			FROM 
@@ -419,7 +420,6 @@ class colonization_ajax {
 					WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
 					UNION ALL
 					SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-					GROUP BY id_planeta
 					) AS cat
 				JOIN colonization_imperio_colonias AS cimc
 				ON cimc.id_imperio = cat.id_imperio 
@@ -428,6 +428,57 @@ class colonization_ajax {
 				) AS tabela_balanco
 				WHERE mdo < 0
 				");
+			
+			if (empty($resultados)) {//Passou no local, vamos verificar para o sistema
+				$planeta = new planeta($_POST['id_planeta']);
+				
+				$resultados = $wpdb->get_results("
+				SELECT mdo 
+				FROM 
+					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
+						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
+						FROM colonization_acoes_turno
+						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
+						UNION ALL
+						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+						) AS cat
+					JOIN colonization_imperio_colonias AS cimc
+					ON cimc.id_imperio = cat.id_imperio 
+					AND cimc.id_planeta = cat.id_planeta
+					AND cimc.turno={$_POST['turno']}
+					) AS tabela_balanco
+					WHERE mdo < 0
+					");
+				
+				//***DEBUG!
+				$user = wp_get_current_user();
+				$roles = $user->roles[0];
+
+				if ($roles == "administrator") {
+					if (empty($resultados == "")) {
+						$dados_salvos['debug'] = "
+				SELECT mdo 
+				FROM 
+					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
+						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
+						FROM colonization_acoes_turno
+						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
+						UNION ALL
+						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
+						) AS cat
+					JOIN colonization_imperio_colonias AS cimc
+					ON cimc.id_imperio = cat.id_imperio 
+					AND cimc.id_planeta = cat.id_planeta
+					AND cimc.turno={$_POST['turno']}
+					) AS tabela_balanco
+					WHERE mdo < 0
+					";	
+					}
+				
+				}
+				//****/
+					
+			}
 		}
 		
 		foreach ($resultados as $resultado) {

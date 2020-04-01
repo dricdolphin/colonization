@@ -437,6 +437,7 @@ function valida_acao(dados) {
 					retorno = false;
 					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+resposta.balanco_acao);
 				}
+				console.log(resposta.debug);
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

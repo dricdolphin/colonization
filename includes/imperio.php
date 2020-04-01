@@ -14,6 +14,7 @@ class imperio
 	public $id;
 	public $nome;
 	public $id_jogador;
+	public $prestigio;
 	public $pop = 0;
 	public $pontuacao = 0;
 	public $html_header;
@@ -44,6 +45,7 @@ class imperio
 		}
 		
 		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
+		$this->prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id=".$this->id);
 		
 		$this->pop = $wpdb->get_var("SELECT 
 		(CASE 
@@ -109,6 +111,7 @@ class imperio
 			</td>
 			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
+			<td><div data-atributo='prestigio' data-valor-original='{$this->prestigio}' data-editavel='true' data-style='width: 40px;'>{$this->prestigio}</div></td>
 			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
 			<td><div data-atributo='pontuacao' data-valor-original=''>{$this->pontuacao}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";

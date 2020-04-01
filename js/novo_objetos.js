@@ -18,9 +18,10 @@ function novo_imperio(evento) {
 	var id = linha_nova.insertCell(0);
 	var dados_jogador = linha_nova.insertCell(1);
 	var nome_imperio = linha_nova.insertCell(2);
-	var populacao = linha_nova.insertCell(3);
-	var pontuacao = linha_nova.insertCell(4);
-	var gerencia = linha_nova.insertCell(5);
+	var prestigio = linha_nova.insertCell(3);
+	var populacao = linha_nova.insertCell(4);
+	var pontuacao = linha_nova.insertCell(5);
+	var gerencia = linha_nova.insertCell(6);
 	
 	var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
 	
@@ -36,6 +37,7 @@ function novo_imperio(evento) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	dados_jogador.innerHTML = "<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>";
 	nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
+	prestigio.innerHTML = "<div data-atributo='prestigio' data-editavel='true' data-valor-original='' data-style='width: 40px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 40px;'></input></div>";
 	populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
 	pontuacao.innerHTML = "<div data-atributo='pontuacao' data-valor-original=''></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
