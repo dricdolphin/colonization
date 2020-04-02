@@ -74,3 +74,48 @@ input[type=range]::-moz-range-track {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, sans-serif;
 }
+
+.barra_recursos_pad {
+	color: #000;
+	background: #DDD;
+    position: static;
+    top: 32px;
+    left: 0;
+    padding-left: 3px;
+	font-size: 12px;
+    font-weight: 400;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    line-height: 1.65;
+    width: 100%;
+    min-width: 600px;
+    z-index: 1;
+    max-height: 20px;
+	overflow: hidden;
+	clear: both;
+	display: block;	
+}
+
+#barra_recursos {
+	color: #000;
+	background: #DDD;
+    position: fixed;
+    top: 32px;
+    left: 0;
+    padding-left: 3px;
+	font-size: 12px;
+    font-weight: 400;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    line-height: 1.65;
+    width: 100%;
+    min-width: 600px;
+    z-index: 99999;
+    max-height: 20px;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	clear: both;
+	display: block;
+}
+
+#barra_recursos:hover {
+	max-height: 120px;
+}

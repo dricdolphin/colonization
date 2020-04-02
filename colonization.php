@@ -54,8 +54,67 @@ class colonization {
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
+		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos'));
 	
 	}
+
+	/******************
+	function colonization_exibe_barra_recursos()
+	-----------
+	Exibe a barra de Recursos do Império
+	******************/	
+	function colonization_exibe_barra_recursos() {
+		global $asgarosforum, $wpdb;
+
+		if (!empty($_GET['page_id'])) {//Só mostra a barra de recursos se for o Fórum
+			if ($_GET['page_id'] != "357") {
+				return;
+			}
+		}
+
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+		
+		$html = "<div id='barra_recursos' class='nojq'>";
+		$html_recursos = "";
+		if ($roles == "administrator") {
+			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		} else {
+			$id_jogador = get_current_user_id();
+			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio WHERE id_jogador={$id_jogador}");
+		}
+		
+		if (empty($resultados)) {
+			return; 
+		}
+		
+		foreach ($resultados as $resultado) {
+			$imperio = new imperio($resultado->id);
+			if ($roles == "administrator") {
+				$html_recursos .= "<b>{$imperio->nome}</b> - ";
+			} else {
+				$html_recursos .= "<b>Recursos Atuais</b> - ";
+			}
+			
+			$recursos_atuais = $imperio->exibe_recursos_atuais();
+			$recursos_atuais = substr($recursos_atuais,19);
+			$html_recursos .= $recursos_atuais."<br>";
+		}
+		
+		$html_recursos = substr($html_recursos,0,-4);
+		
+		$html .= $html_recursos."</div>
+		<div style='position: static; top: 0px; left: 0px; height: 20px;'>&nbsp;</div>";
+
+		/***DEBUG!
+		if ($roles == "administrator") {
+			echo $html;
+		}
+		//****/
+		echo $html;
+	}
+
+
 	
 	/******************
 	function colonization_exibe_prestigio()
