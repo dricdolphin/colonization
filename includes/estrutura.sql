@@ -61,8 +61,10 @@ CREATE TABLE IF NOT EXISTS colonization_tech (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(255) NOT NULL,
 descricao TEXT NOT NULL,
+nivel INT(6) NOT NULL,
 custo INT(6) NOT NULL,
-id_tech_parent INT(6)
+id_tech_parent INT(6),
+belica BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com os recursos consumidos ou produzidos por uma instalação

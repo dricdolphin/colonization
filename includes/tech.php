@@ -13,20 +13,24 @@ class tech
 	public $nome;
 	public $descricao;
 	public $custo;
+	public $nivel;
 	public $id_tech_parent;
+	public $belica;
 	
 	function __construct($id) {
 		global $wpdb;
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, id_tech_parent FROM colonization_tech WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, belica FROM colonization_tech WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
 		$this->custo = $resultado->custo;
+		$this->nivel = $resultado->nivel;
 		$this->id_tech_parent = $resultado->id_tech_parent;
+		$this->belica = $resultado->belica;
 	}
 
 	/***********************
@@ -36,6 +40,12 @@ class tech
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+
+		if ($this->belica == 1) {
+			$belical_checked = "checked";
+		} else {
+			$belica_checked = "";
+		}
 
 		//Exibe os dados do Objeto
 		$html = "				<td>
@@ -48,8 +58,10 @@ class tech
 			</td>
 			<td><div data-atributo='nome' data-editavel='true' data-valor-original='{$this->nome}'>{$this->nome}</div></td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
+			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 50px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='custo' data-editavel='true' data-valor-original='{$this->custo}' data-style='width: 50px;'>{$this->custo}</div></td>
 			<td><div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='{$this->id_tech_parent}' data-style='width: 30px;'>{$this->id_tech_parent}</div></td>
+			<td><div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->belica}'><input type='checkbox' data-atributo='belica' data-ajax='true' {$belica_checked} disabled></input></div></td>			
 			";			
 
 		return $html;

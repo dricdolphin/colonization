@@ -213,13 +213,16 @@ class lista_techs
 		$resultados = $wpdb->get_results("
 		SELECT ct.id, ct.nome, ct.id_tech_parent
 		FROM 
-		(SELECT id, 
-		(CASE WHEN id_tech_parent = 0 THEN id ELSE id_tech_parent END) AS id_tech_parent
-		FROM colonization_tech
+		(SELECT ct_1.id, 
+		(CASE WHEN ct_1.id_tech_parent = 0 THEN ct_1.nome ELSE ct_2.nome END) AS nome,
+		(CASE WHEN ct_1.id_tech_parent = 0 THEN ct_1.id ELSE ct_1.id_tech_parent END) AS id_tech_parent
+		FROM colonization_tech AS ct_1
+		LEFT JOIN colonization_tech AS ct_2
+		ON ct_2.id = ct_1.id_tech_parent
 		) AS ctord
 		JOIN colonization_tech AS ct
 		ON ct.id = ctord.id
-		ORDER BY ctord.id_tech_parent, ct.id
+		ORDER BY ct.belica, ctord.nome, ctord.id_tech_parent, ct.id
 		");
 
 		$lista_valores = "";

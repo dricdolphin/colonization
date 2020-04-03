@@ -204,8 +204,10 @@ function nova_tech(evento) {
 	var id = linha_nova.insertCell(0);
 	var nome = linha_nova.insertCell(1);
 	var descricao = linha_nova.insertCell(2);
+	var nivel = linha_nova.insertCell(3);
 	var custo = linha_nova.insertCell(3);
 	var id_tech_parent = linha_nova.insertCell(4);
+	var belica = linha_nova.insertCell(3);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -215,8 +217,10 @@ function nova_tech(evento) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	nivel.innerHTML = "<div data-atributo='nivel' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='nivel' data-ajax='true' style='width: 50px;'></input></div>";
 	custo.innerHTML = "<div data-atributo='custo' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='custo' data-ajax='true' style='width: 50px;'></input></div>";
 	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
+	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
 
 	evento.preventDefault();
 	return false;

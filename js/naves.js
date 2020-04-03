@@ -83,13 +83,13 @@ function calcula_custos(evento, objeto) {
 	dillithium = qtd_dobra*1;
 	duranium = custo_blindagem*1 + qtd_projetil*1;
 	
-	if (chassi <= 5) {
+	if (chassi <= 10) {
 		categoria = "Corveta";
-	} else if (chassi > 5 && chassi <= 10) {
+	} else if (chassi > 10 && chassi <= 20) {
 		categoria = "Fragata";
-	} else if (chassi > 10 && chassi <= 15) {
+	} else if (chassi > 20 && chassi <= 30) {
 		categoria = "Destroier";
-	} else if (chassi > 15 && chassi <= 30) {
+	} else if (chassi > 30 && chassi <= 40) {
 		categoria = "Warship";
 	} else {
 		categoria = "????????";

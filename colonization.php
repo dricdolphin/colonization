@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -43,6 +43,7 @@ class colonization {
 	Inicializa o plugin
 	***********************/
 	function __construct() {
+		
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
@@ -55,9 +56,19 @@ class colonization {
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos'));
-	
 	}
 
+
+	/******************
+	function colonization_exibe_barra_recursos()
+	-----------
+	Exibe a barra de Recursos do Império
+	******************/	
+	function colonization_exibe_sem_asgaros() {
+		
+	}
+	
+	
 	/******************
 	function colonization_exibe_barra_recursos()
 	-----------
@@ -66,14 +77,16 @@ class colonization {
 	function colonization_exibe_barra_recursos() {
 		global $asgarosforum, $wpdb;
 
-		if (!empty($_GET['page_id'])) {//Só mostra a barra de recursos se for o Fórum
-			if ($_GET['page_id'] != "357") {
-				return;
-			}
+		if (empty($_GET['page_id'])) {//Só mostra a barra de recursos se for o Fórum
+			return;
+		} elseif ($_GET['page_id'] != "357") {
+			return;
 		}
 
 		$user = wp_get_current_user();
-		$roles = $user->roles[0];
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		$html = "<div id='barra_recursos' class='nojq'>";
 		$html_recursos = "";
@@ -466,18 +479,27 @@ class colonization {
 		
 		$html = "<div>";
 		
-		$lista_techs_imperio = $wpdb->get_results("SELECT cit.id, cit.id_tech, cit.custo_pago 
+		$lista_techs_imperio = $wpdb->get_results("
+		SELECT cit.id, cit.id_tech, cit.custo_pago 
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech
 		WHERE id_imperio={$imperio->id}
-		ORDER BY ct.id_tech_parent, nome
+		ORDER BY ct.belica, ct.id_tech_parent, ct.nome
 		");
 		
 		$html_tech = [];
 		
+		$tech_anterior_belica = 0;
+		$separador = "";
 		foreach ($lista_techs_imperio as $id) {
 			$tech = new tech($id->id_tech);
+			
+			if ($tech_anterior_belica == 0 && $tech->belica == 1) {
+				$separador = "<br><b>Techs Bélicas</b><br>";
+			} else {
+				$separador = "";
+			}
 			
 			if ($tech->id_tech_parent !=0) {
 				$id_chave = $tech->id_tech_parent;
@@ -489,11 +511,13 @@ class colonization {
 			} else {
 				$id_chave = $tech->id;
 				if ($id->custo_pago != 0) {
-					$html_tech[$id_chave] = "<span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
+					$html_tech[$id_chave] = $separador."<span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
 				} else {
-					$html_tech[$id_chave] = $tech->nome;
+					$html_tech[$id_chave] = $separador.$tech->nome;
 				}
 			}
+		
+		$tech_anterior_belica = $tech->belica;
 		}
 		
 		
