@@ -20,15 +20,30 @@ class lista_estrelas
 
 		$lista_valores = "";
 		$lista_options = "";
+		$lista_x_estrela = "";
+		$lista_y_estrela = "";
+		$lista_z_estrela = "";
+		$lista_nome_estrela = "";
+		
 		$index = 0;
 		foreach ($resultados as $resultado) {
 			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}  - {$resultado->X};{$resultado->Y};{$resultado->Z}</option>\";\n";
 			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$lista_x_estrela .= "			lista_x_estrela[{$resultado->id}]={$resultado->X};\n";
+			$lista_y_estrela .= "			lista_y_estrela[{$resultado->id}]={$resultado->Y};\n";
+			$lista_z_estrela .= "			lista_z_estrela[{$resultado->id}]={$resultado->Z};\n";
+			$lista_nome_estrela .= "			lista_nome_estrela[{$resultado->id}]='{$resultado->nome}';\n";
 			$index++;
 		}
 
 		$this->html_lista = 
-"		/******************
+"		
+var lista_x_estrela=[];
+var lista_y_estrela=[];
+var lista_z_estrela=[];
+var lista_nome_estrela=[];
+
+		/******************
 		function lista_estrelas_html(id=0)
 		--------------------
 		Cria a lista de estrelas
@@ -40,6 +55,10 @@ class lista_estrelas
 			var lista_valores=[];
 			var selecionado=[];
 {$lista_valores}
+{$lista_x_estrela}
+{$lista_y_estrela}
+{$lista_z_estrela}
+{$lista_nome_estrela}
 			
 			var html = \"			<select data-atributo='id_planeta' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {

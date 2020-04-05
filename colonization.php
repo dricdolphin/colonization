@@ -54,20 +54,94 @@ class colonization {
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
+		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
+		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos'));
 	}
 
 
 	/******************
-	function colonization_exibe_barra_recursos()
+	function colonization_exibe_distancia_estrelas()
 	-----------
-	Exibe a barra de Recursos do Império
+	Exibe a distância entre duas estrelas
 	******************/	
-	function colonization_exibe_sem_asgaros() {
+	function colonization_exibe_distancia_estrelas() {
+		$html = "
+		<h3>Distância entre as Estrelas</h3>
+		<div>
+			<div style='clear:both;'>
+				<div style='display: inline-block; width: 100px;'>Origem:</div>
+				<div id='estrela_origem' style='display: inline-block; width: 300px;'>&nbsp;</div>
+			</div>
+			<div style='clear:both;'>
+				<div style='display: inline-block; width: 100px;'>Origem:</div>
+				<div id='estrela_destino' style='display: inline-block; width: 300px;'>&nbsp;</div>
+			</div>
+			<div id='distancia'><b>Distância:</b> 0.0</div>
+		</div>
+		<script>
+		function carrega_distancia() {
+		let estrela_origem = document.getElementById('estrela_origem');
+		let estrela_destino = document.getElementById('estrela_destino');
 		
+		estrela_origem.innerHTML = lista_estrelas_html();
+		estrela_destino.innerHTML = lista_estrelas_html();
+		
+		let select_estrela_origem = estrela_origem.childNodes[1];
+		let select_estrela_destino = estrela_destino.childNodes[1];
+		
+		select_estrela_origem.addEventListener('change', function () {calcula_distancia();});
+		select_estrela_destino.addEventListener('change', function () {calcula_distancia();});
+		}
+		
+		carrega_distancia();
+		</script>
+		";
+		
+		echo $html;
 	}
 	
+	/******************
+	function colonization_exibe_distancia_estrelas()
+	-----------
+	Exibe a distância entre duas estrelas
+	******************/	
+	function colonization_exibe_hyperdrive() {
+		$html = "
+		<h3>Distância entre as Estrelas - Hyperdrive</h3>
+		<div>
+			<div style='clear:both;'>
+				<div style='display: inline-block; width: 100px;'>Origem:</div>
+				<div id='estrela_origem_h' style='display: inline-block; width: 300px;'>&nbsp;</div>
+			</div>
+			<div style='clear:both;'>
+				<div style='display: inline-block; width: 100px;'>Origem:</div>
+				<div id='estrela_destino_h' style='display: inline-block; width: 300px;'>&nbsp;</div>
+			</div>
+			<div id='distancia_h'><b>Caminho do Hyperdrive:</b></div>
+		</div>
+		<script>
+		function carrega_distancia_h () {
+		let estrela_origem = document.getElementById('estrela_origem_h');
+		let estrela_destino = document.getElementById('estrela_destino_h');
+		
+		estrela_origem.innerHTML = lista_estrelas_html();
+		estrela_destino.innerHTML = lista_estrelas_html();
+		
+		let select_estrela_origem = estrela_origem.childNodes[1];
+		let select_estrela_destino = estrela_destino.childNodes[1];
+		
+		select_estrela_origem.addEventListener('change', function () {calcula_pulos_hyperdrive();});
+		select_estrela_destino.addEventListener('change', function () {calcula_pulos_hyperdrive();});
+		}
+		
+		carrega_distancia_h();
+		</script>
+		";
+		
+		echo $html;
+	}
 	
 	/******************
 	function colonization_exibe_barra_recursos()
@@ -127,7 +201,6 @@ class colonization {
 		echo $html;
 	}
 
-
 	
 	/******************
 	function colonization_exibe_prestigio()
@@ -136,31 +209,6 @@ class colonization {
 	******************/	
 	function colonization_exibe_prestigio($author_id, $author_posts) {
 		global $asgarosforum, $wpdb;
-		
-		/***DEBUG!
-		$user = wp_get_current_user();
-		$roles = $user->roles[0];
-
-		if ($roles == "administrator") {
-			//echo $post->post_author;
-			//var_dump($post);
-			//wp_die();
-			
-			//$prestigio = 0;
-
-			$user_meta=get_userdata($author_id);
-			$user_roles=$user_meta->roles[0];
-			
-			if ($user_roles == "administrator") {
-				$prestigio = "&infin;";
-			} else {
-				$prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id_jogador={$author_id}");
-			}
-			
-			echo "<div>Prestígio: {$prestigio}</div>";
-			return;
-		}
-		//****/
 
 		$user_meta=get_userdata($author_id);
 		$user_roles=$user_meta->roles[0];
