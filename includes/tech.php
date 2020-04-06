@@ -42,7 +42,7 @@ class tech
 		global $wpdb;
 
 		if ($this->belica == 1) {
-			$belical_checked = "checked";
+			$belica_checked = "checked";
 		} else {
 			$belica_checked = "";
 		}

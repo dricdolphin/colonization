@@ -214,7 +214,7 @@ class imperio
 		
 		$html = "<b>Lista de Colônias:</b> ";
 		if ($resultados[0]->id_imperio != "") {
-			$imperio = new imperio($resultados[0]->id_imperio, $this->turno->turno);
+			$imperio = new imperio($resultados[0]->id_imperio, false, $this->turno->turno);
 			$acoes = new acoes($imperio->id, $this->turno->turno);
 		}
 		$mdo = 0;

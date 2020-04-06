@@ -27,7 +27,7 @@ class acoes
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
 		$this->turno = new turno($turno);
 		
-		$imperio = new imperio($id_imperio, $this->turno->turno);
+		$imperio = new imperio($id_imperio, false, $this->turno->turno);
 		$this->id_imperio = $imperio->id;
 
 		

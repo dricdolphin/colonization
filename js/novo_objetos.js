@@ -205,9 +205,9 @@ function nova_tech(evento) {
 	var nome = linha_nova.insertCell(1);
 	var descricao = linha_nova.insertCell(2);
 	var nivel = linha_nova.insertCell(3);
-	var custo = linha_nova.insertCell(3);
-	var id_tech_parent = linha_nova.insertCell(4);
-	var belica = linha_nova.insertCell(3);
+	var custo = linha_nova.insertCell(4);
+	var id_tech_parent = linha_nova.insertCell(5);
+	var belica = linha_nova.insertCell(6);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
