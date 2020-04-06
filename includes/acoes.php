@@ -25,10 +25,12 @@ class acoes
 		global $wpdb;
 		
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
-		$imperio = new imperio($id_imperio);
+		$this->turno = new turno($turno);
+		
+		$imperio = new imperio($id_imperio, $this->turno->turno);
 		$this->id_imperio = $imperio->id;
 
-		$this->turno = new turno($turno);
+		
 
 		$resultados =$wpdb->get_results("
 			SELECT cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
