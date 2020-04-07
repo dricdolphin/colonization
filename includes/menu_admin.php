@@ -265,13 +265,6 @@ class menu_admin {
 			</script>
 			
 			<div><h2>COLONIZATION - editando o Planeta '{$planeta->nome}'</h2></div>";
-			
-			$max_turnos = $wpdb->get_results("SELECT id_recurso, MAX(turno) as turno FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} GROUP BY id_recurso, id_planeta");
-			foreach ($max_turnos as $max_turno) {
-				if ($max_turno->turno < $turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
-					$wpdb->query("UPDATE colonization_planeta_recursos SET turno={$turno->turno} WHERE turno={$max_turno->turno} AND id_planeta={$planeta->id} AND id_recurso={$max_turno->id_recurso}");
-				}
-			}
 
 			$lista_planeta_recursos = $wpdb->get_results("SELECT id, id_recurso FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 			$html_lista = "";
