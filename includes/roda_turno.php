@@ -79,7 +79,7 @@ class roda_turno {
 				JOIN colonization_recurso AS cr
 				ON cir.id_recurso = cr.id
 				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.extrativo=true
-				GROUP BY cr.nome");
+				GROUP BY cr.nome, cpi.id");
 				
 				$html .= "CONSUMINDO Recursos Planetários do Império {$imperio->id}:<br>";
 				foreach ($resultados as $resultado) {

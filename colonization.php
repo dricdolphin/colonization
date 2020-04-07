@@ -306,9 +306,9 @@ class colonization {
 		<tbody>";
 		
 		foreach ($resultados as $resultado) {
-			$colonia = new colonia($resultado->id);
+			$colonia = new colonia($resultado->id, $turno->turno);
 			
-			$lista_recursos = $colonia->exibe_recursos_colonia($turno->turno);
+			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
 			$html .= "<tr><td>{$colonia->planeta->nome} - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
 			<td>{$lista_recursos}</td>
