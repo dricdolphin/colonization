@@ -53,7 +53,7 @@ function calcula_custos(evento, objeto) {
 		qtd_pesquisa = 0;
 	}
 	
-	chassi = qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_dobra*mk_dobra + qtd_impulso*mk_impulso + qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
+	chassi = qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_dobra*1 + qtd_impulso*mk_impulso + qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
 	velocidade = Math.floor((qtd_impulso*mk_impulso/chassi)*10);
 	hp = chassi*10;
 	

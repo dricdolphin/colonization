@@ -7,7 +7,6 @@ Responsável pelos menus da área de administração do Colonization
 
 class menu_admin {
 	public $html_header = "";
-	public $icone = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNOC41NjYgMTcuODQyYy0uOTQ1IDIuNDYyLTMuNjc4IDQuMDEyLTYuNTYzIDQuMTYxLjEzOS0yLjc3MiAxLjY4NC01LjYwOCA0LjIwOS02LjU2M2wuNTEuNTIxYy0xLjUzNCAxLjUyMy0yLjA2MSAyLjc2NS0yLjE0NCAzLjQ2MS43MDQtLjA4NSAyLjAwNi0uNjA4IDMuNDgzLTIuMDk2bC41MDUuNTE2em0tMS4xMzYtMTEuMzQyYy0xLjc3OC0uMDEtNC4wNjIuOTExLTUuNzY2IDIuNjE0LS42NS42NDktMS4yMjIgMS40MDgtMS42NjQgMi4yNTggMS41MzgtMS4xNjMgMy4yMjgtMS40ODUgNS4xNDctLjQwOC41NjYtMS40OTQgMS4zMi0zLjAxNCAyLjI4My00LjQ2NHptNS4yMDQgMTcuNWMuODUyLS40NCAxLjYxLTEuMDEzIDIuMjYxLTEuNjY0IDEuNzA4LTEuNzA2IDIuNjIyLTQuMDAxIDIuNjA0LTUuNzgyLTEuNTc1IDEuMDMtMy4xMjUgMS43NzItNC40NjYgMi4yOTYgMS4wNzcgMS45Mi43NjQgMy42MTQtLjM5OSA1LjE1em0xMS4zMTItMjMuOTU2Yy0uNDI4LS4wMy0uODQ4LS4wNDQtMS4yNjEtLjA0NC05LjMzOCAwLTE0LjQ2NSA3LjQyNi0xNi4xMDEgMTMuMDA5bDQuNDI4IDQuNDI4YzUuNzgtMS44NTUgMTIuOTg4LTYuNzc3IDEyLjk4OC0xNS45OTN2LS4wNTljLS4wMDItLjQzNy0uMDE5LS44ODQtLjA1NC0xLjM0MXptLTUuOTQ2IDcuOTU2Yy0xLjEwNSAwLTItLjg5NS0yLTJzLjg5NS0yIDItMiAyIC44OTUgMiAyLS44OTUgMi0yIDJ6Ii8+PC9zdmc+";
 	
 	function __construct() {
 		global $asgarosforum;
@@ -28,19 +27,19 @@ class menu_admin {
 	Adiciona o menu do plugin no menu de Admin do WordPress
 	******************/
 	function colonization_setup_menu() {
-		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Admin ('manage_options')
-		add_menu_page('Gerenciar Impérios','Colonization','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'),'none');
-		add_submenu_page('colonization_admin_menu','Impérios','Impérios','manage_options','colonization_admin_menu',array($this,'colonization_admin_menu'));
-		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','manage_options','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
-		add_submenu_page('colonization_admin_menu','Planetas','Planetas','manage_options','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
-		add_submenu_page('colonization_admin_menu','Recursos','Recursos','manage_options','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
-		add_submenu_page('colonization_admin_menu','Techs','Techs','manage_options','colonization_admin_techs',array($this,'colonization_admin_techs'));		
-		add_submenu_page('colonization_admin_menu','Instalações','Instalações','manage_options','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
-		add_submenu_page('colonization_admin_menu','Colônias','Colônias','manage_options','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
-		add_submenu_page('colonization_admin_menu','Frotas','Frotas','manage_options','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
-		add_submenu_page('colonization_admin_menu','Ações','Ações','manage_options','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
-		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','manage_options','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
-		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','manage_options','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
+		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Editor ('publish_pages') -- os Admins tem essa função também, além da ('manage_options')
+		add_menu_page('Gerenciar Impérios','Colonization','publish_pages','colonization_admin_menu',array($this,'colonization_admin_menu'),'none');
+		add_submenu_page('colonization_admin_menu','Impérios','Impérios','publish_pages','colonization_admin_menu',array($this,'colonization_admin_menu'));
+		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','publish_pages','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
+		add_submenu_page('colonization_admin_menu','Planetas','Planetas','publish_pages','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
+		add_submenu_page('colonization_admin_menu','Recursos','Recursos','publish_pages','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
+		add_submenu_page('colonization_admin_menu','Techs','Techs','publish_pages','colonization_admin_techs',array($this,'colonization_admin_techs'));		
+		add_submenu_page('colonization_admin_menu','Instalações','Instalações','publish_pages','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
+		add_submenu_page('colonization_admin_menu','Colônias','Colônias','publish_pages','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
+		add_submenu_page('colonization_admin_menu','Frotas','Frotas','publish_pages','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
+		add_submenu_page('colonization_admin_menu','Ações','Ações','publish_pages','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
+		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','publish_pages','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
+		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','publish_pages','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 	}
 
 
