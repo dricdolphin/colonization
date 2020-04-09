@@ -43,16 +43,21 @@ class planeta
 	function lista_dados()
 	----------------------
 	Exibe os dados do objeto
+	$id_estrela -- caso tenha vindo da página de edição de Estrelas
 	***********************/
-	function lista_dados() {
+	function lista_dados($id_estrela = 0) {
 		global $wpdb;
 		if ($this->inospito == 1) {
 			$inospito_checked = "checked";
 		} else {
 			$inospito_checked = "";
 		}
-
-
+		
+		$link_gerenciamento = '\"page=colonization_admin_planetas\"';
+		if ($id_estrela != 0) {
+			$link_gerenciamento = "\"page=colonization_admin_planetas&id_estrela={$id_estrela}\"";
+		}
+		
 		//Exibe os dados do objeto	
 		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -71,7 +76,7 @@ class planeta
 			<td><div data-atributo='subclasse' data-editavel='true' data-valor-original='{$this->subclasse}'>{$this->subclasse}</div></td>
 			<td><div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original='{$this->tamanho}'>{$this->tamanho}</div></td>
 			<td><div data-atributo='inospito' data-type='checkbox' data-editavel='true' data-valor-original='{$this->inospito}'><input type='checkbox' data-atributo='inospito' data-ajax='true' {$inospito_checked} disabled></input></div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this,\"page=colonization_admin_planetas\");'>Gerenciar Objeto</a></div></td>";
+			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this,{$link_gerenciamento});'>Gerenciar Objeto</a></div></td>";
 		
 		return $html;
 	}

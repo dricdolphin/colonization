@@ -588,9 +588,8 @@ function nova_acao_admin(evento) {
 	var linha_nova = tabela.insertRow(-1);
 	var nome_imperio = linha_nova.insertCell(0);
 	var lista_recursos = linha_nova.insertCell(1);
-	var qtd = linha_nova.insertCell(2);
-	var descricao = linha_nova.insertCell(3);
-	var turno = linha_nova.insertCell(4);		
+	var descricao = linha_nova.insertCell(2);
+	var turno = linha_nova.insertCell(3);
 	
 	var lista_imperios = lista_imperios_html();
 	
@@ -599,11 +598,15 @@ function nova_acao_admin(evento) {
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_acao_admin'></input>"
+	+"<input type='hidden' data-atributo='funcao_pos_processamento' value='altera_lista_recursos_qtd'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Remover esta Ação não irá reverter seus efeitos. Deseja continuar?'></input>"
 	+"<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='' data-valor-original=''>"+lista_imperios+"</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
-	lista_recursos.innerHTML = "<div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original=''><input type='text' data-atributo='lista_recursos' data-ajax='true' style='width: 120px;'></input></div>";
-	qtd.innerHTML = "<div data-atributo='qtd' data-editavel='true' data-style='width: 120px;' data-valor-original=''><input type='text' data-atributo='qtd' data-ajax='true' style='width: 120px;'></input></div>";
+
+	lista_recursos.innerHTML = "<div id='lista_recursos_qtd' data-atributo='lista_recursos_qtd' data-valor-original=''>&nbsp;</div>"
+	+"<div><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='' style='display: inline-block;'><input type='text' data-atributo='lista_recursos' data-ajax='true' style='width: 120px;'></input></div>"
+	+ "&nbsp; || &nbsp; <div data-atributo='qtd' data-editavel='true' data-style='width: 120px;' data-valor-original='' style='display: inline-block;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 120px;'></input></div></div>";
+
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original='' data-style='width: 200px;'><input type='text' data-atributo='descricao' data-ajax='true' data-valor-original='' style='width: 200px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original=''><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 	

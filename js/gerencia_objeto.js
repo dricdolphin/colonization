@@ -1,4 +1,16 @@
 /******************
+function inclui_recurso(evento, id_recurso)
+--------------------
+Inclui um recurso na lista_recursos_qtd
+******************/
+function inclui_recurso(evento, id_recurso) {
+	//TODO -- Código de incluir (ou remover) recurso
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
 function gerenciar_objeto(objeto)
 --------------------
 Abre a página de gerenciamento de informações acessórias de um objeto

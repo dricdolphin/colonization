@@ -183,7 +183,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><td style='width: 100px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td>&nbsp;</td>
+			<tr><td style='width: 100px;'>ID</td><td>Nome</td><td>Orbita a Estrela (X;Y;Z)</td><td style='width: 60px;'>Posição</td><td>Classe</td><td>Subclasse</td><td style='width: 70px;'>Tamanho</td><td style='width: 90px;'>Inóspito</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";
@@ -195,7 +195,7 @@ class menu_admin {
 			foreach ($lista_id as $id) {
 				$planeta = new planeta($id->id);
 				
-				$html_dados = $planeta->lista_dados();
+				$html_dados = $planeta->lista_dados($_GET['id']);
 
 				$html_lista .= "
 				<tr>
@@ -334,9 +334,13 @@ class menu_admin {
 			</table></div>
 			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_colonia_instalacao(event, {$planeta->id});'>Adicionar nova Instalação</a></div>";
 			
-
-			$html .= "<br>
-			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Planetas</a>";
+			if (!empty($_GET['id_estrela'])) {//Se veio da edição de planetas da ESTRELA
+				$html .= "<br>
+				<div><a href='{$_SERVER['SCRIPT_NAME']}?page=colonization_admin_estrelas&id={$_GET['id_estrela']}'>Voltar à Estrela</a>";
+			} else {
+				$html .= "<br>
+				<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Planetas</a>";				
+			}
 		} else {
 			$html .= "<div><h2>COLONIZATION - Planetas</h2></div>
 			<div>
@@ -878,18 +882,18 @@ class menu_admin {
 		foreach ($lista_recursos as $id) {		
 			$recurso = new recurso($id->id);
 			
-			$html_lista .= "#{$recurso->id} - {$recurso->nome}; ";
+			$html_lista_recursos .= "<a href='#' onclick='return inclui_recurso(event, {$recurso->id});'>#{$recurso->id} - {$recurso->nome}</a>; ";
 		}
 		
 		if ($html_lista != "") {
-			$html_lista = substr($html_lista,0,-2);
+			$html_lista_recursos = substr($html_lista_recursos,0,-2);
 		}
 		
-		$html .= $html_lista."</div><br>";
+		$html .= $html_lista_recursos."</div><br>";
 		
 		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>
 		<thead>
-		<tr><td style='width: 120px;'>Nome do Império</td><td style='width: 120px;'>Recursos Consumidos</td><td style='width: 120px;'>Qtd</td><td style='width: 200px;'>Descrição</td><td style='width: 50px;'>Turno</td></tr>
+		<tr><td style='width: 120px;'>Nome do Império</td><td style='width: 240px;'>Recursos Consumidos &nbsp; || &nbsp; Qtd</td><td style='width: 200px;'>Descrição</td><td style='width: 50px;'>Turno</td></tr>
 		</thead>
 		<tbody>";
 
@@ -911,6 +915,8 @@ class menu_admin {
 		
 		$html .= "\n</tbody>
 		</table></div>
+		<div><h3>Lista de Recursos:</h3>
+		<div>{$html_lista_recursos}</div><br>
 		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_acao_admin(event);'>Adicionar nova Ação Admin</a></div><br>
 		<div id='div_resposta'>&nbsp;</div>";
 		
