@@ -889,7 +889,8 @@ class menu_admin {
 			$html_lista_recursos = substr($html_lista_recursos,0,-2);
 		}
 		
-		$html .= $html_lista_recursos."</div><br>";
+		$html .= $html_lista_recursos."</div><br>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_acao_admin(event);'>Adicionar nova Ação Admin</a></div><br>";
 		
 		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>
 		<thead>

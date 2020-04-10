@@ -610,6 +610,7 @@ function nova_acao_admin(evento) {
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original='' data-style='width: 200px;'><input type='text' data-atributo='descricao' data-ajax='true' data-valor-original='' style='width: 200px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original=''><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 	
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
