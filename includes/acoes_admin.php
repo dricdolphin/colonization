@@ -47,12 +47,16 @@ class acao_admin
 		$lista_recursos_qtd = "";
 		foreach ($recursos AS $chave => $valor) {
 			$recurso = new recurso($valor);
-			$lista_recursos_qtd .= "{$recurso->nome}: {$qtds[$chave]}; ";
+			$lista_recursos_qtd .= "
+			<div style='display: inline-block;' data-recurso-id='{$recurso->id}'>
+				<div style='display: inline-block;'>{$recurso->nome}</div>:
+				<div style='display: inline-block; max-width: 40px;' data-editavel='true' data-ajax='false' data-style='max-width: 30px;' data-atributo='{$recurso->id}' data-valor-original='{$qtds[$chave]}'>{$qtds[$chave]}</div>;
+			</div>";
 		}
 		
-		if ($lista_recursos_qtd != "") {
-			$lista_recursos_qtd = substr($lista_recursos_qtd,0,-2);
-		}
+		//if ($lista_recursos_qtd != "") {
+		//	$lista_recursos_qtd = substr($lista_recursos_qtd,0,-2);
+		//}
 		
 		$html = "<td>
 			<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -60,12 +64,13 @@ class acao_admin
 			<input type='hidden' data-atributo='where_clause' value='id'></input>
 			<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 			<input type='hidden' data-atributo='funcao_validacao' value='valida_acao_admin'></input>
+			<input type='hidden' data-atributo='funcao_pos_processamento' value='altera_lista_recursos_qtd'></input>
 			<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Remover esta Ação não irá reverter seus efeitos. Deseja continuar?'></input>
 			<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='{$this->id_imperio}' data-valor-original='{$imperio->nome}'>{$imperio->nome}</div>
 			<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
-		<td><div id='lista_recursos_{$this->id}' data-atributo='lista_recursos_qtd' data-valor-original='{$lista_recursos_qtd}'>{$lista_recursos_qtd}</div>
-		<div><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='{$this->lista_recursos}' style='display: inline-block;'>{$this->lista_recursos}</div>
+		<td><div data-atributo='lista_recursos_qtd' data-valor-original=''>{$lista_recursos_qtd}</div>
+		<div style='visibility: hidden;'><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='{$this->lista_recursos}' style='display: inline-block;'>{$this->lista_recursos}</div>
 		&nbsp; || &nbsp; <div data-atributo='qtd' data-editavel='true' data-style='width: 120px;' data-valor-original='{$this->qtd}' style='display: inline-block;'>{$this->qtd}</div></td></div>
 		<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
 		<td><div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno}'>{$this->turno}</div></td>

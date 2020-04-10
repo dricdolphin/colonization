@@ -4,7 +4,96 @@ function inclui_recurso(evento, id_recurso)
 Inclui um recurso na lista_recursos_qtd
 ******************/
 function inclui_recurso(evento, id_recurso) {
-	//TODO -- Código de incluir (ou remover) recurso
+	var inputs = document.getElementsByTagName("INPUT");
+	var div_lista_recursos_qtd = "";
+	var inputs_text = [];
+	var div_recurso = "";
+	var div_recurso_parent = "";
+	var div_recurso_parent_html_original = "";
+	var input_lista_recursos = "";
+	var input_qtd = "";
+
+	var index_input_text = 0;
+	for (let index=0; index<inputs.length; index++) { //Pega todos os Inputs do tipo 'text'
+		if (inputs[index].type == "text") {
+			inputs_text[index_input_text] = inputs[index];
+			index_input_text++;
+		}
+		if (inputs[index].getAttribute('data-atributo') == 'lista_recursos') {
+			input_lista_recursos = inputs[index];
+		} else if(inputs[index].getAttribute('data-atributo') == 'qtd') {
+			input_qtd = inputs[index];
+		}
+	}
+	
+	let linha = pega_ascendente(input_lista_recursos,"TR");
+	let divs = linha.getElementsByTagName("DIV");
+	
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == 'lista_recursos_qtd') {
+			div_lista_recursos_qtd = divs[index];
+		}
+	}
+
+	//Pega os Recursos que já existem. Se o novo recurso também existir, é para REMOVER. Pergunte antes de remover!
+	if(input_lista_recursos.value !== undefined) {
+		var lista_lista_recursos = input_lista_recursos.value.split(";");
+		var lista_qtds = input_qtd.value.split(";");
+	}
+	
+	for (let index=0; index<lista_lista_recursos.length; index++) {
+		if (lista_lista_recursos[index] == id_recurso) {
+			//inputs_text[index].style.backgroundColor = "#DDDDDD";
+			div_recurso = inputs_text[index].parentNode.parentNode;
+			if (inputs_text[index].value != 0 && inputs_text[index].value != "") {
+				var resposta = confirm("Deseja mesmo remover o recurso "+lista_recursos[id_recurso]+"?");
+			} else {
+				var resposta = true;
+			}
+			
+			if (resposta) {//Remove o item
+				lista_lista_recursos.splice(index,1);
+				lista_qtds.splice(index,1);
+				
+				input_lista_recursos.value = lista_lista_recursos.join(';');
+				input_qtd.value = lista_qtds.join(';');
+				
+				if (div_recurso.getAttribute('data-recurso-id') == id_recurso) {
+					div_recurso_parent = div_recurso.parentNode;
+					if (div_recurso_parent_html_original == "" && div_recurso_parent.getAttribute("data-valor-original") == "") {//Salva o HTML original, para o caso do usuário cancelar a edição
+						let inputs_recursos = div_recurso_parent.getElementsByTagName("INPUT");
+						div_recurso_parent_html_original = div_recurso_parent.innerHTML;
+						
+						for (let index_input=0; index_input<inputs_recursos.length; index_input++) {
+							div_recurso_parent_html_original = div_recurso_parent_html_original.replace(inputs_recursos[index_input].outerHTML,inputs_recursos[index_input].value);
+						}
+						div_recurso_parent.setAttribute("data-valor-original", div_recurso_parent_html_original);
+					}
+					div_recurso_parent.removeChild(div_recurso);
+					
+					evento.preventDefault();
+					return false;
+				}
+			}
+		}
+	}
+		
+	//Se o recurso não existe, então inclui na div_lista_recursos_qtd
+	let div_parent = document.createElement('DIV');
+	div_parent.setAttribute('data-recurso-id',id_recurso);
+	div_parent.style.display = "inline-block";
+	div_parent.innerHTML = "<div style='display: inline-block;' >"+lista_recursos[id_recurso]+"</div>: "
+	+"<div style='display: inline-block; max-width: 40px;' data-editavel='true' data-ajax='false' data-style='max-width: 30px;' data-atributo='"+id_recurso+"' data-valor-original=''><input type='text' data-atributo='"+id_recurso+"' style='max-width: 30px;' value='0'></input></div> ;";
+	div_lista_recursos_qtd.appendChild(div_parent);
+	
+	if (input_lista_recursos.value != "") {
+		input_lista_recursos.value = input_lista_recursos.value+";"+id_recurso;
+		input_qtd.value = input_qtd.value+";"+0;
+	} else {
+		input_lista_recursos.value = id_recurso;
+		input_qtd.value = 0;
+	}
+
 	evento.preventDefault();
 	return false;
 }

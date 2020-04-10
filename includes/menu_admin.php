@@ -50,11 +50,11 @@ class menu_admin {
 	******************/
 	function colonization_admin_scripts ($hook) {
 		$hoje = date("YmdHi"); 
+			wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
 			wp_enqueue_script('novo_objetos_js', '/wp-content/plugins/colonization/js/novo_objetos.js',false,$hoje);
 			wp_enqueue_script('edita_objetos_js', '/wp-content/plugins/colonization/js/edita_objetos.js',false,$hoje);
 			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
 			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
-			wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
 			wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
 			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 		    wp_enqueue_style('colonization-fontawesome', '/wp-content/plugins/colonization/libs/fontawesome/css/all.min.css',array(),$hoje);

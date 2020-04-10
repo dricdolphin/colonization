@@ -363,7 +363,7 @@ function remove_excluir(objeto)
 Remove a opção de excluir um objeto
 objeto -- objeto sendo editado
 ******************/	
-function remove_excluir(objeto) {
+function remove_excluir(objeto, cancela=false) {
 	var linha = pega_ascendente(objeto,"TR");
 	
 	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
@@ -378,54 +378,9 @@ function mais_dados_imperio(objeto)
 Pega dados adicionais do Império
 objeto -- objeto sendo editado
 ******************/	
-function mais_dados_imperio(objeto) {
+function mais_dados_imperio(objeto, cancela=false) {
 	var linha = pega_ascendente(objeto,"TR");
-	
-	var linha=pega_ascendente(objeto,"TR");;
-	var inputs=linha.getElementsByTagName("INPUT");
-	var dados_ajax = "post_type=POST&action=dados_imperio";
-
-	
-	for (var index = 0; index < inputs.length; index++) {
-		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
-		}
-	}
-	
-	dados_ajax = dados_ajax + "&id=" + id_objeto;
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			objeto_em_edicao = false;
-		}
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			if (resposta.resposta_ajax == "OK!") {
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-			} else {
-				alert(resposta.resposta_ajax);
-			}
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-}
-
-
-/******************
-function altera_lista_recursos_qtd(objeto) 
---------------------
-Altera os valores da lista de recursos e suas qtds
-objeto -- objeto sendo editado
-******************/	
-function altera_lista_recursos_qtd(objeto) {
-	var linha = pega_ascendente(objeto,"TR");
-	
-	var linha=pega_ascendente(objeto,"TR");;
-	var inputs=linha.getElementsByTagName("INPUT");
+	var inputs = linha.getElementsByTagName("INPUT");
 	var dados_ajax = "post_type=POST&action=dados_imperio";
 
 	
@@ -501,12 +456,20 @@ Valida as ações do Admin e as executa
 dados -- dados do objeto
 ******************/	
 function valida_acao_admin(objeto) {
+	//Reconstrói os inputs 'lista_recursos' e 'qtd' baseado nas alterações dos inputs visíveis
+	altera_lista_recursos_qtd(objeto, false, true);
+	
+	if (!valida_generico(objeto)) {
+		return false;
+	}
 
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value+"&lista_recursos="+objeto_editado['lista_recursos'].value+"&qtd="+objeto_editado['qtd'].value+"&descricao="+objeto_editado['descricao'].value+"&id="+objeto_editado['id'].value;
+	
+	var dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value
+	+"&lista_recursos="+objeto_editado['lista_recursos'].value+"&qtd="+objeto_editado['qtd'].value+"&descricao="+objeto_editado['descricao'].value+"&id="+objeto_editado['id'].value
+	+"&lista_recursos_original="+objeto_editado['lista_recursos'].parentNode.getAttribute('data-valor-original')+"&qtd_original="+objeto_editado['qtd'].parentNode.getAttribute('data-valor-original');
 	
 	var retorno = true;
-	
 
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
@@ -532,4 +495,51 @@ function valida_acao_admin(objeto) {
 	xhttp.send(dados_ajax);
 	
 	return retorno;
+}
+
+/******************
+function altera_lista_recursos_qtd(objeto) 
+--------------------
+Altera os valores da lista de recursos e suas qtds
+objeto -- objeto sendo editado
+******************/	
+function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
+	var linha = pega_ascendente(objeto,"TR");
+	var inputs = linha.getElementsByTagName("INPUT");
+	var divs = linha.getElementsByTagName("DIV");
+	var div_lista_recursos_qtd = "";
+	var input_qtd = "";
+	var input_lista_recursos = "";
+	var qtds = [];
+	var recursos = [];
+	
+	for (let index=0; index<divs.length; index++) { //Encontra o lista_recursos_qtd
+		if (divs[index].getAttribute('data-atributo') == 'lista_recursos_qtd') {
+			div_lista_recursos_qtd = divs[index];
+		}
+	}
+	
+	if (cancela) {
+		if (div_lista_recursos_qtd.getAttribute('data-valor-original') != "") {
+			div_lista_recursos_qtd.innerHTML = div_lista_recursos_qtd.getAttribute('data-valor-original');
+			
+			return;
+		}
+	} else if (valida) {
+		//Atualiza o INPUT qtds
+		var index_qtds = 0;
+		for (let index=0; index<inputs.length; index++) {
+			if (inputs[index].getAttribute('data-atributo') == 'qtd') {
+				input_qtd = inputs[index];
+			} else if (inputs[index].getAttribute('data-atributo') == 'qtd') {
+				input_lista_recursos = inputs[index];
+			} else if(inputs[index].type == 'text' && inputs[index].getAttribute('data-atributo') != 'lista_recursos' && inputs[index].getAttribute('data-atributo') != 'qtd' && inputs[index].getAttribute('data-atributo') != 'descricao' & inputs[index].getAttribute('data-atributo') != 'turno') {
+				qtds[index_qtds] = inputs[index].value;
+				recursos[index_qtds] = inputs[index].getAttribute('data-atributo');
+				index_qtds++;
+			}
+		}
+		input_qtd.value = qtds.join(";");
+		input_lista_recursos.value = recursos.join(";");
+	}
 }

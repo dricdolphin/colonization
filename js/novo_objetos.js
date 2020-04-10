@@ -603,8 +603,8 @@ function nova_acao_admin(evento) {
 	+"<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='' data-valor-original=''>"+lista_imperios+"</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
-	lista_recursos.innerHTML = "<div id='lista_recursos_qtd' data-atributo='lista_recursos_qtd' data-valor-original=''>&nbsp;</div>"
-	+"<div><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='' style='display: inline-block;'><input type='text' data-atributo='lista_recursos' data-ajax='true' style='width: 120px;'></input></div>"
+	lista_recursos.innerHTML = "<div data-atributo='lista_recursos_qtd' data-valor-original=''>&nbsp;</div>"
+	+"<div style='visibility: hidden;'><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='' style='display: inline-block;'><input type='text' data-atributo='lista_recursos' data-ajax='true' style='width: 120px;'></input></div>"
 	+ "&nbsp; || &nbsp; <div data-atributo='qtd' data-editavel='true' data-style='width: 120px;' data-valor-original='' style='display: inline-block;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 120px;'></input></div></div>";
 
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original='' data-style='width: 200px;'><input type='text' data-atributo='descricao' data-ajax='true' data-valor-original='' style='width: 200px;'></input></div>";

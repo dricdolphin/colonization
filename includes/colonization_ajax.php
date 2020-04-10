@@ -45,10 +45,15 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
+		if (!empty($_POST['id'])) {//É uma edição! REVERTE a ação e depois atualiza, para não ficar em duplicidade
+			$recursos_original = explode(";",$_POST['lista_recursos_original']);
+			$qtds_original = explode(";",$_POST['qtd_original']);
+		}
+		
 		foreach ($recursos as $chave=>$valor) {
 			if (!empty($_POST['id'])) {//É uma edição! REVERTE a ação e depois atualiza, para não ficar em duplicidade
-					$dados_salvos['html'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtds[$chave]} WHERE id={$_POST['id']}<br>";
-					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtds[$chave]} WHERE id={$_POST['id']}");
+					$dados_salvos['html'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtds_original[$chave]} WHERE id_recurso={$recursos_original[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}<br>";
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtds_original[$chave]} WHERE id_recurso={$recursos_original[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}");
 			}
 			$qtd_atual = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$recursos[$chave]} AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}");
 			if ($qtd_atual < $qtds[$chave]) {

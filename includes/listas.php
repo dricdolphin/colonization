@@ -179,15 +179,20 @@ class lista_recursos
 
 		$lista_valores = "";
 		$lista_options = "";
+		$lista_recursos = "";
 		$index = 0;
 		foreach ($resultados as $resultado) {
 			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}</option>\";\n";
 			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$lista_recursos .= "			lista_recursos[{$resultado->id}]='{$resultado->nome}';\n";
 			$index++;
 		}
 
-		$this->html_lista = 
-"		/******************
+		$this->html_lista = "
+		var lista_recursos = [];
+		{$lista_recursos}
+		
+		/******************
 		function lista_recursos_html(id=0)
 		--------------------
 		Cria a lista de recursos

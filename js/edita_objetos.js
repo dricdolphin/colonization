@@ -123,6 +123,7 @@ function edita_objeto(evento, objeto) {
 	var data_estilo = "";
 	var data_type = "";
 	var data_checked = "";
+	var data_ajax = "";
 	
 	
 	//Pega cada uma das células e altera para o modo de edição, caso seja editável
@@ -133,8 +134,10 @@ function edita_objeto(evento, objeto) {
 			divs[1].innerHTML = "<a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return salva_objeto(event, this, true);'>Cancelar</a>";
 		}
 		
+		
 		for (var index_div = 0; index_div < divs.length; index_div++) {
 			editavel = divs[index_div].getAttribute('data-editavel');
+			data_ajax= "";
 			if (editavel) {
 				atributo = divs[index_div].getAttribute('data-atributo');
 				valor_atributo = divs[index_div].innerHTML;
@@ -151,7 +154,13 @@ function edita_objeto(evento, objeto) {
 						divs[index_div].innerHTML = lista;
 					}
 				} else {
-					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' data-ajax='true' value='"+valor_atributo+"'"+data_estilo+"></input>";
+					if (divs[index_div].getAttribute('data-ajax') == "false") {
+						data_ajax = "data-ajax='false'";
+					} else {
+						data_ajax = "data-ajax='true'";
+					}
+					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' "+data_ajax+" value='"+valor_atributo+"'"+data_estilo+"></input>";
+					
 				}
 			}
 		}
@@ -168,11 +177,15 @@ Função do tipo "helper" para chamar uma função de validação
 funcao -- função a ser chamada
 objeto -- objeto sendo editado
 ******************/	
-function chama_funcao_validacao(objeto, funcao) {
+function chama_funcao_validacao(objeto, funcao, argumentos="") {
 	var fn = window[funcao];
 	
 	if (typeof fn === "function") {
-		var retorno = fn(objeto);
+		if (argumentos != "") {
+			var retorno = fn(objeto, argumentos);
+		} else {
+			var retorno = fn(objeto);
+		}
 	} else {//Caso não encontre a função de validação, usa a validação genérica
 		var retorno = valida_generico(objeto);
 	}
@@ -215,7 +228,7 @@ function pega_dados_objeto(objeto) {
 		} else if (inputs_linha[index].getAttribute('data-atributo') == "where_value") {
 			objeto_editado['where_value'] = inputs_linha[index].value;
 		} else {
-			if (inputs_linha[index].getAttribute('data-ajax')) {//Só salva um atributo que seja "passável" para o AJAX. Normalmente é proveniente de um <div> que seja editável
+			if (inputs_linha[index].getAttribute('data-ajax') == "true") {//Só salva um atributo que seja "passável" para o AJAX. Normalmente é proveniente de um <div> que seja editável
 				if (inputs_linha[index].type == "checkbox") {
 					if (inputs_linha[index].checked) {
 						checkbox_checked=1;
@@ -241,7 +254,7 @@ function pega_dados_objeto(objeto) {
 
 
 /******************
-function salva_objeto(objeto, cancela = false)
+function salva_objeto(evento, objeto, cancela = false)
 --------------------
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
@@ -258,7 +271,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 		
 		var processa = true;
 		if (typeof pos_processamento !== "undefined") {
-			processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
+			processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento, true);
 		}
 		
 		objeto_em_edicao = false;
@@ -271,8 +284,6 @@ function salva_objeto(evento, objeto, cancela = false) {
 		var where_clause = objeto_editado['where_clause'];
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
 	}
-	//Cria o string que será passado para o AJAX
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 	
 	var valida_dados = true;
 	if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
@@ -283,6 +294,10 @@ function salva_objeto(evento, objeto, cancela = false) {
 		evento.preventDefault();
 		return false;
 	}
+
+	objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto_editado pois eles podem ter sido modificados pelas funções de validação e pós-processamento
+	//Cria o string que será passado para o AJAX
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
