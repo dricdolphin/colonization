@@ -203,6 +203,7 @@ class instala_db {
 		DELETE FROM colonization_imperio_colonias WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
 		END$$
 		DELIMITER ;");
 		
@@ -227,7 +228,7 @@ class instala_db {
 		END$$
 		DELIMITER ;");
 		
-		$wpdb->query("		DELIMITER $$
+		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_recurso
 		AFTER DELETE
 		ON colonization_recurso FOR EACH ROW
@@ -248,6 +249,15 @@ class instala_db {
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$
 		DELIMITER ;");
+		
+		$wpdb->query("		DELIMITER $$
+		CREATE TRIGGER deleta_tech
+		AFTER DELETE
+		ON colonization_tech FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_imperio_techs WHERE id_tech = old.id;
+		END$$
+		DELIMITER ;");		
 	
 	}
 }

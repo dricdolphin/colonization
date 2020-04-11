@@ -19,6 +19,7 @@ class imperio
 	public $pontuacao = 0;
 	public $html_header;
 	public $turno;
+	public $defesa_planetaria;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -86,8 +87,12 @@ class imperio
 		WHERE cit.id_imperio={$this->id}
 		AND cit.turno <= {$this->turno->turno}
 		) AS custo_tech");
-		$this->pontuacao = $this->pontuacao + $pontuacao;		
-
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		
+		//Defesa Planetária
+		$this->defesa_planetaria = $wpdb->get_var("SELECT COUNT(cit.id) AS id
+		FROM colonization_imperio_techs AS cit
+		WHERE cit.id_imperio={$this->id} AND cit.id_tech=19");
 	}
 
 	/***********************
@@ -98,6 +103,24 @@ class imperio
 	function lista_dados() {
 		$user = get_user_by('ID',$this->id_jogador);
 		
+		$estilo_defesa_planetaria = "";
+		if ($this->defesa_planetaria == 1) {
+			$estilo_defesa_planetaria = "style='font-weight: bold;'";
+		}
+		
+		/**
+		//DEBUG
+		//
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+		
+		if ($roles == "administrator") {
+			var_dump($this);
+			echo "<br>";
+		}
+		
+		/**/
+		
 		//Exibe os dados do Império
 		$html = "			<td><input type='hidden' data-atributo='id_jogador' data-valor-original='{$this->id_jogador}' value='{$this->id_jogador}'></input>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -106,10 +129,10 @@ class imperio
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_imperio'></input>
 				<input type='hidden' data-atributo='funcao_pos_processamento' value='mais_dados_imperio'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
-				<div data-atributo='ID' >{$this->id}</div>
+				<div data-atributo='ID'>{$this->id}</div>
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='nome_jogador'>{$user->display_name}</div></td>
+			<td><div data-atributo='nome_jogador' {$estilo_defesa_planetaria}>{$user->display_name}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='prestigio' data-valor-original='{$this->prestigio}' data-editavel='true' data-style='width: 40px;'>{$this->prestigio}</div></td>
 			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>

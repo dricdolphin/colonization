@@ -37,11 +37,12 @@ function novo_imperio(evento) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	dados_jogador.innerHTML = "<div data-atributo='nome_jogador' data-id-selecionado='0'>"+lista_jogadores+"</div>";
 	nome_imperio.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
-	prestigio.innerHTML = "<div data-atributo='prestigio' data-editavel='true' data-valor-original='' data-style='width: 40px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 40px;'></input></div>";
+	prestigio.innerHTML = "<div data-atributo='prestigio' data-editavel='true' data-valor-original='' data-style='width: 40px;'><input type='text' data-atributo='prestigio' data-ajax='true' style='width: 40px;'></input></div>";
 	populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
 	pontuacao.innerHTML = "<div data-atributo='pontuacao' data-valor-original=''></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -80,6 +81,7 @@ function nova_estrela(evento) {
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_tipo.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tipo' data-ajax='true'></input></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -139,6 +141,7 @@ function novo_planeta(evento, id_estrela = 0) {
 		estrela.innerHTML = "<input type='hidden' data-atributo='id_estrela' data-ajax='true' value='"+id_estrela+"'></input><div data-atributo='nome_estrela' data-valor-original='"+selects[0].options[selects[0].selectedIndex].innerHTML+"'>"+selects[0].options[selects[0].selectedIndex].innerHTML+"</div>";
 	}
 	
+	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();
 	return false;
 }
@@ -179,6 +182,7 @@ function novo_recurso(evento) {
 	extrativo.innerHTML = "<div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='extrativo' data-ajax='true' checked></input></div>";
 	local.innerHTML = "<div data-atributo='local' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='local' data-ajax='true' checked></input></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -222,6 +226,7 @@ function nova_tech(evento) {
 	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
 	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -263,6 +268,7 @@ function nova_tech_imperio(evento, id_imperio) {
 	custo_pago.innerHTML = "<div data-atributo='custo_pago' data-editavel='true' data-valor-original='0' data-style='width: 30px;'><input type='text' data-atributo='custo_pago' data-ajax='true' style='width: 30px;' value='0'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -304,7 +310,8 @@ function nova_instalacao(evento) {
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
-	
+
+	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();	
 	return false;	
 }
@@ -343,7 +350,8 @@ function novo_instalacao_recurso(evento, consome = 1) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado = '0' data-valor-original=''>"+lista_recursos+"</div>";
 	qtd_por_nivel.innerHTML = "<div data-atributo='qtd_por_nivel' data-style='width: 50px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='qtd_por_nivel' data-ajax='true' style='width: 50px;'></input></div>";
-		
+
+	window.scrollTo(0, document.body.scrollHeight);		
 	evento.preventDefault();
 	return false;
 }
@@ -399,6 +407,7 @@ function nova_colonia(evento, id_imperio) {
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -441,7 +450,8 @@ function novo_planeta_recurso(evento, id_planeta) {
 	nome_recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado='' data-valor-original=''>"+lista_recursos+"</div>";
 	disponivel.innerHTML = "<div data-atributo='disponivel' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='disponivel' data-ajax='true' style='width: 50px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;'></input></div>";
-	
+
+	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();
 	return false;
 }
@@ -489,6 +499,7 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -565,6 +576,7 @@ function nova_nave(evento, id_imperio) {
 	especiais.innerHTML = "<td><div data-atributo='especiais' data-editavel='true' data-valor-original='' data-style='width: 120px;' data-branco='true'><input type='text' data-atributo='especiais' data-ajax='true' style='width: 120px;' data-branco='true'></input></div></td>";
 	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
 
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;	
 }

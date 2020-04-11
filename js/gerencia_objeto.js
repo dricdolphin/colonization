@@ -13,6 +13,10 @@ function inclui_recurso(evento, id_recurso) {
 	var input_lista_recursos = "";
 	var input_qtd = "";
 
+	if (!objeto_em_edicao) {
+		return;
+	}
+
 	var index_input_text = 0;
 	for (let index=0; index<inputs.length; index++) { //Pega todos os Inputs do tipo 'text'
 		if (inputs[index].type == "text") {

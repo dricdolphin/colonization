@@ -53,7 +53,7 @@ class planeta
 			$inospito_checked = "";
 		}
 		
-		$link_gerenciamento = '\"page=colonization_admin_planetas\"';
+		$link_gerenciamento = "\"page=colonization_admin_planetas\"";
 		if ($id_estrela != 0) {
 			$link_gerenciamento = "\"page=colonization_admin_planetas&id_estrela={$id_estrela}\"";
 		}

@@ -74,5 +74,20 @@ class estrela
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}
+	
+	/***********************
+	function distancia_estrela($id_estrela)
+	----------------------
+	Calcula a distância entre a estrela atual e outra estrela
+	***********************/
+	function distancia_estrela($id_estrela) {
+		global $wpdb;
+		
+		$estrela_destino = new estrela($id_estrela);
+		$distancia = (($this->x - $estrela_destino->x)^2 + ($this->y - $estrela_destino->y)^2 + ($this->z - $estrela_destino->z)^2)^0.5;
+		
+		return $distancia;
+	}
+	
 }
 ?>
