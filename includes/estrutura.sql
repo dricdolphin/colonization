@@ -95,6 +95,14 @@ turno INT(6) NOT NULL,
 turno_destroi INT(6) DEFAULT NULL
 )
 
+--Tabela populada quando uma Instalação de um planeta tem um upgrades
+CREATE TABLE colonization_planeta_instalacoes_upgrade (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_planeta_instalacoes INT(6) NOT NULL,
+nivel_anterior INT(6) NOT NULL,
+turno INT(6) NOT NULL
+)
+
 --Tabela com os recursos acumulados do Império (não locais)
 CREATE TABLE IF NOT EXISTS colonization_imperio_recursos (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

@@ -20,6 +20,14 @@ class acoes
 	public $turno;
 	public $data_modifica = [];
 	public $max_data_modifica;
+	public $recursos_produzidos = [];
+	public $recursos_produzidos_nome = [];
+	public $recursos_consumidos = [];
+	public $recursos_consumidos_nome = [];
+	public $recursos_balanco = [];
+	public $recursos_balanco_nome = [];
+	
+	
 	
 	function __construct($id_imperio, $turno=0) {
 		global $wpdb;
@@ -74,7 +82,15 @@ class acoes
 				$this->id_planeta[$chave] = $valor->id_planeta;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
-				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
+				
+				$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno > {$this->turno->turno}");
+				if ($turno_upgrade > $this->turno->turno) {
+					$nivel_upgrade = $wpdb->get_var("SELECT nivel_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
+					$this->nivel_instalacao[$chave] = $nivel_upgrade;
+				} else {
+					$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
+				}
+				
 				$this->pop[$chave] = $valor->pop;
 				$this->data_modifica[$chave] = $valor->data_modifica;
 			}
@@ -104,7 +120,8 @@ class acoes
 				}
 			}
 		}
-	
+		
+		$this->pega_balanco_recursos();
 		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 	}
 
@@ -139,7 +156,7 @@ class acoes
 			var_dump($chaves);
 			wp_die();
 		}
-		***/
+		//***/
 		
 		return $mdo;
 	}
@@ -224,6 +241,92 @@ class acoes
 		return $html;
 	}
 
+	/***********************
+	function pega_balanco_recursos()
+	----------------------
+	Pega os Recursos produzidos, consumidos e seu balanço
+	***********************/
+	function pega_balanco_recursos() {
+		global $wpdb;
+		
+		//Pega a produção das Instalações
+		foreach ($this->id AS $chave => $valor) {
+			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
+			
+			foreach ($instalacao->recursos_produz as $chave_recursos => $id_recurso) {
+				if (empty($this->recursos_produzidos[$id_recurso])) {
+					$recurso = new recurso($id_recurso);
+
+					$this->recursos_produzidos[$id_recurso] = 0;
+					$this->recursos_produzidos_nome[$id_recurso] = $recurso->nome;
+					$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
+				}
+				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				/***************************************************
+				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+				***************************************************/
+				//TODO -- Aqui entram os Especiais de cada Império
+				//No caso, tenho apenas o "hard-coded" do Império 3
+				if ($this->id_imperio == 3) {
+					if ($id_recurso !== null) {
+						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
+							$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + 1;
+						}
+					}
+				}
+			}
+		}
+	
+		//Pega o Consumo das Instalações
+		foreach ($this->id AS $chave => $valor) {
+			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
+			
+			foreach ($instalacao->recursos_consome as $chave_recursos => $id_recurso) {
+				if (empty($this->recursos_consumidos[$id_recurso])) {
+					$recurso = new recurso($id_recurso);
+					
+					$this->recursos_consumidos[$id_recurso] = 0;
+					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
+					if (empty($this->recursos_balanco_nome[$id_recurso])) {
+						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
+					}
+				}
+				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				/***************************************************
+				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+				***************************************************/
+				//TODO -- Aqui entram os Especiais de cada Império
+				//No caso, tenho apenas o "hard-coded" do Império 3
+				if ($this->id_imperio == 3) {
+					if ($id_recurso !== null) {
+						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
+							$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + 1;
+						}
+					}
+				}
+			}
+		}
+		
+		setlocale (LC_ALL, 'pt_BR');
+		asort($this->recursos_produzidos_nome,SORT_LOCALE_STRING);
+		asort($this->recursos_consumidos_nome,SORT_LOCALE_STRING);
+		
+		//Faz o Balanço da Produção e do Consumo
+		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
+			if (empty($this->recursos_produzidos[$id_recurso])) {
+				$this->recursos_produzidos[$id_recurso] = 0;
+			}
+			
+			if (empty($this->recursos_consumidos[$id_recurso])) {
+				$this->recursos_consumidos[$id_recurso] = 0;
+			}
+			
+			$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
+		}
+	}
+
 
 	/***********************
 	function exibe_recursos_produzidos()
@@ -232,46 +335,10 @@ class acoes
 	***********************/
 	function exibe_recursos_produzidos() {
 		global $wpdb;
-				
-		$html = "<b>Recursos Produzidos:</b> ";
 		
-		$resultados = $wpdb->get_results(
-		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-		FROM
-			(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
-			FROM colonization_acoes_turno AS cat
-			JOIN colonization_instalacao AS ci
-			ON ci.id = cat.id_instalacao
-			WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
-			) AS cat
-		JOIN colonization_planeta_instalacoes AS cpi
-		ON cpi.id = cat.id_planeta_instalacoes
-		JOIN colonization_instalacao_recursos AS cir
-		ON cir.id_instalacao = cat.id_instalacao
-		JOIN colonization_recurso AS cr
-		ON cir.id_recurso = cr.id
-		WHERE cat.id_imperio={$this->id_imperio} AND cat.turno={$this->turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL
-		GROUP BY cr.nome
-		"
-		);
-
-		foreach ($resultados as $resultado) {
-			/***************************************************
-			--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-			***************************************************/
-			//TODO -- Aqui entram os Especiais de cada Império
-			//No caso, tenho apenas o "hard-coded" do Império 3
-			if ($this->id_imperio == 3) {
-				if ($resultado->id_recurso !== null) {
-					if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$resultado->id_recurso}") && $resultado->pop == 10) {
-						$resultado->producao = $resultado->producao + 1;
-					}
-				}
-			}
-
-			if ($resultado->producao > 0) {
-				$html .= "{$resultado->nome}: {$resultado->producao}; ";
-			}
+		$html = "<b>Recursos Produzidos:</b> ";
+		foreach ($this->recursos_produzidos_nome as $id_recurso => $valor) {
+			$html .= "{$valor}: {$this->recursos_produzidos[$id_recurso]}; ";
 		}
 		
 		return $html;
@@ -286,33 +353,10 @@ class acoes
 		global $wpdb;
 		
 		$html = "<b>Recursos Consumidos:</b> ";
-
-		$resultados = $wpdb->get_results(
-		"SELECT cat.pop, cir.id_recurso, cr.nome, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-		FROM
-			(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
-			FROM colonization_acoes_turno AS cat
-			JOIN colonization_instalacao AS ci
-			ON ci.id = cat.id_instalacao
-			WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
-			) AS cat
-		JOIN colonization_planeta_instalacoes AS cpi
-		ON cpi.id = cat.id_planeta_instalacoes
-		JOIN colonization_instalacao_recursos AS cir
-		ON cir.id_instalacao = cat.id_instalacao
-		JOIN colonization_recurso AS cr
-		ON cir.id_recurso = cr.id
-		WHERE cat.id_imperio={$this->id_imperio} AND cat.turno={$this->turno->turno} AND cir.consome=true AND cpi.turno_destroi IS NULL
-		GROUP BY cr.nome
-		"
-		);
-
-		foreach ($resultados as $resultado) {
-			if ($resultado->producao > 0) {
-				$html .= "{$resultado->nome}: {$resultado->producao}; ";
-			}
+		foreach ($this->recursos_consumidos_nome as $id_recurso => $valor) {
+			$html .= "{$valor}: {$this->recursos_consumidos[$id_recurso]}; ";
 		}
-		
+	
 		return $html;
 	}
 
@@ -324,8 +368,7 @@ class acoes
 	function exibe_recursos_balanco() {
 		global $wpdb;
 		
-		$html = "";
-
+		/**********
 		$resultados = $wpdb->get_results("
 		SELECT pop, id_recurso, nome, (producao-consumo) AS balanco 
 		FROM (
@@ -376,7 +419,7 @@ class acoes
 		foreach ($resultados as $resultado) {
 			/***************************************************
 			--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-			***************************************************/
+			***************************************************
 			//TODO -- Aqui entram os Especiais de cada Império
 			//No caso, tenho apenas o "hard-coded" do Império 3
 			if ($this->id_imperio == 3) {
@@ -386,13 +429,16 @@ class acoes
 					}
 				}
 			}
-			
-			if ($resultado->balanco > 0) {
-				$html .= "{$resultado->nome}: {$resultado->balanco}; ";
-			} elseif ($resultado->balanco < 0) {
-				$html .= "{$resultado->nome}: <span style='color: #FF2222;'>{$resultado->balanco}</span>; ";
+		***/
+		
+		$html = "";			
+		asort($this->recursos_balanco,SORT_NUMERIC);
+		foreach ($this->recursos_balanco as $id_recurso => $qtd) {
+			if ($qtd > 0) {
+				$html .= "{$this->recursos_balanco_nome[$id_recurso]}: {$qtd}; ";
+			} elseif ($qtd < 0) {
+				$html .= "{$this->recursos_balanco_nome[$id_recurso]}: <span style='color: #FF2222;'>{$qtd}</span>; ";
 			}
-				
 		}
 		
 		return $html;

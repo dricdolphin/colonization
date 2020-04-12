@@ -15,8 +15,10 @@ class instalacao
 	public $slots;
 	public $autonoma;
 	public $desguarnecida;
-	public $produz_recursos;
-	public $consome_recursos;
+	public $recursos_produz = [];
+	public $recursos_produz_qtd = [];
+	public $recursos_consome = [];
+	public $recursos_consome_qtd = [];
 	
 	function __construct($id) {
 		global $wpdb;
@@ -31,6 +33,22 @@ class instalacao
 		$this->slots = $resultado->slots;
 		$this->autonoma = $resultado->autonoma;
 		$this->desguarnecida = $resultado->desguarnecida;
+		
+		$index = 0;
+		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = false");
+		foreach ($recursos as $recurso) {
+			$this->recursos_produz[$index] = $recurso->id_recurso;
+			$this->recursos_produz_qtd[$index] = $recurso->qtd_por_nivel;
+			$index++;
+		}
+		
+		$index = 0;
+		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = true");
+		foreach ($recursos as $recurso) {
+			$this->recursos_consome[$index] = $recurso->id_recurso;
+			$this->recursos_consome_qtd[$index] = $recurso->qtd_por_nivel;
+			$index++;
+		}
 	}
 
 	/***********************

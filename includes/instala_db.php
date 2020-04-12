@@ -109,6 +109,14 @@ class instala_db {
 		turno_destroi INT(6) DEFAULT NULL
 		)");
 
+		$wpdb->query("CREATE TABLE colonization_planeta_instalacoes_upgrade (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_planeta_instalacoes INT(6) NOT NULL,
+		nivel_anterior INT(6) NOT NULL,
+		turno INT(6) NOT NULL
+		)");
+
+
 		//Tabela com os recursos acumulados do Império (não locais)
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_recursos (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -249,7 +257,16 @@ class instala_db {
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$
 		DELIMITER ;");
-		
+
+		$wpdb->query("		DELIMITER $$
+		CREATE TRIGGER deleta_planeta_instalacao
+		AFTER DELETE
+		ON colonization_planeta_instalacoes FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = old.id;
+		END$$
+		DELIMITER ;");		
+
 		$wpdb->query("		DELIMITER $$
 		CREATE TRIGGER deleta_tech
 		AFTER DELETE
@@ -257,8 +274,7 @@ class instala_db {
 		BEGIN
 		DELETE FROM colonization_imperio_techs WHERE id_tech = old.id;
 		END$$
-		DELIMITER ;");		
-	
+		DELIMITER ;");
 	}
 }
 ?>

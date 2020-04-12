@@ -202,6 +202,19 @@ class colonization_ajax {
 			WHERE cpi.id_planeta={$_POST['id_planeta']} AND cpi.turno_destroi IS NULL
 			) AS cpi";
 		} else {
+			//Realiza a atualização do histórico de upgrades
+			$turno = new turno();
+			$colonia_instalacao = new colonia_instalacao($_POST['id']);
+			
+			if ($_POST['nivel'] != $colonia_instalacao->nivel) {//É uma atualização! Pode ser um upgrade ou um downgrade
+				$turno_upgrade = $wpdb->get_var("SELECT MAX(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = {$_POST['id']}");
+				if ($turno->turno == $turno_upgrade) {
+					$wpdb->query("UPDATE colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel} WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+				} else {
+					$wpdb->query("INSERT INTO colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_planeta_instalacoes={$_POST['id']}, turno={$turno->turno}");
+				}
+			}
+
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
 		
