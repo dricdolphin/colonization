@@ -309,10 +309,6 @@ class acoes
 			}
 		}
 		
-		setlocale (LC_ALL, 'pt_BR');
-		asort($this->recursos_produzidos_nome,SORT_LOCALE_STRING);
-		asort($this->recursos_consumidos_nome,SORT_LOCALE_STRING);
-		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 			if (empty($this->recursos_produzidos[$id_recurso])) {
@@ -335,7 +331,10 @@ class acoes
 	***********************/
 	function exibe_recursos_produzidos() {
 		global $wpdb;
-		
+
+		setlocale (LC_ALL, 'pt_BR');
+		asort($this->recursos_produzidos_nome,SORT_LOCALE_STRING);
+
 		$html = "<b>Recursos Produzidos:</b> ";
 		foreach ($this->recursos_produzidos_nome as $id_recurso => $valor) {
 			$html .= "{$valor}: {$this->recursos_produzidos[$id_recurso]}; ";
@@ -351,6 +350,9 @@ class acoes
 	***********************/
 	function exibe_recursos_consumidos() {
 		global $wpdb;
+
+		setlocale (LC_ALL, 'pt_BR');
+		asort($this->recursos_consumidos_nome,SORT_LOCALE_STRING);
 		
 		$html = "<b>Recursos Consumidos:</b> ";
 		foreach ($this->recursos_consumidos_nome as $id_recurso => $valor) {
@@ -367,70 +369,7 @@ class acoes
 	***********************/
 	function exibe_recursos_balanco() {
 		global $wpdb;
-		
-		/**********
-		$resultados = $wpdb->get_results("
-		SELECT pop, id_recurso, nome, (producao-consumo) AS balanco 
-		FROM (
-			SELECT tabela_produz.pop, tabela_produz.id_recurso, cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
-			(CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, 
-			cimr.qtd AS estoque 
-			FROM colonization_recurso AS cr
-			LEFT JOIN (
-				SELECT cat.pop, cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-				FROM 
-				(SELECT cat.turno, cat.id_imperio, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_planeta, (CASE WHEN ci.desguarnecida = true THEN 10 ELSE cat.pop END) AS pop
-				FROM colonization_acoes_turno AS cat
-				JOIN colonization_instalacao AS ci
-				ON ci.id = cat.id_instalacao
-				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
-				) AS cat
-				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id = cat.id_planeta_instalacoes
-				JOIN colonization_instalacao_recursos AS cir
-				ON cir.id_instalacao = cat.id_instalacao
-				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
-				GROUP BY cir.id_recurso
-			) AS tabela_produz
-			ON tabela_produz.id_recurso = cr.id
-			LEFT JOIN (
-			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
-				FROM colonization_acoes_turno 
-				WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
-				) AS cat
-				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id = cat.id_planeta_instalacoes
-				JOIN colonization_instalacao_recursos AS cir
-				ON cir.id_instalacao = cat.id_instalacao
-				WHERE cir.consome=true AND cpi.turno_destroi IS NULL
-				GROUP BY cir.id_recurso
-			) AS tabela_consome
-			ON tabela_consome.id_recurso = cr.id
-			LEFT JOIN colonization_imperio_recursos AS cimr
-			ON cimr.id_imperio = tabela_produz.id_imperio 
-			AND cimr.id_recurso = tabela_produz.id_recurso 
-			AND cimr.turno = tabela_produz.turno
-		) AS tabela_balanco
-		ORDER BY (producao-consumo) ASC
-		");
 
-		foreach ($resultados as $resultado) {
-			/***************************************************
-			--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-			***************************************************
-			//TODO -- Aqui entram os Especiais de cada Império
-			//No caso, tenho apenas o "hard-coded" do Império 3
-			if ($this->id_imperio == 3) {
-				if ($resultado->id_recurso !== null) {
-					if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$resultado->id_recurso}") && $resultado->pop == 10) {
-						$resultado->balanco = $resultado->balanco + 1;
-					}
-				}
-			}
-		***/
-		
 		$html = "";			
 		asort($this->recursos_balanco,SORT_NUMERIC);
 		foreach ($this->recursos_balanco as $id_recurso => $qtd) {
