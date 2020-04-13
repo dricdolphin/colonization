@@ -26,6 +26,7 @@ class acoes
 	public $recursos_consumidos_nome = [];
 	public $recursos_balanco = [];
 	public $recursos_balanco_nome = [];
+	public $disabled = "";
 	
 	
 	
@@ -34,7 +35,10 @@ class acoes
 		
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
 		$this->turno = new turno($turno);
-		
+		if ($turno > $this->turno->turno) {
+			$this->disabled = 'disabled';
+		}
+					
 		$imperio = new imperio($id_imperio, false, $this->turno->turno);
 		$this->id_imperio = $imperio->id;
 
@@ -170,12 +174,13 @@ class acoes
 	***********************/
 	function lista_dados($turno_atual=true) {
 		global $wpdb;
-		$disabled = "";
 		
-		if (!$turno_atual) {
+		if ($turno_atual) {
+			$this->disabled = "";
+		} else {
 			$turno_atual = new turno();
 			if ($this->turno->turno != $turno_atual->turno) {
-				$disabled = 'disabled';
+				$this->disabled = "disabled";
 			}
 		}
 		
@@ -215,7 +220,7 @@ class acoes
 			}
 			
 			if ($instalacao->desguarnecida == 0) {
-				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
+				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
 			} else {
 				$exibe_acoes = "&nbsp";
 			}

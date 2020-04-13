@@ -235,10 +235,10 @@ class roda_turno {
 					//Aumenta a população
 					//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
 					//No entanto, a poluição reduz o crescimento populacional
-					if ($poluicao > 100 && $planeta->inospito == 0) {
+					if ($poluicao > 100) {
 						$nova_pop = $colonia->pop;
 					} else {
-						if ($alimentos > 0) {
+						if ($alimentos > 0 && $planeta->inospito == 0) {
 								if ($colonia->pop <= $planeta->tamanho*10) {//Tem espaço para crescer
 									if ($colonia->pop <=24) {
 										$nova_pop = $colonia->pop + 5;
