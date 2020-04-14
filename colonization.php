@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.0.4
+ * Version: 1.1.0
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -391,13 +391,13 @@ class colonization {
 		//TODO -- Pega a data da última ação
 		$html_lista	= "
 		<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno}</h4></div>
-		<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div>
+		<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div><br>
 		<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div>
 		<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
-		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div>
+		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<tr style='background-color: #E5E5E5; font-weight: 700;'><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		
@@ -530,7 +530,7 @@ class colonization {
 		$html = "<div>";
 		
 		$lista_techs_imperio = $wpdb->get_results("
-		SELECT cit.id, cit.id_tech, cit.custo_pago 
+		SELECT cit.id, cit.id_tech, cit.custo_pago, id_imperio 
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech
@@ -553,6 +553,11 @@ class colonization {
 			
 			if ($tech->id_tech_parent !=0) {
 				$id_chave = $tech->id_tech_parent;
+				//****** MODIFICAÇÃO PARA OS KHOZIRTU (id_imperio == 3) **** /
+				if ($id_chave == 1 && $id->id_imperio == 3) {
+					$id_chave = 10; //Os Khozirtu tem um pré-requisito diferente para as mineradoras
+				}
+				
 				if ($id->custo_pago != 0) {
 					$html_tech[$id_chave] .= " -> <span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
 				} else {

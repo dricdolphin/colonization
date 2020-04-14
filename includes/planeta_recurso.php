@@ -30,7 +30,6 @@ class planeta_recurso
 		$this->turno = $resultado->turno;
 		$this->recurso = new recurso($this->id_recurso);
 		
-
 	}
 
 	/***********************

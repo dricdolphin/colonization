@@ -206,15 +206,18 @@ class colonization_ajax {
 			$turno = new turno();
 			$colonia_instalacao = new colonia_instalacao($_POST['id']);
 			
-			if ($_POST['nivel'] != $colonia_instalacao->nivel) {//É uma atualização! Pode ser um upgrade ou um downgrade
+			if ($_POST['nivel'] != $colonia_instalacao->nivel || $_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) {//É uma atualização! Pode ser um upgrade ou um downgrade
 				$turno_upgrade = $wpdb->get_var("SELECT MAX(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = {$_POST['id']}");
 				if ($turno->turno == $turno_upgrade) {
-					$wpdb->query("UPDATE colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel} WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+					$wpdb->query("UPDATE colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_instalacao_anterior={$colonia_instalacao->id_instalacao} WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 				} else {
-					$wpdb->query("INSERT INTO colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_planeta_instalacoes={$_POST['id']}, turno={$turno->turno}");
+					$wpdb->query("INSERT INTO colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_instalacao_anterior={$colonia_instalacao->id_instalacao}, id_planeta_instalacoes={$_POST['id']}, turno={$turno->turno}");
 				}
 			}
 
+			//Atualiza a ação relativa à esta Instalação, colocando o Pop em 0
+			//$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
 		

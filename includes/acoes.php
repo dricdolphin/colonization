@@ -68,7 +68,7 @@ class acoes
 			AND cic.turno = {$this->turno->turno}
 			AND cpi.turno_destroi IS NULL
 			AND cpi.turno <={$this->turno->turno}
-			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, ci.nome, cpi.id
+			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
 			");
 		
 		$chave = 0;
@@ -86,17 +86,15 @@ class acoes
 				$this->id_planeta[$chave] = $valor->id_planeta;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
+				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
+				$this->pop[$chave] = $valor->pop;
+				$this->data_modifica[$chave] = $valor->data_modifica;
 				
 				$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno > {$this->turno->turno}");
 				if ($turno_upgrade > $this->turno->turno) {
-					$nivel_upgrade = $wpdb->get_var("SELECT nivel_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
-					$this->nivel_instalacao[$chave] = $nivel_upgrade;
-				} else {
-					$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
+					$this->nivel_instalacao[$chave] = $wpdb->get_var("SELECT nivel_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
+					$this->id_instalacao[$chave] = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
 				}
-				
-				$this->pop[$chave] = $valor->pop;
-				$this->data_modifica[$chave] = $valor->data_modifica;
 			}
 			$chave++;
 		}
@@ -185,10 +183,25 @@ class acoes
 		}
 		
 		$html = "";
+		$ultimo_planeta = 0;
+		$estilo_par = "style='background-color: #FAFAFA;'";
+		$estilo_impar = "style='background-color: #F0F0F0;'";
+		
+		$estilo = $estilo_impar;
 		foreach ($this->id AS $chave => $valor) {
 			$planeta = new planeta($this->id_planeta[$chave]);
 			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
+			
+			if ($ultimo_planeta != $planeta->id) {
+				if ($estilo == $estilo_par) {
+					$estilo = $estilo_impar;
+				} else {
+					$estilo = $estilo_par;
+				}
+				$ultimo_planeta = $planeta->id;
+			} 
+			
 			
 			switch($this->nivel_instalacao[$chave]) {
 			case 1:
@@ -225,7 +238,7 @@ class acoes
 				$exibe_acoes = "&nbsp";
 			}
 
-				$html .= "		<tr><td>
+				$html .= "		<tr {$estilo}><td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 					<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
@@ -254,6 +267,9 @@ class acoes
 	function pega_balanco_recursos() {
 		global $wpdb;
 		
+		$bonus_sinergia_tech = 0;
+		$instalacao_tech = 0;
+		
 		//Pega a produção das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
@@ -271,8 +287,16 @@ class acoes
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
-				//TODO -- Aqui entram os Especiais de cada Império
-				//No caso, tenho apenas o "hard-coded" do Império 3
+				
+				//MODIFICAÇÕES PELA TECH SINERGICA (id_tech == 37)
+				$tech_sinergica = $wpdb->get_var("SELECT id_tech FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech=37");
+				if (!empty($tech_sinergica) && $id_recurso == 15) {
+					$bonus_sinergia_tech = $bonus_sinergia_tech + floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*0.1);
+					$instalacao_tech++;
+				}
+				//*** FIM MODIFICACOES ***/
+				
+				//MODIFICAÇÕES DO IMPÉRIO KHOZIRTU (id_imperio == 3)
 				if ($this->id_imperio == 3) {
 					if ($id_recurso !== null) {
 						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
@@ -280,9 +304,19 @@ class acoes
 						}
 					}
 				}
+				//*** FIM MODIFICACOES ***/
 			}
 		}
-	
+		
+		//MODIFICAÇÕES PELA TECH SINERGICA (id_tech == 37)
+		if (!empty($this->recursos_produzidos[15]) && $instalacao_tech > 1) {
+			if ($bonus_sinergia_tech > 5) {
+				$bonus_sinergia_tech = 5;
+			}
+			$this->recursos_produzidos[15] = $this->recursos_produzidos[15] + $bonus_sinergia_tech;
+		}
+		//*** FIM MODIFICACOES ***/
+		
 		//Pega o Consumo das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
@@ -302,8 +336,8 @@ class acoes
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
-				//TODO -- Aqui entram os Especiais de cada Império
-				//No caso, tenho apenas o "hard-coded" do Império 3
+				
+				//MODIFICAÇÕES IMPÉRIO KHOZIRTU (id_imperio == 3)
 				if ($this->id_imperio == 3) {
 					if ($id_recurso !== null) {
 						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
@@ -311,6 +345,7 @@ class acoes
 						}
 					}
 				}
+				//*** FIM MODIFICACOES ***/
 			}
 		}
 		

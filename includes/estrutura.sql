@@ -100,6 +100,7 @@ CREATE TABLE colonization_planeta_instalacoes_upgrade (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_planeta_instalacoes INT(6) NOT NULL,
 nivel_anterior INT(6) NOT NULL,
+id_instalacao_anterior INT(6) NOT NULL,
 turno INT(6) NOT NULL
 )
 
