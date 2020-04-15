@@ -17,6 +17,7 @@ class colonia
 	public $turno;
 	public $planeta;
 	public $estrela;
+	public $instalacoes;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -32,7 +33,7 @@ class colonia
 		$this->id_planeta = $resultado->id_planeta;
 		$this->pop = $resultado->pop;
 		$this->poluicao = $resultado->poluicao;
-
+		$this->instalacoes = $wpdb->get_var("SELECT COUNT(id) FROM colonization_planeta_instalacoes WHERE id_planeta={$this->id_planeta} AND turno_destroi IS NULL");
 		
 		$this->planeta = new planeta($this->id_planeta);
 		$this->estrela = new estrela($this->planeta->id_estrela);
@@ -59,7 +60,8 @@ class colonia
 		global $wpdb;
 
 		//Exibe os dados do Império		
-		$html = "		<td>
+		$html = "		
+			<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>

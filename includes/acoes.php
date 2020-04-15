@@ -13,6 +13,7 @@ class acoes
 	public $id = [];
 	public $id_imperio;
 	public $id_planeta = [];
+	public $id_colonia = [];
 	public $id_instalacao = [];
 	public $id_planeta_instalacoes = [];
 	public $nivel_instalacao = [];
@@ -42,10 +43,8 @@ class acoes
 		$imperio = new imperio($id_imperio, false, $this->turno->turno);
 		$this->id_imperio = $imperio->id;
 
-		
-
 		$resultados =$wpdb->get_results("
-			SELECT cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
+			SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
 			FROM colonization_imperio_colonias AS cic 
 			JOIN colonization_planeta_instalacoes AS cpi
 			ON cpi.id_planeta = cic.id_planeta
@@ -76,6 +75,7 @@ class acoes
 			if ($valor->id === null) {
 				$this->id[$chave] = 0;
 				$this->id_planeta[$chave] = $valor->id_planeta;
+				$this->id_colonia[$chave] = $valor->id_colonia;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
@@ -84,6 +84,7 @@ class acoes
 			} else {
 				$this->id[$chave] = $valor->id;
 				$this->id_planeta[$chave] = $valor->id_planeta;
+				$this->id_colonia[$chave] = $valor->id_colonia;
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
@@ -186,21 +187,29 @@ class acoes
 		$ultimo_planeta = 0;
 		$estilo_par = "style='background-color: #FAFAFA;'";
 		$estilo_impar = "style='background-color: #F0F0F0;'";
+		$primeira_linha = "&nbsp;";
 		
 		$estilo = $estilo_impar;
 		foreach ($this->id AS $chave => $valor) {
 			$planeta = new planeta($this->id_planeta[$chave]);
 			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
+			$colonia = new colonia($this->id_colonia[$chave]);
 			
 			if ($ultimo_planeta != $planeta->id) {
+				$slots = 0;
+				$primeira_linha = "<td rowspan='{$colonia->instalacoes}'>
+				<div data-atributo='nome_planeta'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | {$colonia->instalacoes}/{$planeta->tamanho}</div>
+				</td>";
 				if ($estilo == $estilo_par) {
 					$estilo = $estilo_impar;
 				} else {
 					$estilo = $estilo_par;
 				}
 				$ultimo_planeta = $planeta->id;
-			} 
+			} else {
+				$primeira_linha = "&nbsp;";
+			}				
 			
 			
 			switch($this->nivel_instalacao[$chave]) {
@@ -238,7 +247,10 @@ class acoes
 				$exibe_acoes = "&nbsp";
 			}
 
-				$html .= "		<tr {$estilo}><td>
+				$html .= "		
+				<tr {$estilo}>
+					{$primeira_linha}
+				<td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 					<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
@@ -248,9 +260,8 @@ class acoes
 					<input type='hidden' data-atributo='where_clause' value='id'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-					<div data-atributo='nome_planeta' data-valor-original='{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}) | {$planeta->posicao}</div>
+					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div>
 				</td>
-				<td><div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div></td>
 				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>
 				<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
 				</tr>";

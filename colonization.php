@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -160,6 +160,8 @@ class colonization {
 		$user = wp_get_current_user();
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+		} else {
+			$roles = "";
 		}
 		
 		$html = "<div id='barra_recursos' class='nojq'>";
@@ -397,7 +399,7 @@ class colonization {
 		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr style='background-color: #E5E5E5; font-weight: 700;'><td>Colônia (X;Y;Z) | P</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<tr style='background-color: #E5E5E5; font-weight: 700;'><td>Colônia (X;Y;Z;P) | Slots</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		

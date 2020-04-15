@@ -456,9 +456,17 @@ function altera_acao(evento, objeto) {
 		var inputs = linha.getElementsByTagName("INPUT");
 		var selects = linha.getElementsByTagName("SELECT");
 		var label = linha.getElementsByTagName("LABEL");
-			
-		if (linha.childNodes[6].childNodes[0].style.visibility == "hidden") {	
-			linha.childNodes[6].childNodes[0].style.visibility = "visible";
+		var tds = linha.getElementsByTagName("TD");
+		
+		for(let index=0; index<tds.length; index++) {
+			//data-atributo='gerenciar'			
+			if (typeof(tds[index].childNodes[0].getAttribute) === "function") {
+				if (tds[index].childNodes[0].getAttribute("data-atributo") == 'gerenciar') {
+					if (tds[index].childNodes[0].style.visibility == "hidden") {	
+						tds[index].childNodes[0].style.visibility = "visible";
+					}
+				}
+			}
 		}
 		
 		label[0].innerText = objeto.value;
