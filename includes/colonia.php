@@ -33,7 +33,11 @@ class colonia
 		$this->id_planeta = $resultado->id_planeta;
 		$this->pop = $resultado->pop;
 		$this->poluicao = $resultado->poluicao;
-		$this->instalacoes = $wpdb->get_var("SELECT COUNT(id) FROM colonization_planeta_instalacoes WHERE id_planeta={$this->id_planeta} AND turno_destroi IS NULL");
+		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta={$this->id_planeta} AND cpi.turno_destroi IS NULL");
 		
 		$this->planeta = new planeta($this->id_planeta);
 		$this->estrela = new estrela($this->planeta->id_estrela);

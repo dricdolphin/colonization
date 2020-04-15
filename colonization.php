@@ -344,13 +344,22 @@ class colonization {
 		</thead>
 		<tbody>";
 		
+		$lista_pontuacao = [];
+		$lista_nome = [];
 		foreach ($lista_id_imperio as $id) {
 			$imperio = new imperio($id->id, true);
-			
-			$html .= "<tr><td>{$imperio->nome}</td>
-			<td>{$imperio->pontuacao}</td>
+			$lista_pontuacao[$id->id] = $imperio->pontuacao;
+			$lista_nome[$id->id] = $imperio->nome;
+		}
+		
+		arsort($lista_pontuacao, SORT_NUMERIC);
+		
+		foreach ($lista_pontuacao as $id_imperio => $pontuacao) {
+			$html .= "<tr><td>{$lista_nome[$id_imperio]}</td>
+			<td>{$pontuacao}</td>
 			</tr>
 			";
+
 		}
 		
 		$html .= "</tbody></table>";

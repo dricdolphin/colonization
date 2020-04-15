@@ -407,7 +407,6 @@ function nova_colonia(evento, id_imperio) {
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
