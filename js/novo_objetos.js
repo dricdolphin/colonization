@@ -296,7 +296,8 @@ function nova_instalacao(evento) {
 	var slots = linha_nova.insertCell(2);
 	var autonoma = linha_nova.insertCell(3);
 	var desguarnecida = linha_nova.insertCell(4);
-	var gerencia = linha_nova.insertCell(5);
+	var oculta = linha_nova.insertCell(5);
+	var gerencia = linha_nova.insertCell(6);
 	
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -309,6 +310,7 @@ function nova_instalacao(evento) {
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
+	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);	

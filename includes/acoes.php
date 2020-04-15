@@ -246,7 +246,8 @@ class acoes
 			} else {
 				$exibe_acoes = "&nbsp";
 			}
-
+			
+			if ($instalacao->oculta == 0) {
 				$html .= "		
 				<tr {$estilo}>
 					{$primeira_linha}
@@ -265,6 +266,7 @@ class acoes
 				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>
 				<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
 				</tr>";
+			}
 		}
 		
 		return $html;

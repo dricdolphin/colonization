@@ -15,6 +15,7 @@ class instalacao
 	public $slots;
 	public $autonoma;
 	public $desguarnecida;
+	public $oculta;
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
 	public $recursos_consome = [];
@@ -25,7 +26,7 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, slots, autonoma, desguarnecida FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, slots, autonoma, desguarnecida, oculta FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -33,6 +34,7 @@ class instalacao
 		$this->slots = $resultado->slots;
 		$this->autonoma = $resultado->autonoma;
 		$this->desguarnecida = $resultado->desguarnecida;
+		$this->oculta = $resultado->oculta;
 		
 		$index = 0;
 		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = false");
@@ -71,6 +73,12 @@ class instalacao
 			$desguarnecida_checked = "";
 		}
 		
+		if ($this->oculta == 1) {
+			$oculta_checked = "checked";
+		} else {
+			$oculta_checked = "";
+		}
+		
 		//Exibe os dados do objeto
 		$html = "				<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -85,6 +93,7 @@ class instalacao
 			<td><div data-atributo='slots' data-editavel='true' data-valor-original='{$this->slots}' data-style='width: 30px;'>{$this->slots}</div></td>
 			<td><div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='{$this->autonoma}'><input type='checkbox' data-atributo='autonoma' data-ajax='true' {$autonoma_checked} disabled></input></div></td>
 			<td><div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='{$this->desguarnecida}'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true' {$desguarnecida_checked} disabled></input></div></td>
+			<td><div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='{$this->oculta}'><input type='checkbox' data-atributo='oculta' data-ajax='true' {$oculta_checked} disabled></input></div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}

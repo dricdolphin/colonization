@@ -43,7 +43,8 @@ nome VARCHAR(255) NOT NULL,
 descricao TEXT NOT NULL,
 slots INT(6) DEFAULT 1,
 autonoma BOOLEAN DEFAULT FALSE,
-desguarnecida BOOLEAN DEFAULT FALSE
+desguarnecida BOOLEAN DEFAULT FALSE,
+oculta BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com os tipos de recursos existentes
