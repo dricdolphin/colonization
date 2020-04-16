@@ -451,7 +451,7 @@ class menu_admin {
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_tech'>
 		<thead>
 		<tr>
-		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 80px;'>Bélica</th>
+		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 80px;'>Bélica</th><th style='width: 200px;'>Ícone</th>
 		</tr>
 		</thead>
 		<tbody>";

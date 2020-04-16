@@ -212,6 +212,7 @@ function nova_tech(evento) {
 	var custo = linha_nova.insertCell(4);
 	var id_tech_parent = linha_nova.insertCell(5);
 	var belica = linha_nova.insertCell(6);
+	var icone = linha_nova.insertCell(7);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -225,6 +226,7 @@ function nova_tech(evento) {
 	custo.innerHTML = "<div data-atributo='custo' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='custo' data-ajax='true' style='width: 50px;'></input></div>";
 	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
 	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
+	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();

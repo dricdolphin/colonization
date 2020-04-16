@@ -111,6 +111,40 @@ font-size: 20px;
 content: "\f135";
 }
 
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #DDD;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: 150%;
+  left: 50%;
+  margin-left: -60px;
+  font-weight: lighter;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;  /* At the top of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #DDD transparent;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 #barra_recursos {
 	color: #000;
 	background: #DDD;

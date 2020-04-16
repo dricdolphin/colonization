@@ -16,13 +16,14 @@ class tech
 	public $nivel;
 	public $id_tech_parent;
 	public $belica;
+	public $icone;
 	
 	function __construct($id) {
 		global $wpdb;
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, belica FROM colonization_tech WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, belica, icone FROM colonization_tech WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -31,6 +32,7 @@ class tech
 		$this->nivel = $resultado->nivel;
 		$this->id_tech_parent = $resultado->id_tech_parent;
 		$this->belica = $resultado->belica;
+		$this->icone = $resultado->icone;
 	}
 
 	/***********************
@@ -62,6 +64,7 @@ class tech
 			<td><div data-atributo='custo' data-editavel='true' data-valor-original='{$this->custo}' data-style='width: 50px;'>{$this->custo}</div></td>
 			<td><div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='{$this->id_tech_parent}' data-style='width: 30px;'>{$this->id_tech_parent}</div></td>
 			<td><div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->belica}'><input type='checkbox' data-atributo='belica' data-ajax='true' {$belica_checked} disabled></input></div></td>			
+			<td><div data-atributo='icone' data-editavel='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
 			";			
 
 		return $html;

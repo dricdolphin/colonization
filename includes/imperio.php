@@ -19,7 +19,7 @@ class imperio
 	public $pontuacao = 0;
 	public $html_header;
 	public $turno;
-	public $defesa_planetaria;
+	public $icones_html = "";
 
 	/***********************
 	function __construct($id, $super=false)
@@ -88,11 +88,19 @@ class imperio
 		AND cit.turno <= {$this->turno->turno}
 		) AS custo_tech");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
-		
-		//Defesa Planetária
-		$this->defesa_planetaria = $wpdb->get_var("SELECT COUNT(cit.id) AS id
+
+		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
+		$icones = $wpdb->get_results("SELECT ct.id AS id
 		FROM colonization_imperio_techs AS cit
-		WHERE cit.id_imperio={$this->id} AND cit.id_tech=19");
+		JOIN colonization_tech AS ct
+		ON ct.id = cit.id_tech
+		WHERE cit.id_imperio={$this->id} AND ct.icone != ''");
+		
+		foreach ($icones AS $icone) {
+			$tech = new tech($icone->id);
+			$this->icones_html .= " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+		}
+		
 	}
 
 	/***********************
@@ -102,11 +110,6 @@ class imperio
 	***********************/
 	function lista_dados() {
 		$user = get_user_by('ID',$this->id_jogador);
-		
-		$estilo_defesa_planetaria = "";
-		if ($this->defesa_planetaria == 1) {
-			$estilo_defesa_planetaria = "style='font-weight: bold;'";
-		}
 		
 		/**
 		//DEBUG
@@ -132,7 +135,7 @@ class imperio
 				<div data-atributo='ID'>{$this->id}</div>
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='nome_jogador' {$estilo_defesa_planetaria}>{$user->display_name}</div></td>
+			<td><div data-atributo='nome_jogador'>{$user->display_name}{$this->icones_html}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='prestigio' data-valor-original='{$this->prestigio}' data-editavel='true' data-style='width: 40px;'>{$this->prestigio}</div></td>
 			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
