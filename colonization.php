@@ -691,8 +691,9 @@ class colonization {
 		<div id='combustivel'>Células de Combustível: <input type='number' id='qtd_combustivel' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input></div>
 		<div id='especiais'>
 		<label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' value='1'></input><br>
-		<label>Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input>
+		<label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input>
 		</div>
+		<div id='texto_especiais'>Especiais: &nbsp;</div>
 		";
 		
 		return $html;

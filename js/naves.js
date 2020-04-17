@@ -48,10 +48,17 @@ function calcula_custos(evento, objeto) {
 	let mk_impulso = document.getElementById('mk_impulso').value;
 	let mk_dobra = document.getElementById('mk_dobra').value;
 	
+	let especiais = 0;
+	let custo_estacao_orbital = 0;
+	let texto_especiais = document.getElementById('texto_especiais');
+	
 	if (qtd_pesquisa.checked) {
 		qtd_pesquisa = qtd_pesquisa.value;
+		especiais++;
+		texto_especiais.innerHTML = "Especiais: (1) - Pode realizar Pesquisas"; 
 	} else {
 		qtd_pesquisa = 0;
+		texto_especiais.innerHTML = "Especiais: &nbsp;";
 	}
 	
 	if (qtd_estacao_orbital != 0) {
@@ -61,6 +68,13 @@ function calcula_custos(evento, objeto) {
 		qtd_dobra = document.getElementById('qtd_dobra').value;
 		
 		custo_estacao_orbital = 20*qtd_estacao_orbital;
+		
+		if (especiais == 0) {
+			texto_especiais.innerHTML = "Especiais: (1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+		} else {
+			especiais++;
+			texto_especiais.innerHTML = texto_especiais.innerHTML + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+		}
 	}
 
 	chassi = Math.ceil(custo_estacao_orbital/1.5) + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_dobra*1 + qtd_impulso*mk_impulso + qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
