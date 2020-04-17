@@ -145,7 +145,7 @@ content: "\f135";
     max-height: 20px;
 	overflow: hidden;
 	clear: both;
-	display: block;	
+	display: block;
 }
 
 #barra_recursos {
@@ -171,7 +171,6 @@ content: "\f135";
 
 #barra_recursos:hover {
 	max-height: 180px;
-	transition: overflow 300ms;
 	overflow: visible;
 }
 

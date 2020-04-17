@@ -78,7 +78,10 @@ class instala_db {
 		nivel INT(6) NOT NULL,
 		custo INT(6) NOT NULL,
 		id_tech_parent INT(6),
-		belica BOOLEAN DEFAULT FALSE
+		lista_requisitos VARCHAR(255) DEFAULT '',
+		belica BOOLEAN DEFAULT FALSE,
+		publica BOOLEAN DEFAULT TRUE,
+		icone VARCHAR(255) DEFAULT ''
 		)");
 
 

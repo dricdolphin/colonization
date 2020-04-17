@@ -211,8 +211,10 @@ function nova_tech(evento) {
 	var nivel = linha_nova.insertCell(3);
 	var custo = linha_nova.insertCell(4);
 	var id_tech_parent = linha_nova.insertCell(5);
-	var belica = linha_nova.insertCell(6);
-	var icone = linha_nova.insertCell(7);
+	var lista_requisitos = linha_nova.insertCell(6);
+	var belica = linha_nova.insertCell(7);
+	var publica = linha_nova.insertCell(8);
+	var icone = linha_nova.insertCell(9);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -225,7 +227,9 @@ function nova_tech(evento) {
 	nivel.innerHTML = "<div data-atributo='nivel' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='nivel' data-ajax='true' style='width: 50px;'></input></div>";
 	custo.innerHTML = "<div data-atributo='custo' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='custo' data-ajax='true' style='width: 50px;'></input></div>";
 	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
+	lista_requisitos.innerHTML = "<div data-atributo='lista_requisitos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='lista_requisitos' data-ajax='true' data-branco='true'></input></div>";
 	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
+	publica.innerHTML = "<div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='publica' data-ajax='true' checked></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);
@@ -310,9 +314,9 @@ function nova_instalacao(evento) {
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
-	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
-	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
-	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
+	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
+	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
+	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);	
