@@ -44,7 +44,9 @@ class acoes
 		$this->id_imperio = $imperio->id;
 
 		$resultados =$wpdb->get_results("
-			SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cat.pop AS pop, cat.data_modifica AS data_modifica
+			SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
+			cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
+			cat.pop AS pop, cat.data_modifica AS data_modifica
 			FROM colonization_imperio_colonias AS cic 
 			JOIN colonization_planeta_instalacoes AS cpi
 			ON cpi.id_planeta = cic.id_planeta
@@ -65,7 +67,6 @@ class acoes
 			ON ce.id = cp.id_estrela
 			WHERE cic.id_imperio = {$this->id_imperio} 
 			AND cic.turno = {$this->turno->turno}
-			AND cpi.turno_destroi IS NULL
 			AND cpi.turno <={$this->turno->turno}
 			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
 			");
@@ -195,6 +196,7 @@ class acoes
 			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
 			$colonia = new colonia($this->id_colonia[$chave]);
+			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 			
 			if ($ultimo_planeta != $planeta->id) {
 				$slots = 0;
@@ -245,6 +247,10 @@ class acoes
 				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
 			} else {
 				$exibe_acoes = "&nbsp";
+			}
+			
+			if (!empty($colonia_instalacao->turno_destroi)) {
+				$exibe_acoes = "<span style='color: #DD0000; font-weight: bold;'>DESTRUÍDA!</span>";
 			}
 			
 			if ($instalacao->oculta == 0) {

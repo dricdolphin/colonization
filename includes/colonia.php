@@ -37,7 +37,7 @@ class colonia
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
 		ON ci.id = cpi.id_instalacao
-		WHERE cpi.id_planeta={$this->id_planeta} AND cpi.turno_destroi IS NULL");
+		WHERE cpi.id_planeta={$this->id_planeta}");
 		
 		$this->planeta = new planeta($this->id_planeta);
 		$this->estrela = new estrela($this->planeta->id_estrela);
@@ -103,8 +103,13 @@ class colonia
 		$html = "";
 		foreach ($resultados as $resultado) {
 			$planeta_recurso = new planeta_recurso($resultado->id);
+			$imperio_recursos = new imperio_recursos($this->id_imperio);
 			$recurso = new recurso($planeta_recurso->id_recurso);
-			$html .= "{$recurso->nome}: {$planeta_recurso->disponivel}, ";
+			
+			$chave_recurso = array_search($planeta_recurso->id_recurso,$imperio_recursos->id_recurso);
+			if ($imperio_recursos->disponivel[$chave_recurso] == 1) {//Somente exibe os recursos que o Império já conhecer
+				$html .= "{$recurso->nome}: {$planeta_recurso->disponivel}, ";
+			}
 		}
 		
 		if ($html != "") {
