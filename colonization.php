@@ -56,9 +56,77 @@ class colonization {
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
+		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos'));
 	}
+
+	/******************
+	function colonization_exibe_distancia_estrelas()
+	-----------
+	Exibe a distância entre duas estrelas
+	******************/	
+	function colonization_exibe_techtree() {
+		global $wpdb;
+		
+		if ($atts['super'] == 'true') {
+			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, nome");
+		} else {
+			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, nome");
+		}
+		
+		
+		$html_tech = [];
+		foreach ($techs AS $id) {
+			$tech = new tech($id->id);
+			
+			if ($tech->nivel == 1) {
+				$html_tech[$id->id] = "
+				<div class='wrapper_principal'>
+					<div class='wrapper_tech'>
+						<div class='tech tooltip'>{$tech->nome}
+							<span class='tooltiptext'>{$tech->descricao}</span>
+						</div>
+					</div><!-- Fecha wrapper_tech -->";
+			}
+			
+			if (!empty($tech->id_tech_parent)) {
+				$tech_parent = new tech($tech->id_tech_parent);
+				while (!empty($tech_parent->id_tech_parent)) {
+					$tech_parent = new tech($tech_parent->id_tech_parent);
+				}
+				
+				$html_tech[$tech_parent->id] .= "					
+					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
+					<div class='wrapper_tech'>
+						<div class='tech tooltip'>{$tech->nome}
+							<span class='tooltiptext'>{$tech->descricao}</span>
+						</div>";
+				
+				if ($tech->lista_requisitos != '') {
+					foreach ($tech->id_tech_requisito AS $chave => $id_tech_requisito) {
+						$tech_requisito = new tech($id_tech_requisito);
+						$html_tech[$tech_parent->id] .= "
+						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
+						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
+						</div>";
+					}
+				} 
+				$html_tech[$tech_parent->id] .= "
+					</div> <!-- Fecha wrapper_tech -->";
+			}
+		}
+
+		$html = "<div style='overflow-x: visible; max-width: 5000px;'>";
+		foreach ($html_tech as $chave => $html_valor) {
+			$html .= $html_valor . "
+				</div><!-- Fecha wrapper_principal -->";
+		}
+		$html .= "</div>";
+		echo $html;
+	}
+
 
 
 	/******************
@@ -621,7 +689,10 @@ class colonization {
 		<div id='impulso'>Motor de Impulso: <input type='number' id='qtd_impulso' onchange='return calcula_custos(event, this);' value='1' min='1' style='width: 50px;'></input> Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
 		<div id='dobra'>Motor de Dobra: <input type='number' id='qtd_dobra' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input> Mk: <input type='number' id='mk_dobra' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
 		<div id='combustivel'>Células de Combustível: <input type='number' id='qtd_combustivel' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input></div>
-		<div id='especiais'><label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' id='pesquisa' value='1'></input></div>
+		<div id='especiais'>
+		<label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' value='1'></input><br>
+		<label>Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input>
+		</div>
 		";
 		
 		return $html;

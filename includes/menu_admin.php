@@ -56,9 +56,8 @@ class menu_admin {
 			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
 			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
 			wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
+			wp_enqueue_script('fonte_awesome_js', 'https://kit.fontawesome.com/f748229918.js',false,$hoje);
 			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
-		    wp_enqueue_style('colonization-fontawesome', '/wp-content/plugins/colonization/libs/fontawesome/css/all.min.css',array(),$hoje);
-			wp_enqueue_style('colonization-fontawesome-compat-v4', '/wp-content/plugins/colonization/libs/fontawesome/css/v4-shims.min.css',array(),$hoje);
 	}
 
 	/******************
@@ -75,6 +74,7 @@ class menu_admin {
 		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
 		wp_enqueue_script('gerencia_naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
 		wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
+		wp_enqueue_script('fonte_awesome_js', 'https://kit.fontawesome.com/f748229918.js',false,$hoje);
 		wp_enqueue_script('google_charts', 'https://www.gstatic.com/charts/loader.js');
 		wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}	

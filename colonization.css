@@ -128,6 +128,41 @@ content: "\f135";
   overflow: visible;
 }
 
+.wrapper_principal {
+	padding: 2px;
+}
+
+.wrapper_tech {
+	padding: 2px;
+	display: inline-block;
+	vertical-align: top;
+	margin: auto;
+}
+
+.tech {
+	border: 2px solid #777;
+	border-radius: 3px !important;
+	padding: 3px;
+	margin: 2px;
+	display: block;
+}
+
+.tech_requisito {
+	border: 2px dotted #CCC;
+	border-radius: 3px !important;
+	padding: 3px;
+	margin: 2px;
+	display: block;
+}
+
+.tech_requisito_ellipsis {
+	margin: auto; 
+	width: 100%; 
+	border: none; 
+	text-align: center;
+	font-size: 10px;
+}
+
 .barra_recursos_pad {
 	color: #333;
 	background: #EEE;
