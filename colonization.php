@@ -66,13 +66,27 @@ class colonization {
 	-----------
 	Exibe a distância entre duas estrelas
 	******************/	
-	function colonization_exibe_techtree() {
+	function colonization_exibe_techtree($atts = [], $content = null) {
 		global $wpdb;
 		
-		if ($atts['super'] == 'true') {
-			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, nome");
+		/*** DEBUG ***
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
 		} else {
-			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, nome");
+			$roles = "";
+		}
+
+		if ($roles == 'administrator') {
+			var_dump($atts);
+			echo "<br>";
+		}
+		//***/
+		
+		if ($atts['super'] == 'true') {
+			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, belica, lista_requisitos, nome");
+		} else {
+			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, lista_requisitos, nome");
 		}
 		
 		
@@ -86,8 +100,7 @@ class colonization {
 					<div class='wrapper_tech'>
 						<div class='tech tooltip'>{$tech->nome}
 							<span class='tooltiptext'>{$tech->descricao}</span>
-						</div>
-					</div><!-- Fecha wrapper_tech -->";
+						</div>";
 			}
 			
 			if (!empty($tech->id_tech_parent)) {
@@ -102,24 +115,44 @@ class colonization {
 						<div class='tech tooltip'>{$tech->nome}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
-				
-				if ($tech->lista_requisitos != '') {
-					foreach ($tech->id_tech_requisito AS $chave => $id_tech_requisito) {
-						$tech_requisito = new tech($id_tech_requisito);
+			}
+			
+			if ($tech->lista_requisitos != '') {
+				foreach ($tech->id_tech_requisito AS $chave => $id_tech_requisito) {
+					$tech_requisito = new tech($id_tech_requisito);
+					if ($tech->nivel == 1) {
+						$html_tech[$tech->id] .= "
+						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
+						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
+						</div>";
+					} else {
 						$html_tech[$tech_parent->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
 						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 					}
-				} 
+				}
+			} 
+			if ($tech->nivel == 1) {
+				$html_tech[$tech->id] .= "
+					</div> <!-- Fecha wrapper_tech -->";				
+			} else {
 				$html_tech[$tech_parent->id] .= "
 					</div> <!-- Fecha wrapper_tech -->";
 			}
+	
 		}
 
 		$html = "<div style='overflow-x: visible; max-width: 5000px;'>";
+		$belica = 0;
 		foreach ($html_tech as $chave => $html_valor) {
+			$tech = new tech($chave);
+			if ($belica == 0 and $tech->belica == 1) {
+				$html .= "<br><div class='wrapper_principal'><span style='font-weight: bold'>Tecnologias Bélicas</span></div>";
+				$belica = 1;
+			} 
 			$html .= $html_valor . "
 				</div><!-- Fecha wrapper_principal -->";
 		}

@@ -94,7 +94,8 @@ class imperio
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id = cit.id_tech
-		WHERE cit.id_imperio={$this->id} AND ct.icone != ''");
+		WHERE cit.id_imperio={$this->id} AND ct.icone != ''
+		ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
 		
 		foreach ($icones AS $icone) {
 			$tech = new tech($icone->id);
