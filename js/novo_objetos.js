@@ -69,6 +69,7 @@ function nova_estrela(evento) {
 	var estrela_y = linha_nova.insertCell(2);
 	var estrela_z = linha_nova.insertCell(3);
 	var estrela_tipo = linha_nova.insertCell(4);
+	var gerencia = linha_nova.insertCell(5);
 	
 	nome_estrela.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -80,6 +81,7 @@ function nova_estrela(evento) {
 	estrela_y.innerHTML = "<div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Y' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_tipo.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tipo' data-ajax='true'></input></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
