@@ -83,7 +83,7 @@ class roda_turno {
 				WHERE cat.id_imperio={$imperio->id} AND cat.turno={$turno->turno} AND cir.consome=false AND cpi.turno_destroi IS NULL AND cr.extrativo=true
 				GROUP BY cr.nome, cpi.id");
 				
-				$html .= "CONSUMINDO Recursos Planetários do Império {$imperio->id}:<br>";
+				$html .= "CONSUMINDO Recursos Planetários do {$imperio->nome}:<br>";
 				foreach ($resultados as $resultado) {
 					$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
 					$qtd = $imperio_recursos->qtd[$chave] + $resultado->producao;
@@ -103,7 +103,7 @@ class roda_turno {
 						}
 					}
 						$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}<br>";
-						$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
+						//$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$resultado->id_planeta}, id_recurso ={$resultado->id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 					}
 				}
 				
@@ -177,7 +177,7 @@ class roda_turno {
 					}
 					
 					$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
+					//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$resultado->id_recurso}, qtd={$resultado->balanco}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 				}
 				
 				//Cria poluição
@@ -264,13 +264,13 @@ class roda_turno {
 					}
 				
 					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}");
+					//$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}");
 				}
 			}
 		
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
 		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'<br>";
-		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'");
+		//$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'");
 		
 		$this->concluido = true;
 		} else {

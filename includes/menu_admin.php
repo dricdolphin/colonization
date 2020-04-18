@@ -407,7 +407,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr><td>Nome</td><td>Descrição</td><td>Acumulável</td><td>Extrativo</td><td>Local</td>
+		<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
 		</tr>
 		</thead>
 		<tbody>";
@@ -569,7 +569,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
-			<tr><td>Nome</td><td>Descrição</td><td style='width: 40px;'>Slots</td><td>Autônoma</td><td>Desguarnecida</td><td>Oculta</td><td>&nbsp;</td>
+			<tr><td>ID</td><td>Nome</td><td>Descrição</td><td style='width: 40px;'>Slots</td><td>Autônoma</td><td>Desguarnecida</td><td>Oculta</td><td>&nbsp;</td>
 			</tr>
 			</thead>
 			<tbody>";

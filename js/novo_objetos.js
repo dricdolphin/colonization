@@ -167,18 +167,20 @@ function novo_recurso(evento) {
 	tabela = tabela[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var nome = linha_nova.insertCell(0);
-	var descricao = linha_nova.insertCell(1);
-	var acumulavel = linha_nova.insertCell(2);
-	var extrativo = linha_nova.insertCell(3);
-	var local = linha_nova.insertCell(4);
+	var id = linha_nova.insertCell(0);
+	var nome = linha_nova.insertCell(1);
+	var descricao = linha_nova.insertCell(2);
+	var acumulavel = linha_nova.insertCell(3);
+	var extrativo = linha_nova.insertCell(4);
+	var local = linha_nova.insertCell(5);
 	
-	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
-	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
+	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
 	acumulavel.innerHTML = "<div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' checked></input></div>";
 	extrativo.innerHTML = "<div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='extrativo' data-ajax='true' checked></input></div>";
@@ -301,21 +303,23 @@ function nova_instalacao(evento) {
 	tabela = tabela[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var nome = linha_nova.insertCell(0);
-	var descricao = linha_nova.insertCell(1);
-	var slots = linha_nova.insertCell(2);
-	var autonoma = linha_nova.insertCell(3);
-	var desguarnecida = linha_nova.insertCell(4);
-	var oculta = linha_nova.insertCell(5);
-	var gerencia = linha_nova.insertCell(6);
+	var id = linha_nova.insertCell(0);
+	var nome = linha_nova.insertCell(1);
+	var descricao = linha_nova.insertCell(2);
+	var slots = linha_nova.insertCell(3);
+	var autonoma = linha_nova.insertCell(4);
+	var desguarnecida = linha_nova.insertCell(5);
+	var oculta = linha_nova.insertCell(6);
+	var gerencia = linha_nova.insertCell(7);
 	
-	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação e todas suas ligações (recursos produzidos, consumidos etc)?'></input>"
-	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
+	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";

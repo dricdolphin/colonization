@@ -63,9 +63,10 @@ class recurso
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
-				<div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div>
+				<div data-atributo='id' data-valor-original='{$this->id}'>{$this->id}</div>
 				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
+			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
 			<td><div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->acumulavel}'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' {$acumulavel_checked} disabled></input></div></td>
 			<td><div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='{$this->extrativo}'><input type='checkbox' data-atributo='extrativo' data-ajax='true' {$extrativo_checked} disabled></input></div></td>

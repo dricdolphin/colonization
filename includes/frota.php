@@ -27,6 +27,7 @@ class frota
 	public $poder_invasao;
 	public $especiais;
 	public $HP;
+	public $HP_max;
 	public $qtd;
 	public $turno;
 	
@@ -60,6 +61,7 @@ class frota
 		$this->escudos = $resultado->escudos;
 		$this->poder_invasao = $resultado->poder_invasao;
 		$this->HP = $resultado->HP;
+		$this->HP_max = $this->tamanho*10;
 		$this->qtd = $resultado->qtd;
 		$this->turno = $resultado->turno;
 		$this->especiais = $resultado->especiais;
@@ -143,7 +145,7 @@ class frota
 			$html .= " Escudos: {$this->escudos};";
 		}		
 
-		$html .= " HP: {$this->HP};";
+		$html .= " HP: {$this->HP}/{$this->HP_max};";
 		
 		if ($this->especiais == "") {
 			$html = substr($html,0,-1);

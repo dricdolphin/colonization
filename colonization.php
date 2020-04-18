@@ -58,7 +58,7 @@ class colonization {
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
-		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos'));
+		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
 	}
 
 	/******************
@@ -659,9 +659,17 @@ class colonization {
 
 			if ($tech->id_tech_parent !=0) {
 				$id_chave = $tech->id_tech_parent;
-				//****** MODIFICAÇÃO PARA OS KHOZIRTU (id_imperio == 3) **** /
-				if ($id_chave == 1 && $id->id_imperio == 3) {
-					$id_chave = 10; //Os Khozirtu tem um pré-requisito diferente para as mineradoras
+				$id_chave = explode(";",$tech->id_tech_parent);
+
+				if (count($id_chave) == 1) {//O id_tech_parent pode ter pré-requisitos alternativos
+					$id_chave = $id_chave[0];
+				} else {//Se tiver um pré-requisito alternativo, verifica qual é válido
+					foreach ($id_chave as $chave => $id_tech) {
+						if (!empty($html_tech[$id_tech])) {	
+							$id_chave = $id_tech;
+							break;
+						}
+					}
 				}
 				
 				if ($id->custo_pago != 0) {
