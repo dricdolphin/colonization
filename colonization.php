@@ -647,7 +647,7 @@ class colonization {
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech
 		WHERE id_imperio={$imperio->id}
-		ORDER BY ct.belica, ct.id_tech_parent, ct.nome
+		ORDER BY ct.nivel, ct.belica, ct.id_tech_parent, ct.lista_requisitos, ct.nome
 		");
 		
 		$html_tech = [];
@@ -656,13 +656,7 @@ class colonization {
 		$separador = "";
 		foreach ($lista_techs_imperio as $id) {
 			$tech = new tech($id->id_tech);
-			
-			if ($tech_anterior_belica == 0 && $tech->belica == 1) {
-				$separador = "<br><b>Techs Bélicas</b><br>";
-			} else {
-				$separador = "";
-			}
-			
+
 			if ($tech->id_tech_parent !=0) {
 				$id_chave = $tech->id_tech_parent;
 				//****** MODIFICAÇÃO PARA OS KHOZIRTU (id_imperio == 3) **** /
@@ -671,25 +665,30 @@ class colonization {
 				}
 				
 				if ($id->custo_pago != 0) {
-					$html_tech[$id_chave] .= " -> <span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
+					$html_tech[$id_chave] .= "<div class='wrapper_tech tooltip'> -> <span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}] <span class='tooltiptext'>{$tech->descricao}</span></div>";
 				} else {
-					$html_tech[$id_chave] .= " -> ".$tech->nome;
+					$html_tech[$id_chave] .= "<div class='wrapper_tech tooltip'> -> ".$tech->nome." <span class='tooltiptext'>{$tech->descricao}</span></div>";
 				}
 			} else {
 				$id_chave = $tech->id;
 				if ($id->custo_pago != 0) {
-					$html_tech[$id_chave] = $separador."<span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}]";
+					$html_tech[$id_chave] = "<div class='wrapper_tech tooltip'><span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}] <span class='tooltiptext'>{$tech->descricao}</span></div>";
 				} else {
-					$html_tech[$id_chave] = $separador.$tech->nome;
+					$html_tech[$id_chave] = "<div class='wrapper_tech tooltip'>".$tech->nome." <span class='tooltiptext'>{$tech->descricao}</span></div>";
 				}
 			}
-		
-		$tech_anterior_belica = $tech->belica;
 		}
 		
 		
-		foreach ($html_tech as $chave => $valor) {
-			$html .= $valor.";<br>";
+		foreach ($html_tech as $id_tech => $lista_html) {
+			$tech = new tech($id_tech);
+			if ($tech_anterior_belica == 0 && $tech->belica == 1) {
+				$tech_anterior_belica = 1;
+				$html .= "<br><div><b>Techs Bélicas</b></div>
+				<div>".$lista_html.";</div>";
+			} else {
+				$html .= "<div>".$lista_html.";</div>";
+			}
 		}
 
 		$html .= "</div>";

@@ -81,6 +81,7 @@ class instala_db {
 		lista_requisitos VARCHAR(255) DEFAULT '',
 		belica BOOLEAN DEFAULT FALSE,
 		publica BOOLEAN DEFAULT TRUE,
+		especiais VARCHAR(255) DEFAULT '',
 		icone VARCHAR(255) DEFAULT ''
 		)");
 

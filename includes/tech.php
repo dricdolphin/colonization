@@ -26,7 +26,7 @@ class tech
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, lista_requisitos, belica, publica, icone FROM colonization_tech WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, lista_requisitos, belica, publica, especiais, icone FROM colonization_tech WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -38,6 +38,7 @@ class tech
 		$this->id_tech_requisito = explode(";",$resultado->lista_requisitos);
 		$this->belica = $resultado->belica;
 		$this->publica = $resultado->publica;
+		$this->especiais = $resultado->especiais;
 		$this->icone = $resultado->icone;
 	}
 
@@ -78,7 +79,8 @@ class tech
 			<td><div data-atributo='lista_requisitos' data-editavel='true' data-branco='true' data-valor-original='{$this->lista_requisitos}' data-style='width: 100px;'>{$this->lista_requisitos}</div></td>
 			<td><div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->belica}'><input type='checkbox' data-atributo='belica' data-ajax='true' {$belica_checked} disabled></input></div></td>			
 			<td><div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->publica}'><input type='checkbox' data-atributo='publica' data-ajax='true' {$publica_checked} disabled></input></div></td>			
-			<td><div data-atributo='icone' data-editavel='true'  data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
+			<td><div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original='{$this->especiais}'>{$this->especiais}</div></td>
+			<td><div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
 			";			
 
 		return $html;

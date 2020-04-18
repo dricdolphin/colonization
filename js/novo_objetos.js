@@ -216,7 +216,8 @@ function nova_tech(evento) {
 	var lista_requisitos = linha_nova.insertCell(6);
 	var belica = linha_nova.insertCell(7);
 	var publica = linha_nova.insertCell(8);
-	var icone = linha_nova.insertCell(9);
+	var especiais = linha_nova.insertCell(9);
+	var icone = linha_nova.insertCell(10);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -232,6 +233,7 @@ function nova_tech(evento) {
 	lista_requisitos.innerHTML = "<div data-atributo='lista_requisitos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='lista_requisitos' data-ajax='true' data-branco='true'></input></div>";
 	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
 	publica.innerHTML = "<div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='publica' data-ajax='true' checked></input></div>";
+	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);

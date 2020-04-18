@@ -68,6 +68,7 @@ id_tech_parent INT(6),
 lista_requisitos VARCHAR(255) DEFAULT '',
 belica BOOLEAN DEFAULT FALSE,
 publica BOOLEAN DEFAULT TRUE,
+especiais VARCHAR(255) DEFAULT '',
 icone VARCHAR(255) DEFAULT ''
 )
 

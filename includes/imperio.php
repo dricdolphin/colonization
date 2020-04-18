@@ -20,6 +20,7 @@ class imperio
 	public $html_header;
 	public $turno;
 	public $icones_html = "";
+	public $max_pop = 0;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -100,6 +101,22 @@ class imperio
 		foreach ($icones AS $icone) {
 			$tech = new tech($icone->id);
 			$this->icones_html .= " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+		}
+		
+		//Algumas Techs permitem aumentar o max_pop de um planeta
+		$max_pop = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id = cit.id_tech
+		WHERE cit.id_imperio={$this->id} 
+		AND ct.especiais LIKE '%max_pop%'");
+		
+		foreach ($max_pop AS $id) {
+			$especiais = explode(";",$id->especiais);
+			$chave_max_pop = array_search("max_pop",$especiais);
+			$max_pop = explode("=",$especiais[$chave_max_pop]);
+			
+			$this->max_pop = $this->max_pop + $max_pop[1];
 		}
 		
 	}

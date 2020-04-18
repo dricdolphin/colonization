@@ -41,6 +41,7 @@ class roda_turno {
 			$proxima_semana = new DateTime($turno->data_turno);
 			$proxima_semana->modify('+7 days');
 
+			//**
 			if ($turno->bloqueado) {
 				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
 				
@@ -58,6 +59,7 @@ class roda_turno {
 				
 				return $html;
 			}
+			//**/
 			
 			$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 			
@@ -239,14 +241,20 @@ class roda_turno {
 						$nova_pop = $colonia->pop;
 					} else {
 						if ($alimentos > 0 && $planeta->inospito == 0) {
-								if ($colonia->pop <= $planeta->tamanho*10) {//Tem espaço para crescer
+								$limite_pop_planeta = $planeta->tamanho*10; 
+								//Caso o Império tenha uma Tech de Bônus Populacional...
+								if ($imperio->max_pop >0) {
+									$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
+								}
+								
+								if ($colonia->pop <= $limite_pop_planeta) {//Tem espaço para crescer
 									if ($colonia->pop <=24) {
 										$nova_pop = $colonia->pop + 5;
 									} else {
 										$nova_pop = $colonia->pop + 10;
 									}
-									if ($nova_pop > $planeta->tamanho*10) {
-										$nova_pop = $planeta->tamanho*10;
+									if ($nova_pop > $limite_pop_planeta) {
+										$nova_pop = $limite_pop_planeta;
 									}
 								}
 						} else {
