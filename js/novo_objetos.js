@@ -591,7 +591,6 @@ function nova_nave(evento, id_imperio) {
 	especiais.innerHTML = "<td><div data-atributo='especiais' data-editavel='true' data-valor-original='' data-style='width: 120px;' data-branco='true'><input type='text' data-atributo='especiais' data-ajax='true' style='width: 120px;' data-branco='true'></input></div></td>";
 	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;	
 }

@@ -83,8 +83,15 @@ class colonization {
 		}
 		//***/
 		
-		if ($atts['super'] == 'true') {
+		if (!empty($atts['super'])) {
 			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, belica, lista_requisitos, nome");
+		} elseif (!empty($atts['id'])) {
+			$techs = $wpdb->get_results("SELECT ct.id 
+			FROM colonization_imperio_techs AS cit
+			JOIN colonization_tech AS ct
+			ON ct.id = cit.id_tech
+			WHERE cit.id_imperio = {$atts['id']}
+			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
 		} else {
 			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, lista_requisitos, nome");
 		}
@@ -104,17 +111,56 @@ class colonization {
 			}
 			
 			if (!empty($tech->id_tech_parent)) {
-				$tech_parent = new tech($tech->id_tech_parent);
-				while (!empty($tech_parent->id_tech_parent)) {
-					$tech_parent = new tech($tech_parent->id_tech_parent);
+				/*** ANTIGO MÉTODO *** 
+				$id_tech_parent = explode(";",$tech->id_tech_parent);
+				$id_tech_parent = $id_tech_parent[0];
+				$tech_parent = new tech($id_tech_parent);
+				
+				while (!empty($id_tech_parent)) {
+					$tech_parent = new tech($id_tech_parent);
+					$id_tech_parent = explode(";",$tech_parent->id_tech_parent);
+					$id_tech_parent = $id_tech_parent[0];
 				}
 				
-				$html_tech[$tech_parent->id] .= "					
+				//***/
+				
+				//***
+				$ids_tech_parent = [];
+				$nivel = $tech->nivel-1;
+				$ids_tech_parent[$nivel] = explode(";",$tech->id_tech_parent);
+				
+				while ($nivel > 1) {
+					foreach ($ids_tech_parent[$nivel] as $chave => $id_tech_parent) {
+						$tech_parent = new tech($id_tech_parent);
+						$nivel_anterior = $tech_parent->nivel-1;
+						if (!empty($tech_parent->id_tech_parent)) {//Tem um pré-requisito, que é de nível inferior
+							if (empty($ids_tech_parent[$nivel_anterior])) {
+								$ids_tech_parent[$nivel_anterior] = explode(";",$tech_parent->id_tech_parent);
+							} else {
+								$ids_tech_parent[$nivel_anterior] = array_merge($ids_tech_parent[$nivel_anterior],explode(";",$tech_parent->id_tech_parent));
+							}
+						}
+						$nivel = $nivel_anterior;
+					}
+				}
+				
+				$ids_tech_parent = $ids_tech_parent[1];
+				//$id_tech_parent = $ids_tech_parent[1][0];
+				//$tech_parent = new tech($id_tech_parent);
+				//****/
+				
+				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
+					$tech_parent = new tech($id_tech_parent);
+					if (!empty($html_tech[$tech_parent->id])) {
+						$html_tech[$tech_parent->id] .= "					
 					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
 					<div class='wrapper_tech'>
 						<div class='tech tooltip'>{$tech->nome}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
+					}
+				}
+				
 			}
 			
 			if ($tech->lista_requisitos != '') {
@@ -127,20 +173,31 @@ class colonization {
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 					} else {
-						$html_tech[$tech_parent->id] .= "
+						foreach ($ids_tech_parent as $chave => $id_tech_parent) {
+							$tech_parent = new tech($id_tech_parent);
+							if (!empty($html_tech[$tech_parent->id])) {						
+								$html_tech[$tech_parent->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
 						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
+							}
+						}
 					}
 				}
-			} 
+			}
+			
 			if ($tech->nivel == 1) {
 				$html_tech[$tech->id] .= "
 					</div> <!-- Fecha wrapper_tech -->";				
 			} else {
-				$html_tech[$tech_parent->id] .= "
+				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
+					$tech_parent = new tech($id_tech_parent);
+					if (!empty($html_tech[$tech_parent->id])) {						
+						$html_tech[$tech_parent->id] .= "
 					</div> <!-- Fecha wrapper_tech -->";
+					}
+				}
 			}
 	
 		}
@@ -157,7 +214,7 @@ class colonization {
 				</div><!-- Fecha wrapper_principal -->";
 		}
 		$html .= "</div>";
-		echo $html;
+		return $html;
 	}
 
 
@@ -200,7 +257,7 @@ class colonization {
 		</script>
 		";
 		
-		echo $html;
+		return $html;
 	}
 	
 	/******************
@@ -241,7 +298,7 @@ class colonization {
 		</script>
 		";
 		
-		echo $html;
+		return $html;
 	}
 	
 	/******************
@@ -635,10 +692,22 @@ class colonization {
 			$imperio = new imperio($atts['id']);
 		} else {
 			$imperio = new imperio();
+			$atts['id'] = $imperio->id;
 		}
 		
 		$turno = new turno();
 		
+		//***
+		$html = "<div>";
+		
+		$html .= $this->colonization_exibe_techtree($atts);
+		
+		$html .= "</div>";
+		
+		return $html;
+		//***/
+		
+		/*** MÉTODO ANTIGO ***
 		$html = "<div>";
 		
 		$lista_techs_imperio = $wpdb->get_results("
@@ -657,9 +726,24 @@ class colonization {
 		foreach ($lista_techs_imperio as $id) {
 			$tech = new tech($id->id_tech);
 
-			if ($tech->id_tech_parent !=0) {
-				$id_chave = $tech->id_tech_parent;
+			if ($tech->id_tech_parent !=0) { //Precisa encontrar o id_tech de nível 1, então precisa retroagir
 				$id_chave = explode(";",$tech->id_tech_parent);
+				$id_chave = [];
+				$id_chave[$tech->nivel] = explode(";",$tech->id_tech_parent);
+				$nivel = $tech->nivel;
+				while ($nivel > 1) {
+					foreach ($id_chave[$nivel] as $chave => $id_tech_parent) {
+						$tech_parent[$chave] = new tech($id_tech_parent);
+						$nivel = $tech_parent[0]->nivel;
+						if (empty($id_chave[$nivel])) {
+							$id_chave[$nivel] = explode(";",$tech->id_tech_parent);
+						} else {
+							$id_chave[$nivel] = array_merge($id_chave[$nivel],explode(";",$tech->id_tech_parent));
+						}
+					}
+				}
+				
+				$id_chave = $id_chave[1];
 
 				if (count($id_chave) == 1) {//O id_tech_parent pode ter pré-requisitos alternativos
 					$id_chave = $id_chave[0];
@@ -702,6 +786,7 @@ class colonization {
 		$html .= "</div>";
 
 		return $html;
+		//***/
 	}
 
 	
