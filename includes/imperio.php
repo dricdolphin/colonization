@@ -9,8 +9,6 @@ Cria o objeto "Império" e mostra os dados do Império
 //Contém os dados do Império
 class imperio 
 {
-//TODO -- Criar a classe
-
 	public $id;
 	public $nome;
 	public $id_jogador;
@@ -19,6 +17,8 @@ class imperio
 	public $pontuacao = 0;
 	public $html_header;
 	public $turno;
+	
+	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
 	public $max_pop = 0;
 	public $bonus_recurso = [];
@@ -115,69 +115,88 @@ class imperio
 		//
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
 		//Essa Tech pode ter os seguintes atributos
-		//id_recurso=recursos -- pode ser uma lista separada por vírgula ou *, para todos os recursos
-		//extrativo=1 -- se aplica apenas à recursos com o atributo extrativo
-		//sinergia=1 -- se aplica apenas se houver mais de uma instalação que produza o recurso
+		//id_recurso=recursos -- pode ser uma lista separada por vírgula ou *, para todos os recursos => OBRIGATÓRIO
+		//extrativo -- se aplica apenas à recursos com o atributo extrativo
+		//sinergia -- se aplica apenas se houver mais de uma instalação que produza o recurso
 		//max_bonus_recurso=qtd_total -- o bônus tem um limite máximo (unitário)
 		
-		$especiais = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais
+		$especiais_lista = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id = cit.id_tech
 		WHERE cit.id_imperio={$this->id} 
 		AND ct.especiais != ''");
 		
-		foreach ($especiais AS $id) {
+		foreach ($especiais_lista AS $id) {
+			$especiais = explode(";",$id->especiais);
 			
-			$especial = explode(";",$id->especiais);
-			$chave_max_pop = array_search("max_pop",$especiais);
-			$chave_id_recurso = array_search("id_recurso",$especiais);
+			//Especiais -- max_pop
+			$max_pop = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'max_pop') !== false;
+			}));
 			
-			if ($chave_max_pop !== false) {
-				$max_pop = explode("=",$especiais[$chave_max_pop]);
-				$this->max_pop = $this->max_pop + $max_pop[1];
-			
-			} elseif ($chave_id_recurso !== false) {
-				$id_recurso = explode("=",$especiais[$chave_id_recurso]);
-				$chave_bonus = array_search("produz_recurso",$especiais); //Necessariamente tem esse atributo
-				$bonus = explode("=",$especiais[$chave_bonus]);
-				$bonus = $bonus[1];
-				if (empty($this->bonus_recurso[$id_recurso])) {
-					$this->bonus_recurso[$id_recurso] =  $bonus;
-				} else {
-					$this->bonus_recurso[$id_recurso] = $this->bonus_recurso[$id_recurso] + $bonus;	
-				}				
+			if (!empty($max_pop)) {
+				$max_pop_valor = explode("=",$max_pop[0]);
+				$this->max_pop = $this->max_pop	+ $max_pop_valor[1];
 				
-				//Esses atributos são opcionais
-				$chave_extrativo = array_search("extrativo",$especiais);
-				if ($chave_extrativo  !== false) {
-					$extrativo = explode("=",$especiais[$chave_extrativo]);
-					$extrativo = $extrativo[1];
-				} else {
-					$extrativo = "";
-				}
-				
-				$chave_sinergia = array_search("sinergia",$especiais);
-				if ($chave_sinergia  !== false) {
-					$sinergia = explode("=",$especiais[$chave_sinergia]);
-					$sinergia = $sinergia[1];
-				} else {
-					$sinergia = "";
-				}
-				
-				$chave_max_bonus_recurso = array_search("max_bonus_recurso",$especiais);
-				if ($chave_max_bonus_recurso  !== false) {
-					$max_bonus_recurso = explode("=",$especiais[$chave_max_bonus_recurso]);
-					$max_bonus_recurso = $max_bonus_recurso[1];					
-				} else {
-					$max_bonus_recurso = "";
-				}
-				
-				$this->extrativo[$id_recurso] = $extrativo;
-				$this->sinergia[$id_recurso] = $sinergia;
-				$this->max_bonus_recurso[$id_recurso] = $max_bonus_recurso;
 			}
+
+			//Especiais -- produz_recursos
+			$bonus_recurso = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'produz_recurso') !== false;
+			}));
 			
+			if (!empty($bonus_recurso)) {
+				$bonus_recurso = explode("=",$bonus_recurso[0]);
+				$bonus_recurso = $bonus_recurso[1];
+
+				//Sempre tem um id_recurso
+				$id_recurso = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'id_recurso') !== false;
+				}));
+				
+				$id_recurso = explode("=",$id_recurso[0]);
+				$id_recurso = explode(",",$id_recurso[1]);
+				
+				//Atributos opcionais
+				$sinergia = array_search("sinergia",$especiais);
+				if ($sinergia !== false) {
+					$sinergia = true;
+				}
+				
+				$extrativo = array_search("extrativo",$especiais);
+				if ($extrativo !== false) {
+					$extrativo = true;
+				}
+				
+				$max_bonus_recurso = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'max_bonus_recurso') !== false;
+				}));
+				
+				if (!empty($max_bonus_recurso)) {
+					$max_bonus_recurso = explode("=",$max_bonus_recurso[0]);
+					$max_bonus_recurso = $max_bonus_recurso[1];
+				} else {
+					$max_bonus_recurso = false;
+				}
+
+
+				//Popula o array
+				foreach ($id_recurso as $chave => $valor) {
+					if (empty($this->bonus_recurso[$valor])) {
+						$this->bonus_recurso[$valor] = $bonus_recurso;
+					} else {
+						$this->bonus_recurso[$valor] = $this->bonus_recurso[$valor]+$bonus_recurso;
+					}
+					$this->sinergia[$valor] = $sinergia;
+					$this->extrativo[$valor] = $extrativo;
+					$this->max_bonus_recurso[$valor] = $max_bonus_recurso;
+				}
+			}
+		}
+		
+		if ($this->max_pop >0) {
+			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
 		}
 		
 	}

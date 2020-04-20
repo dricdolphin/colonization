@@ -21,9 +21,11 @@ class acoes
 	public $turno;
 	public $data_modifica = [];
 	public $max_data_modifica;
+	public $recursos_produzidos_planeta = [];
 	public $recursos_produzidos = [];
 	public $recursos_produzidos_nome = [];
 	public $recursos_consumidos = [];
+	public $recursos_consumidos_planeta = [];
 	public $recursos_consumidos_nome = [];
 	public $recursos_balanco = [];
 	public $recursos_balanco_nome = [];
@@ -146,22 +148,7 @@ class acoes
 				$mdo = $mdo + $this->pop[$chave];
 			}
 		}
-	
-		/***DEBUG!
-		$user = wp_get_current_user();
-		$roles = $user->roles[0];
 
-		if ($roles == "administrator") {
-			echo ("id_planeta: ".$id_planeta."<br><br>");
-			var_dump($this->id_planeta);
-			echo "<br><br>";
-			var_dump($this->pop);
-			echo "<br><br>";
-			var_dump($chaves);
-			wp_die();
-		}
-		//***/
-		
 		return $mdo;
 	}
 
@@ -298,11 +285,22 @@ class acoes
 				if (empty($this->recursos_produzidos[$id_recurso])) {
 					$recurso = new recurso($id_recurso);
 
+					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_produzidos[$id_recurso] = 0;
 					$this->recursos_produzidos_nome[$id_recurso] = $recurso->nome;
 					$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
 				}
+				
+				if (empty($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
+					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+				}
+				
+				if ($instalacao->desguarnecida == 1) {
+					$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
+				}
 				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
@@ -320,6 +318,7 @@ class acoes
 					if ($id_recurso !== null) {
 						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
 							$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + 1;
+							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + 1;
 						}
 					}
 				}
@@ -333,6 +332,7 @@ class acoes
 				$bonus_sinergia_tech = 5;
 			}
 			$this->recursos_produzidos[15] = $this->recursos_produzidos[15] + $bonus_sinergia_tech;
+			$this->recursos_produzidos_planeta[15][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[15][$this->id_planeta[$chave]] + $bonus_sinergia_tech;
 		}
 		//*** FIM MODIFICACOES ***/
 		
@@ -346,12 +346,21 @@ class acoes
 					$recurso = new recurso($id_recurso);
 					
 					$this->recursos_consumidos[$id_recurso] = 0;
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
 					if (empty($this->recursos_balanco_nome[$id_recurso])) {
 						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
 					}
 				}
+				if (empty($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+				}
+				if ($instalacao->desguarnecida == 1) {
+					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
+				}
 				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
@@ -359,8 +368,10 @@ class acoes
 				//MODIFICAÇÕES IMPÉRIO KHOZIRTU (id_imperio == 3)
 				if ($this->id_imperio == 3) {
 					if ($id_recurso !== null) {
-						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
-							$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + 1;
+						$recurso = new recurso ($id_recurso);
+						if ($recurso->extrativo == 1) {
+							$this->recursos_consumidos[$id_recurso] = floor($this->recursos_consumidos[$id_recurso]*1.1) ;
+							$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = floor($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]]*1.1);
 						}
 					}
 				}

@@ -132,7 +132,7 @@ class menu_admin {
 			$html .= "<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Impérios</a>";			
 		} else {
-		
+			
 			$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
