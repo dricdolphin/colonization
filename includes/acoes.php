@@ -312,17 +312,7 @@ class acoes
 					$instalacao_tech++;
 				}
 				//*** FIM MODIFICACOES ***/
-				
-				//MODIFICAÇÕES DO IMPÉRIO KHOZIRTU (id_imperio == 3)
-				if ($this->id_imperio == 3) {
-					if ($id_recurso !== null) {
-						if ($wpdb->get_var("SELECT extrativo FROM colonization_recurso WHERE id={$id_recurso}") && $this->pop[$chave] == 10) {
-							$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + 1;
-							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + 1;
-						}
-					}
-				}
-				//*** FIM MODIFICACOES ***/
+
 			}
 		}
 		
@@ -364,18 +354,8 @@ class acoes
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
-				
-				//MODIFICAÇÕES IMPÉRIO KHOZIRTU (id_imperio == 3)
-				if ($this->id_imperio == 3) {
-					if ($id_recurso !== null) {
-						$recurso = new recurso ($id_recurso);
-						if ($recurso->extrativo == 1) {
-							$this->recursos_consumidos[$id_recurso] = floor($this->recursos_consumidos[$id_recurso]*1.1) ;
-							$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = floor($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]]*1.1);
-						}
-					}
-				}
-				//*** FIM MODIFICACOES ***/
+
+
 			}
 		}
 		
@@ -388,6 +368,18 @@ class acoes
 			if (empty($this->recursos_consumidos[$id_recurso])) {
 				$this->recursos_consumidos[$id_recurso] = 0;
 			}
+			
+				//MODIFICAÇÕES DO IMPÉRIO KHOZIRTU (id_imperio == 3)
+				if ($this->id_imperio == 3) {
+					if ($id_recurso !== null) {
+						$recurso = new recurso($id_recurso);
+						if ($recurso->extrativo == 1) {
+							$this->recursos_produzidos[$id_recurso] = floor($this->recursos_produzidos[$id_recurso]*1.1);
+							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = floor($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]]*1.1);
+						}
+					}
+				}
+				//*** FIM MODIFICACOES ***/			
 			
 			$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 		}
