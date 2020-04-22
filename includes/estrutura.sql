@@ -128,6 +128,17 @@ custo_pago INT(6) DEFAULT 0,
 turno INT(6) NOT NULL
 )
 
+--Tabela com as Techs transferidas
+CREATE TABLE IF NOT EXISTS colonization_imperio_transfere_techs (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio_origem INT(6) NOT NULL,
+id_imperio_destino INT(6) NOT NULL,
+id_tech INT(6) NOT NULL,
+autorizado BOOLEAN DEFAULT FALSE,
+processado BOOLEAN DEFAULT FALSE,
+turno INT(6) NOT NULL
+)
+
 --Tabela com as colonias do Império
 CREATE TABLE colonization_imperio_colonias (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

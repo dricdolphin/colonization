@@ -134,12 +134,13 @@ class lista_imperios
 
 		$this->html_lista = 
 "		/******************
-		function lista_imperios_html(id=0)
+		function lista_imperios_html(id=0,id_remove=0)
 		--------------------
 		Cria a lista de Impérios
 		id -- qual ID está selecionado
+		id_remove -- qual ID será removido da lista
 		******************/
-		function lista_imperios_html(id=0) {
+		function lista_imperios_html(id=0,id_remove=0) {
 			
 			var lista=[];
 			var lista_valores=[];
@@ -152,6 +153,9 @@ class lista_imperios
 					selecionado[index] = 'selected';
 				} else {
 					selecionado[index] = '';
+				}
+				if (lista_valores[index] == id_remove) {
+					lista[index] = '';
 				}
 			}
 			

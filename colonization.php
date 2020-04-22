@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -25,6 +25,7 @@ include_once('includes/colonia_instalacao.php');
 include_once('includes/planeta_recurso.php');
 include_once('includes/imperio_recursos.php');
 include_once('includes/imperio_techs.php');
+include_once('includes/transfere_tech.php');
 include_once('includes/acoes.php');
 include_once('includes/acoes_admin.php');
 include_once('includes/turno.php');
@@ -57,40 +58,213 @@ class colonization {
 		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
+		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
+
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
+		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona a barra de recursos de cada Império
 	}
-
+	
 	/******************
-	function colonization_exibe_distancia_estrelas()
+	function colonization_exibe_tech_transfere_pendente()
 	-----------
-	Exibe a distância entre duas estrelas
+	Exibe no painel principal se existem transferências de Tech pendentes
 	******************/	
-	function colonization_exibe_techtree($atts = [], $content = null) {
-		global $wpdb;
+	function colonization_exibe_tech_transfere_pendente() {
+		global $asgarosforum, $wpdb;
 		
-		/*** DEBUG ***
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			$imperio = new imperio($id_imperio, true);
+			$roles = $user->roles[0];
+			$ids_pendentes = [];
+			if (!empty($imperio->id)) {
+				$ids_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
+			}
+			
+			foreach ($ids_pendentes as $id) {
+				$transfere_tech = new transfere_tech($id->id);
+				
+				$notice = $transfere_tech->exibe_autoriza();
+				$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+				$asgarosforum->add_notice($notice);
+			}
+		
+			return;
+		} 
+	}
+	
+	/******************
+	function colonization_exibe_tech_transfere()
+	-----------
+	Exibe a opção de transferir uma Tech para outro Império
+	******************/	
+	function colonization_exibe_tech_transfere($atts = [], $content = null) {
+		global $wpdb;
+
+		$turno = new turno();
+
 		$user = wp_get_current_user();
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
 		} else {
 			$roles = "";
 		}
-
-		if ($roles == 'administrator') {
-			var_dump($atts);
-			echo "<br>";
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+			$roles = "";
+		} else {
+			$imperio = new imperio(0,false);
 		}
-		//***/
+		
+		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
+		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+		foreach ($resultados as $resultado) {
+			if (!empty($imperio->id)) {
+				if ($resultado->id != $imperio->id) {
+					$html_lista_imperios .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+				}
+			} else {
+				$html_lista_imperios .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+			}
+		}
+		$html_lista_imperios .= "</select>";
+
+		if (!empty($imperio->id)) {
+			$input_imperio_origem = "<input type='hidden' data-ajax='true' data-atributo='id_imperio_origem' data-valor-original='{$imperio->id}' value='{$imperio->id}'></input>
+			<div data-atributo='id_imperio_origem' value='{$imperio->id}'>{$imperio->nome}</div>";
+		}
+		if ($roles == 'administrator') {
+		
+			$input_imperio_origem = "<select data-atributo='id_imperio_origem' data-ajax='true' style='width: 100%'>";
+			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+			foreach ($resultados as $resultado) {
+				$input_imperio_origem .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+			}
+			$input_imperio_origem .= "</select>";
+		}
+		
+		if ($roles == 'administrator') {
+			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
+			FROM colonization_tech AS ct
+			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
+		} else {
+			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
+			FROM colonization_imperio_techs AS cit
+			JOIN colonization_tech AS ct
+			ON ct.id = cit.id_tech
+			WHERE cit.id_imperio={$imperio->id} AND custo_pago=0
+			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome
+			");
+		}
+		
+		$html_lista_techs = "<select data-atributo='id_tech' data-ajax='true' style='width: 100%'>";		
+		foreach ($resultados as $resultado) {
+			if (!empty($imperio->id)) {
+				if ($resultado->id != $imperio->id) {
+					$html_lista_techs .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+				}
+			} else {
+				$html_lista_techs .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+			}
+		}
+		$html_lista_techs .= "</select>";
+
+		$html = "
+		<h4>Transferência de Techs</h4>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_transfere_techs' style='width: 700px;'>
+		<thead>
+		<tr><th style='width: 150px;'>Império Origem</th><th style='width: 200px;'>Império Destino</th><th>Tech à ser transferida</th><th style='width: 90px;'>&nbsp;</th></tr>
+		</thead>
+		<tr>
+		<td>
+			<input type='hidden' data-atributo='id' value=''></input>
+			<input type='hidden' data-atributo='where_clause' value='id'></input>
+			<input type='hidden' data-atributo='where_value' data-inalteravel='true' value=''></input>
+			<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$turno->turno}' value='{$turno->turno}'></input>
+			<input type='hidden' data-atributo='funcao_validacao' value='valida_transfere_tech'></input>
+			<input type='hidden' data-atributo='funcao_pos_processamento' value='atualiza_lista_techs'></input>
+			{$input_imperio_origem}
+		</td>
+		<td>
+			<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''>{$html_lista_imperios}</div>
+		</td>
+		<td>
+			<div data-atributo='nome_tech' data-id-selecionado='' data-valor-original=''>{$html_lista_techs}</div>
+		</td>
+		<td><div><a href='#' id='envia_tech' onclick='return salva_objeto(event, this);'>Enviar Tech</a></div></td>
+		</tr>
+		</table>";
+		
+		if ($roles == "administrator") {
+			$id_techs_envio = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs");
+			$id_techs_recebidas = [];
+		} else {
+			$id_techs_envio = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_origem = {$imperio->id}");
+			$id_techs_recebidas = $wpdb->get_results("
+			SELECT id 
+			FROM colonization_imperio_transfere_techs 
+			WHERE id_imperio_destino = {$imperio->id}
+			AND processado = true
+			AND autorizado = true");
+		}
+		
+		$transfere_tech = new transfere_tech();
+		$listas = $transfere_tech->exibe_listas($imperio->id);
+		
+		if (!empty($listas)) {
+			$lista_techs_enviadas = $listas['lista_techs_enviadas'];
+			$lista_techs_recebidas = $listas['lista_techs_recebidas'];			
+		}
+		
+		if (empty($lista_techs_enviadas)) {
+			$lista_techs_enviadas = "&nbsp;";
+		}
+		if (empty($lista_techs_recebidas)) {
+			$lista_techs_recebidas = "&nbsp;";
+		}
+		
+		$html .= "<hr>
+		<div><b>Techs Transferidas</b></div>
+		<table>
+		<thead>
+		<tr><td>Tech</td><td>Origem</td><td>Destino</td><td>Turno</td><td>Status</td></tr>
+		</thead>
+		<tbody id='techs_enviadas'>{$lista_techs_enviadas}</tbody>
+		</table>
+		<br><div><b>Techs Recebidas</b></div>
+		<table>
+		<thead>
+		<tr><td>Tech</td><td>Origem</td><td>Destino</td><td>Turno</td><td>Status</td></tr>
+		</thead>
+		<tbody id='techs_recebidas'>{$lista_techs_recebidas}</tbody>
+		</table>
+		";
+		
+		return $html;
+	}
+	
+	
+	/******************
+	function colonization_exibe_techtree()
+	-----------
+	Exibe a Árvore de Technologia
+	******************/	
+	function colonization_exibe_techtree($atts = [], $content = null) {
+		global $wpdb;
 		
 		if (!empty($atts['super'])) {
 			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, belica, lista_requisitos, nome");
 		} elseif (!empty($atts['id'])) {
-			$techs = $wpdb->get_results("SELECT ct.id 
+			$imperio = new imperio($atts['id']);
+			
+			$techs = $wpdb->get_results("SELECT ct.id, cit.custo_pago
 			FROM colonization_imperio_techs AS cit
 			JOIN colonization_tech AS ct
 			ON ct.id = cit.id_tech
-			WHERE cit.id_imperio = {$atts['id']}
+			WHERE cit.id_imperio = {$imperio->id}
 			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
 		} else {
 			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, lista_requisitos, nome");
@@ -100,32 +274,24 @@ class colonization {
 		$html_tech = [];
 		foreach ($techs AS $id) {
 			$tech = new tech($id->id);
-			
+			if ($id->custo_pago != 0) {
+				$html_custo_pago = " [{$id->custo_pago}/{$tech->custo}]";
+				$style_pago = "style='font-style: italic;'";
+			} else {
+				$html_custo_pago = "";
+				$style_pago = "";
+			}
 			if ($tech->nivel == 1) {
 				$html_tech[$id->id] = "
 				<div class='wrapper_principal'>
 					<div class='wrapper_tech'>
-						<div class='tech tooltip'>{$tech->nome}
+						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
 			}
 			
 			if (!empty($tech->id_tech_parent)) {
-				/*** ANTIGO MÉTODO *** 
-				$id_tech_parent = explode(";",$tech->id_tech_parent);
-				$id_tech_parent = $id_tech_parent[0];
-				$tech_parent = new tech($id_tech_parent);
-				
-				while (!empty($id_tech_parent)) {
-					$tech_parent = new tech($id_tech_parent);
-					$id_tech_parent = explode(";",$tech_parent->id_tech_parent);
-					$id_tech_parent = $id_tech_parent[0];
-				}
-				
-				//***/
-				
-				//***
-				$ids_tech_parent = [];
+						$ids_tech_parent = [];
 				$nivel = $tech->nivel-1;
 				$ids_tech_parent[$nivel] = explode(";",$tech->id_tech_parent);
 				
@@ -145,10 +311,7 @@ class colonization {
 				}
 				
 				$ids_tech_parent = $ids_tech_parent[1];
-				//$id_tech_parent = $ids_tech_parent[1][0];
-				//$tech_parent = new tech($id_tech_parent);
-				//****/
-				
+
 				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
 					$tech_parent = new tech($id_tech_parent);
 					if (!empty($html_tech[$tech_parent->id])) {
@@ -340,7 +503,7 @@ class colonization {
 			if ($roles == "administrator") {
 				$html_recursos .= "<b>{$imperio->nome}{$imperio->icones_html}</b> - ";
 			} else {
-				$html_recursos .= "<b>Recursos Atuais</b> - ";
+				$html_recursos .= "<b>{$imperio->nome}{$imperio->icones_html}</b> - ";
 			}
 			
 			$recursos_atuais = $imperio->exibe_recursos_atuais();
@@ -705,88 +868,6 @@ class colonization {
 		$html .= "</div>";
 		
 		return $html;
-		//***/
-		
-		/*** MÉTODO ANTIGO ***
-		$html = "<div>";
-		
-		$lista_techs_imperio = $wpdb->get_results("
-		SELECT cit.id, cit.id_tech, cit.custo_pago, id_imperio 
-		FROM colonization_imperio_techs AS cit
-		JOIN colonization_tech AS ct
-		ON ct.id=cit.id_tech
-		WHERE id_imperio={$imperio->id}
-		ORDER BY ct.nivel, ct.belica, ct.id_tech_parent, ct.lista_requisitos, ct.nome
-		");
-		
-		$html_tech = [];
-		
-		$tech_anterior_belica = 0;
-		$separador = "";
-		foreach ($lista_techs_imperio as $id) {
-			$tech = new tech($id->id_tech);
-
-			if ($tech->id_tech_parent !=0) { //Precisa encontrar o id_tech de nível 1, então precisa retroagir
-				$id_chave = explode(";",$tech->id_tech_parent);
-				$id_chave = [];
-				$id_chave[$tech->nivel] = explode(";",$tech->id_tech_parent);
-				$nivel = $tech->nivel;
-				while ($nivel > 1) {
-					foreach ($id_chave[$nivel] as $chave => $id_tech_parent) {
-						$tech_parent[$chave] = new tech($id_tech_parent);
-						$nivel = $tech_parent[0]->nivel;
-						if (empty($id_chave[$nivel])) {
-							$id_chave[$nivel] = explode(";",$tech->id_tech_parent);
-						} else {
-							$id_chave[$nivel] = array_merge($id_chave[$nivel],explode(";",$tech->id_tech_parent));
-						}
-					}
-				}
-				
-				$id_chave = $id_chave[1];
-
-				if (count($id_chave) == 1) {//O id_tech_parent pode ter pré-requisitos alternativos
-					$id_chave = $id_chave[0];
-				} else {//Se tiver um pré-requisito alternativo, verifica qual é válido
-					foreach ($id_chave as $chave => $id_tech) {
-						if (!empty($html_tech[$id_tech])) {	
-							$id_chave = $id_tech;
-							break;
-						}
-					}
-				}
-				
-				if ($id->custo_pago != 0) {
-					$html_tech[$id_chave] .= "<div class='wrapper_tech tooltip'> -> <span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}] <span class='tooltiptext'>{$tech->descricao}</span></div>";
-				} else {
-					$html_tech[$id_chave] .= "<div class='wrapper_tech tooltip'> -> ".$tech->nome." <span class='tooltiptext'>{$tech->descricao}</span></div>";
-				}
-			} else {
-				$id_chave = $tech->id;
-				if ($id->custo_pago != 0) {
-					$html_tech[$id_chave] = "<div class='wrapper_tech tooltip'><span style='font-style: italic;'>{$tech->nome}</span> [{$id->custo_pago}/{$tech->custo}] <span class='tooltiptext'>{$tech->descricao}</span></div>";
-				} else {
-					$html_tech[$id_chave] = "<div class='wrapper_tech tooltip'>".$tech->nome." <span class='tooltiptext'>{$tech->descricao}</span></div>";
-				}
-			}
-		}
-		
-		
-		foreach ($html_tech as $id_tech => $lista_html) {
-			$tech = new tech($id_tech);
-			if ($tech_anterior_belica == 0 && $tech->belica == 1) {
-				$tech_anterior_belica = 1;
-				$html .= "<br><div><b>Techs Bélicas</b></div>
-				<div>".$lista_html.";</div>";
-			} else {
-				$html .= "<div>".$lista_html.";</div>";
-			}
-		}
-
-		$html .= "</div>";
-
-		return $html;
-		//***/
 	}
 
 	

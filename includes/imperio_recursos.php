@@ -16,14 +16,14 @@ class imperio_recursos
 	public $disponivel = [];
 	public $turno;
 	
-	function __construct($id_imperio) {
+	function __construct($id_imperio, $turno=0) {
 		global $wpdb;
 		
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
 		$imperio = new imperio($id_imperio);
 		$this->id_imperio = $imperio->id;
 
-		$this->turno = new turno();
+		$this->turno = new turno($turno);
 
 		$resultado = $wpdb->get_results("
 		SELECT cir.id AS id, cr.id AS id_recurso, cir.qtd AS qtd, cir.disponivel AS disponivel

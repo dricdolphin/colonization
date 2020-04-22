@@ -26,8 +26,92 @@ class colonization_ajax {
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
 		add_action('wp_ajax_valida_acao_admin', array ($this, 'valida_acao_admin'));
 		add_action('wp_ajax_valida_tech_imperio', array ($this, 'valida_tech_imperio'));
+		add_action('wp_ajax_valida_transfere_tech', array ($this, 'valida_transfere_tech'));//valida_transfere_tech
+		add_action('wp_ajax_dados_transfere_tech', array ($this, 'dados_transfere_tech'));//dados_transfere_tech
+		add_action('wp_ajax_processa_recebimento_tech', array ($this, 'processa_recebimento_tech'));//salva_transfere_tech
 	}
 	
+
+	/***********************
+	function processa_recebimento_tech ()
+	----------------------
+	Processa o recebimento de uma Tech
+	***********************/	
+	function processa_recebimento_tech() {
+		global $wpdb;
+		
+		//Se aceitou, é para adicionar a Tech na lista de Techs
+		if ($_POST['autorizado'] == 1) {
+			$turno = new turno();
+			$transfere_tech = new transfere_tech($_POST['id']);
+			$tech = new tech($transfere_tech->id_tech);
+			$custo_pago = floor($tech->custo*0.3);
+			$wpdb->query("INSERT INTO colonization_imperio_techs SET id_imperio={$transfere_tech->id_imperio_destino}, custo_pago={$custo_pago}, id_tech={$transfere_tech->id_tech}, turno={$turno->turno}");
+		}
+	
+		//Depois de salvar, registra a transferência
+		$this->salva_objeto();
+		wp_die();
+	}
+
+
+	/***********************
+	function valida_transfere_tech ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_transfere_tech() {
+		global $wpdb; 
+	
+		$id_imperio_destino = $wpdb->get_var("SELECT citt.id_imperio_destino FROM
+		colonization_imperio_transfere_techs AS citt
+		WHERE citt.id_imperio_origem = {$_POST['id_imperio_origem']}
+		AND citt.id_imperio_destino = {$_POST['id_imperio_destino']}
+		AND citt.processado = false
+		");
+		
+		if(!empty($id_imperio_destino)) {
+			$imperio = new imperio($id_imperio_destino);
+			$dados_salvos['resposta_ajax'] = "Já existe uma operação pendente! Aguarde o aceite ou declínio do {$imperio->nome}";
+		}
+
+		$id_transfere = $wpdb->get_var("SELECT citt.id FROM
+		colonization_imperio_transfere_techs AS citt
+		WHERE citt.id_imperio_origem = {$_POST['id_imperio_origem']}
+		AND citt.id_imperio_destino = {$_POST['id_imperio_destino']}
+		AND citt.id_tech = {$_POST['id_tech']}
+		");
+
+		if(!empty($id_transfere)) {
+			$dados_salvos['resposta_ajax'] = "Você já realizou uma operação deste tipo!";
+		}
+		
+		//Validou a ação, agora verifica se tem Pesquisa suficiente para pagar pela transferência
+		$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+		$imperio_recursos = new imperio_recursos($_POST['id_imperio_origem']);
+		$tech = new tech($_POST['id_tech']);
+		
+		$chave_recurso = array_search($id_recurso, $imperio_recursos->id_recurso);
+		if ($imperio_recursos->qtd[$chave_recurso] < ceil(0.1*$tech->custo)) {
+			$dados_salvos['resposta_ajax'] = "Você não tem Pesquisas suficientes para realizar a transferência!";
+		}
+		
+		if (empty($dados_salvos['resposta_ajax'])) {
+			//Validou! Pode cobrar a Pesquisa
+			$custo = ceil(0.1*$tech->custo);
+			$turno = new turno();
+			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-$custo WHERE id_recurso={$id_recurso} AND id_imperio={$_POST['id_imperio_origem']} AND turno={$turno->turno}");
+			$dados_salvos['resposta_ajax'] = "OK!";
+			$dados_salvos['mensagem'] = "Foi cobrado {$custo} Pesquisa(s) para transferir a Tech desejada!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	
+	}
+
+
+
 	/***********************
 	function valida_tech_imperio ()
 	----------------------
@@ -69,7 +153,7 @@ class colonization_ajax {
 							$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
 						}
 						$tech = new tech($id_requisito);
-						$dados_salvos['resposta_ajax'] .= $tech->nome.";";
+						$dados_salvos['resposta_ajax'] .= $tech->nome."; ";
 					}
 				}
 			}
@@ -271,8 +355,9 @@ class colonization_ajax {
 				}
 			}
 
-			//Atualiza a ação relativa à esta Instalação, colocando o Pop em 0
-			//$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
+			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
+			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*fator) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
@@ -428,9 +513,42 @@ class colonization_ajax {
 	}
 	
 	/***********************
-	function dados_imperio ()
+	function produtos_acao()
 	----------------------
-	Pega os dados do Império
+	Pega os resultados da ação
+	***********************/	
+	function dados_transfere_tech() {
+		global $wpdb; 
+		
+		$transfere_tech = new transfere_tech();
+		$listas = $transfere_tech->exibe_listas($_POST['id_imperio']);
+		
+		if (!empty($listas)) {
+			$lista_techs_enviadas = $listas['lista_techs_enviadas'];
+			$lista_techs_recebidas = $listas['lista_techs_recebidas'];			
+		}
+		
+		if (empty($lista_techs_enviadas)) {
+			$lista_techs_enviadas = "&nbsp;";
+		}
+		if (empty($lista_techs_recebidas)) {
+			$lista_techs_recebidas = "&nbsp;";
+		}		
+		
+		$dados_salvos['techs_enviadas'] = $lista_techs_enviadas;
+		$dados_salvos['techs_recebidas'] = $lista_techs_recebidas;
+		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta		
+	}
+
+
+	
+	/***********************
+	function produtos_acao()
+	----------------------
+	Pega os resultados da ação
 	***********************/	
 	function produtos_acao() {
 		$dados_salvos = [];
@@ -453,6 +571,8 @@ class colonization_ajax {
 	Valida o objeto desejado
 	***********************/	
 	function valida_acao() {
+		//TODO - REFATORAR TODA A VALIDAÇÃO
+		
 		global $wpdb; 
 		//$wpdb->hide_errors();		
 

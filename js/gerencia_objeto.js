@@ -201,6 +201,11 @@ function copiar_objeto(evento, objeto, id_imperio) {
 	return false;
 }
 
+/******************
+function desbloquear_turno()
+--------------------
+Desbloqueia o Turno
+******************/
 function desbloquear_turno(evento, objeto) {
 	var confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
 	
@@ -224,6 +229,95 @@ function desbloquear_turno(evento, objeto) {
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send(dados_ajax);
 	}
+}
 
+
+/******************
+function atualiza_lista_techs()
+--------------------
+Atualiza a lista de Techs enviadas e recebidas
+******************/
+function atualiza_lista_techs(objeto) {
+		var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+		id_imperio=dados['id_imperio_origem'].value;
+		id_tech=dados['id_tech'].value;
+
+		var dados_ajax = "post_type=POST&action=dados_transfere_tech&id_imperio="+id_imperio;
+		console.log(dados_ajax);
+		var xhttp_salvou = new XMLHttpRequest();
+		xhttp_salvou.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var resposta = JSON.parse(this.responseText);
+				if (resposta.resposta_ajax == "OK!") {
+					let div_techs_enviadas = document.getElementById("techs_enviadas");
+					let div_techs_recebidas = document.getElementById("techs_recebidas");
+					
+					div_techs_enviadas.innerHTML = resposta.techs_enviadas
+					div_techs_recebidas.innerHTML = resposta.techs_recebidas
+					
+					retorno = true;
+				} else {
+					alert(resposta.resposta_ajax);
+					retorno = false;
+				}
+			}
+		};
+		xhttp_salvou.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp_salvou.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp_salvou.send(dados_ajax);
+}
+
+/******************
+function processa_recebimento_tech()
+--------------------
+Aceita ou rejeita o recebimento de uma Tech
+******************/
+function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
+	let div_notice = objeto;
 	
+	while (div_notice.getAttribute("class") != "notice") {
+		div_notice = div_notice.parentNode;
+	}
+
+	let div_notice_panel = div_notice;
+	while (div_notice_panel.getAttribute("class") != "notices-panel") {
+		div_notice_panel = div_notice.parentNode;
+	}
+
+	if (autoriza) {
+		autoriza = 1;
+	} else {
+		autoriza = 0;
+	}
+	
+	//Salva também o registro da Transferência da Tech
+	var dados_ajax = "post_type=POST&action=processa_recebimento_tech&tabela=colonization_imperio_transfere_techs&where_clause=id&where_value="+id_tech_transf+"&id="+id_tech_transf+"&processado=1&autorizado="+autoriza;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+
+	div_notice.remove();
+	if (div_notice_panel.childElementCount == 0) {
+		div_notice_panel.remove();
+	}
+		
+	let envia_tech = document.getElementById("envia_tech");
+	if (envia_tech !== undefined) {
+		atualiza_lista_techs(envia_tech);
+	}
+	
+	evento.preventDefault();
+	return false;
 }

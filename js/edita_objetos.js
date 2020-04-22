@@ -64,12 +64,12 @@ function atualiza_objeto(objeto, dados) {
 		if (inputs[index].getAttribute('data-atributo') == "where_clause") {
 			where_clause = inputs[index].value;
 		}
-		if (inputs[index].getAttribute('data-atributo') == "where_value") {
+		if (inputs[index].getAttribute('data-atributo') == "where_value" && inputs[index].getAttribute('data-inalteravel') != "true") {
 			inputs[index].value = dados[where_clause];
 		}		
 		if (inputs[index].getAttribute('data-valor-original') !== null) {
 			atributo = inputs[index].getAttribute('data-atributo');
-			if (typeof dados[atributo] !== "undefined") {
+			if (typeof dados[atributo] !== "undefined" ) {
 				if (dados[atributo] !== null) {
 					inputs[index].setAttribute('data-valor-original',dados[atributo]);
 					inputs[index].setAttribute('value',dados[atributo]);
@@ -429,14 +429,18 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 		} else {
 			div.setAttribute('data-id-selecionado',selects[index].value);
 			div.setAttribute('data-valor-original',selects[index].options[selects[index].selectedIndex].innerHTML);
-			div.innerHTML = selects[index].options[selects[index].selectedIndex].innerHTML;
+			if (div.getAttribute('data-editavel') == 'true') {
+				div.innerHTML = selects[index].options[selects[index].selectedIndex].innerHTML;
+			}
 		}
 	}
 	
-	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
+	//A primeira célula NORMALMENTE é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
 	var celula = linha.cells[0]
 	var divs = celula.getElementsByTagName("DIV");
-	divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
+	if (divs[1] !== undefined) {
+		divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
+	}
 	
 	return linha;
 }

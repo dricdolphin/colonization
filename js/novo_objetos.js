@@ -114,11 +114,13 @@ function novo_planeta(evento, id_estrela = 0) {
 	var tamanho = linha_nova.insertCell(6);
 	var inospito = linha_nova.insertCell(7);
 	var gerencia = linha_nova.insertCell(8);
+	var link_gerenciamento = "\"page=colonization_admin_planetas\"";
 	
 	if (id_estrela == 0) {
 		var lista_estrelas = lista_estrelas_html();
 	} else {
 		var lista_estrelas = lista_estrelas_html(id_estrela);
+		link_gerenciamento = "\"page=colonization_admin_planetas&id_estrela="+id_estrela+"\"";
 	}
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
@@ -136,7 +138,7 @@ function novo_planeta(evento, id_estrela = 0) {
 	subclasse.innerHTML = "<div data-atributo='subclasse' data-editavel='true' data-valor-original=''><input type='text' data-atributo='subclasse' data-ajax='true'></input></div>";
 	tamanho.innerHTML = "<div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 30px;'></input></div>";
 	inospito.innerHTML = "<div data-atributo='inospito' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='inospito' data-ajax='true' checked></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this,\"page=colonization_admin_planetas\");' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this,"+link_gerenciamento+");' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 	
 	if (id_estrela != 0) {
 		var selects = estrela.getElementsByTagName("select");

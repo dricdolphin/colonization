@@ -77,7 +77,7 @@ function calcula_pulos_hyperdrive() {
 	var repeticoes = 0;
 	
 	while(estrela_atual != estrela_destino_id) {
-		html = html+lista_nome_estrela[estrela_atual]+"<br>";
+		html = html+lista_nome_estrela[estrela_atual]+" ("+lista_x_estrela[estrela_atual]+";"+lista_y_estrela[estrela_atual]+";"+lista_z_estrela[estrela_atual]+")<br>";
 		estrela_origem_x = lista_x_estrela[estrela_atual];
 		estrela_origem_y = lista_y_estrela[estrela_atual];
 		estrela_origem_z = lista_z_estrela[estrela_atual];
@@ -160,7 +160,7 @@ function calcula_pulos_hyperdrive() {
 			break;
 		}
 	}
-	html = html+lista_nome_estrela[estrela_atual];
+	html = html+lista_nome_estrela[estrela_atual]+" ("+lista_x_estrela[estrela_atual]+";"+lista_y_estrela[estrela_atual]+";"+lista_z_estrela[estrela_atual]+")";
 	
 	distancia_div.innerHTML = html;
 }

@@ -595,3 +595,35 @@ function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
 		input_lista_recursos.value = recursos.join(";");
 	}
 }
+
+
+
+function valida_transfere_tech(objeto){
+	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	var dados_ajax = "post_type=POST&action=valida_transfere_tech&turno="+dados['turno'].value+"&id_imperio_origem="+dados['id_imperio_origem'].value+"&id_imperio_destino="+dados['id_imperio_destino'].value+"&id_tech="+dados['id_tech'].value;
+	
+	var retorno = true;
+	
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.status == 400) {
+			
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax != "OK!") {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			if (resposta.mensagem !== undefined) {
+				alert(resposta.mensagem);	
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	return retorno;
+}
