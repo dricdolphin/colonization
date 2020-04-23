@@ -201,7 +201,19 @@ class imperio
 					}
 					$this->sinergia[$valor] = $sinergia;
 					$this->extrativo[$valor] = $extrativo;
-					$this->max_bonus_recurso[$valor] = $max_bonus_recurso;
+					if (empty($this->max_bonus_recurso[$valor])) {
+						$this->max_bonus_recurso[$valor] = 0;
+					}
+					
+					if (!$max_bonus_recurso || !$this->max_bonus_recurso[$valor]) {//Se alguma Tech tem bônus SEM restrições, então NÃO HÁ RESTRIÇÕES
+						$this->max_bonus_recurso[$valor] = $max_bonus_recurso;	
+					} else {
+						if (!empty($this->max_bonus_recurso[$valor])) { //O max_bônus vai crescendo conforme há outras Techs com max_bonus
+							$this->max_bonus_recurso[$valor] = $this->max_bonus_recurso[$valor] + $max_bonus_recurso;
+						} else {
+							$this->max_bonus_recurso[$valor] = $max_bonus_recurso;
+						}
+					}
 				}
 			}
 		}

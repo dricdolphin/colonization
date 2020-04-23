@@ -121,10 +121,13 @@ class roda_turno {
 					}
 					
 					$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+					$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
+					/***
 					if ($id_recurso == $id_alimento) {//Se for ALIMENTO, precisamos alterar o valor do balanço, pois a população consome Alimentos
 						$acoes->recursos_balanco[$id_recurso] = $acoes->recursos_balanco[$id_recurso] - $imperio->pop;
 						$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
 					}
+					//***/
 					
 					if ($recurso->acumulavel == 0) {
 						$acoes->recursos_balanco[$id_recurso] = 0;

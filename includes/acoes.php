@@ -21,7 +21,8 @@ class acoes
 	public $turno;
 	public $data_modifica = [];
 	public $max_data_modifica;
-	public $recursos_produzidos_planeta = [];
+	public $recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
+	public $recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
 	public $recursos_produzidos = [];
 	public $recursos_produzidos_nome = [];
 	public $recursos_consumidos = [];
@@ -231,7 +232,7 @@ class acoes
 			}
 			
 			if ($instalacao->desguarnecida == 0) {
-				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
+				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return efetua_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
 			} else {
 				$exibe_acoes = "&nbsp";
 			}
@@ -256,8 +257,9 @@ class acoes
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
 					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div>
 				</td>
-				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>
-				<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
+				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>";
+				//<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>
+				$html .= "<td><div data-atributo='gerenciar' style='visibility: hidden; margin: auto; text-align: center;' class='fas fa-hourglass-half'></div></td>
 				</tr>";
 			}
 		}
@@ -275,6 +277,7 @@ class acoes
 		
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
+		$imperio = new imperio($this->id_imperio);
 		
 		//Pega a produção das Instalações
 		foreach ($this->id AS $chave => $valor) {
@@ -285,7 +288,6 @@ class acoes
 				if (empty($this->recursos_produzidos[$id_recurso])) {
 					$recurso = new recurso($id_recurso);
 
-					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_produzidos[$id_recurso] = 0;
 					$this->recursos_produzidos_nome[$id_recurso] = $recurso->nome;
 					$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
@@ -293,39 +295,90 @@ class acoes
 				
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = 0;
+				}
+				
+				if (empty($this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]])) {
+					if ($this->pop[$chave] != 0) {
+						$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]] = 1;
+					} else {
+						$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]] = 0;
+					}
+				} else {
+					if ($this->pop[$chave] != 0) {
+						$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]]++;
+					}
 				}
 				
 				if ($instalacao->desguarnecida == 1) {
-					$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
 				}
-				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				
+				//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				/***************************************************
-				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+				--- MODIFICAÇÕES NA PRODUÇÃO DEVIDO À TECHS ---
 				***************************************************/
+				//ESPECIAIS -- Bônus de produção
 				
-				//MODIFICAÇÕES PELA TECH SINERGICA (id_tech == 37)
-				$tech_sinergica = $wpdb->get_var("SELECT id_tech FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech=37");
-				if (!empty($tech_sinergica) && $id_recurso == 15) {
-					$bonus_sinergia_tech = $bonus_sinergia_tech + floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*0.1);
-					$instalacao_tech++;
-				}
-				//*** FIM MODIFICACOES ***/
+				//public $bonus_recurso = [];
+				//public $sinergia = [];
+				//public $extrativo = [];
+				//public $max_bonus_recurso = [];
 
+				if (!empty($imperio->bonus_recurso['*'])) {//Tem bônus para TODOS os recursos
+					//Verifica as condições
+					if (!empty($imperio->extrativo['*'])) {//O bônus se aplica somente para recursos EXTRATIVOS
+						if ($imperio->extrativo['*'] === true && $recurso->extrativo == 1) {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+						}
+					} else {//O bônus se aplica à qualquer tipo de recurso
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+					}
+				} 
+				
+				if (!empty($imperio->bonus_recurso[$id_recurso])) {//Tem bônus para o recurso ATUAL
+					//Verifica as condições
+					if (!empty($imperio->extrativo[$id_recurso])) {//O bônus se aplica somente para recursos EXTRATIVOS
+						if ($imperio->extrativo[$id_recurso] === true && $recurso->extrativo == 1) {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+						}
+					} else {//O bônus se aplica à qualquer tipo de recurso
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+					}
+				}
 			}
 		}
 		
-		//MODIFICAÇÕES PELA TECH SINERGICA (id_tech == 37)
-		if (!empty($this->recursos_produzidos[15]) && $instalacao_tech > 1) {
-			if ($bonus_sinergia_tech > 5) {
-				$bonus_sinergia_tech = 5;
+		//Calcula os recursos produzidos totais
+		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
+			foreach ($this->recursos_produzidos_planeta[$id_recurso] as $id_planeta => $qtd_produzida_planeta) {
+				if (empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
+				}
+				
+				if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
+					if ($imperio->max_bonus_recurso[$id_recurso] !== false) {//Tem um limite de bônus
+						if ($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] > $imperio->max_bonus_recurso[$id_recurso]) {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = $imperio->max_bonus_recurso[$id_recurso];
+						}
+					}
+				}
+				
+				if (!empty($imperio->sinergia[$id_recurso])) {
+					if ($imperio->sinergia[$id_recurso] === true) {
+						if ($this->recursos_produzidos_planeta_instalacao[$id_recurso][$id_planeta] < 2) {//Para ter o bônus de sinergia, precisa de DUAS instalações
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
+						}
+					}
+				}
+				
+				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + $qtd_produzida_planeta + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
+				$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta] + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 			}
-			$this->recursos_produzidos[15] = $this->recursos_produzidos[15] + $bonus_sinergia_tech;
-			$this->recursos_produzidos_planeta[15][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[15][$this->id_planeta[$chave]] + $bonus_sinergia_tech;
 		}
-		//*** FIM MODIFICACOES ***/
-		
+
 		//Pega o Consumo das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
@@ -359,6 +412,29 @@ class acoes
 			}
 		}
 		
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
+		//Adiciona o consumo de alimentos para cada colônia
+		foreach ($ids_colonia as $id) {
+			$colonia = new colonia($id->id);
+			$recurso = new recurso($id_alimento);
+
+			if (empty($this->recursos_consumidos[$id_alimento])) {
+				$this->recursos_consumidos[$id_alimento] = 0;
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
+				$this->recursos_consumidos_nome[$id_alimento] = $recurso->nome;
+				$this->recursos_balanco_nome[$id_alimento] = $recurso->nome;
+			}
+			
+			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia->pop;
+			} else {
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia->pop;
+			}
+			
+			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop;
+		}
+		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 			if (empty($this->recursos_produzidos[$id_recurso])) {
@@ -368,19 +444,7 @@ class acoes
 			if (empty($this->recursos_consumidos[$id_recurso])) {
 				$this->recursos_consumidos[$id_recurso] = 0;
 			}
-			
-				//MODIFICAÇÕES DO IMPÉRIO KHOZIRTU (id_imperio == 3)
-				if ($this->id_imperio == 3) {
-					if ($id_recurso !== null) {
-						$recurso = new recurso($id_recurso);
-						if ($recurso->extrativo == 1) {
-							$this->recursos_produzidos[$id_recurso] = floor($this->recursos_produzidos[$id_recurso]*1.1);
-							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = floor($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]]*1.1);
-						}
-					}
-				}
-				//*** FIM MODIFICACOES ***/			
-			
+
 			$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 		}
 	}
