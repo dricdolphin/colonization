@@ -238,6 +238,12 @@ class lista_techs
 	
 	function __construct() {
 		global $wpdb;
+		
+		$techs = new tech();
+		
+		$resultados = $techs->query_tech();
+		
+		/***
 		$resultados = $wpdb->get_results("
 		SELECT ct.id, ct.nome, ct.id_tech_parent
 		FROM 
@@ -252,13 +258,16 @@ class lista_techs
 		ON ct.id = ctord.id
 		ORDER BY ct.belica, ctord.nome, ctord.id_tech_parent, ct.id
 		");
-
+		//***/
+		
 		$lista_valores = "";
 		$lista_options = "";
 		$index = 0;
 		foreach ($resultados as $resultado) {
-			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}</option>\";\n";
-			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$tech = new tech($resultado->id);
+			
+			$lista_options .= "			lista[{$index}]=\"<option value='{$tech->id}'\"+selecionado[{$index}]+\">{$tech->nome}</option>\";\n";
+			$lista_valores .= "			lista_valores[{$index}]={$tech->id};\n";
 			$index++;
 		}
 
