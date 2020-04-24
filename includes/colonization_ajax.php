@@ -357,7 +357,7 @@ class colonization_ajax {
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
-			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*fator) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}

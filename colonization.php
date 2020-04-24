@@ -147,11 +147,17 @@ class colonization {
 			$input_imperio_origem .= "</select>";
 		}
 		
+		$techs = new tech();
 		if ($roles == 'administrator') {
+			$resultados = $techs->query_tech();
+			/***
 			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
 			FROM colonization_tech AS ct
 			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
+			//***/
 		} else {
+			$resultados = $techs->query_tech("AND cit.custo_pago=0",$imperio->id);
+			/***
 			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
 			FROM colonization_imperio_techs AS cit
 			JOIN colonization_tech AS ct
@@ -159,17 +165,13 @@ class colonization {
 			WHERE cit.id_imperio={$imperio->id} AND custo_pago=0
 			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome
 			");
+			//***/
 		}
 		
 		$html_lista_techs = "<select data-atributo='id_tech' data-ajax='true' style='width: 100%'>";		
 		foreach ($resultados as $resultado) {
-			if (!empty($imperio->id)) {
-				if ($resultado->id != $imperio->id) {
-					$html_lista_techs .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
-				}
-			} else {
-				$html_lista_techs .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
-			}
+			$tech = new tech($resultado->id);
+			$html_lista_techs .= "<option value='{$tech->id}'>{$tech->nome}</option>";
 		}
 		$html_lista_techs .= "</select>";
 
@@ -255,20 +257,36 @@ class colonization {
 	******************/	
 	function colonization_exibe_techtree($atts = [], $content = null) {
 		global $wpdb;
+		$tech = new tech();
 		
 		if (!empty($atts['super'])) {
-			$techs = $wpdb->get_results("SELECT id FROM colonization_tech ORDER BY nivel, belica, lista_requisitos, nome");
+			$tech = new tech();
+
+			$techs = $tech->query_tech();
+			
 		} elseif (!empty($atts['id'])) {
 			$imperio = new imperio($atts['id']);
 			
+			$techs = $tech->query_tech("",$imperio->id);
+			
+			/***
 			$techs = $wpdb->get_results("SELECT ct.id, cit.custo_pago
 			FROM colonization_imperio_techs AS cit
 			JOIN colonization_tech AS ct
 			ON ct.id = cit.id_tech
 			WHERE cit.id_imperio = {$imperio->id}
 			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
+			//***/
 		} else {
-			$techs = $wpdb->get_results("SELECT id FROM colonization_tech WHERE publica = 1 ORDER BY nivel, belica, lista_requisitos, nome");
+			
+			$techs = $tech->query_tech(" AND publica = 1");			
+			
+			/***
+			$techs = $wpdb->get_results("
+			SELECT id FROM colonization_tech 
+			WHERE publica = 1 
+			ORDER BY nivel, belica, lista_requisitos, nome");
+			//***/
 		}
 		
 		

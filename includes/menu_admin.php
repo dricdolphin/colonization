@@ -478,7 +478,8 @@ class menu_admin {
 		<tbody>";
 		
 		//Pega a lista de recursos
-		$lista_id = $wpdb->get_results("SELECT id FROM colonization_tech");
+		$techs = new tech();
+		$lista_id = $techs->query_tech();
 		$html_lista = "";
 		
 		foreach ($lista_id as $id) {
