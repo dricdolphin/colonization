@@ -21,11 +21,12 @@ class recurso
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, acumulavel, extrativo, local FROM colonization_recurso WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, nivel, acumulavel, extrativo, local FROM colonization_recurso WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
+		$this->nivel = $resultado->nivel;
 		$this->acumulavel = $resultado->acumulavel;
 		$this->extrativo = $resultado->extrativo;
 		$this->local = $resultado->local;
@@ -68,6 +69,7 @@ class recurso
 			</td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
+			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}'>{$this->nivel}</div></td>			
 			<td><div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='{$this->acumulavel}'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' {$acumulavel_checked} disabled></input></div></td>
 			<td><div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='{$this->extrativo}'><input type='checkbox' data-atributo='extrativo' data-ajax='true' {$extrativo_checked} disabled></input></div></td>
 			<td><div data-atributo='local' data-type='checkbox' data-editavel='true' data-valor-original='{$this->local}'><input type='checkbox' data-atributo='local' data-ajax='true' {$local_checked} disabled></input></div></td>";			

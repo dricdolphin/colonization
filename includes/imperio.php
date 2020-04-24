@@ -331,7 +331,7 @@ class imperio
 		WHERE cir.id_imperio = {$this->id} AND turno={$this->turno->turno}
 		AND cr.acumulavel = true
 		AND cir.disponivel = true
-		ORDER BY cr.nome
+		ORDER BY cr.nivel, cr.nome
 		");
 		
 		$html = "<b>Recursos atuais:</b> ";

@@ -428,13 +428,13 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
+		<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
 		</tr>
 		</thead>
 		<tbody>";
 		
 		//Pega a lista de recursos
-		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso");
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_recurso ORDER BY nivel, nome");
 		$html_lista = "";
 		
 		foreach ($lista_id as $id) {
@@ -910,21 +910,25 @@ class menu_admin {
 		$html = "<div><h2>COLONIZATION - Ações do Admin</h2></div>
 		<div><h3>Lista de Recursos:</h3>";
 	
-		$lista_recursos = $wpdb->get_results("SELECT id FROM colonization_recurso ORDER BY nome");
+		$lista_recursos = $wpdb->get_results("SELECT id FROM colonization_recurso ORDER BY nivel, nome");
 		$html_lista = "";
 		$html_lista_recursos = "";
 		
+		$recursos_na_linha = 1;
 		foreach ($lista_recursos as $id) {		
 			$recurso = new recurso($id->id);
 			
-			$html_lista_recursos .= "<a href='#' onclick='return inclui_recurso(event, {$recurso->id});'>#{$recurso->id} - {$recurso->nome}</a>; ";
+			if ($recursos_na_linha == 8) {
+				$recursos_na_linha = 1;
+				$html_lista_recursos .= "<br>";
+			}
+			
+			$html_lista_recursos .= "<div style='display: inline-block; width: 140px; padding: 2px; margin: 2px;'><a href='#' onclick='return inclui_recurso(event, {$recurso->id});'>#{$recurso->id} - {$recurso->nome}</a></div>";
+			$recursos_na_linha++;
 		}
 		
-		if ($html_lista != "") {
-			$html_lista_recursos = substr($html_lista_recursos,0,-2);
-		}
-		
-		$html .= $html_lista_recursos."</div><br>
+		$html .= $html_lista_recursos."
+		</div><br>
 		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_acao_admin(event);'>Adicionar nova Ação Admin</a></div><br>";
 		
 		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>

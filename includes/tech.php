@@ -130,7 +130,7 @@ class tech
 			//Nível máximo
 			$nivel--;
 			$lista_completa = [];
-			$lista_temp = [];
+			$lista_completa_temp = [];
 			
 			$nivel=1;
 			while (!empty($lista_techs[$nivel])) {
@@ -138,7 +138,6 @@ class tech
 					if ($nivel == 1) {
 						$lista_completa[$tech->id] = $tech;
 					} else {
-						$lista_completa_temp = [];
 						foreach ($lista_completa as $id_tech => $valor_tech) {
 							$lista_completa_temp[$id_tech] = $valor_tech;
 							$id_tech_parents = explode(";",$tech->id_tech_parent);
@@ -149,6 +148,7 @@ class tech
 							}
 						}
 						$lista_completa = $lista_completa_temp;
+						$lista_completa_temp = [];
 					}
 				}
 				$nivel++;

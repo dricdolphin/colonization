@@ -36,12 +36,16 @@ class lista_estrelas
 			$index++;
 		}
 
+
+		$turno = new turno();
 		$this->html_lista = 
 "		
 var lista_x_estrela=[];
 var lista_y_estrela=[];
 var lista_z_estrela=[];
 var lista_nome_estrela=[];
+
+var turno_atual={$turno->turno};
 
 		/******************
 		function lista_estrelas_html(id=0)

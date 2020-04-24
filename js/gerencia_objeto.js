@@ -14,7 +14,9 @@ function inclui_recurso(evento, id_recurso) {
 	var input_qtd = "";
 
 	if (!objeto_em_edicao) {
-		return;
+		
+		evento.preventDefault();
+		return false;
 	}
 
 	var index_input_text = 0;
