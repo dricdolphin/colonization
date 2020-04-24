@@ -579,8 +579,12 @@ class colonization_ajax {
 		AND turno={$_POST['turno']}
 		");
 		$colonia = new colonia($id_colonia);
-		
 		$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
+
+		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
+		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
+ 		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
+		$acoes->pega_balanco_recursos(); //Recalcula os balanços
 		
 		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
 		$pop_planeta = $colonia->pop;
@@ -602,8 +606,8 @@ class colonization_ajax {
 			}
 		}
 		
-		$mdo_sistema = $mdo_sistema - $acoes->pop[$chave_id_planeta_instalacoes] + $_POST['pop'];
-		$mdo_planeta = $mdo_planeta - $acoes->pop[$chave_id_planeta_instalacoes] + $_POST['pop'];
+		$mdo_sistema = $mdo_sistema;
+		$mdo_planeta = $mdo_planeta;
 
 		if ($mdo_sistema > $pop_sistema) {//Verifica se tem MdO no sistema
 			$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
@@ -613,11 +617,6 @@ class colonization_ajax {
 				$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
 			}
 		}
-		
-		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
-		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
- 		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
-		$acoes->pega_balanco_recursos(); //Recalcula os balanços
 
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
 			$recurso = new recurso($id_recurso_produz);
