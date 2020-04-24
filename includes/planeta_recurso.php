@@ -12,7 +12,7 @@ class planeta_recurso
 	public $id;
 	public $id_planeta;
 	public $id_recurso;
-	public $disponivel;
+	public $qtd_disponivel;
 	public $turno;
 	public $recurso;
 	
@@ -26,7 +26,7 @@ class planeta_recurso
 		
 		$this->id_planeta = $resultado->id_planeta;
 		$this->id_recurso = $resultado->id_recurso;
-		$this->disponivel = $resultado->disponivel;
+		$this->qtd_disponivel = $resultado->disponivel;
 		$this->turno = $resultado->turno;
 		$this->recurso = new recurso($this->id_recurso);
 		
@@ -54,8 +54,8 @@ class planeta_recurso
 			<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 		</td>
 		<td><div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado='{$this->id_recurso}' data-valor-original='{$this->recurso->nome}'>{$this->recurso->nome}</div></td>
-		<td><div data-atributo='disponivel' data-editavel='true' data-valor-original='{$this->disponivel}'>{$this->disponivel}</div></td>
-		<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}'>{$this->turno}</div></td>";
+		<td><div data-atributo='disponivel' data-editavel='true' data-valor-original='{$this->qtd_disponivel}' data-style='width: 50px;'>{$this->qtd_disponivel}</div></td>
+		<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>";
 		
 		return $html;
 	}

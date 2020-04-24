@@ -13,6 +13,7 @@ class colonia
 	public $id_imperio;
 	public $id_planeta;
 	public $pop;
+	public $mdo;
 	public $poluicao;
 	public $turno;
 	public $planeta;

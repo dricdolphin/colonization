@@ -21,9 +21,12 @@ class acoes
 	public $turno;
 	public $data_modifica = [];
 	public $max_data_modifica;
+	
+	//Recursos produzidos, consumidos e balanços
 	public $recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
 	public $recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
 	public $recursos_produzidos = [];
+	public $recursos_produzidos_planeta = [];
 	public $recursos_produzidos_nome = [];
 	public $recursos_consumidos = [];
 	public $recursos_consumidos_planeta = [];
@@ -278,6 +281,19 @@ class acoes
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
 		$imperio = new imperio($this->id_imperio);
+
+		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
+		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
+		$this->recursos_produzidos = [];
+		$this->recursos_produzidos_planeta = [];
+		$this->recursos_produzidos_nome = [];
+		$this->recursos_consumidos = [];
+		$this->recursos_consumidos_planeta = [];
+		$this->recursos_consumidos_nome = [];
+		$this->recursos_balanco = [];
+		$this->recursos_balanco_nome = [];
+		
+		
 		
 		//Pega a produção das Instalações
 		foreach ($this->id AS $chave => $valor) {

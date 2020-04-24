@@ -491,16 +491,20 @@ function efetua_acao(evento, objeto)
 Tenta atualizar os dados
 ******************/	
 function efetua_acao (evento, objeto) {
-	var dados = []; //Dados que serão enviados para a validação
+	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	var linha = pega_ascendente(objeto,"TR");
+	var divs = linha.getElementsByTagName('DIV');
 	var inputs = linha.getElementsByTagName('INPUT');
+	var labels = linha.getElementsByTagName('LABEL');
+	var dados = []; //Dados que serão enviados para a validação
 	
 	for (index=0;index<inputs.length;index++) {
 		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
-			dados['pop'] = inputs[index].value - inputs[index].getAttribute('data-valor-original');
+			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
+			dados['pop'] = inputs[index].value;
 		}
 	}	
 	
@@ -509,7 +513,8 @@ function efetua_acao (evento, objeto) {
 	if (!valida) {
 		salva_acao(evento, objeto,true); //Se não liberou, falhou a validação, então cancela a ação.	
 	} else {
-		salva_acao(evento, objeto); //Se não liberou, falhou a validação, então cancela a ação.
+		salva_acao(evento, objeto); //Pode salvar!
+		
 	}
 	
 	evento.preventDefault();
@@ -576,7 +581,8 @@ function salva_acao(evento, objeto, cancela = false) {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
-			dados['pop'] = inputs[index].value - inputs[index].getAttribute('data-valor-original');
+			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
+			dados['pop'] = inputs[index].value;
 		}
 	}
 	

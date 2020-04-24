@@ -471,7 +471,7 @@ Pega os produtos da Ação
 dados -- dados do objeto
 ******************/	
 function valida_acao(dados) {
-	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop'];
+	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
 	var retorno = true;
 	
 	//Envia a chamada de AJAX para salvar o objeto
@@ -481,13 +481,24 @@ function valida_acao(dados) {
 			
 		}
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			
 			if (resposta.resposta_ajax == "OK!") {
 				if (resposta.balanco_acao != "") {
 					retorno = false;
 					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+resposta.balanco_acao);
 				}
-				console.log(resposta.debug);
+				
+				if (resposta.debug !== undefined) {
+					console.log(resposta.debug);
+				}
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

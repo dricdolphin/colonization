@@ -692,15 +692,9 @@ class menu_admin {
 			$html_dados = "";
 			$html_lista = "";
 			
-			if ($planeta->tamanho == 1) {
-				$max_instalacoes = "{$planeta->tamanho} instalação";
-			} else {
-				$max_instalacoes = "{$planeta->tamanho} instalações";
-			}
-			
 			//Instalações da Colônia
 			$html .= "<br>
-			<div><h3>Instalações da Colônia - Máximo de {$max_instalacoes}</h3>
+			<div><h3>Instalações do Planeta - {$planeta->instalacoes}/{$planeta->tamanho} slots</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
 			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>

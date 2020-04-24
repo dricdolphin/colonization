@@ -18,6 +18,7 @@ class planeta
 	public $tamanho;
 	public $estrela;
 	public $inospito;
+	public $instalacoes;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -34,8 +35,13 @@ class planeta
 		$this->subclasse = $resultado->subclasse;
 		$this->tamanho = $resultado->tamanho;
 		$this->inospito = $resultado->inospito;
-		
-		
+
+		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta={$this->id}");		
+	
 		$this->estrela = new estrela($this->id_estrela);
 	}
 

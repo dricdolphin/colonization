@@ -331,17 +331,7 @@ class colonization_ajax {
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
-			$query = "
-			SELECT SUM(cpi.slots) as instalacoes FROM 
-			(
-			SELECT cpi.id, ci.slots
-			FROM colonization_planeta_instalacoes AS cpi
-			JOIN colonization_instalacao AS ci
-			ON ci.id = cpi.id_instalacao
-			WHERE cpi.id_planeta={$_POST['id_planeta']} AND cpi.turno_destroi IS NULL
-			) AS cpi";
-		} else {
+		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			//Realiza a atualização do histórico de upgrades
 			$turno = new turno();
 			$colonia_instalacao = new colonia_instalacao($_POST['id']);
@@ -362,10 +352,10 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
 		
-		$resposta = $wpdb->get_results($query);
+
 		$planeta = new planeta($_POST['id_planeta']);
 		$instalacao = new instalacao($_POST['id_instalacao']);
-		if ($resposta[0]->instalacoes + $instalacao->slots <= $planeta->tamanho) {
+		if ($planeta->instalacoes + $instalacao->slots <= $planeta->tamanho) {
 			$dados_salvos['resposta_ajax'] = "OK!";
 		} else {
 			$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
@@ -513,9 +503,9 @@ class colonization_ajax {
 	}
 	
 	/***********************
-	function produtos_acao()
+	function dados_transfere_tech()
 	----------------------
-	Pega os resultados da ação
+	Pega os resultados das listas de Techs transferidas
 	***********************/	
 	function dados_transfere_tech() {
 		global $wpdb; 
@@ -571,198 +561,90 @@ class colonization_ajax {
 	Valida o objeto desejado
 	***********************/	
 	function valida_acao() {
-		//TODO - REFATORAR TODA A VALIDAÇÃO
-		
 		global $wpdb; 
 		//$wpdb->hide_errors();		
 
+		$dados_salvos['debug'] = "";
+		$acoes = new acoes($_POST['id_imperio'],$_POST['turno']);
+		
 		$dados_salvos = [];
 		$dados_salvos['balanco_acao'] = "";
 		
 		//Verifica se existe MdO suficiente na Colônia (ou no Sistema, para o caso de unidades Autônomas)
 		$instalacao = new instalacao($_POST['id_instalacao']);
-
-		if ($instalacao->autonoma) {
-			$planeta = new planeta($_POST['id_planeta']);
+		$planeta = new planeta($_POST['id_planeta']);
+		$id_colonia = $wpdb->get_var("
+		SELECT id FROM colonization_imperio_colonias 
+		WHERE id_imperio={$_POST['id_imperio']} AND id_planeta={$planeta->id} 
+		AND turno={$_POST['turno']}
+		");
+		$colonia = new colonia($id_colonia);
+		
+		$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
+		
+		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
+		$pop_planeta = $colonia->pop;
+		
+		$mdo_sistema = 0;
+		$pop_sistema = 0;
+		$planetas = $wpdb->get_results("SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela}");
+		foreach ($planetas as $id_planetas) {
+			$id_colonia = $wpdb->get_var("
+			SELECT id FROM colonization_imperio_colonias 
+			WHERE id_imperio={$_POST['id_imperio']} AND id_planeta={$id_planetas->id} 
+			AND turno={$_POST['turno']}
+			");
 			
-			$resultados = $wpdb->get_results("
-				SELECT mdo 
-				FROM 
-					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
-						FROM colonization_acoes_turno
-						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
-						UNION ALL
-						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-						) AS cat
-					JOIN colonization_imperio_colonias AS cimc
-					ON cimc.id_imperio = cat.id_imperio 
-					AND cimc.id_planeta = cat.id_planeta
-					AND cimc.turno={$_POST['turno']}
-					) AS tabela_balanco
-					WHERE mdo < 0
-					");
-		} else {
-			//Para construções locais, precisa verificar se tem MdO suficiente no planeta E também se o MdO do sistema não está sendo ultrapassado
-			
-			$resultados = $wpdb->get_results("
-			SELECT mdo 
-			FROM 
-				(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-					(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
-					FROM colonization_acoes_turno
-					WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
-					UNION ALL
-					SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-					) AS cat
-				JOIN colonization_imperio_colonias AS cimc
-				ON cimc.id_imperio = cat.id_imperio 
-				AND cimc.id_planeta = cat.id_planeta
-				AND cimc.turno={$_POST['turno']}
-				) AS tabela_balanco
-				WHERE mdo < 0
-				");
-			
-			if (empty($resultados)) {//Passou no local, vamos verificar para o sistema
-				$planeta = new planeta($_POST['id_planeta']);
-				
-				$resultados = $wpdb->get_results("
-				SELECT mdo 
-				FROM 
-					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
-						FROM colonization_acoes_turno
-						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
-						UNION ALL
-						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-						) AS cat
-					JOIN colonization_imperio_colonias AS cimc
-					ON cimc.id_imperio = cat.id_imperio 
-					AND cimc.id_planeta = cat.id_planeta
-					AND cimc.turno={$_POST['turno']}
-					) AS tabela_balanco
-					WHERE mdo < 0
-					");
-				
-				//***DEBUG!
-				$user = wp_get_current_user();
-				$roles = $user->roles[0];
-
-				if ($roles == "administrator") {
-					if (empty($resultados == "")) {
-						$dados_salvos['debug'] = "
-				SELECT mdo 
-				FROM 
-					(SELECT (cimc.pop - SUM(cat.pop)) AS mdo FROM
-						(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop AS pop
-						FROM colonization_acoes_turno
-						WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta IN (SELECT id FROM colonization_planeta WHERE id_estrela={$planeta->id_estrela})
-						UNION ALL
-						SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes, {$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-						) AS cat
-					JOIN colonization_imperio_colonias AS cimc
-					ON cimc.id_imperio = cat.id_imperio 
-					AND cimc.id_planeta = cat.id_planeta
-					AND cimc.turno={$_POST['turno']}
-					) AS tabela_balanco
-					WHERE mdo < 0
-					";	
-					}
-				
-				}
-				//****/
-					
+			if (!empty($id_colonia)) {
+				$colonia = new colonia($id_colonia);
+				$mdo_sistema = $mdo_sistema + $acoes->mdo_planeta($id_planetas->id);
+				$pop_sistema = $pop_sistema + $colonia->pop;
 			}
 		}
 		
-		foreach ($resultados as $resultado) {
+		$mdo_sistema = $mdo_sistema - $acoes->pop[$chave_id_planeta_instalacoes] + $_POST['pop'];
+		$mdo_planeta = $mdo_planeta - $acoes->pop[$chave_id_planeta_instalacoes] + $_POST['pop'];
+
+		if ($mdo_sistema > $pop_sistema) {//Verifica se tem MdO no sistema
 			$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
+		} 
+		if (!$instalacao->autonoma) {//Depois, se NÃO for instalação autônoma, verifica se tem MdO no planeta
+			if ($mdo_planeta > $pop_planeta) {
+				$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
+			}
 		}
 		
 		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
-		$resultados = $wpdb->get_results("
-			SELECT cr.nome, tabela_produz.producao, tabela_produz.id_planeta, cpr.id_planeta, cpr.disponivel
-			FROM colonization_recurso AS cr
-            LEFT JOIN (
-				SELECT cir.id_recurso, cat.turno, cat.id_imperio, cat.id_planeta, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
-				FROM colonization_acoes_turno 
-				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']} AND id_planeta={$_POST['id_planeta']}
-				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-				) AS cat
-				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id = cat.id_planeta_instalacoes
-				LEFT JOIN colonization_instalacao_recursos AS cir
-				ON cir.id_instalacao = cat.id_instalacao
-				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
-				GROUP BY cir.id_recurso
-			) AS tabela_produz
-			ON tabela_produz.id_recurso = cr.id
-   			LEFT JOIN colonization_planeta_recursos AS cpr
-			ON cpr.id_recurso = cr.id
-            AND cpr.id_planeta={$_POST['id_planeta']}
-			WHERE cr.extrativo=true AND cpr.disponivel < tabela_produz.producao
-		");
-		
-		foreach ($resultados as $resultado) {
-			$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$resultado->nome}, ";
+		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
+ 		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
+		$acoes->pega_balanco_recursos(); //Recalcula os balanços
+
+		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
+			$recurso = new recurso($id_recurso_produz);
+			if ($recurso->extrativo == 1) {
+				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
+				$planeta_recursos = new planeta_recurso($id_planeta_recurso);
+	
+				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
+					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome}, ";
+				}
+			}
 		}
-		
-		//Faz o balanço dos recursos
-		$resultados = $wpdb->get_results("
-		SELECT nome, (producao-consumo+estoque) AS balanco
-		FROM (
-			SELECT cr.nome, (CASE WHEN tabela_produz.producao IS NULL THEN 0 ELSE tabela_produz.producao END) AS producao, 
-			(CASE WHEN tabela_consome.producao IS NULL THEN 0 ELSE tabela_consome.producao END) AS consumo, 
-			cimr.qtd AS estoque 
-			FROM colonization_recurso AS cr
-			LEFT JOIN (
-				SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
-				FROM colonization_acoes_turno 
-				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
-				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-				) AS cat
-				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id = cat.id_planeta_instalacoes
-				JOIN colonization_instalacao_recursos AS cir
-				ON cir.id_instalacao = cat.id_instalacao
-				WHERE cir.consome=false AND cpi.turno_destroi IS NULL
-				GROUP BY cir.id_recurso
-			) AS tabela_produz
-			ON tabela_produz.id_recurso = cr.id
-			LEFT JOIN (
-			SELECT cir.id_recurso, cat.turno, cat.id_imperio, SUM(FLOOR((cir.qtd_por_nivel * cpi.nivel * cat.pop)/10)) AS producao
-				FROM 
-				(SELECT turno, id_imperio, id_instalacao, id_planeta_instalacoes, id_planeta, pop
-				FROM colonization_acoes_turno 
-				WHERE id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}
-				UNION ALL
-				SELECT {$_POST['turno']} AS turno, {$_POST['id_imperio']} AS id_imperio, {$_POST['id_instalacao']} AS id_instalacao, {$_POST['id_planeta_instalacoes']} AS id_planeta_instalacoes,{$_POST['id_planeta']} AS id_planeta, {$_POST['pop']} AS pop FROM DUAL
-				) AS cat
-				JOIN colonization_planeta_instalacoes AS cpi
-				ON cpi.id = cat.id_planeta_instalacoes
-				JOIN colonization_instalacao_recursos AS cir
-				ON cir.id_instalacao = cat.id_instalacao
-				WHERE cir.consome=true AND cpi.turno_destroi IS NULL
-				GROUP BY cir.id_recurso
-			) AS tabela_consome
-			ON tabela_consome.id_recurso = cr.id
-			LEFT JOIN colonization_imperio_recursos AS cimr
-			ON cimr.id_imperio = tabela_produz.id_imperio 
-			AND cimr.id_recurso = tabela_produz.id_recurso 
-			AND cimr.turno = tabela_produz.turno
-		) AS tabela_balanco
-		WHERE (producao-consumo+estoque)<0
-		");
-		
-		
-		foreach ($resultados as $resultado) {
-			$dados_salvos['balanco_acao'] .= "{$resultado->nome}, ";
+
+		//Verifica se o balanço de recursos mais o estoque do Império são suficientes
+		foreach ($acoes->recursos_balanco as $id_recurso => $valor) {
+			$recurso = new recurso($id_recurso);
+			if ($recurso->acumulavel == 1) {
+				$imperio_recursos = new imperio_recursos($_POST['id_imperio'],$_POST['turno']);
+				$chave_id_recurso = array_search($id_recurso,$imperio_recursos->id_recurso);
+				$balanco = $imperio_recursos->qtd[$chave_id_recurso] + $valor;
+			} else {
+				$balanco = $valor;
+			}
+			
+			if ($balanco < 0 && $recurso->nome != "Poluição") {//A poluição pode ser negativa pois isso significa redução na poluição do planeta
+				$dados_salvos['balanco_acao'] .= "{$recurso->nome}, ";
+			}
 		}
 		
 		if ($dados_salvos['balanco_acao'] != "") {
