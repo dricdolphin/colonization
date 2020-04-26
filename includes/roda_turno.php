@@ -193,6 +193,25 @@ class roda_turno {
 					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}<br>";
 					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}");
 				}
+
+				//Registra a pesquisa das naves
+				$html .= "<br>REGISTRANDO as Pesquisas das Naves...<br>";
+				
+				$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
+				WHERE id_imperio = {$imperio->id} AND pesquisa = 1");
+				
+				foreach ($frota as $id) {
+					$nave = new frota($id->id);
+					$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+					
+					if (!empty($id_estrela)) {
+						$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+						if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
+							$html.= "INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}<br>";
+							$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$imperio->id}, id_estrela={$id_estrela},  turno={$proximo_turno}");
+						}
+					}
+				}
 			}
 		
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!

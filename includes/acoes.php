@@ -395,6 +395,38 @@ class acoes
 			}
 		}
 
+		//As naves podem produzir Pesquisa
+		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+		
+		$pesquisa_naves = 0;
+
+		/***
+		$naves = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_frota
+		WHERE id_imperio = {$this->id_imperio} AND pesquisa = 1");
+		//***/
+		
+		$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
+		WHERE id_imperio = {$this->id_imperio} AND pesquisa = 1");
+		
+		foreach ($frota as $id) {
+			$nave = new frota($id->id);
+			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+			
+			if (!empty($id_estrela)) {
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$this->id_imperio} AND id_estrela={$id_estrela}");
+				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
+					$pesquisa_naves = $pesquisa_naves + $nave->qtd * (5 + $imperio->bonus_pesquisa_naves);
+				}
+			}
+		}
+		
+		
+		if (empty($this->recursos_produzidos[$id_pesquisa])) {
+			$this->recursos_produzidos[$id_pesquisa] = $pesquisa_naves;
+		} else {
+			$this->recursos_produzidos[$id_pesquisa] = $this->recursos_produzidos[$id_pesquisa] + $pesquisa_naves;
+		}
+
 		//Pega o Consumo das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);

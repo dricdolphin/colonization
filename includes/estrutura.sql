@@ -178,6 +178,14 @@ qtd INT(6) NOT NULL,
 turno INT(6) NOT NULL
 )
 
+--Tabela com o histórico de Pesquisas das naves do Império
+CREATE TABLE colonization_imperio_historico_pesquisa (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_estrela INT(6) NOT NULL,
+turno INT(6) NOT NULL
+)
+
 --Tabela com os pontos de reabastecimento do Império
 CREATE TABLE colonization_imperio_abastecimento (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

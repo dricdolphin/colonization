@@ -67,7 +67,7 @@ class acao_admin
 			<input type='hidden' data-atributo='funcao_pos_processamento' value='altera_lista_recursos_qtd'></input>
 			<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Remover esta Ação não irá reverter seus efeitos. Deseja continuar?'></input>
 			<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='{$this->id_imperio}' data-valor-original='{$imperio->nome}'>{$imperio->nome}</div>
-			<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
+			<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 		<td><div data-atributo='lista_recursos_qtd' data-valor-original=''>{$lista_recursos_qtd}</div>
 		<div style='visibility: hidden;'><div data-atributo='lista_recursos' data-editavel='true' data-style='width: 120px;' data-valor-original='{$this->lista_recursos}' style='display: inline-block;'>{$this->lista_recursos}</div>

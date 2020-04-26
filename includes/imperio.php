@@ -25,6 +25,7 @@ class imperio
 	public $sinergia = [];
 	public $extrativo = [];
 	public $max_bonus_recurso = [];
+	public $bonus_pesquisa_naves = 0;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -100,12 +101,9 @@ class imperio
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 
 		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
-		$icones = $wpdb->get_results("SELECT ct.id AS id
-		FROM colonization_imperio_techs AS cit
-		JOIN colonization_tech AS ct
-		ON ct.id = cit.id_tech
-		WHERE cit.id_imperio={$this->id} AND ct.icone != ''
-		ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
+		$tech = new tech();
+		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
+		$icone_html = [];
 		
 		foreach ($icones AS $icone) {
 			$tech = new tech($icone->id);
@@ -114,8 +112,22 @@ class imperio
 			WHERE cit.id_tech = {$tech->id} AND cit.id_imperio = {$this->id}");
 			
 			if ($custo_pago == 0) {
-				$this->icones_html .= " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+				if ($tech->id_tech_parent != 0) {
+					$ids_tech_parent = explode(";",$tech->id_tech_parent);
+					foreach ($ids_tech_parent as $chave => $id_tech) {
+						if (!empty($icone_html[$id_tech])) {
+							$icone_html[$id_tech] = " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+						}
+					}
+				} else {
+					$icone_html[$tech->id] = " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+				}
+				//$this->icones_html .= " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
 			}
+		}
+		
+		foreach ($icone_html as $chave => $html) {
+			$this->icones_html .= $html;
 		}
 		
 		//***********************************
@@ -124,6 +136,7 @@ class imperio
 		//No momento existem as seguintes funções especiais para Techs:
 		//max_pop=porcentagem -- tech que aumenta o máximo de pop de uma colônia 
 		//
+		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
 		//Essa Tech pode ter os seguintes atributos
 		//id_recurso=recursos -- pode ser uma lista separada por vírgula ou *, para todos os recursos => OBRIGATÓRIO
@@ -149,7 +162,16 @@ class imperio
 			if (!empty($max_pop)) {
 				$max_pop_valor = explode("=",$max_pop[0]);
 				$this->max_pop = $this->max_pop	+ $max_pop_valor[1];
-				
+			}
+
+			//Especiais -- bonus_pesquisa_naves
+			$bonus_pesquisa_naves = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_pesquisa_naves') !== false;
+			}));
+			
+			if (!empty($bonus_pesquisa_naves)) {
+				$bonus_pesquisa_naves = explode("=",$bonus_pesquisa_naves[0]);
+				$this->bonus_pesquisa_naves = $this->bonus_pesquisa_naves + $bonus_pesquisa_naves[1];
 			}
 
 			//Especiais -- produz_recursos
@@ -254,7 +276,7 @@ class imperio
 				<input type='hidden' data-atributo='funcao_pos_processamento' value='mais_dados_imperio'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value=\"Deseja mesmo excluir o Império '{$this->nome}'?\"></input>
 				<div data-atributo='ID'>{$this->id}</div>
-				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
+				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome_jogador'>{$user->display_name}{$this->icones_html}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
