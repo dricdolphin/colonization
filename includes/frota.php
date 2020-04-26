@@ -43,34 +43,7 @@ class frota
 		}
 		
 		$this->id = $id;
-/***
-id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-id_imperio INT(6) NOT NULL,
-nome VARCHAR(255) NOT NULL,
-tipo VARCHAR(255) NOT NULL,
-X INT(6) NOT NULL,
-Y INT(6) NOT NULL,
-Z INT(6) NOT NULL,
-string_nave TEXT NOT NULL,
-tamanho INT(6) NOT NULL,
-velocidade INT(6) NOT NULL,
-alcance INT(6) NOT NULL,
-PDF_laser INT(6) NOT NULL,
-PDF_projetil INT(6) NOT NULL,
-PDF_torpedo INT(6) NOT NULL,
-blindagem INT(6) NOT NULL,
-escudos INT(6) NOT NULL,
-PDF_bombardeamento INT(6) NOT NULL,
-poder_invasao INT(6) NOT NULL,
-pesquisa BOOLEAN DEFAULT FALSE,
-nivel_estacao_orbital INT(6) DEFAULT 0,
-especiais TEXT DEFAULT NULL,
-HP INT(6) NOT NULL,
-qtd INT(6) NOT NULL,
-turno INT(6) NOT NULL
-//***/
-
-		
+	
 		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome, tipo, qtd, X, Y, Z, string_nave, 
 		tamanho, HP, velocidade, alcance, 
 		PDF_laser, PDF_projetil, PDF_torpedo,
