@@ -1,7 +1,7 @@
 /******************
-function pega_id_estrela
+function calcula_distancia
 --------------------
-Pega o id de uma estrela e define suas variaveis
+Calcula a distância entre duas estrelas
 ******************/
 function calcula_distancia() {
 	let estrela_origem = document.getElementById('estrela_origem');
@@ -27,6 +27,11 @@ function calcula_distancia() {
 	distancia_div.innerHTML = "<b>Distância:</b> "+distancia.toFixed(1);
 }
 
+/******************
+function calcula_pulos_hyperdrive
+--------------------
+Cria o caminho dos pulos de hyperdrive
+******************/
 function calcula_pulos_hyperdrive() {
 	let estrela_origem = document.getElementById('estrela_origem_h');
 	let estrela_destino = document.getElementById('estrela_destino_h');
@@ -163,4 +168,182 @@ function calcula_pulos_hyperdrive() {
 	html = html+lista_nome_estrela[estrela_atual]+" ("+lista_x_estrela[estrela_atual]+";"+lista_y_estrela[estrela_atual]+";"+lista_z_estrela[estrela_atual]+")";
 	
 	distancia_div.innerHTML = html;
+}
+
+
+
+function processa_string_admin (evento, objeto) {
+	let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	var input_string_construcao = document.getElementById('string_nave').value;
+
+	let qtd_laser = "";
+	let qtd_torpedo = "";
+	let qtd_projetil = "";
+	let qtd_blindagem = "";
+	let qtd_escudos = "";
+	let qtd_impulso = "";
+	let qtd_dobra = "";
+	let qtd_combustivel = "";
+	let qtd_pesquisa = document.getElementById('pesquisa');
+	let qtd_estacao_orbital = document.getElementById('nivel_estacao_orbital');
+	let qtd_tropas = document.getElementById('qtd_tropas');
+	let qtd_bombas = document.getElementById('qtd_bombas');
+	let qtd_slots_extra = "";
+	
+	let mk_laser = "";
+	let mk_torpedo = "";
+	let mk_projetil = "";
+	let mk_blindagem = "";
+	let mk_escudos = "";
+	let mk_impulso = "";
+	let mk_dobra = "";
+
+	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra];
+	let mk = [mk_laser, mk_torpedo, mk_projetil, mk_blindagem, mk_escudos, mk_impulso, mk_dobra];
+
+	let partes_nave = input_string_construcao.split(";");
+	
+	for (let index=0; index<partes_nave.length; index++) {
+		let subparte = partes_nave[index].split("=");
+		if (qtd[index].type == "checkbox") {
+			if (subparte[0] == 1) {
+				qtd[index].checked = true;
+			} else {
+				qtd[index].checked = false;
+			}
+		} else if (qtd[index].type == "text") {
+			qtd[index].value = subparte[0];
+		} else {
+			qtd[index] = subparte[0];
+		}
+		
+		if (mk[index] !== undefined) {
+			mk[index] = subparte[1];
+		}
+	}
+
+	qtd_laser = qtd[0];
+	qtd_torpedo = qtd[1];
+	qtd_projetil = qtd[2];
+	qtd_blindagem = qtd[3];
+	qtd_escudos = qtd[4];
+	qtd_impulso = qtd[5];
+	qtd_dobra = qtd[6];
+	qtd_combustivel = qtd[7];
+	qtd_slots_extra = qtd[12];
+
+	mk_laser = mk[0];
+	mk_torpedo = mk[1];
+	mk_projetil = mk[2];
+	mk_blindagem = mk[3];
+	mk_escudos = mk[4];
+	mk_impulso = mk[5];
+	mk_dobra = mk[6];
+
+	let chassi = 0;
+	let categoria = "Corveta";
+
+	let pdf_laser = 0;
+	let pdf_torpedo = 0;
+	let pdf_projetil = 0;
+	let blindagem = 0;
+	let escudos = 0;
+
+	let tamanho = 0;
+	let velocidade = 0;
+	let alcance = 0;
+	let hp = 0;
+
+	let custo_estacao_orbital = 20*qtd_estacao_orbital.value;
+
+	if (qtd_pesquisa.checked) {
+		qtd_pesquisa = 1
+	} else {
+		qtd_pesquisa = 0
+	}
+
+	chassi = qtd_bombas.value*10 + qtd_tropas.value*5 + qtd_slots_extra*1 + Math.ceil(custo_estacao_orbital/1.5) 
+	+ qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil 
+	+ qtd_dobra*1 + qtd_impulso*1 
+	+ qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
+	
+	velocidade = Math.floor((qtd_impulso*mk_impulso/chassi)*10);
+	hp = chassi*10;
+	
+	if (qtd_dobra*mk_dobra*10 < chassi) {
+		alcance = 0;
+	} else {
+		alcance = Math.floor(((qtd_dobra*(mk_dobra*2-1)*10)/(chassi+mk_dobra*1-1))) + Math.ceil(((qtd_combustivel*(mk_dobra*0.5 + 0.5)*15)/(chassi+(mk_dobra*2-2))));
+	}
+	
+	if (isNaN(velocidade)) {
+		velocidade = 0;
+		alcance = 0;
+	}
+
+	if (velocidade > 5) {
+		velocidade = 5;
+	}	
+
+	if (velocidade == 0) {
+		velocidade = 1;
+	}
+
+	pdf_laser = qtd_laser*(mk_laser*2-1);
+	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
+	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
+	
+	blindagem = qtd_blindagem*(mk_blindagem*2-1);
+	escudos = qtd_escudos*(mk_escudos*2-1);
+	
+	if (chassi <= 10) {
+		categoria = "Corveta";
+	} else if (chassi > 10 && chassi <= 20) {
+		categoria = "Fragata";
+	} else if (chassi > 20 && chassi <= 50) {
+		categoria = "Destroier";
+	} else if (chassi > 50 && chassi <= 100) {
+		categoria = "Cruzador";
+	} else if (chassi > 100 && chassi <= 200) {
+		categoria = "Nave de Guerra";
+	} else if (chassi > 200 && chassi <= 300) {
+		categoria = "Nave de Batalha";
+	} else if (chassi > 300 && chassi <= 500) {
+		categoria = "Couraçado";
+	} else if (chassi > 500 && chassi <= 1000) {
+		categoria = "Dreadnought";
+	} else if (chassi > 1000 && chassi <= 5000) {
+		categoria = "Nave-Mãe";
+	} else {
+		categoria = "????????";
+	}
+
+	let chassi_input = document.getElementById('tamanho');
+	let categoria_input = document.getElementById('categoria');
+	let pdf_laser_input = document.getElementById('PDF_laser');
+	let pdf_torpedo_input = document.getElementById('PDF_torpedo');
+	let pdf_projetil_input = document.getElementById('PDF_projetil');
+	let blindagem_input = document.getElementById('blindagem');
+	let escudos_input = document.getElementById('escudos');
+	let alcance_input = document.getElementById('alcance');
+	let velocidade_input = document.getElementById('velocidade');
+
+	chassi_input.value = chassi;
+	categoria_input.value = categoria;
+	pdf_laser_input.value = pdf_laser;
+	pdf_torpedo_input.value = pdf_torpedo;
+	pdf_projetil_input.value = pdf_projetil;
+	blindagem_input.value = blindagem;
+	escudos_input.value = escudos;
+	alcance_input.value = alcance;
+	velocidade_input.value = velocidade;
+	
+	evento.preventDefault();
+	return false;
 }

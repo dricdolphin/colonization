@@ -109,7 +109,7 @@ class colonia
 			
 			$chave_recurso = array_search($planeta_recurso->id_recurso,$imperio_recursos->id_recurso);
 			if ($imperio_recursos->disponivel[$chave_recurso] == 1) {//Somente exibe os recursos que o Império já conhecer
-				$html .= "{$recurso->nome}: {$planeta_recurso->disponivel}, ";
+				$html .= "{$recurso->nome}: {$planeta_recurso->qtd_disponivel}, ";
 			}
 		}
 		

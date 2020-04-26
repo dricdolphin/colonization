@@ -170,7 +170,8 @@ function copiar_objeto(evento, objeto, id_imperio) {
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
 	+"<div data-atributo='nome' data-editavel='true' data-valor-original='' data-style='width: 100px;'>"+nome+"</div>"
-	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	+"<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	+"<div data-atributo='processa_string' data-valor-original=''><a href='#' onclick='return processa_string_admin(event, this);'>Processa String</a></div>";
 	
 	for (var index = 1; index < celulas.length; index++) {
 		celula = linha_nova.insertCell(index);

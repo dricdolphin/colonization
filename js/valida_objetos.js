@@ -197,7 +197,24 @@ function valida_generico(objeto) {
 	var celulas = linha.cells;
 	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
 	var inputs_linha = linha.getElementsByTagName("INPUT");
+	var textarea_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
+
+	let inputs_linha_temp = "";
+	for (var index = 0; index < inputs_linha.length; index++) {
+		inputs_linha_temp[index] = inputs_linha[index];
+	}
+	
+	
+	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
+		index_temp = index + index_textarea;
+		if (inputs_linha_temp[index_temp] !== undefined) {
+			index_temp++;
+		}
+		inputs_linha_temp[index_temp] = textarea_linha[index_textarea];
+	}	
+	
+	inputs_linha = inputs_linha_temp;
 	
 	//Verifica se o todos os dados estão preenchidos
 	for (index = 0; index < inputs_linha.length; index++) {

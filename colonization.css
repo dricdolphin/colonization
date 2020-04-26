@@ -103,7 +103,7 @@ content: "\f135";
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
+  width: 150px;
   color: #555;
   background-color: #DDD;
   text-align: center;
@@ -132,6 +132,7 @@ content: "\f135";
 .tooltip:hover .tooltiptext {
   visibility: visible;
   overflow: visible;
+  padding: 2px;
 }
 
 .wrapper_principal {
@@ -222,6 +223,12 @@ th {
   z-index: 99;
 }
 
+.th_linha_2 {
+  background-color: #FDFDFD;
+  position: sticky;
+  top: 66px;
+  z-index: 99;	
+}
 
 
 @media only screen and (max-width: 782px) {

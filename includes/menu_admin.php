@@ -796,21 +796,26 @@ class menu_admin {
 			<table class='wp-list-table widefat fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
 			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th>
-			<th rowspan='2' style='width: 100px;'>Tipo</th>
+			<th rowspan='2' style='width: 100px;'>Categoria</th>
 			<th rowspan='2' style='width: 30px;'>Qtd</th>
-			<th colspan='3' style='width: 90px;'>Posição</th>
+			<th colspan='3' style='width: 120px;'>Posição</th>
+			<th rowspan='2' style='width: 90px;'>String da Nave</th>
 			<th rowspan='2' style='width: 70px;'>Tamanho</th>
+			<th rowspan='2' style='width: 40px;'>HP</th>
+			<th rowspan='2' style='width: 75px;'>Velocidade</th>
+			<th rowspan='2' style='width: 60px;'>Alcance</th>
 			<th colspan='3' style='width: 220px;'>Poder de Fogo</th>
 			<th rowspan='2' style='width: 75px;'>Blindagem</th>
 			<th rowspan='2' style='width: 60px;'>Escudos</th>
-			<th rowspan='2' style='width: 75px;'>Velocidade</th>
-			<th rowspan='2' style='width: 60px;'>Alcance</th>
-			<th rowspan='2' style='width: 40px;'>HP</th>
-			<th rowspan='2' style='width: 40px;'>Turno</th>
+			<th rowspan='2' style='width: 70px;'>Bombard.</th>
+			<th rowspan='2' style='width: 60px;'>Invasão</th>
+			<th rowspan='2' style='width: 70px;'>Pesquisa</th>
+			<th rowspan='2' style='width: 100px;'>Estação Orbital</th>
 			<th rowspan='2' style='width: 120px;'>Especiais</th>
+			<th rowspan='2' style='width: 40px;'>Turno</th>
 			<th rowspan='2' style='width: 80px;'>&nbsp;</th>
 			</tr>
-			<tr><th style='width: 30px;'>X</th><th style='width: 30px;'>Y</th><th style='width: 30px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
+			<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th><th class='th_linha_2' style='width: 60px;'>Laser</th><th class='th_linha_2' style='width: 60px;'>Torpedo</th><th class='th_linha_2' style='width: 60px;'>Projétil</th></tr>
 			</thead>
 			<tbody>";
 			

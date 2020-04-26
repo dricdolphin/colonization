@@ -49,7 +49,7 @@ function atualiza_objeto(objeto, dados) {
 				//Só atualiza o innerHTML de divs que não contenham objetos
 				if (dados[atributo] !== null) {
 					if (divs[index].hasChildNodes()) {
-						if (divs[index].childNodes[0].tagName != "INPUT") {
+						if (divs[index].childNodes[0].tagName != "INPUT" && divs[index].childNodes[0].tagName != "TEXTAREA") {
 							divs[index].setAttribute('data-valor-original',dados[atributo]);
 							divs[index].innerHTML = dados[atributo];
 						}
@@ -131,13 +131,20 @@ function edita_objeto(evento, objeto) {
 		celula = celulas[index];
 		divs = celula.getElementsByTagName('div'); //Os dados editáveis ficam sempre dentro de divs
 		if (index == 0) {//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
-			divs[1].innerHTML = "<a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return salva_objeto(event, this, true);'>Cancelar</a>";
+			for (let index_div = 0; index_div < divs.length; index_div++) {
+				if (divs[index_div].getAttribute('data-atributo') == "gerenciar") {
+					divs[index_div].innerHTML = "<a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return salva_objeto(event, this, true);'>Cancelar</a>";
+				} else if (divs[index_div].getAttribute('data-atributo') == "processa_string") {
+					divs[index_div].style.visibility = "visible";
+				}
+			}
 		}
 		
 		
 		for (var index_div = 0; index_div < divs.length; index_div++) {
 			editavel = divs[index_div].getAttribute('data-editavel');
 			data_ajax= "";
+			data_id = "";
 			if (editavel) {
 				atributo = divs[index_div].getAttribute('data-atributo');
 				valor_atributo = divs[index_div].innerHTML;
@@ -145,6 +152,17 @@ function edita_objeto(evento, objeto) {
 				if (data_estilo !== "undefined" && data_estilo !== null) {
 					data_estilo = " style='"+data_estilo+"'";
 				}
+				
+				if (divs[index_div].getAttribute('data-ajax') == "false") {
+					data_ajax = "data-ajax='false'";
+				} else {
+					data_ajax = "data-ajax='true'";
+				}
+				
+				if (divs[index_div].getAttribute('data-id') !== null) {
+					data_id = "id="+divs[index_div].getAttribute('data-id');
+				}
+				
 				if (divs[index_div].getAttribute('data-type') !== null) {
 					if (divs[index_div].getAttribute('data-type') == "checkbox") {
 						inputs = divs[index_div].getElementsByTagName("INPUT");
@@ -152,15 +170,11 @@ function edita_objeto(evento, objeto) {
 					} else if (divs[index_div].getAttribute('data-type') == "select") {
 						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'));
 						divs[index_div].innerHTML = lista;
+					} else if (divs[index_div].getAttribute('data-type') == "textarea") {
+						divs[index_div].innerHTML = "<textarea data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" "+data_estilo+">"+valor_atributo+"</textarea>";
 					}
 				} else {
-					if (divs[index_div].getAttribute('data-ajax') == "false") {
-						data_ajax = "data-ajax='false'";
-					} else {
-						data_ajax = "data-ajax='true'";
-					}
-					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' "+data_ajax+" value='"+valor_atributo+"'"+data_estilo+"></input>";
-					
+					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" value='"+valor_atributo+"'"+data_estilo+"></input>";
 				}
 			}
 		}
@@ -205,9 +219,24 @@ function pega_dados_objeto(objeto) {
 	var tabela = pega_ascendente(objeto,"TABLE");
 	var celulas = linha.cells;
 	var inputs_linha = linha.getElementsByTagName("INPUT");
+	var textarea_linha = linha.getElementsByTagName("TEXTAREA")
 	var select_linha = linha.getElementsByTagName("SELECT");
 	var checkbox_checked = "";
+
+	var inputs_linha_temp = [];
+	for (var index = 0; index < inputs_linha.length; index++) {
+		inputs_linha_temp[index] = inputs_linha[index];
+	}
 	
+	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
+		index_temp = index + index_textarea;
+		if (inputs_linha_temp[index_temp] !== undefined) {
+			index_temp++;
+		}
+		inputs_linha_temp[index_temp] = textarea_linha[index_textarea];
+	}	
+	
+	inputs_linha = inputs_linha_temp;
 	
 	var funcao_valida_objeto = "";
 	objeto_editado['nome_tabela'] = tabela.getAttribute('data-tabela');
@@ -390,15 +419,31 @@ cancela = false -- define se pega os dados originais ou os novos
 function desabilita_edicao_objeto(objeto, cancela = false) {
 
 	var linha = pega_ascendente(objeto,"TR");
-	var inputs = linha.getElementsByTagName('INPUT');
-	var selects = linha.getElementsByTagName('SELECT');
+	var inputs = linha.getElementsByTagName("INPUT");
+	var textarea_linha = linha.getElementsByTagName("TEXTAREA");
+	var selects = linha.getElementsByTagName("SELECT");
 	var div = "";
 	var checkbox_checked = "";
+
+	var inputs_linha_temp = [];
+	for (var index = 0; index < inputs.length; index++) {
+		inputs_linha_temp[index] = inputs[index];
+	}
 	
+	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
+		index_temp = index + index_textarea;
+		if (inputs_linha_temp[index_temp] !== undefined) {
+			index_temp++;
+		}
+		inputs_linha_temp[index_temp] = textarea_linha[index_textarea];
+	}	
+	
+	inputs = inputs_linha_temp;
+
 	//Pega cada um dos inputs e tira do modo de edição
 	var tamanho_maximo = inputs.length-1;
 	for (var index = tamanho_maximo; index >-1; index--) {
-		if (inputs[index].type == 'text') {
+		if (inputs[index].type == 'text' || inputs[index].tagName =='TEXTAREA') {
 			div = pega_ascendente(inputs[index],"DIV");
 			if (cancela) {
 				div.innerHTML = div.getAttribute('data-valor-original');
@@ -435,13 +480,16 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 		}
 	}
 	
-	//A primeira célula NORMALMENTE é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
+	//A primeira célula NORMALMENTE é especial, pois tem divs com dados como Id e outros, e links de gerenciamento, que no modo edição são alterados para Salvar e Cancelar
 	var celula = linha.cells[0]
 	var divs = celula.getElementsByTagName("DIV");
-	if (divs[1] !== undefined) {
-		divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
+	for (let index=0; index < divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
+		} else if (divs[index].getAttribute('data-atributo') == "processa_string") {
+			divs[index].style.visibility = "hidden";
+		}
 	}
-	
 	return linha;
 }
 

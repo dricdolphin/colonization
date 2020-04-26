@@ -159,6 +159,7 @@ tipo VARCHAR(255) NOT NULL,
 X INT(6) NOT NULL,
 Y INT(6) NOT NULL,
 Z INT(6) NOT NULL,
+string_nave TEXT NOT NULL,
 tamanho INT(6) NOT NULL,
 velocidade INT(6) NOT NULL,
 alcance INT(6) NOT NULL,
@@ -167,11 +168,21 @@ PDF_projetil INT(6) NOT NULL,
 PDF_torpedo INT(6) NOT NULL,
 blindagem INT(6) NOT NULL,
 escudos INT(6) NOT NULL,
+PDF_bombardeamento INT(6) NOT NULL,
 poder_invasao INT(6) NOT NULL,
+pesquisa BOOLEAN DEFAULT FALSE,
+nivel_estacao_orbital INT(6) DEFAULT 0,
 especiais TEXT DEFAULT NULL,
 HP INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
 turno INT(6) NOT NULL
+)
+
+--Tabela com os pontos de reabastecimento do Império
+CREATE TABLE colonization_imperio_abastecimento (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_estrela INT(6) NOT NULL
 )
 
 --Tabela com os dados do turno atual
