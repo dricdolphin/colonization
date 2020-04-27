@@ -59,10 +59,24 @@ class colonization {
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe a transferência de Techs e o histórico
 
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona a barra de recursos de cada Império
+	}
+	
+	/******************
+	function colonization_turno_atual()
+	-----------
+	Mostra uma mensagem com o Turno atual
+	******************/	
+	function colonization_turno_atual() {
+		$turno = new turno(); //Pega o turno atual
+
+		$html = "O Turno {$turno->turno} já começou!";
+		
+		return $html;
 	}
 	
 	/******************
