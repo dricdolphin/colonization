@@ -775,12 +775,11 @@ class colonization {
 	}
 
 	/***********************
-	function colonization_exibe_acoes_imperio($atts = [], $content = null)
+	function colonization_exibe_mapa_estelar($atts = [], $content = null)
 	----------------------
-	Chamado pelo shortcode [colonization_exibe_acoes_imperio]
-	$atts = [] - lista de atributos dentro do shortcode 
-	(por exemplo, o shortcode [colonization_exibe_acoes_imperio id_imperio="1"] poderia exibir
-	os dados do Império com id="1"
+	Chamado pelo shortcode [colonization_exibe_mapa_estelar]
+	
+	Exibe o mapa de estrelas
 	***********************/	
 	function colonization_exibe_mapa_estelar($atts = [], $content = null) {
 		global $wpdb;

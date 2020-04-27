@@ -149,6 +149,7 @@ class imperio
 		JOIN colonization_tech AS ct
 		ON ct.id = cit.id_tech
 		WHERE cit.id_imperio={$this->id} 
+		AND cit.custo_pago = 0
 		AND ct.especiais != ''");
 		
 		foreach ($especiais_lista AS $id) {
@@ -417,8 +418,19 @@ class imperio
 			} else {
 				$poluicao = "<span style='color: #ee1509;'>{$resultado->poluicao}</span>";
 			}
+				$id_instalacoes = $wpdb->get_results("SELECT id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta = {$resultado->id_planeta} AND turno <= {$this->turno->turno}");
+				
+				$icones_planeta = "";
+				foreach ($id_instalacoes as $id_instalacao) {
+					$instalacao = new instalacao($id_instalacao->id_instalacao);
+					
+					if (!empty($instalacao->icone)) {
+						$icones_planeta .= " <div class='{$instalacao->icone} tooltip'><span class='tooltiptext'>{$instalacao->nome}</span></div>";
+					}
+				}
+				
 				$planeta_id_estrela[$resultado->id_planeta] = $resultado->id_estrela;
-				$html_planeta[$resultado->id_planeta] = "<span style='font-style: italic;'>{$resultado->nome}</span> - MdO/Pop: {$mdo}/{$resultado->pop} - Poluição: {$poluicao}; ";
+				$html_planeta[$resultado->id_planeta] = "<span style='font-style: italic;'>{$resultado->nome}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$resultado->pop} - Poluição: {$poluicao}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {

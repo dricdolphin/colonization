@@ -57,7 +57,8 @@ class instala_db {
 		slots INT(6) DEFAULT 1,
 		autonoma BOOLEAN DEFAULT FALSE,
 		desguarnecida BOOLEAN DEFAULT FALSE,
-		oculta BOOLEAN DEFAULT FALSE
+		oculta BOOLEAN DEFAULT FALSE,
+		icone VARCHAR(255) DEFAULT ''
 		)");
 
 		//Tabela com os tipos de recursos existentes
