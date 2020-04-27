@@ -121,13 +121,9 @@ class roda_turno {
 					}
 					
 					$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
-					$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
-					/***
-					if ($id_recurso == $id_alimento) {//Se for ALIMENTO, precisamos alterar o valor do balanço, pois a população consome Alimentos
-						$acoes->recursos_balanco[$id_recurso] = $acoes->recursos_balanco[$id_recurso] - $imperio->pop;
+					if ($id_recurso == $id_alimento) {
 						$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
 					}
-					//***/
 					
 					if ($recurso->acumulavel == 0) {
 						$acoes->recursos_balanco[$id_recurso] = 0;
@@ -171,7 +167,6 @@ class roda_turno {
 								//Caso o Império tenha uma Tech de Bônus Populacional...
 								if ($imperio->max_pop >0) {
 									$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
-									$html .= "MAX POP = {$limite_pop_planeta}";
 								}
 								
 								if ($colonia->pop <= $limite_pop_planeta) {//Tem espaço para crescer
@@ -198,7 +193,7 @@ class roda_turno {
 				$html .= "<br>REGISTRANDO as Pesquisas das Naves...<br>";
 				
 				$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
-				WHERE id_imperio = {$imperio->id} AND pesquisa = 1");
+				WHERE id_imperio = {$imperio->id} AND pesquisa=1");
 				
 				foreach ($frota as $id) {
 					$nave = new frota($id->id);
@@ -208,15 +203,15 @@ class roda_turno {
 						$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
 						if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 							$html.= "INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}<br>";
-							$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$imperio->id}, id_estrela={$id_estrela},  turno={$proximo_turno}");
+							$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}");
 						}
 					}
 				}
 			}
 		
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
-		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'<br>";
-		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}'");
+		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1<br>";
+		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");
 		
 		$this->concluido = true;
 		} else {

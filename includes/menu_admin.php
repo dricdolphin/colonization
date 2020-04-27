@@ -237,8 +237,8 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
 			<thead>
-			<tr><th rowspan='2'>Nome da estrela</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>&nbsp;</th></tr>
-			<tr><th style='width: 30px;'>X</th><th style='width: 30px;'>Y</th><th style='width: 30px;'>Z</th></tr>
+			<tr><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'>Nome da estrela</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>&nbsp;</th></tr>
+			<tr><th class='th_linha_2' style='width: 30px;'>X</th><th class='th_linha_2' style='width: 30px;'>Y</th><th class='th_linha_2' style='width: 30px;'>Z</th></tr>
 			
 			</thead>
 			<tbody>";

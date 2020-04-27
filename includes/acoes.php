@@ -170,7 +170,7 @@ class acoes
 			$this->disabled = "";
 		} else {
 			$turno_atual = new turno();
-			if ($this->turno->turno != $turno_atual->turno) {
+			if ($this->turno->turno != $turno_atual->turno || $this->turno->encerrado == 1) {
 				$this->disabled = "disabled";
 			}
 		}

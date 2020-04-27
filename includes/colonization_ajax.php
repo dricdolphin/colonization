@@ -226,7 +226,7 @@ class colonization_ajax {
 		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
 			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']}";
 		} else {
-			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND id != {$_POST['id']}";
+			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND turno = {$_POST['turno']} AND id != {$_POST['id']}";
 		}
 		
 		$resposta = $wpdb->query($query);
@@ -564,6 +564,15 @@ class colonization_ajax {
 		global $wpdb; 
 		//$wpdb->hide_errors();		
 
+		$turno = new turno($_POST['turno']);
+		if ($turno->encerrado == 1) {
+			$dados_salvos['resposta_ajax'] = "O Turno {$turno->turno} foi ENCERRADO e não pode mais receber alterações!";
+		
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+
+
 		$dados_salvos['debug'] = "";
 		$acoes = new acoes($_POST['id_imperio'],$_POST['turno']);
 		
@@ -725,6 +734,22 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 
-
+	/***********************
+	function encerra_turno()
+	----------------------
+	Encerra o Turno
+	***********************/	
+	function encerra_turno() {
+		global $wpdb;
+		
+		$turno = new turno($_POST['turno']);
+		$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1");
+		$wpdb->query("UPDATE wp_forum_topics SET closed = 1 WHERE name LIKE 'Turno {$turno->turno}%'");
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 }
 ?>

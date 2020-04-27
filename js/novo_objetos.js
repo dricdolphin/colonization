@@ -64,19 +64,21 @@ function nova_estrela(evento) {
 	var tabela_estrelas = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela_estrelas.insertRow(-1);
 	
-	var nome_estrela = linha_nova.insertCell(0);
+	var id = linha_nova.insertCell(0);
+	var nome = linha_nova.insertCell(0);
 	var estrela_x = linha_nova.insertCell(1);
 	var estrela_y = linha_nova.insertCell(2);
 	var estrela_z = linha_nova.insertCell(3);
 	var estrela_tipo = linha_nova.insertCell(4);
 	var gerencia = linha_nova.insertCell(5);
 	
-	nome_estrela.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_estrela'></input>"
-	+"<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>"
+	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	estrela_x.innerHTML = "<div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='X' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_y.innerHTML = "<div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Y' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";
@@ -656,38 +658,4 @@ function nova_acao_admin(evento) {
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
-}
-
-/******************
-function roda_turno
---------------------
-Roda o Turno
---------
-******************/
-function roda_turno(evento) {
-	var div_resultados = document.getElementById('resultado_turno');
-	div_resultados.innerHTML = "Processando o Turno, aguarde!";
-
-	var dados_ajax = "post_type=POST&action=roda_turno";
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			let div_resultados = document.getElementById('resultado_turno');
-			div_resultados.innerHTML = resposta.html;
-			if (resposta.turno_novo != "") {
-				let div_turno = document.getElementById('div_turno');
-				let div_dados_acoes_imperios = document.getElementById('dados_acoes_imperios');
-				div_dados_acoes_imperios.innerHTML = resposta.dados_acoes_imperios;
-				div_turno.innerHTML = resposta.turno_novo;
-			}
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-
-	evento.preventDefault();
-	return false;	
 }
