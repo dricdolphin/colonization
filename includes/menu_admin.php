@@ -603,7 +603,7 @@ class menu_admin {
 			<tbody>";
 			
 			//Pega a lista de instalações
-			$lista_id = $wpdb->get_results("SELECT id FROM colonization_instalacao");
+			$lista_id = $wpdb->get_results("SELECT id FROM colonization_instalacao ORDER BY nome");
 			$html_lista = "";
 			
 			foreach ($lista_id as $id) {
@@ -694,7 +694,13 @@ class menu_admin {
 			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
 
 			/*************************************/
-			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
+			$lista_colonia_instalacoes = $wpdb->get_results(
+			"SELECT cpi.id, cpi.id_instalacao 
+			FROM colonization_planeta_instalacoes AS cpi 
+			JOIN colonization_instalacao AS ci
+			ON ci.id = cpi.id_instalacao
+			WHERE cpi.id_planeta={$planeta->id}
+			ORDER BY ci.nome");
 			$html_dados = "";
 			$html_lista = "";
 			
@@ -877,6 +883,7 @@ class menu_admin {
 			$recursos_atuais = $imperio->exibe_recursos_atuais();
 			$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 			$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
+			$recursos_balanco = $imperio_acoes->exibe_recursos_balanco();
 			
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
@@ -884,6 +891,7 @@ class menu_admin {
 			<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div>
 			<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
 			<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div>
+			<div id='recursos_balanco_imperio_{$imperio->id}'><b>Balanço:</b> {$recursos_balanco}</div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
 			<tr><th>Colônia (X;Y;Z) | P</th><th>Instalação</th><th>Utilização (0-10)</th><th>&nbsp;</th></tr>

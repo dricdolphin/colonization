@@ -32,6 +32,7 @@ class acoes
 	public $recursos_consumidos_planeta = [];
 	public $recursos_consumidos_nome = [];
 	public $recursos_balanco = [];
+	public $recursos_balanco_planeta = [];
 	public $recursos_balanco_nome = [];
 	public $disabled = "";
 	
@@ -191,8 +192,13 @@ class acoes
 			
 			if ($ultimo_planeta != $planeta->id) {
 				$slots = 0;
+				$balanco_planeta = "";
+				
+				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
+				
 				$primeira_linha = "<td rowspan='{$colonia->instalacoes}'>
 				<div data-atributo='nome_planeta'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | {$colonia->instalacoes}/{$planeta->tamanho}</div>
+				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
 				</td>";
 				if ($estilo == $estilo_par) {
 					$estilo = $estilo_impar;
@@ -292,7 +298,7 @@ class acoes
 		$this->recursos_consumidos_nome = [];
 		$this->recursos_balanco = [];
 		$this->recursos_balanco_nome = [];
-		
+		$this->recursos_balanco_planeta = [];
 		
 		
 		//Pega a produção das Instalações
@@ -439,6 +445,7 @@ class acoes
 					$this->recursos_consumidos[$id_recurso] = 0;
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
+
 					if (empty($this->recursos_balanco_nome[$id_recurso])) {
 						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
 					}
@@ -462,7 +469,7 @@ class acoes
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
-		//Adiciona o consumo de alimentos para cada colônia
+		//Adiciona o consumo de alimentos para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id);
 			$recurso = new recurso($id_alimento);
@@ -481,6 +488,18 @@ class acoes
 			}
 			
 			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop;
+			
+			foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
+				if (empty($this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta])) {
+					$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] = 0;
+				}
+				
+				if (empty($this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta] = 0;
+				}
+
+				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
+			}
 		}
 		
 		//Faz o Balanço da Produção e do Consumo
@@ -555,6 +574,34 @@ class acoes
 		}
 		
 		return $html;
+	}
+
+	function exibe_balanco_planeta($id_planeta) {
+		$balanco_temp = [];
+		$balanco_planeta = "";
+		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
+			if (!empty($this->recursos_balanco_planeta[$id_recurso][$id_planeta])) {
+				$balanco_temp[$id_recurso] = $this->recursos_balanco_planeta[$id_recurso][$id_planeta];
+			}
+		}
+		
+		if (!empty($balanco_temp)) {
+			asort($balanco_temp,SORT_NUMERIC);
+			
+			foreach ($balanco_temp as $id_recurso =>$qtd) {
+				if ($qtd != 0) {
+					$recurso = new recurso ($id_recurso);
+					if ($qtd < 0) {
+						$html_qtd = "<span style='color: #DD0000;'>{$qtd}</span>";
+					} else {
+						$html_qtd = $qtd;
+					}
+					$balanco_planeta .= "{$recurso->nome}: {$html_qtd}; ";
+				}
+			}
+		}
+		
+		return $balanco_planeta;
 	}
 
 }

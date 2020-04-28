@@ -554,6 +554,9 @@ class colonization_ajax {
 		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
 		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
+		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
+		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
+		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON

@@ -754,6 +754,7 @@ class colonization {
 		$recursos_atuais = $imperio->exibe_recursos_atuais();
 		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
+		$balanco_recursos = $imperio_acoes->exibe_recursos_balanco();
 		$html_frota = "";
 	
 		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id}");
@@ -768,14 +769,15 @@ class colonization {
 		$html_lista	= "
 		<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno}</h4></div>
 		<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div><br>
-		<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div><br>
-		<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
-		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div><br>
+		<div id='recursos_atuais_imperio_{$imperio->id}' >{$recursos_atuais}</div><br>
+		<div id='recursos_produzidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_produzidos}</div>
+		<div id='recursos_consumidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_consumidos}</div>
+		<div id='recursos_balanco_imperio_{$imperio->id}'><b>Balanço dos Recursos:</b> {$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr style='background-color: #E5E5E5; font-weight: 700;'><td>Colônia (X;Y;Z;P) | Slots</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<tr style='background-color: #E5E5E5; font-weight: 700;'><td style='width: 40%;'>Colônia (X;Y;Z;P) | Slots</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		

@@ -665,9 +665,11 @@ function salva_acao(evento, objeto, cancela = false) {
 				for (index=0;index<inputs.length;index++) {
 					if(inputs[index].getAttribute('data-atributo') == "id_imperio") {
 						var id_imperio = inputs[index].value;
+					} else if(inputs[index].getAttribute('data-atributo') == "id_planeta") {
+						var id_planeta = inputs[index].value;
 					}
 				}
-				atualiza_produtos_acao(id_imperio);
+				atualiza_produtos_acao(id_imperio, id_planeta);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -689,8 +691,8 @@ function atualiza_produtos_acao(id_imperio)
 Pega os produtos da Ação
 id_imperio -- id do Império
 ******************/	
-function atualiza_produtos_acao(id_imperio) {
-	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio;
+function atualiza_produtos_acao(id_imperio,id_planeta) {
+	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta;
 	
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
@@ -701,13 +703,20 @@ function atualiza_produtos_acao(id_imperio) {
 				id_colonias = "lista_colonias_imperio_"+id_imperio;
 				id_produz = "recursos_produzidos_imperio_"+id_imperio;
 				id_consome = "recursos_consumidos_imperio_"+id_imperio;
+				id_balanco = "recursos_balanco_imperio_"+id_imperio;
+				id_balanco_planeta = "balanco_planeta_"+id_planeta;
+				
 				div_colonias = document.getElementById(id_colonias);
 				div_produz = document.getElementById(id_produz);
 				div_consome = document.getElementById(id_consome);
+				div_balanco = document.getElementById(id_balanco);
+				div_balanco_planeta = document.getElementById(id_balanco_planeta);
 				
 				div_colonias.innerHTML = resposta.lista_colonias
 				div_produz.innerHTML = resposta.recursos_produzidos;
 				div_consome.innerHTML = resposta.recursos_consumidos;
+				div_balanco.innerHTML = resposta.recursos_balanco;
+				div_balanco_planeta.innerHTML = resposta.balanco_planeta;
 			} else {
 				alert(resposta.resposta_ajax);
 			}
