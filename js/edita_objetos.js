@@ -716,7 +716,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta) {
 				div_produz.innerHTML = resposta.recursos_produzidos;
 				div_consome.innerHTML = resposta.recursos_consumidos;
 				div_balanco.innerHTML = resposta.recursos_balanco;
-				div_balanco_planeta.innerHTML = resposta.balanco_planeta;
+				div_balanco_planeta.innerHTML = "<b>Balanço dos Recursos:</b> "+resposta.balanco_planeta;
 			} else {
 				alert(resposta.resposta_ajax);
 			}

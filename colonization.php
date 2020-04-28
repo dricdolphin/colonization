@@ -398,7 +398,7 @@ class colonization {
 	
 		}
 
-		$html = "<div style='overflow-x: visible; max-width: 5000px;'>";
+		$html = "<div style='background-color: #FFFFFF; overflow-x: visible; max-width: 5000px; margin-right: -50%;'>";
 		$belica = 0;
 		foreach ($html_tech as $chave => $html_valor) {
 			$tech = new tech($chave);
