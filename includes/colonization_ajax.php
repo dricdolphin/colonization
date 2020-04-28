@@ -47,6 +47,9 @@ class colonization_ajax {
 			$tech = new tech($transfere_tech->id_tech);
 			$custo_pago = floor($tech->custo*0.3);
 			$wpdb->query("INSERT INTO colonization_imperio_techs SET id_imperio={$transfere_tech->id_imperio_destino}, custo_pago={$custo_pago}, id_tech={$transfere_tech->id_tech}, turno={$turno->turno}");
+		} else {
+			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+1 WHERE turno={$turno->turno} AND id_imperio={$transfere_tech->id_imperio_destino} AND id_recurso={$id_pesquisa}");
 		}
 	
 		//Depois de salvar, registra a transferência
@@ -348,6 +351,7 @@ class colonization_ajax {
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			$dados_salvos['debug'] = "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}";
 			
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
@@ -355,12 +359,13 @@ class colonization_ajax {
 
 		$planeta = new planeta($_POST['id_planeta']);
 		$instalacao = new instalacao($_POST['id_instalacao']);
-		if ($planeta->instalacoes + $instalacao->slots <= $planeta->tamanho) {
-			$dados_salvos['resposta_ajax'] = "OK!";
-		} else {
-			$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
+		if (empty($dados_salvos['resposta_ajax'])) {
+			if ($planeta->instalacoes + $instalacao->slots <= $planeta->tamanho) {
+				$dados_salvos['resposta_ajax'] = "OK!";
+			} else {
+				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
+			}
 		}
-
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}

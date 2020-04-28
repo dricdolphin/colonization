@@ -101,58 +101,62 @@ class tech
 	***********************/
 
 	function query_tech($where="",$id_imperio=0) {
-			global $wpdb;
-			
-			if ($id_imperio == 0) {
-				$custo_pago = ", 0 as custo_pago";
-				$join = "";
-			} else {
-				$custo_pago = ", cit.custo_pago";
-				
-				$join = "			
-				JOIN colonization_imperio_techs AS cit
-				ON cit.id_tech = ct.id
-				AND cit.id_imperio = {$id_imperio}";
-			}
-			
-			$nivel = 0;
-			do {
-				$nivel++;
-				$lista_techs[$nivel] = $wpdb->get_results("
-				SELECT ct.id, ct.id_tech_parent {$custo_pago} 
-				FROM colonization_tech AS ct
-				{$join}
-				WHERE nivel = {$nivel}
-				{$where}
-				ORDER BY belica, lista_requisitos, nome");
-			} while (!empty($lista_techs[$nivel]));
-			
-			//Nível máximo
-			$nivel--;
-			$lista_completa = [];
-			$lista_completa_temp = [];
-			
-			$nivel=1;
-			while (!empty($lista_techs[$nivel])) {
-				foreach($lista_techs[$nivel] as $tech) {
-					if ($nivel == 1) {
-						$lista_completa[$tech->id] = $tech;
-					} else {
-						foreach ($lista_completa as $id_tech => $valor_tech) {
-							$lista_completa_temp[$id_tech] = $valor_tech;
-							$id_tech_parents = explode(";",$tech->id_tech_parent);
-							foreach ($id_tech_parents as $chave => $id_tech_parent) {
-								if ($id_tech_parent == $id_tech) {
-									$lista_completa_temp[$tech->id] = $tech;
-								}
+		global $wpdb;
+
+		if ($id_imperio == 0) {
+			$custo_pago = ", 0 as custo_pago";
+			$join = "";
+		} else {
+			$custo_pago = ", cit.custo_pago, cit.id_imperio";
+
+			$join = "			
+			JOIN colonization_imperio_techs AS cit
+			ON cit.id_tech = ct.id
+			AND cit.id_imperio = {$id_imperio}";
+		}
+
+		$nivel = 0;
+		do {
+			$nivel++;
+			$lista_techs[$nivel] = $wpdb->get_results("
+			SELECT ct.id, ct.id_tech_parent {$custo_pago} 
+			FROM colonization_tech AS ct
+			{$join}
+			WHERE nivel = {$nivel}
+			{$where}
+			ORDER BY belica, lista_requisitos, nome");
+		} while (!empty($lista_techs[$nivel]));
+		
+		//Nível máximo
+		$nivel--;
+		$lista_completa = [];
+		$lista_completa_temp = [];
+		
+		$nivel=1;
+		while (!empty($lista_techs[$nivel])) {
+			foreach($lista_techs[$nivel] as $tech) {
+				if ($nivel == 1) {
+					$lista_completa[$tech->id] = $tech;
+				} else {
+					foreach ($lista_completa as $id_tech => $valor_tech) {
+						$lista_completa_temp[$id_tech] = $valor_tech;
+						$id_tech_parents = explode(";",$tech->id_tech_parent);
+						foreach ($id_tech_parents as $chave => $id_tech_parent) {
+							if ($id_tech_parent == $id_tech) {
+								$lista_completa_temp[$tech->id] = $tech;
 							}
 						}
-						$lista_completa = $lista_completa_temp;
-						$lista_completa_temp = [];
 					}
+					if (empty($lista_completa_temp[$tech->id])) {//Se não achou um Tech parente, coloca no final da lista
+						$lista_completa_temp[$tech->id] = $tech;
+					}
+					
+					$lista_completa = $lista_completa_temp;
+					$lista_completa_temp = [];
 				}
-				$nivel++;
 			}
+			$nivel++;
+		}
 
 		return $lista_completa;
 	}

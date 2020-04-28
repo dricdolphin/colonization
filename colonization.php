@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.7
+ * Version: 1.1.8
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -540,7 +540,7 @@ class colonization {
 			}
 			
 			$recursos_atuais = $imperio->exibe_recursos_atuais();
-			$recursos_atuais = substr($recursos_atuais,19);
+			$recursos_atuais = substr($recursos_atuais,19); //Remove o cabeçalho
 			$html_recursos .= $recursos_atuais."<br>";
 		}
 		
@@ -732,6 +732,8 @@ class colonization {
 	os dados do Império com id="1"
 	***********************/	
 	function colonization_exibe_acoes_imperio($atts = [], $content = null) {
+		global $wpdb;
+		
 		if (isset($atts['turno'])) {
 			//$turno = new turno ($atts['turno']);
 			$turno = $atts['turno'];
@@ -752,6 +754,15 @@ class colonization {
 		$recursos_atuais = $imperio->exibe_recursos_atuais();
 		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
+		$html_frota = "";
+	
+		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id}");
+		
+		foreach ($ids_frota as $ids) {
+			$nave = new frota($ids->id);
+			
+			$html_frota .= "<b>{$nave->nome}</b> ({$nave->X};{$nave->Y};{$nave->Z}); ";
+		}
 		
 		//TODO -- Pega a data da última ação
 		$html_lista	= "
@@ -760,6 +771,8 @@ class colonization {
 		<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div><br>
 		<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
 		<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div><br>
+		<div><b>Frota do Império</b></div>
+		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
 		<tr style='background-color: #E5E5E5; font-weight: 700;'><td>Colônia (X;Y;Z;P) | Slots</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>

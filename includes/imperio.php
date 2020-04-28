@@ -103,26 +103,29 @@ class imperio
 		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
 		$tech = new tech();
 		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
+
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+
 		$icone_html = [];
 		
 		foreach ($icones AS $icone) {
-			$tech = new tech($icone->id);
-			$custo_pago = $wpdb->get_var("SELECT custo_pago
-			FROM colonization_imperio_techs AS cit
-			WHERE cit.id_tech = {$tech->id} AND cit.id_imperio = {$this->id}");
+			$tech_icone = new tech($icone->id);
 			
-			if ($custo_pago == 0) {
-				if ($tech->id_tech_parent != 0) {
-					$ids_tech_parent = explode(";",$tech->id_tech_parent);
+			if ($icone->custo_pago == 0) {
+				if ($tech_icone->id_tech_parent != 0) {
+					$ids_tech_parent = explode(";",$tech_icone->id_tech_parent);
 					foreach ($ids_tech_parent as $chave => $id_tech) {
 						if (!empty($icone_html[$id_tech])) {
-							$icone_html[$id_tech] = " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+							$icone_html[$id_tech] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+						} else {
+							$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
 						}
 					}
 				} else {
-					$icone_html[$tech->id] = " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
 				}
-				//$this->icones_html .= " <div class='{$tech->icone} tooltip'><span class='tooltiptext'>{$tech->nome}</span></div>";
+				//$this->icones_html .= " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
 			}
 		}
 		
@@ -347,7 +350,7 @@ class imperio
 		global $wpdb;
 		
 		$resultados = $wpdb->get_results("
-		SELECT cir.qtd, cr.nome
+		SELECT cir.qtd, cr.nome, cr.descricao
 		FROM colonization_imperio_recursos AS cir
 		JOIN colonization_recurso AS cr
 		ON cr.id=cir.id_recurso
@@ -359,7 +362,11 @@ class imperio
 		
 		$html = "<b>Recursos atuais:</b> ";
 		foreach ($resultados as $resultado) {
-			$html .= "{$resultado->nome} - {$resultado->qtd}; ";
+			$html .= "<div class='tooltip' style='display: inline-block;'>{$resultado->nome} - {$resultado->qtd}; &nbsp;
+						<span class='tooltiptext'>{$resultado->descricao}</span>
+					</div>";
+
+			//$html .= "{$resultado->nome} - {$resultado->qtd}; ";
 		}
 		
 		return $html;

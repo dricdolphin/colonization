@@ -103,6 +103,7 @@ class transfere_tech
 		global $wpdb;
 		$imperio_origem = new imperio($this->id_imperio_origem, true);
 		$tech = new tech($this->id_tech);
+		$ressarce = ceil(0.1*$tech->custo);
 		
 		//Faz a validação da Tech
 		//Verifica se o Império já tem essa Tech
@@ -110,7 +111,8 @@ class transfere_tech
 		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech}");
 		
 		if (!empty($id_tech_imperio)) {
-			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você já possui essa tech.</div>
+			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você já possui essa tech.<br>
+			Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
 			<div><a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 		
 			return $html;
@@ -126,7 +128,8 @@ class transfere_tech
 				$id_tech_parent = $id_tech_parent[0];
 				$tech = new tech($id_tech_parent);
 				
-				$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você ão tem os pré-requisitos necessários! É necessário ter a Tech '{$tech->nome}'</div>
+				$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você ão tem os pré-requisitos necessários! É necessário ter a Tech '{$tech->nome}'<br>
+				Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
 				<div><a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 				
 				return $html;
@@ -144,14 +147,16 @@ class transfere_tech
 					}
 				}
 				if (!empty($html)) {
-					$html .= "</div>
+					$html .= "<br>
+					Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
 					<div><a href='#' style='font-weight: bold !important; color: #887F41 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 				}
 			}
 		}
 		
 		if (empty($html)) {
-			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}'. Deseja aceitá-la?</div>
+			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}'. Deseja aceitá-la?<br>
+			Caso rejeite, você irá receber {$ressarce} Pesquisa(s) como compensação.</div>
 			<div><a href='#'style='color: #628049 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},true);'>Aceitar</a> &nbsp;&nbsp;&nbsp; 
 			<a href='#' style='color: #D23535 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id});',false>Rejeitar!</a>
 			</div>";

@@ -127,12 +127,18 @@ class menu_admin {
 			$html .= "\n</tbody>
 			</table></div>";
 			
-			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id}");
+			//$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id}");
+			$tech = new tech();
+			$resultados = $tech->query_tech("",$imperio->id);
 			
 			$html_techs_imperio = "";
 			foreach ($resultados as $resultado) {
-				$imperio_techs = new imperio_techs($resultado->id);
-				$html_techs_imperio .= $imperio_techs->lista_dados();
+				$id_imperio_techs = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$resultado->id}");
+				if (!empty($id_imperio_techs)) {
+					$imperio_techs = new imperio_techs($id_imperio_techs);
+
+					$html_techs_imperio .= $imperio_techs->lista_dados();
+				}
 			}
 			
 			$html .= "<div><h2>COLONIZATION - Techs do Império '{$imperio->nome}'</h2></div>

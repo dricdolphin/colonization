@@ -348,7 +348,7 @@ function valida_colonia_instalacao(objeto) {
 	}
 
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof id_instalacao === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof id_instalacao === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
@@ -366,6 +366,9 @@ function valida_colonia_instalacao(objeto) {
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;
+			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
 			}
 		}
 	};
