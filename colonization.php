@@ -349,8 +349,8 @@ class colonization {
 					if ($tech->nivel == 1) {
 						$html_tech[$tech->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
-							<span class='tooltiptext'>{$tech->descricao}</span>
+						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 					} else {
 						foreach ($ids_tech_parent as $chave => $id_tech_parent) {
@@ -358,8 +358,8 @@ class colonization {
 							if (!empty($html_tech[$tech_parent->id])) {						
 								$html_tech[$tech_parent->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
-							<span class='tooltiptext'>{$tech->descricao}</span>
+						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 							}
 						}
