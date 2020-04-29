@@ -134,9 +134,10 @@ class transfere_tech
 			if ($tech_parent == 0) {
 				$id_tech_parent = explode(",",$id_tech_parent);
 				$id_tech_parent = $id_tech_parent[0];
-				$tech = new tech($id_tech_parent);
+				$tech_parent = new tech($id_tech_parent);
 				
-				$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você ão tem os pré-requisitos necessários! É necessário ter a Tech '{$tech->nome}'<br>
+				$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você não tem os pré-requisitos necessários!<br> 
+				É necessário ter a Tech '{$tech_parent->nome}'<br>
 				Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
 				<div><a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 				

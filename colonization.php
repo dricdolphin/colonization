@@ -62,11 +62,22 @@ class colonization {
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe a transferência de Techs e o histórico
 
-		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
+
+		add_action('wp_head', array($this,'colonization_ajaxurl')); //Necessário para incluir o ajaxurl
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
+		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona a barra de recursos de cada Império
+
 	}
 	
+	function colonization_ajaxurl() {
+
+		echo "<script type='text/javascript'>
+           var ajaxurl = '" . admin_url('admin-ajax.php') . "';
+         </script>";
+	}
+
+
 	/******************
 	function colonization_turno_atual()
 	-----------

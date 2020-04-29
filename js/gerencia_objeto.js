@@ -298,7 +298,14 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
@@ -317,7 +324,7 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 	}
 		
 	let envia_tech = document.getElementById("envia_tech");
-	if (envia_tech !== undefined) {
+	if (envia_tech !== undefined && envia_tech !== null) {
 		atualiza_lista_techs(envia_tech);
 	}
 	
