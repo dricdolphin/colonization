@@ -102,7 +102,8 @@ class tech
 
 	function query_tech($where="",$id_imperio=0) {
 		global $wpdb;
-
+		include_once(ABSPATH . 'wp-includes/pluggable.php');
+		
 		if ($id_imperio == 0) {
 			$custo_pago = ", 0 as custo_pago";
 			$join = "";
@@ -112,19 +113,42 @@ class tech
 			$join = "			
 			JOIN colonization_imperio_techs AS cit
 			ON cit.id_tech = ct.id
-			AND cit.id_imperio = {$id_imperio}";
+			";
+			
+			$where .= " AND cit.id_imperio = {$id_imperio}";
 		}
 
 		$nivel = 0;
+
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+
 		do {
 			$nivel++;
 			$lista_techs[$nivel] = $wpdb->get_results("
-			SELECT ct.id, ct.id_tech_parent {$custo_pago} 
+			SELECT ct.id, ct.id_tech_parent{$custo_pago} 
 			FROM colonization_tech AS ct
 			{$join}
 			WHERE nivel = {$nivel}
 			{$where}
 			ORDER BY belica, lista_requisitos, nome");
+
+			/*** DEBUG ***
+			if ($roles == "administrator") {
+				echo "
+				SELECT ct.id, ct.id_tech_parent{$custo_pago} 
+				FROM colonization_tech AS ct
+				{$join}
+				WHERE nivel = {$nivel}
+				{$where}
+				ORDER BY belica, lista_requisitos, nome<br>";
+			}
+			//***/
+
 		} while (!empty($lista_techs[$nivel]));
 		
 		//Nível máximo

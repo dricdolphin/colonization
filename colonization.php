@@ -282,25 +282,9 @@ class colonization {
 			$imperio = new imperio($atts['id']);
 			
 			$techs = $tech->query_tech("",$imperio->id);
-			
-			/***
-			$techs = $wpdb->get_results("SELECT ct.id, cit.custo_pago
-			FROM colonization_imperio_techs AS cit
-			JOIN colonization_tech AS ct
-			ON ct.id = cit.id_tech
-			WHERE cit.id_imperio = {$imperio->id}
-			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
-			//***/
 		} else {
 			
 			$techs = $tech->query_tech(" AND publica = 1");			
-			
-			/***
-			$techs = $wpdb->get_results("
-			SELECT id FROM colonization_tech 
-			WHERE publica = 1 
-			ORDER BY nivel, belica, lista_requisitos, nome");
-			//***/
 		}
 		
 		
@@ -351,7 +335,7 @@ class colonization {
 						$html_tech[$tech_parent->id] .= "					
 					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
 					<div class='wrapper_tech'>
-						<div class='tech tooltip'>{$tech->nome}
+						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
 					}
@@ -365,8 +349,8 @@ class colonization {
 					if ($tech->nivel == 1) {
 						$html_tech[$tech->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
-							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
+						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
+							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
 					} else {
 						foreach ($ids_tech_parent as $chave => $id_tech_parent) {
@@ -374,8 +358,8 @@ class colonization {
 							if (!empty($html_tech[$tech_parent->id])) {						
 								$html_tech[$tech_parent->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
-							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
+						<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
+							<span class='tooltiptext'>{$tech->descricao}</span>
 						</div>";
 							}
 						}
