@@ -37,6 +37,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','publish_pages','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','publish_pages','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
 		add_submenu_page('colonization_admin_menu','Frotas','Frotas','publish_pages','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
+		add_submenu_page('colonization_admin_menu','Reabastecimentos','Reabastecimentos','publish_pages','colonization_admin_reabastece_imperio',array($this,'colonization_admin_reabastece_imperio'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','publish_pages','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','publish_pages','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','publish_pages','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
@@ -420,6 +421,53 @@ class menu_admin {
 
 	}
 
+	
+	/******************
+	function colonization_admin_reabastece_imperio()
+	-----------
+	Exibe a página de pontos de reabastecimento de um Império
+	******************/
+	function colonization_admin_reabastece_imperio() {
+		global $wpdb;
+		
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Pontos de Reabastecimento</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_abastecimento' style='max-width: 700px'>
+		<thead>
+		<tr><th>ID</th><th>Império</th><th>Estrela</th>
+		</tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de recursos
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_imperio_abastecimento ORDER BY id_imperio, id_estrela");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {
+			$reabastece_imperio = new reabastece_imperio($id->id);
+			
+			$html_dados = $reabastece_imperio->lista_dados();
+
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+		
+		$html.= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_reabastecimento(event);'>Adicionar novo Ponto de Reabastecimento</a></div>";
+		
+		echo $html;
+	}
+
+
+
+	
 	/******************
 	function colonization_admin_recursos()
 	-----------

@@ -32,6 +32,7 @@ include_once('includes/acoes_admin.php');
 include_once('includes/turno.php');
 include_once('includes/frota.php');
 include_once('includes/roda_turno.php');
+include_once('includes/reabastece_imperio.php');
 include_once('js/listas_js.php');
 
 //Classe "colonization"

@@ -332,7 +332,14 @@ function salva_objeto(evento, objeto, cancela = false) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
@@ -467,7 +474,8 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	}
 
 	//Além de INPUT, existe a possibilidade dos dados serem passados via SELECT
-	for (index = 0; index < selects.length; index++) {
+	var tamanho_maximo = selects.length-1;
+	for (let index = tamanho_maximo; index > -1; index--) {
 		div = pega_ascendente(selects[index],"DIV");
 		if (cancela) {
 			div.innerHTML = div.getAttribute('data-valor-original');

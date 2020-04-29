@@ -90,6 +90,42 @@ function nova_estrela(evento) {
 	return false;
 }
 
+function novo_reabastecimento(evento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault()
+		return false;
+	}
+		
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+
+	var tabela = document.getElementsByTagName('TABLE')[0];
+	var linha_nova = tabela.insertRow(-1);
+	
+	var id = linha_nova.insertCell(0);
+	var imperio = linha_nova.insertCell(1);
+	var estrela = linha_nova.insertCell(2);
+
+	var lista_imperios = lista_imperios_html();
+	var lista_estrelas = lista_estrelas_html();
+
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_reabastecimento'></input>"
+	+"<div data-atributo='id' data-valor-original='' value=''>#</div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+
+	imperio.innerHTML = "<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado=''>"+lista_imperios+"</div>";
+	estrela.innerHTML = "<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-funcao='lista_estrelas_html' data-id-selecionado=''>"+lista_estrelas+"</div>";
+
+	window.scrollTo(0, document.body.scrollHeight);
+	event.preventDefault();
+	return false;
+}
+
+
 /******************
 function novo_planeta
 --------------------

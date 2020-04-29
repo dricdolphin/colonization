@@ -1,4 +1,50 @@
 /******************
+function valida_generico(objeto)
+--------------------
+Valida os dados de um objeto genérico
+objeto -- objeto sendo editado
+******************/	
+function valida_generico(objeto) {
+	
+	var linha = pega_ascendente(objeto,"TR");
+	//var tabela = pega_ascendente(objeto,"TABLE");
+	var celulas = linha.cells;
+	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
+	var inputs_linha = linha.getElementsByTagName("INPUT");
+	var textarea_linha = linha.getElementsByTagName("INPUT");
+	var select_linha = linha.getElementsByTagName("SELECT");
+
+	let inputs_linha_temp = "";
+	for (var index = 0; index < inputs_linha.length; index++) {
+		inputs_linha_temp[index] = inputs_linha[index];
+	}
+	
+	
+	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
+		index_temp = index + index_textarea;
+		if (inputs_linha_temp[index_temp] !== undefined) {
+			index_temp++;
+		}
+		inputs_linha_temp[index_temp] = textarea_linha[index_textarea];
+	}	
+	
+	inputs_linha = inputs_linha_temp;
+	
+	//Verifica se o todos os dados estão preenchidos
+	for (index = 0; index < inputs_linha.length; index++) {
+		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
+			if (inputs_linha[index].parentNode.getAttribute("data-branco") != "true") {//Caso o div tenha o atributo "data-branco", então pode deixar em branco
+				alert('Nenhum dado pode ser deixado em branco!');
+				return false;
+			}
+		}
+	}
+
+	return true; //Validou!
+}
+
+
+/******************
 function valida_imperio(objeto)
 --------------------
 Valida os dados do Império
@@ -13,12 +59,8 @@ function valida_imperio(objeto) {
 	var inputs_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
 	
-	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "nome" && inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('O nome do Império não pode ser deixado em branco!');
-			return false;
-		}
+	if (!valida_generico(objeto)) {
+		return;
 	}
 
 	if (typeof select_linha[0] !== "undefined") {
@@ -87,6 +129,64 @@ function valida_tech_imperio(objeto) {
 	
 }
 
+
+/******************
+function valida_reabastecimento(objeto)
+--------------------
+Valida 
+objeto -- objeto sendo editado
+******************/	
+function valida_reabastecimento(objeto) {
+	
+	var linha = pega_ascendente(objeto,"TR");
+	var celulas = linha.cells;
+	var inputs_linha = linha.getElementsByTagName("INPUT");
+	var select_linha = linha.getElementsByTagName("SELECT");
+	var dados_ajax = "post_type=POST&action=valida_reabastecimento";
+	var retorno = false;
+
+	if (!valida_generico(objeto)) {
+		return;
+	}
+	
+	if (typeof select_linha[0] !== "undefined") {
+		var id_imperio = select_linha[0].value;
+		dados_ajax = dados_ajax +"&id_imperio="+id_imperio;
+	}
+	
+	if (typeof select_linha[1] !== "undefined") {
+		var id_estrela = select_linha[1].value;
+		dados_ajax = dados_ajax +"&id_estrela="+id_estrela;
+	}
+
+	//Verifica se o nome do Império está preenchido
+	for (index = 0; index < inputs_linha.length; index++) {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id") {
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+		}
+	}	
+
+	//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	return retorno;
+}
+
+
 /******************
 function valida_estrela(objeto)
 --------------------
@@ -101,15 +201,15 @@ function valida_estrela(objeto) {
 	var select_linha = linha.getElementsByTagName("SELECT");
 	var dados_ajax = "post_type=POST&action=valida_estrela";
 	var retorno = false;
+
+	if (!valida_generico(objeto)) {
+		return;
+	}
 	
 	//Verifica se o nome do Império está preenchido
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "X" || inputs_linha[index].getAttribute('data-atributo') == "Y" || inputs_linha[index].getAttribute('data-atributo') == "Z" || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
 		}
 	}
 
@@ -152,15 +252,15 @@ function valida_colonia(objeto) {
 		var id_planeta = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_planeta="+id_planeta;
 	}
+
+	if (!valida_generico(objeto)) {
+		return;
+	}
 	
 	//Verifica se o nome do Império está preenchido
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" ) {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
 		}
 	}
 
@@ -185,51 +285,6 @@ function valida_colonia(objeto) {
 }
 
 /******************
-function valida_generico(objeto)
---------------------
-Valida os dados de um objeto genérico
-objeto -- objeto sendo editado
-******************/	
-function valida_generico(objeto) {
-	
-	var linha = pega_ascendente(objeto,"TR");
-	//var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var textarea_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-
-	let inputs_linha_temp = "";
-	for (var index = 0; index < inputs_linha.length; index++) {
-		inputs_linha_temp[index] = inputs_linha[index];
-	}
-	
-	
-	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
-		index_temp = index + index_textarea;
-		if (inputs_linha_temp[index_temp] !== undefined) {
-			index_temp++;
-		}
-		inputs_linha_temp[index_temp] = textarea_linha[index_textarea];
-	}	
-	
-	inputs_linha = inputs_linha_temp;
-	
-	//Verifica se o todos os dados estão preenchidos
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			if (inputs_linha[index].parentNode.getAttribute("data-branco") != "true") {//Caso o div tenha o atributo "data-branco", então pode deixar em branco
-				alert('Nenhum dado pode ser deixado em branco!');
-				return false;
-			}
-		}
-	}
-
-	return true; //Validou!
-}
-
-/******************
 function valida_instalacao_recurso(objeto)
 --------------------
 Valida os dados da Instalação
@@ -244,6 +299,10 @@ function valida_instalacao_recurso(objeto) {
 	var dados_ajax = "post_type=POST&action=valida_instalacao_recurso";
 	var retorno = false;
 	
+	if (!valida_generico(objeto)) {
+		return false;
+	}	
+	
 	if (typeof select_linha[0] !== "undefined") {
 		var id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
@@ -252,10 +311,6 @@ function valida_instalacao_recurso(objeto) {
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" || inputs_linha[index].getAttribute('data-atributo') == "consome" || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
 		}
 	}
 
@@ -293,6 +348,10 @@ function valida_planeta_recurso(objeto) {
 	var dados_ajax = "post_type=POST&action=valida_planeta_recurso";
 	var retorno = false;
 	
+	if (!valida_generico(objeto)) {
+		return false;
+	}
+
 	if (typeof select_linha[0] !== "undefined") {
 		var id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
@@ -301,10 +360,6 @@ function valida_planeta_recurso(objeto) {
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
 		}
 	}
 
@@ -342,6 +397,10 @@ function valida_colonia_instalacao(objeto) {
 	var dados_ajax = "post_type=POST&action=valida_colonia_instalacao";
 	var retorno = false;
 	
+	if (!valida_generico(objeto)) {
+		return false;
+	}
+
 	if (typeof select_linha[0] !== "undefined") {
 		var id_instalacao = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_instalacao="+id_instalacao;
@@ -350,10 +409,6 @@ function valida_colonia_instalacao(objeto) {
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof id_instalacao === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
-			alert('Nenhum dado pode ser deixado em branco!');
-			return false;
 		}
 	}
 

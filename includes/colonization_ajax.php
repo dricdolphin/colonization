@@ -25,6 +25,7 @@ class colonization_ajax {
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
 		add_action('wp_ajax_valida_acao_admin', array ($this, 'valida_acao_admin'));
+		add_action('wp_ajax_valida_reabastecimento', array ($this, 'valida_reabastecimento'));
 		add_action('wp_ajax_valida_tech_imperio', array ($this, 'valida_tech_imperio'));
 		add_action('wp_ajax_valida_transfere_tech', array ($this, 'valida_transfere_tech'));//valida_transfere_tech
 		add_action('wp_ajax_dados_transfere_tech', array ($this, 'dados_transfere_tech'));//dados_transfere_tech
@@ -229,6 +230,33 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 
+
+	/***********************
+	function valida_reabastecimento ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function valida_reabastecimento() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
+			$query = "SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}";
+		} else {
+			$query = "SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']} AND id != {$_POST['id']}";
+		}
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] = "Este ponto de Reabastecimento já foi cadastrado para este Império!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 
 	/***********************
 	function valida_colonia ()

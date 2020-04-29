@@ -86,13 +86,14 @@ class imperio_recursos
 			$html .= "<tr><td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}}' value='{$this->turno->turno}}'></input>
 					<input type='hidden' data-atributo='id_recurso' data-ajax='true' data-valor-original='{$this->id_recurso[$chave]}' value='{$this->id_recurso[$chave]}'></input>
 					<input type='hidden' data-atributo='where_clause' value='id'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
 					<input type='hidden' data-atributo='funcao_pos_processamento' value='remove_excluir'></input>
-					<div data-atributo='id' data-ajax='true'>{$this->id[$chave]}</div>
-					<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a></div>
+					<div data-atributo='id' data-ajax='true' data-valor-original='{$this->id[$chave]}'>{$this->id[$chave]}</div>
+					<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a></div>
 				</td>
 				<td><div data-atributo='nome_recurso'>{$recurso->nome}</div></td>
 				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd[$chave]}' data-style='width: 80px;'>{$this->qtd[$chave]}</div></td>

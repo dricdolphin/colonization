@@ -64,7 +64,7 @@ var turno_atual={$turno->turno};
 {$lista_z_estrela}
 {$lista_nome_estrela}
 			
-			var html = \"			<select data-atributo='id_planeta' style='width: 100%'>\";
+			var html = \"			<select data-atributo='id_estrela' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
