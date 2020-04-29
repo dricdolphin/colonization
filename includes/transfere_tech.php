@@ -103,12 +103,13 @@ class transfere_tech
 		global $wpdb;
 		$imperio_origem = new imperio($this->id_imperio_origem, true);
 		$tech = new tech($this->id_tech);
+		$bonus = ceil(0.3*$tech->custo);
 		$ressarce = ceil(0.1*$tech->custo);
 		
 		//Faz a validação da Tech
 		//Verifica se o Império já tem essa Tech
 		$html = "";
-		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech}");
+		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech} AND custo_pago < {$bonus} AND custo_pago != 0");
 		
 		if (!empty($id_tech_imperio)) {
 			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você já possui essa tech.<br>

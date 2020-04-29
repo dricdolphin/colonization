@@ -102,7 +102,6 @@ class tech
 
 	function query_tech($where="",$id_imperio=0) {
 		global $wpdb;
-		include_once(ABSPATH . 'wp-includes/pluggable.php');
 		
 		if ($id_imperio == 0) {
 			$custo_pago = ", 0 as custo_pago";

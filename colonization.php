@@ -9,6 +9,7 @@
  */
 
 //Inclui os arquivos necessários para o sistema "Colonization"
+include_once(ABSPATH . 'wp-includes/pluggable.php'); //Arquivo do WordPress
 include_once('includes/menu_admin.php');
 include_once('includes/colonization_ajax.php');
 include_once('includes/instalacao.php');
