@@ -109,11 +109,18 @@ class transfere_tech
 		//Faz a validação da Tech
 		//Verifica se o Império já tem essa Tech
 		$html = "";
-		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech} AND custo_pago < {$bonus} AND custo_pago != 0");
+		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech}");
 		
 		if (!empty($id_tech_imperio)) {
+			$imperio_tech = new imperio_techs($id_tech_imperio);
+			
+			$bonus_parcial = $bonus - $imperio_tech->custo_pago;
+			if ($bonus_parcial < $ressarce) {
+				$bonus_parcial = $ressarce;
+			}
+			
 			$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você já possui essa tech.<br>
-			Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
+			Como compensação, você irá receber {$bonus_parcial} Pesquisa(s).</div>
 			<div><a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 		
 			return $html;
