@@ -441,7 +441,6 @@ class colonization {
 				$imperios = [];
 				$div_imperios = "
 				<div id='div_imperios' style='width: 300px;'>&nbsp;</div>
-				<div><label>Tech Logística:</label> <input id='tech_logistica' type='checkbox' value='1' onchange='return lista_distancia();'></input></div>
 				";
 				foreach ($id_imperios as $chave => $id) {
 					$imperios[$chave] = new imperio ($id->id);
@@ -485,6 +484,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		$html = "
 		<h3>Distância entre as Estrelas</h3>
 		{$div_imperios}
+		<div><label>Alcance da Tech Logística:</label> <input id='tech_logistica' type='checkbox' value='1' onchange='return lista_distancia();'></input></div>
 		<div>
 			<div style='clear:both;'>
 				<div style='display: inline-block; width: 100px;'>Origem:</div>

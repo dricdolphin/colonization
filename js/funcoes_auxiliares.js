@@ -450,7 +450,7 @@ function lista_distancia() {
 		return { index: i, value: el };
 	});	
 
-	let html_lista = "&nbsp;";
+	let html_lista = "";
 	var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
 		return { index: i, value: el };
 	});	
