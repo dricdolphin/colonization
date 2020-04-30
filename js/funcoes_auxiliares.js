@@ -3,7 +3,7 @@ function calcula_distancia
 --------------------
 Calcula a distância entre duas estrelas
 ******************/
-function calcula_distancia() {
+function calcula_distancia(exibe=true, estrela_origem_id=0, estrela_destino_id=0) {
 	let estrela_origem = document.getElementById('estrela_origem');
 	let estrela_destino = document.getElementById('estrela_destino');
 	let distancia_div = document.getElementById('distancia');
@@ -11,8 +11,14 @@ function calcula_distancia() {
 	let select_estrela_origem = estrela_origem.childNodes[1];
 	let select_estrela_destino = estrela_destino.childNodes[1];
 
-	estrela_origem_id = select_estrela_origem.value;
-	estrela_destino_id = select_estrela_destino.value;
+	
+	if (estrela_origem_id == 0) {
+		estrela_origem_id = select_estrela_origem.value;
+	}
+
+	if (estrela_destino_id == 0) {
+		estrela_destino_id = select_estrela_destino.value;
+	}
 	
 	estrela_origem_x = lista_x_estrela[estrela_origem_id];
 	estrela_origem_y = lista_y_estrela[estrela_origem_id];
@@ -24,7 +30,11 @@ function calcula_distancia() {
 	
 	distancia = Math.ceil(Math.sqrt(Math.pow((estrela_origem_x-estrela_destino_x),2)+Math.pow((estrela_origem_y-estrela_destino_y),2)+Math.pow((estrela_origem_z-estrela_destino_z),2))*10)/10;
 	
-	distancia_div.innerHTML = "<b>Distância:</b> "+distancia.toFixed(1);
+	if (exibe) {
+		distancia_div.innerHTML = "<b>Distância:</b> "+distancia.toFixed(1);
+	} else {
+		return distancia.toFixed(1);
+	}
 }
 
 /******************
@@ -171,7 +181,11 @@ function calcula_pulos_hyperdrive() {
 }
 
 
-
+/******************
+function processa_string_admin
+--------------------
+Processa uma string de nave na área de Frotas (menu_admin)
+******************/
 function processa_string_admin (evento, objeto) {
 	let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
 	
@@ -345,5 +359,117 @@ function processa_string_admin (evento, objeto) {
 	velocidade_input.value = velocidade;
 	
 	evento.preventDefault();
+	return false;
+}
+
+/******************
+function lista_distancia
+--------------------
+Popula a lista com as estrelas onde uma nave do Império escolhido possa chegar
+******************/
+function lista_distancia() {
+	let div_lista_distancia = document.getElementById('lista_distancia');
+	let alcance_nave = document.getElementById('alcance_nave').value;
+	
+	if (alcance_nave == 0) {
+		div_lista_distancia.innerHTML = "";
+		return false;
+	}
+	
+	//var lista_estrelas_colonia=[];
+	//var lista_estrelas_reabastece=[];	
+	
+	let distancia = [];
+	var estrelas_imperio = [];
+	var estrelas_destino = [];
+	
+	var mapped_estrelas_colonia = lista_estrelas_colonia[id_imperio_atual].map(function(el, i) {
+		return { index: i, value: el };
+	});
+
+	mapped_estrelas_colonia.forEach(
+	function(valor, chave, mapa) {
+		//A chave será o id_estrela_origem
+		distancia[chave] = [];
+		estrelas_imperio[chave] = valor;
+	});
+
+	var mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
+		return { index: i, value: el };
+	});
+
+	
+	mapped_estrelas_reabastece.forEach(
+	function(valor_reabastece, chave_reabastece, mapa_reabastece) {
+		//Só adicionamos os pontos de reabastecimento se alguma Estrela que seja do Império estiver dentro do alcance da nave
+		mapped_estrelas_colonia.forEach(
+		function(valor_colonia, chave_colonia, mapa_colonia) {
+			distancia_parsecs = calcula_distancia(false, chave_reabastece, chave_colonia);
+			alcance_real = alcance_nave*2;
+			if (distancia_parsecs*1 <= alcance_real*1) {
+				distancia[chave_reabastece] = [];
+				estrelas_imperio[chave_reabastece] = chave_reabastece;
+			}
+		});
+	});
+	
+
+	var mapped_estrelas = lista_x_estrela.map(function(el, i) {
+		return { index: i, value: el };
+	});	
+
+	var mapped_estrelas_imperio= estrelas_imperio.map(function(el, i) {
+		return { index: i, value: el };
+	});	
+	
+	mapped_estrelas_imperio.forEach(
+	function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+		mapped_estrelas.forEach(
+		function(valor_estrelas, id_estrela_destino, mapa_estrelas) {
+			distancia_parsecs = calcula_distancia(false, id_estrela_origem, id_estrela_destino);
+			if (estrelas_imperio[id_estrela_destino] == id_estrela_destino) {
+				alcance_real = alcance_nave*2;
+			} else {
+				alcance_real = alcance_nave*1;
+			}
+			
+			if 	(distancia_parsecs*1 <= alcance_real*1 && id_estrela_origem != id_estrela_destino) {
+				distancia[id_estrela_origem][id_estrela_destino] = false;
+				estrelas_destino[id_estrela_destino] = false;
+			}
+		});	
+	});	
+	
+	var mapped_origem = distancia.map(function(el, i) {
+		return { index: i, value: el };
+	});	
+
+	let html_lista = "";
+	var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
+		return { index: i, value: el };
+	});	
+	
+	
+	mapped_estrelas_destino.forEach(function(valor_destini, chave_destino, mapa_destino) {
+		html_lista = html_lista + lista_nome_estrela[chave_destino] +" ("+lista_x_estrela[chave_destino]+";"+lista_y_estrela[chave_destino]+";"+lista_z_estrela[chave_destino]+")<br>";
+		distancia[chave_destino] = true;
+	});
+	
+	/***
+	mapped_origem.forEach(function(valor_origem, chave_origem, mapa_origem) {
+		let mapped_destino = distancia[chave_origem].map(function(el, i) {
+			return { index: i, value: el };
+		});	
+		mapped_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {		
+			if (distancia[chave_origem][chave_destino] === false) {
+				html_lista = html_lista + lista_nome_estrela[chave_origem] + " -> " + lista_nome_estrela[chave_destino] + "<br>";
+				distancia[chave_origem][chave_destino] = true;
+			}
+		});
+	});
+	***/
+	
+	div_lista_distancia.innerHTML = html_lista;
+	
 	return false;
 }

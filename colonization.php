@@ -101,11 +101,14 @@ class colonization {
 		global $asgarosforum, $wpdb;
 		
 		$user = wp_get_current_user();
+		$ids_pendentes = [];
 		if (!empty($user->ID)) {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			$imperio = new imperio($id_imperio, true);
 			$roles = $user->roles[0];
-			$ids_pendentes = [];
+			if ($roles != "administrator") {
+				$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+				$imperio = new imperio($id_imperio, true);
+
+			}
 			
 			if (!empty($imperio->id)) {
 				$ids_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
@@ -418,8 +421,69 @@ class colonization {
 	Exibe a distância entre duas estrelas
 	******************/	
 	function colonization_exibe_distancia_estrelas() {
+		global $wpdb;
+		
+		$user = wp_get_current_user();
+		$id_estrela_capital = "";
+		$turno = new turno();
+		$div_imperios = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			if ($roles != "administrator") {
+				$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+				$imperios[0] = new imperio($id_imperio, true);
+				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+				$colonia = new colonia($colonias[0]->id);
+				$planeta = new planeta($colonia->id_planeta);
+				$id_estrela_capital = $planeta->id_estrela;
+			} else {
+				$id_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio ORDER BY nome");
+				$imperios = [];
+				$div_imperios = "
+				<div id='div_imperios' style='width: 300px;'>&nbsp;</div>
+				";
+				foreach ($id_imperios as $chave => $id) {
+					$imperios[$chave] = new imperio ($id->id);
+				}
+				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+				$colonia = new colonia($colonias[0]->id);
+				$planeta = new planeta($colonia->id_planeta);
+				$id_estrela_capital = $planeta->id_estrela;
+			}
+		}			
+		
+				//Popula o JavaScript
+				$html_javascript = "
+var lista_estrelas_colonia=[];
+var lista_estrelas_reabastece=[];
+var id_imperio_atual = {$imperios[0]->id};
+				";
+				
+				foreach ($imperios as $imperio) {
+					$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+					$html_javascript .= "
+					lista_estrelas_colonia[{$imperio->id}]=[];
+					lista_estrelas_reabastece[{$imperio->id}]=[];
+					";
+					foreach ($colonias as $id_colonia) {
+						$colonia = new colonia($id_colonia->id);
+						$planeta = new planeta($colonia->id_planeta);
+						
+						$html_javascript .= "lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};\n
+						";
+					}
+					
+					$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
+					foreach ($reabastece as $id_estrela) {
+						$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_estrela->id_estrela}]={$id_estrela->id_estrela};\n
+						";
+					}
+				}
+
+
 		$html = "
 		<h3>Distância entre as Estrelas</h3>
+		{$div_imperios}
 		<div>
 			<div style='clear:both;'>
 				<div style='display: inline-block; width: 100px;'>Origem:</div>
@@ -429,15 +493,39 @@ class colonization {
 				<div style='display: inline-block; width: 100px;'>Origem:</div>
 				<div id='estrela_destino' style='display: inline-block; width: 300px;'>&nbsp;</div>
 			</div>
-			<div id='distancia'><b>Distância:</b> 0.0</div>
+			<div id='distancia'><b>Distância:</b> 0.0</div><br>
+			<div id='div_alcance_nave'><label>Alcance da Nave: </label><input type='number' min=0 max=30 value=0 id='alcance_nave' onchange='return lista_distancia();'></input></div><br>
+			<div><b>Estrelas que podem ser visitadas:</b></div>
+			<div id='lista_distancia'>&nbsp;</div>
 		</div>
 		<script>
+		{$html_javascript}
+		
 		function carrega_distancia() {
 		let estrela_origem = document.getElementById('estrela_origem');
 		let estrela_destino = document.getElementById('estrela_destino');
+		let div_imperios = document.getElementById('div_imperios');
 		
-		estrela_origem.innerHTML = lista_estrelas_html();
-		estrela_destino.innerHTML = lista_estrelas_html();
+		estrela_origem.innerHTML = lista_estrelas_html({$id_estrela_capital});
+		estrela_destino.innerHTML = lista_estrelas_html({$id_estrela_capital});
+		if (div_imperios !== undefined && div_imperios !== null) {
+			div_imperios.innerHTML = lista_imperios_html();
+			
+			var select_imperios = div_imperios.childNodes[1]
+			select_imperios.addEventListener('change', function () {
+				id_imperio_atual = this.value;
+				let id_estrela = Object.keys(lista_estrelas_colonia[this.value]);
+				
+				for (let index=0; index<select_estrela_origem.options.length; index++) {
+					if (select_estrela_origem.options[index].value == id_estrela[0]) {
+						select_estrela_origem.selectedIndex = index;
+						calcula_distancia();
+						break;
+					}
+					
+				}
+			});
+		}
 		
 		let select_estrela_origem = estrela_origem.childNodes[1];
 		let select_estrela_destino = estrela_destino.childNodes[1];
