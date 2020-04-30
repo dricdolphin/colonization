@@ -441,6 +441,7 @@ class colonization {
 				$imperios = [];
 				$div_imperios = "
 				<div id='div_imperios' style='width: 300px;'>&nbsp;</div>
+				<div><label>Tech Logística:</label> <input id='tech_logistica' type='checkbox' value='1' onchange='return lista_distancia();'></input></div>
 				";
 				foreach ($id_imperios as $chave => $id) {
 					$imperios[$chave] = new imperio ($id->id);
@@ -520,6 +521,7 @@ var id_imperio_atual = {$imperios[0]->id};
 					if (select_estrela_origem.options[index].value == id_estrela[0]) {
 						select_estrela_origem.selectedIndex = index;
 						calcula_distancia();
+						lista_distancia();
 						break;
 					}
 					

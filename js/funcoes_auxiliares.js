@@ -370,6 +370,12 @@ Popula a lista com as estrelas onde uma nave do Império escolhido possa chegar
 function lista_distancia() {
 	let div_lista_distancia = document.getElementById('lista_distancia');
 	let alcance_nave = document.getElementById('alcance_nave').value;
+	let tech_logistica = document.getElementById('tech_logistica');
+	
+	let alcance_extendido = 2;
+	if (tech_logistica.checked) {
+		alcance_extendido = 1;
+	}
 	
 	if (alcance_nave == 0) {
 		div_lista_distancia.innerHTML = "";
@@ -405,7 +411,7 @@ function lista_distancia() {
 		mapped_estrelas_colonia.forEach(
 		function(valor_colonia, chave_colonia, mapa_colonia) {
 			distancia_parsecs = calcula_distancia(false, chave_reabastece, chave_colonia);
-			alcance_real = alcance_nave*2;
+			alcance_real = alcance_nave*alcance_extendido;
 			if (distancia_parsecs*1 <= alcance_real*1) {
 				distancia[chave_reabastece] = [];
 				estrelas_imperio[chave_reabastece] = chave_reabastece;
@@ -428,7 +434,7 @@ function lista_distancia() {
 		function(valor_estrelas, id_estrela_destino, mapa_estrelas) {
 			distancia_parsecs = calcula_distancia(false, id_estrela_origem, id_estrela_destino);
 			if (estrelas_imperio[id_estrela_destino] == id_estrela_destino) {
-				alcance_real = alcance_nave*2;
+				alcance_real = alcance_nave*alcance_extendido;
 			} else {
 				alcance_real = alcance_nave*1;
 			}
@@ -444,7 +450,7 @@ function lista_distancia() {
 		return { index: i, value: el };
 	});	
 
-	let html_lista = "";
+	let html_lista = "&nbsp;";
 	var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
 		return { index: i, value: el };
 	});	
