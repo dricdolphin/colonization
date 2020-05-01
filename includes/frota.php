@@ -111,7 +111,7 @@ class frota
 			<td><div data-atributo='X' data-editavel='true' data-valor-original='{$this->X}' data-style='width: 30px;'>{$this->X}</div></td>
 			<td><div data-atributo='Y' data-editavel='true' data-valor-original='{$this->Y}' data-style='width: 30px;'>{$this->Y}</div></td>
 			<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
-			<td><div data-atributo='string_nave' data-type='textarea' data-editavel='true' data-valor-original='{$this->string_nave}' data-style='width: 80px; height: 200px;' data-id='string_nave'>{$this->string_nave}</div></td>
+			<td><div data-atributo='string_nave' data-type='textarea' data-editavel='true' data-valor-original='{$this->string_nave}' data-style='width: 80px; height: 200px;' data-id='string_nave' data-branco='true'>{$this->string_nave}</div></td>
 			<td><div data-atributo='tamanho' data-editavel='true' data-valor-original='{$this->tamanho}' data-style='width: 50px;' data-id='tamanho' data-id='tamanho'>{$this->tamanho}</div></td>
 			<td><div data-atributo='HP' data-editavel='true' data-valor-original='{$this->HP}' data-style='width: 50px;'>{$this->HP}</div></td>
 			<td><div data-atributo='velocidade' data-editavel='true' data-valor-original='{$this->velocidade}' data-style='width: 50px;' data-id='velocidade'>{$this->velocidade}</div></td>
@@ -125,7 +125,7 @@ class frota
 			<td><div data-atributo='poder_invasao' data-editavel='true' data-valor-original='{$this->poder_invasao}' data-style='width: 50px;' data-id='qtd_tropas'>{$this->poder_invasao}</div></td>
 			<td><div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->pesquisa}' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa' {$pesquisa_checked} disabled></input></div></td>
 			<td><div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='{$this->nivel_estacao_orbital}' data-style='width: 50px;' data-id='nivel_estacao_orbital'>{$this->nivel_estacao_orbital}</div></td>			
-			<td><div data-atributo='especiais' data-editavel='true' data-valor-original='{$this->especiais}' data-style='width: 120px;' data-branco='true'>{$this->especiais}</div></td>
+			<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;'>{$this->especiais}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div>
 			</td>";

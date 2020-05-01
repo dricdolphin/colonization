@@ -563,7 +563,7 @@ class acoes
 	function exibe_recursos_balanco() {
 		global $wpdb;
 
-		$html = "";			
+		$html = "<b>Balanço dos Recursos:</b> ";			
 		asort($this->recursos_balanco,SORT_NUMERIC);
 		foreach ($this->recursos_balanco as $id_recurso => $qtd) {
 			if ($qtd > 0) {

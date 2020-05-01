@@ -643,7 +643,8 @@ function nova_nave(evento, id_imperio) {
 	poder_invasao.innerHTML = "<td><div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div></td>";
 	pesquisa.innerHTML = "<div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa'></input></div>";
 	nivel_estacao_orbital.innerHTML = "<td><div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='nivel_estacao_orbital'><input type='text' data-atributo='nivel_estacao_orbital' data-ajax='true' style='width: 50px;' id='nivel_estacao_orbital'></input></div></td>";
-	especiais.innerHTML = "<td><div data-atributo='especiais' data-editavel='true' data-valor-original='' data-style='width: 120px;' data-branco='true'><input type='text' data-atributo='especiais' data-ajax='true' style='width: 120px;' data-branco='true'></input></div></td>";
+	especiais.innerHTML = "<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='' data-branco='true' data-style='width: 120px; height: 100px;'><textarea data-atributo='especiais' data-ajax='true' style='width: 120px; height: 100px;' data-branco='true'></textarea></div></td>";
+	
 	turno.innerHTML = "<td><div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div></td>";
 	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
 

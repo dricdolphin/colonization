@@ -939,7 +939,7 @@ class menu_admin {
 			<div id='recursos_atuais_imperio_{$imperio->id}'>{$recursos_atuais}</div>
 			<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
 			<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div>
-			<div id='recursos_balanco_imperio_{$imperio->id}'><b>Balanço:</b> {$recursos_balanco}</div>
+			<div id='recursos_balanco_imperio_{$imperio->id}'>{$recursos_balanco}</div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
 			<tr><th>Colônia (X;Y;Z) | P</th><th>Instalação</th><th>Utilização (0-10)</th><th>&nbsp;</th></tr>

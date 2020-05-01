@@ -154,7 +154,7 @@ class colonization_ajax {
 		$tech = new tech($_POST['id_tech']);
 		if (!empty($tech->id_tech_parent)) {
 			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
-			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent})");
+			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0");
 			if ($tech_parent == 0) {
 				$id_tech_parent = explode(",",$id_tech_parent);
 				$id_tech_parent = $id_tech_parent[0];
@@ -164,7 +164,7 @@ class colonization_ajax {
 			
 			if (!empty($tech->lista_requisitos)) {
 				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$id_requisito}");
+					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$id_requisito} AND custo_pago = 0");
 					if ($tech_requisito == 0) {
 						if (empty($dados_salvos['resposta_ajax'])) {
 							$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
