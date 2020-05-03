@@ -1036,90 +1036,6 @@ class menu_admin {
 		
 		$html = $this->html_header;
 		
-		$html .= "
-		<script>
-		/******************
-		function encerra_turno
-		--------------------
-		Encerra o Turno
-		--------
-		******************/
-		
-		function encerra_turno(evento) {
-			var div_resultados = document.getElementById('resultado_turno');
-			div_resultados.innerHTML = \"Encerrando o Turno...\";
-
-			var dados_ajax = \"post_type=POST&action=encerra_turno\";
-			
-			var xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					try {
-						var resposta = JSON.parse(this.responseText);
-					} 
-					catch (err) {
-						console.log(this.responseText);
-						return false;
-					}
-					if (resposta.resposta_ajax != \"OK!\") {
-						alert (resposta.resposta_ajax);
-					}
-					div_resultados.innerHTML = \"Turno Encerrado!\";
-				}
-			}
-			};
-			xhttp.open(\"POST\", ajaxurl, true); //A variável \"ajaxurl\" contém o caminho que lida com o AJAX no WordPress
-			xhttp.setRequestHeader(\"Content-type\", \"application/x-www-form-urlencoded\");
-			xhttp.send(dados_ajax);
-
-			evento.preventDefault();
-			return false;
-		}
-
-		/******************
-		function roda_turno
-		--------------------
-		Roda o Turno
-		--------
-		******************/
-		function roda_turno(evento) {
-			var div_resultados = document.getElementById('resultado_turno');
-			div_resultados.innerHTML = \"Processando o Turno, aguarde!\";
-
-			var dados_ajax = \"post_type=POST&action=roda_turno\";
-			
-			var xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					try {
-						var resposta = JSON.parse(this.responseText);
-					} 
-					catch (err) {
-						console.log(this.responseText);
-						retorno = false;
-						return false;
-					}
-					
-					let div_resultados = document.getElementById('resultado_turno');
-					div_resultados.innerHTML = resposta.html;
-					if (resposta.turno_novo != '') {
-						let div_turno = document.getElementById('div_turno');
-						let div_dados_acoes_imperios = document.getElementById('dados_acoes_imperios');
-						div_dados_acoes_imperios.innerHTML = resposta.dados_acoes_imperios;
-						div_turno.innerHTML = resposta.turno_novo;
-					}
-				}
-			};
-			xhttp.open(\"POST\", ajaxurl, true); //A variável \"ajaxurl\" contém o caminho que lida com o AJAX no WordPress
-			xhttp.setRequestHeader(\"Content-type\", \"application/x-www-form-urlencoded\");
-			xhttp.send(dados_ajax);
-
-			evento.preventDefault();
-			return false;
-		}
-		</script>
-		";
-		
 		$proxima_semana = new DateTime($turno->data_turno);
 		$proxima_semana->modify('+7 days');
 		$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
@@ -1163,8 +1079,8 @@ class menu_admin {
 			$string_timezone = $data_atual->getTimezone()->getName();
 			$diferenca_datas = $data_atual->diff($proxima_semana);
 			
-			if (($diferenca_datas->invert == 0 && $diferenca_datas->h < 14) || ($diferenca_datas->invert == 1) && $turno->encerrado == 0) {
-				$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return encerra_turno(event);'>Encerrar o Turno</a></div><br><br>";
+			if ((($diferenca_datas->invert == 0 && $diferenca_datas->h < 14) || ($diferenca_datas->invert == 1)) && $turno->encerrado == 0) {
+				$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return encerra_turno(event, this);'>Encerrar o Turno</a></div><br><br>";
 			}
 		}
 
