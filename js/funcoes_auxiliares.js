@@ -347,6 +347,7 @@ function processa_string_admin (evento, objeto) {
 	let escudos_input = document.getElementById('escudos');
 	let alcance_input = document.getElementById('alcance');
 	let velocidade_input = document.getElementById('velocidade');
+	let hp_input = document.getElementById('HP');
 
 	chassi_input.value = chassi;
 	categoria_input.value = categoria;
@@ -357,6 +358,7 @@ function processa_string_admin (evento, objeto) {
 	escudos_input.value = escudos;
 	alcance_input.value = alcance;
 	velocidade_input.value = velocidade;
+	hp_input.value = hp;
 	
 	evento.preventDefault();
 	return false;

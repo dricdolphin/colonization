@@ -167,6 +167,9 @@ function edita_objeto(evento, objeto) {
 					if (divs[index_div].getAttribute('data-type') == "checkbox") {
 						inputs = divs[index_div].getElementsByTagName("INPUT");
 						inputs[0].disabled=false;
+						if (data_id != "") {
+							inputs[0].id = divs[index_div].getAttribute('data-id');
+						}
 					} else if (divs[index_div].getAttribute('data-type') == "select") {
 						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'));
 						divs[index_div].innerHTML = lista;
@@ -458,6 +461,9 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 				div.innerHTML = inputs[index].value;
 			}
 		} else if (inputs[index].type == 'checkbox') {
+			if (inputs[index].id != "") {
+				inputs[index].id = "";
+			}
 			div = pega_ascendente(inputs[index],"DIV");
 				if (div.getAttribute('data-valor-original') == 0) {
 					checkbox_checked = false;

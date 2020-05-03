@@ -24,6 +24,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
+		add_action('wp_ajax_encerra_turno', array ($this, 'encerra_turno'));
 		add_action('wp_ajax_valida_acao_admin', array ($this, 'valida_acao_admin'));
 		add_action('wp_ajax_valida_reabastecimento', array ($this, 'valida_reabastecimento'));
 		add_action('wp_ajax_valida_tech_imperio', array ($this, 'valida_tech_imperio'));
@@ -791,11 +792,22 @@ class colonization_ajax {
 	function encerra_turno() {
 		global $wpdb;
 		
-		$turno = new turno($_POST['turno']);
-		$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1");
-		$wpdb->query("UPDATE wp_forum_topics SET closed = 1 WHERE name LIKE 'Turno {$turno->turno}%'");
-		
 		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+
+		if ($roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "É necessário ser um Administrador para poder executar essa ação!";
+		} else {
+			$turno = new turno($_POST['turno']);
+			$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1");
+			$wpdb->query("UPDATE wp_forum_topics SET closed = 1 WHERE name LIKE 'Turno {$turno->turno}%'");
+		}
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
