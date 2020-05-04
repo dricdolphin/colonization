@@ -69,8 +69,7 @@ class colonization {
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona a barra de recursos de cada Império
 		
-		date_default_timezone_set('America/Sao_Paulo');
-
+		//date_default_timezone_set('America/Sao_Paulo');
 	}
 	
 	function colonization_ajaxurl() {

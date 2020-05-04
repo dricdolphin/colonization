@@ -1036,12 +1036,19 @@ class menu_admin {
 		
 		$html = $this->html_header;
 		
+		$timezone = new DateTimeZone('America/Sao_Paulo');
+		$data_atual = new DateTime("now", $timezone);
+		$string_timezone = $data_atual->getTimezone()->getName();
+		$string_data_atual = $data_atual->format('Y-m-d H:i:s');
+
+		$proxima_semana = new DateTime($turno->data_turno);
 		$proxima_semana = new DateTime($turno->data_turno);
 		$proxima_semana->modify('+7 days');
 		$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
 		
 		$html = "<div id='div_turno'><h2>COLONIZATION - RODA TURNO</h2>
-		<h3>TURNO ATUAL - {$turno->turno}</h3>
+		<h3>TURNO ATUAL - {$turno->turno}</h3><br>
+		<div>DATA ATUAL - {$string_data_atual}</div>
 		<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
 		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div></div>
 		<table class='wp-list-table widefat fixed striped users' id='dados_acoes_imperios'>
@@ -1074,9 +1081,6 @@ class menu_admin {
 
 
 		if ($turno->bloqueado) {
-			$data_atual = new DateTime("now");
-			$string_data_atual = $data_atual->format('Y-m-d H:i:s');
-			$string_timezone = $data_atual->getTimezone()->getName();
 			$diferenca_datas = $data_atual->diff($proxima_semana);
 			
 			if ((($diferenca_datas->invert == 0 && $diferenca_datas->h < 14) || ($diferenca_datas->invert == 1)) && $turno->encerrado == 0) {

@@ -43,8 +43,9 @@ class roda_turno {
 			//**
 			if ($turno->bloqueado) {
 				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
-				
-				$data_atual = new DateTime("now");
+				$timezone = new DateTimeZone('America/Sao_Paulo');
+				$data_atual = new DateTime("now", $timezone);
+
 				$diferenca_datas = $data_atual->diff($proxima_semana);
 				
 				if ($diferenca_datas->invert == 1) {
