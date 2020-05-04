@@ -681,7 +681,12 @@ class colonization_ajax {
 			$recurso = new recurso($id_recurso_produz);
 			if ($recurso->extrativo == 1) {
 				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
-				$planeta_recursos = new planeta_recurso($id_planeta_recurso);
+				if (!empty($id_planeta_recurso)) {
+					$planeta_recursos = new planeta_recurso($id_planeta_recurso);	
+				} else {//Caso o planeta não tenha o recurso...
+					$recurso = new recurso($id_recurso_produz);
+					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso->nome}, ";
+				}
 	
 				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
 					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome}, ";

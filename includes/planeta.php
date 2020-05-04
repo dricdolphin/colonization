@@ -19,11 +19,17 @@ class planeta
 	public $estrela;
 	public $inospito;
 	public $instalacoes;
+	public $turno;
 	
-	function __construct($id) {
+	//Especiais provenientes de Construções e/ou Techs
+	public $slots_extra = 0;
+	public $max_slots = 0;
+	
+	function __construct($id, $turno=0) {
 		global $wpdb;
-		
+
 		$this->id = $id;
+		$this->turno = new turno($turno);
 
 		$resultados = $wpdb->get_results("SELECT id_estrela, nome, posicao, classe, subclasse, tamanho, inospito FROM colonization_planeta WHERE id=".$this->id);
 		$resultado = $resultados[0];
@@ -40,9 +46,53 @@ class planeta
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
 		ON ci.id = cpi.id_instalacao
-		WHERE cpi.id_planeta={$this->id}");		
+		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno}");		
 	
 		$this->estrela = new estrela($this->id_estrela);
+		
+		//Verifica se tem Instalações que ampliam o tamanho do planeta
+		$id_instalacoes = $wpdb->get_results("
+		SELECT ci.id
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno}
+		AND ci.especiais != ''");
+		
+		foreach ($id_instalacoes as $id) {
+			$instalacao = new instalacao($id->id);
+			$especiais = explode(";",$instalacao->especiais);
+			
+			//Especiais: slots_extra=qtd
+			//Tem também o max_slots=max, que define o máximo de slots
+
+			$slots_extra = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'slots_extra') !== false;
+			}));
+			
+			$max_slots = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'max_slots') !== false;
+			}));
+			
+			if (!empty($slots_extra)) {
+				$slots_extra_valor = explode("=",$slots_extra[0]);
+				$this->slots_extra = $this->slots_extra + $slots_extra_valor[1];
+			}
+			
+			if (!empty($max_slots)) {
+				$max_slots_valor = explode("=",$max_slots[0]);
+				if ($this->max_slots < $max_slots_valor[1]) {
+					$this->max_slots = $max_slots_valor[1];
+				}
+			}
+		}
+		
+		if ($this->max_slots != 0) {
+			if ($this->slots_extra > $this->max_slots) {
+				$this->slots_extra = $this->max_slots;
+			}
+		}
+		$this->tamanho = $this->tamanho + $this->slots_extra;
 	}
 
 	/***********************
