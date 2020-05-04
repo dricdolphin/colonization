@@ -212,7 +212,7 @@ class roda_turno {
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
 		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1<br>";
 		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");
-		
+		$wpdb->query("UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'");
 		$this->concluido = true;
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";
