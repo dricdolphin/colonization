@@ -149,6 +149,7 @@ class instala_db {
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_transfere_techs (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio_origem INT(6) NOT NULL,
+		nome_npc VARCHAR(255) DEFAULT '',
 		id_imperio_destino INT(6) NOT NULL,
 		id_tech INT(6) NOT NULL,
 		autorizado BOOLEAN DEFAULT FALSE,

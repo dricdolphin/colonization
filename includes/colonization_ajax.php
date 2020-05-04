@@ -92,40 +92,44 @@ class colonization_ajax {
 			$imperio = new imperio($id_imperio_destino);
 			$dados_salvos['resposta_ajax'] = "Já existe uma operação pendente! Aguarde o aceite ou declínio do {$imperio->nome}";
 		}
+		
+		if ($_POST['id_imperio_origem'] != 0) { //Não é um NPC! Tem que validar!
+			$id_transfere = $wpdb->get_var("SELECT citt.id FROM
+			colonization_imperio_transfere_techs AS citt
+			WHERE citt.id_imperio_origem = {$_POST['id_imperio_origem']}
+			AND citt.id_imperio_destino = {$_POST['id_imperio_destino']}
+			AND citt.id_tech = {$_POST['id_tech']}
+			");
 
-		$id_transfere = $wpdb->get_var("SELECT citt.id FROM
-		colonization_imperio_transfere_techs AS citt
-		WHERE citt.id_imperio_origem = {$_POST['id_imperio_origem']}
-		AND citt.id_imperio_destino = {$_POST['id_imperio_destino']}
-		AND citt.id_tech = {$_POST['id_tech']}
-		");
-
-		if(!empty($id_transfere)) {
-			$dados_salvos['resposta_ajax'] = "Você já realizou uma operação deste tipo!";
-		}
+			if(!empty($id_transfere)) {
+				$dados_salvos['resposta_ajax'] = "Você já realizou uma operação deste tipo!";
+			}
+			
+			//Validou a ação, agora verifica se tem Pesquisa suficiente para pagar pela transferência
+			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+			$imperio_recursos = new imperio_recursos($_POST['id_imperio_origem']);
+			$tech = new tech($_POST['id_tech']);
+			
+			$chave_recurso = array_search($id_recurso, $imperio_recursos->id_recurso);
+			if ($imperio_recursos->qtd[$chave_recurso] < ceil(0.1*$tech->custo)) {
+				$dados_salvos['resposta_ajax'] = "Você não tem Pesquisas suficientes para realizar a transferência!";
+			}
 		
-		//Validou a ação, agora verifica se tem Pesquisa suficiente para pagar pela transferência
-		$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-		$imperio_recursos = new imperio_recursos($_POST['id_imperio_origem']);
-		$tech = new tech($_POST['id_tech']);
-		
-		$chave_recurso = array_search($id_recurso, $imperio_recursos->id_recurso);
-		if ($imperio_recursos->qtd[$chave_recurso] < ceil(0.1*$tech->custo)) {
-			$dados_salvos['resposta_ajax'] = "Você não tem Pesquisas suficientes para realizar a transferência!";
-		}
-		
-		if (empty($dados_salvos['resposta_ajax'])) {
-			//Validou! Pode cobrar a Pesquisa
-			$custo = ceil(0.1*$tech->custo);
-			$turno = new turno();
-			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-$custo WHERE id_recurso={$id_recurso} AND id_imperio={$_POST['id_imperio_origem']} AND turno={$turno->turno}");
+			if (empty($dados_salvos['resposta_ajax'])) {
+				//Validou! Pode cobrar a Pesquisa
+				$custo = ceil(0.1*$tech->custo);
+				$turno = new turno();
+				$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-$custo WHERE id_recurso={$id_recurso} AND id_imperio={$_POST['id_imperio_origem']} AND turno={$turno->turno}");
+				$dados_salvos['resposta_ajax'] = "OK!";
+				$dados_salvos['mensagem'] = "Foi cobrado {$custo} Pesquisa(s) para transferir a Tech desejada!";
+			}
+		} else {//É um NPC!
 			$dados_salvos['resposta_ajax'] = "OK!";
-			$dados_salvos['mensagem'] = "Foi cobrado {$custo} Pesquisa(s) para transferir a Tech desejada!";
+			$dados_salvos['mensagem'] = "Tech transferida!";
 		}
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
-	
 	}
 
 

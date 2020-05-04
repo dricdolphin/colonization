@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.8
+ * Version: 1.1.9
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -168,35 +168,24 @@ class colonization {
 			$input_imperio_origem = "<input type='hidden' data-ajax='true' data-atributo='id_imperio_origem' data-valor-original='{$imperio->id}' value='{$imperio->id}'></input>
 			<div data-atributo='id_imperio_origem' value='{$imperio->id}'>{$imperio->nome}</div>";
 		}
-		if ($roles == 'administrator') {
 		
-			$input_imperio_origem = "<select data-atributo='id_imperio_origem' data-ajax='true' style='width: 100%'>";
+		$estilo_npc = "style='display: none;'";
+		if ($roles == 'administrator') {
+			$input_imperio_origem = "<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''><select data-atributo='id_imperio_origem' style='width: 100%; margin-bottom: 5px;' onchange='return libera_npc(event, this);'></div>";
 			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+				$input_imperio_origem .= "<option value='0'>NPC</option>";
 			foreach ($resultados as $resultado) {
 				$input_imperio_origem .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
 			}
-			$input_imperio_origem .= "</select>";
+			$input_imperio_origem .= "</select></div>";
+			$estilo_npc = "";
 		}
 		
 		$techs = new tech();
 		if ($roles == 'administrator') {
 			$resultados = $techs->query_tech();
-			/***
-			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
-			FROM colonization_tech AS ct
-			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome");
-			//***/
 		} else {
 			$resultados = $techs->query_tech("AND cit.custo_pago=0",$imperio->id);
-			/***
-			$resultados = $wpdb->get_results("SELECT ct.id, ct.nome 
-			FROM colonization_imperio_techs AS cit
-			JOIN colonization_tech AS ct
-			ON ct.id = cit.id_tech
-			WHERE cit.id_imperio={$imperio->id} AND custo_pago=0
-			ORDER BY ct.nivel, ct.belica, ct.lista_requisitos, ct.nome
-			");
-			//***/
 		}
 		
 		$html_lista_techs = "<select data-atributo='id_tech' data-ajax='true' style='width: 100%'>";		
@@ -221,6 +210,7 @@ class colonization {
 			<input type='hidden' data-atributo='funcao_validacao' value='valida_transfere_tech'></input>
 			<input type='hidden' data-atributo='funcao_pos_processamento' value='atualiza_lista_techs'></input>
 			{$input_imperio_origem}
+			<div data-atributo='nome_npc' data-ajax='true' data-editavel='true' data-valor-original='' data-branco='true' {$estilo_npc} id='nome_npc' data-desabilita='false'><input type='text' data-atributo='nome_npc' data-ajax='true' data-editavel='true' data-valor-original='' data-branco='true'></input></div>
 		</td>
 		<td>
 			<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''>{$html_lista_imperios}</div>

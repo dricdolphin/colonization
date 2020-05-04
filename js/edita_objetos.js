@@ -458,7 +458,9 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 			if (cancela) {
 				div.innerHTML = div.getAttribute('data-valor-original');
 			} else {
+				if (div.getAttribute('data-desabilita') != 'false') {
 				div.innerHTML = inputs[index].value;
+				}
 			}
 		} else if (inputs[index].type == 'checkbox') {
 			if (inputs[index].id != "") {
@@ -740,4 +742,23 @@ function atualiza_produtos_acao(id_imperio,id_planeta) {
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 
+}
+
+/******************
+function libera_npc(evento, objeto)
+--------------------
+Se estiver com o modo Select na opção "NPC", libera para colocar o nome do NPC
+******************/	
+function libera_npc(evento, objeto) {
+	let nome_npc_div = document.getElementById('nome_npc');
+	
+	if (objeto.value == 0) {
+		nome_npc_div.style.display = 'block';
+	} else {
+		nome_npc_div.style.display = 'none';
+		nome_npc_div.childNodes[0].value='';
+	}
+
+	evento.preventDefault();
+	return false;
 }

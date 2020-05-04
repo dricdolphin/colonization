@@ -11,6 +11,7 @@ class transfere_tech
 {
 	public $id;
 	public $id_imperio_origem;
+	public $nome_npc;
 	public $id_imperio_destino;
 	public $id_tech;
 	public $autorizado;
@@ -30,11 +31,12 @@ class transfere_tech
 			return;
 		}
 		
-		$resultados = $wpdb->get_results("SELECT id, id_imperio_origem, id_imperio_destino, id_tech, autorizado, processado, turno FROM colonization_imperio_transfere_techs WHERE id={$id}");
+		$resultados = $wpdb->get_results("SELECT id, id_imperio_origem, nome_npc, id_imperio_destino, id_tech, autorizado, processado, turno FROM colonization_imperio_transfere_techs WHERE id={$id}");
 		$resultado = $resultados[0];
 		
 		$this->id = $resultado->id;
 		$this->id_imperio_origem = $resultado->id_imperio_origem;
+		$this->nome_npc = $resultado->nome_npc;
 		$this->id_imperio_destino = $resultado->id_imperio_destino;
 		$this->id_tech = $resultado->id_tech;
 		$this->autorizado = $resultado->autorizado;
@@ -74,6 +76,9 @@ class transfere_tech
 			$tech = new tech($transfere_tech->id_tech);
 			$imperio_destino = new imperio($transfere_tech->id_imperio_destino, true);
 			$imperio_origem = new imperio($transfere_tech->id_imperio_origem, true);
+			if ($transfere_tech->id_imperio_origem == 0) {
+				$imperio_origem->nome = $transfere_tech->nome_npc;
+			}
 			
 			$lista_techs_enviadas.= "<tr><td>{$tech->nome}</td><td>{$imperio_origem->nome}</td><td>{$imperio_destino->nome}</td><td>{$transfere_tech->turno}</td><td>{$processado}</td></tr>";
 		}
@@ -89,6 +94,9 @@ class transfere_tech
 			$tech = new tech($transfere_tech->id_tech);
 			$imperio_destino = new imperio($transfere_tech->id_imperio_destino, true);
 			$imperio_origem = new imperio($transfere_tech->id_imperio_origem, true);
+			if ($transfere_tech->id_imperio_origem == 0) {
+				$imperio_origem->nome = $transfere_tech->nome_npc;
+			}
 			$lista_techs_recebidas .= "<tr><td>{$tech->nome}</td><td>{$imperio_origem->nome}</td><td>{$imperio_destino->nome}</td><td>{$transfere_tech->turno}</td><td>{$processado}</td></tr>";
 		}
 		
@@ -101,7 +109,11 @@ class transfere_tech
 	
 	function exibe_autoriza() {
 		global $wpdb;
+		
 		$imperio_origem = new imperio($this->id_imperio_origem, true);
+		if ($this->id_imperio_origem == 0) {
+			$imperio_origem->nome = $this->nome_npc;
+		}
 		$tech = new tech($this->id_tech);
 		$bonus = ceil(0.3*$tech->custo);
 		$ressarce = ceil(0.1*$tech->custo);
