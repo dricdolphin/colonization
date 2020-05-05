@@ -56,6 +56,7 @@ class colonization {
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
+		add_shortcode('colonization_exibe_reabastece_imperio',array($this,'colonization_exibe_reabastece_imperio')); //Exibe os pontos de Reabastecimento de um Império
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
@@ -995,8 +996,36 @@ var id_imperio_atual = {$imperios[0]->id};
 		return $html;
 	}
 
-	
-	
+	/***********************
+	function colonization_exibe_reabastece_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_reabastece_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_reabastece_imperio($atts = [], $content = null) {
+		global $wpdb;
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		$turno = new turno();
+		
+		$html = "<div>";
+		
+		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
+		
+		foreach ($lista_frota_imperio as $id) {
+			$reabastece_imperio = new reabastece_imperio($id->id);
+			$estrela = new estrela($reabastece_imperio->id_estrela);
+			$html .= "{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})<br>";
+		}
+		$html .= "</div>";
+
+		return $html;
+	}	
 	/***********************
 	function colonization_exibe_constroi_naves($atts = [], $content = null)
 	----------------------
