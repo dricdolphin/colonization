@@ -338,6 +338,10 @@ function processa_string_admin (evento, objeto) {
 		categoria = "????????";
 	}
 
+	if (qtd_estacao_orbital.value != 0) {
+		categoria = "Estação Orbital";
+	}
+
 	let chassi_input = document.getElementById('tamanho');
 	let categoria_input = document.getElementById('categoria');
 	let pdf_laser_input = document.getElementById('PDF_laser');
