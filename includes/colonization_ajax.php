@@ -237,7 +237,7 @@ class colonization_ajax {
 
 
 	/***********************
-	function valida_reabastecimento ()
+	function valida_reabastecimento()
 	----------------------
 	Valida o objeto desejado
 	***********************/	
@@ -245,19 +245,17 @@ class colonization_ajax {
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
-			$query = "SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}";
-		} else {
-			$query = "SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']} AND id != {$_POST['id']}";
-		}
+		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		
-		$resposta = $wpdb->query($query);
-
-		if ($resposta === 0) {
-			$dados_salvos['resposta_ajax'] = "OK!";
-		} else {
-			$dados_salvos['resposta_ajax'] = "Este ponto de Reabastecimento já foi cadastrado para este Império!";
+		$dados_salvos['debug'] = $resposta;
+		
+		if (empty($resposta)) {//Não existe o ponto, pode adicionar
+			$resposta = $wpdb->query("INSERT INTO colonization_imperio_abastecimento SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
+		} else {//Existe o ponto, é para remover
+			$resposta = $wpdb->query("DELETE FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		}
+
+		$dados_salvos['resposta_ajax'] = "OK!";
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta

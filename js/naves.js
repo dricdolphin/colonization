@@ -162,7 +162,7 @@ function calcula_custos(evento, objeto) {
 	
 	industrializaveis = qtd_bombas*10 + custo_estacao_orbital*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_impulso*mk_impulso + qtd_dobra*mk_dobra + qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + qtd_pesquisa*1 + chassi*1;
 	energium = Math.ceil(custo_estacao_orbital/4) + qtd_tropas*1 + qtd_bombas*5 + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1;
-	dillithium = qtd_dobra*1;
+	dillithium = qtd_dobra*mk_dobra;
 	duranium = duranium_blindagem*1 + qtd_projetil*1;
 	
 	if (chassi <= 10) {

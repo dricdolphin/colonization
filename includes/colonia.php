@@ -11,6 +11,7 @@ class colonia
 {
 	public $id;
 	public $id_imperio;
+	public $nome_npc;
 	public $id_planeta;
 	public $pop;
 	public $mdo;
@@ -27,10 +28,11 @@ class colonia
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, id_planeta, pop, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, pop, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
+		$this->nome_npc = $resultado->nome_npc;
 		$this->id_planeta = $resultado->id_planeta;
 		$this->pop = $resultado->pop;
 		$this->poluicao = $resultado->poluicao;
@@ -63,8 +65,13 @@ class colonia
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+		
+		if ($this->id_imperio == 0) {
+			$imperios_npc = "<td><div data-atributo='nome_npc' data-editavel='true' data-valor-original='{$this->nome_npc}' data-style='width: 120px;'>{$this->nome_npc}</div></td>";
+		} else {
+			$imperios_npc = "";
+		}
 
-		//Exibe os dados do Império		
 		$html = "		
 			<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -77,6 +84,7 @@ class colonia
 				<div data-atributo='id' data-ajax='true'>{$this->id}</div>
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
+			{$imperios_npc}
 			<td><div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='{$this->id_planeta}' data-valor-original='{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}'>{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}</div></td>
 			<td><div data-atributo='pop' data-editavel='true' data-valor-original='{$this->pop}' data-style='width: 60px;'>{$this->pop}</div></td>
 			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>

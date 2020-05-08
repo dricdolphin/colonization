@@ -131,42 +131,15 @@ function valida_tech_imperio(objeto) {
 
 
 /******************
-function valida_reabastecimento(objeto)
+function salva_reabastece(objeto, id_imperio, id_estrela)
 --------------------
-Valida 
-objeto -- objeto sendo editado
+Salva o Reabastecimento
 ******************/	
-function valida_reabastecimento(objeto) {
+function salva_reabastece(objeto, id_imperio, id_estrela) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_reabastecimento";
+	var dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela;
 	var retorno = false;
 
-	if (!valida_generico(objeto)) {
-		return;
-	}
-	
-	if (typeof select_linha[0] !== "undefined") {
-		var id_imperio = select_linha[0].value;
-		dados_ajax = dados_ajax +"&id_imperio="+id_imperio;
-	}
-	
-	if (typeof select_linha[1] !== "undefined") {
-		var id_estrela = select_linha[1].value;
-		dados_ajax = dados_ajax +"&id_estrela="+id_estrela;
-	}
-
-	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id") {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-	}	
-
-	//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {

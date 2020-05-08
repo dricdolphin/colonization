@@ -57,6 +57,7 @@ class colonization {
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 		add_shortcode('colonization_exibe_reabastece_imperio',array($this,'colonization_exibe_reabastece_imperio')); //Exibe os pontos de Reabastecimento de um Império
+		add_shortcode('colonization_exibe_autoriza_reabastece_imperio',array($this,'colonization_exibe_autoriza_reabastece_imperio')); //Exibe a tela de autorização de reabastecimento
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
@@ -1025,7 +1026,95 @@ var id_imperio_atual = {$imperios[0]->id};
 		$html .= "</div>";
 
 		return $html;
-	}	
+	}
+
+	/***********************
+	function colonization_exibe_autoriza_reabastece_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_autoriza_reabastece_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_autoriza_reabastece_imperio($atts = [], $content = null) {
+		global $wpdb;
+
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+
+		$turno = new turno();
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+			$roles = "";
+		} else {
+			$imperio = new imperio();
+		}		
+		
+		$where_id = "";
+		if ($roles == "administrator" && $imperio->id == 0) {
+			$lista_id = $wpdb->get_results("
+			SELECT cic.id 
+			FROM colonization_imperio_colonias AS cic
+			WHERE cic.turno={$turno->turno}");
+		} else {
+			$lista_id = $wpdb->get_results("
+			SELECT cic.id 
+			FROM colonization_imperio_colonias AS cic
+			WHERE cic.id_imperio={$imperio->id}
+			AND cic.turno={$turno->turno}");
+			
+			$where_id = "WHERE id != {$imperio->id}";
+		}
+		
+		$lista_ids_imperios = $wpdb->get_results("SELECT id, nome FROM colonization_imperio {$where_id}");
+		
+		$html_lista = "";
+		
+		$lista_id_estrela = [];
+		foreach ($lista_id as $id) {
+			$colonia = new colonia($id->id);
+			$planeta = new planeta($colonia->id_planeta);
+			$estrela = new estrela($planeta->id_estrela);
+			
+			$lista_id_estrela[$estrela->id] = $estrela->id;
+		}
+
+		$coluna = 1;
+		foreach ($lista_id_estrela as $id_estrela => $valor) {
+			$estrela = new estrela($id_estrela);
+			
+			$html_lista_imperios = "";
+			foreach ($lista_ids_imperios as $id_imperio) {
+				$ponto_abastece = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_imperio={$id_imperio->id} AND id_estrela={$estrela->id}");
+				$abastece_checked = "";
+				if (!empty($ponto_abastece)) {
+					$abastece_checked = "checked";
+				}
+				
+				$html_lista_imperios .= "<input type='checkbox' onchange='return salva_reabastece(this,{$id_imperio->id},{$estrela->id});' {$abastece_checked}></input><label>{$id_imperio->nome}</label><br>";
+			}
+			
+			$html_lista .= "<div style='display: inline-block; width: 160px; padding: 2px; margin: 5px;'>
+			<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b><br>
+			{$html_lista_imperios}
+			</div>";
+		
+			$coluna++;
+			if ($coluna == 6) {
+				$coluna = 1;
+				$html_lista .= "<br>";
+			}
+		
+		}
+		
+		$html = $html_lista;
+
+		return $html;
+	}
+	
 	/***********************
 	function colonization_exibe_constroi_naves($atts = [], $content = null)
 	----------------------
@@ -1079,13 +1168,13 @@ var id_imperio_atual = {$imperios[0]->id};
 
 }
 //Cria o plugin
-$plugin = new colonization();
-$menu_admin = new menu_admin();
+$plugin_colonization = new colonization();
+$menu_admin_colonization = new menu_admin();
 
 //Ganchos de instalação e desinstalação do plugin "Colonization"
-register_activation_hook( __FILE__, array($plugin,'colonization_install'));
-register_deactivation_hook( __FILE__, array($plugin,'colonization_deactivate'));
+register_activation_hook( __FILE__, array($plugin_colonization,'colonization_install'));
+register_deactivation_hook( __FILE__, array($plugin_colonization,'colonization_deactivate'));
 
 //Cria o menu do plugin na área administrativa do WordPress
-add_action('admin_menu', array($menu_admin, 'colonization_setup_menu'));
+add_action('admin_menu', array($menu_admin_colonization, 'colonization_setup_menu'));
 ?>

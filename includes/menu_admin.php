@@ -428,39 +428,18 @@ class menu_admin {
 	Exibe a página de pontos de reabastecimento de um Império
 	******************/
 	function colonization_admin_reabastece_imperio() {
-		global $wpdb;
+		global $plugin_colonization, $wpdb;
 		
+
 		$html = $this->html_header;
 		
 		$html .= "<div><h2>COLONIZATION - Pontos de Reabastecimento</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_abastecimento' style='max-width: 700px'>
-		<thead>
-		<tr><th>ID</th><th>Império</th><th>Estrela</th>
-		</tr>
-		</thead>
-		<tbody>";
+		";
 		
-		//Pega a lista de recursos
-		$lista_id = $wpdb->get_results("SELECT id FROM colonization_imperio_abastecimento ORDER BY id_imperio, id_estrela");
-		$html_lista = "";
+		$html .= $plugin_colonization->colonization_exibe_autoriza_reabastece_imperio();
 		
-		foreach ($lista_id as $id) {
-			$reabastece_imperio = new reabastece_imperio($id->id);
-			
-			$html_dados = $reabastece_imperio->lista_dados();
-
-			$html_lista .= "
-			<tr>
-			{$html_dados}
-			</tr>";
-		}
-		
-		$html.= $html_lista;
-		
-		$html .= "\n</tbody>
-		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_reabastecimento(event);'>Adicionar novo Ponto de Reabastecimento</a></div>";
+		$html .= "</div>";
 		
 		echo $html;
 	}
@@ -691,6 +670,9 @@ class menu_admin {
 		if (isset($_GET['id'])) {
 			$colonia = new colonia($_GET['id']);
 			$imperio = new imperio($colonia->id_imperio);
+			if ($imperio->id == 0) {
+				$imperio->nome = $colonia->nome_npc;
+			}
 			$planeta = new planeta($colonia->id_planeta);
 			
 			$html .= "<script>
@@ -789,19 +771,26 @@ class menu_admin {
 			$html .= "<div><h2>COLONIZATION - Colônias</h2></div>";
 			
 			//Pega a lista de instalações
-			$lista_id = $wpdb->get_results("SELECT id FROM colonization_imperio");
+			$lista_id = $wpdb->get_results("SELECT 0 as id FROM DUAL
+			UNION
+			SELECT id FROM colonization_imperio");
 			$html_lista = "";
 			
+			$imperios_npcs = "";
 			foreach ($lista_id as $id) {
 				$imperio = new imperio($id->id);
+				if ($imperio->id == 0) {
+					$imperio->nome = "Impérios NPCs";
+					$imperios_npcs = "<th>Nome do Império</th>";
+				}
 				//$html_dados = $imperio->lista_dados();
 				
-				$html .= "<br><div><h3>Colônias do Império '{$imperio->nome}'</h3></div>";
+				$html .= "<br><div><h3>Colônias de '{$imperio->nome}'</h3></div>";
 				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$id->id} AND turno={$turno->turno}");
 
 				$html_lista = "			<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>
 				<thead>
-				<tr><th>ID</th><th>Planeta</th><th style='width: 100px;'>População</th><th style='width: 100px;'>Poluição</th><th>Turno</th><th>&nbsp;</th>
+				<tr><th>ID</th>{$imperios_npcs}<th>Planeta</th><th style='width: 100px;'>População</th><th style='width: 100px;'>Poluição</th><th>Turno</th><th>&nbsp;</th>
 				</tr>
 				</thead>
 				<tbody>";
@@ -823,6 +812,8 @@ class menu_admin {
 				<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_colonia(event, {$imperio->id});'>Adicionar nova Colônia</a></div>";
 
 				$html.= $html_lista;
+			
+			$imperios_npcs = "";
 			}
 		}
 		

@@ -445,12 +445,17 @@ function nova_colonia(evento, id_imperio) {
 	}
 	
 	var linha_nova = tabela.insertRow(-1);
-	var id = linha_nova.insertCell(0);
-	var nome_planeta = linha_nova.insertCell(1);
-	var pop = linha_nova.insertCell(2);
-	var poluicao = linha_nova.insertCell(3);
-	var turno = linha_nova.insertCell(4);		
-	var gerencia = linha_nova.insertCell(5);
+	var id = linha_nova.insertCell(-1);
+	if (id_imperio == 0) {
+		var nome_npc = linha_nova.insertCell(-1);
+		nome_npc.innerHTML = "<div data-atributo='nome_npc' data-editavel='true' data-style='width: 120px;'><input type='text' data-atributo='nome_npc' data-ajax='true' style='width: 120px;'></input></div>";
+	}
+	
+	var nome_planeta = linha_nova.insertCell(-1);
+	var pop = linha_nova.insertCell(-1);
+	var poluicao = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);		
+	var gerencia = linha_nova.insertCell(-1);
 	
 	var lista_planetas = lista_planetas_html();
 	

@@ -35,7 +35,7 @@ class imperio
 	$super -- Define se é para forçar o objeto (ignora as proteções)
 	$turno -- Qual turno deve ser exibido
 	***********************/
-	function __construct($id, $super=false, $turno=0) {
+	function __construct($id=0, $super=false, $turno=0) {
 		global $wpdb;
 		$this->turno = new turno($turno);
 		
@@ -43,7 +43,7 @@ class imperio
 		$roles = $user->roles[0];
 		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
-		if ((is_null($id) || $roles != "administrator") && !$super) {
+		if ($roles != "administrator" && !$super) {
 			$this->id_jogador = get_current_user_id();
 			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
 		} else {
