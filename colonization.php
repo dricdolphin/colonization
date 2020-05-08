@@ -1080,6 +1080,16 @@ var id_imperio_atual = {$imperios[0]->id};
 			$estrela = new estrela($planeta->id_estrela);
 			
 			$lista_id_estrela[$estrela->id] = $estrela->id;
+			if ($colonia->id_imperio == 0) {
+				if (empty($nome_npc[$estrela->id])) {
+					$nome_npc[$estrela->id] = $colonia->nome_npc;
+				} else {
+					$nome_npc[$estrela->id] .= " / " . $colonia->nome_npc;
+				}
+			} else {
+				$imperio_colonia = new imperio($colonia->id_imperio);
+				$nome_npc[$estrela->id] = $imperio_colonia->nome;
+			}
 		}
 
 		$coluna = 1;
@@ -1087,6 +1097,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			$estrela = new estrela($id_estrela);
 			
 			$html_lista_imperios = "";
+			$html_nome_npc = "";
 			foreach ($lista_ids_imperios as $id_imperio) {
 				$ponto_abastece = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_imperio={$id_imperio->id} AND id_estrela={$estrela->id}");
 				$abastece_checked = "";
@@ -1097,8 +1108,13 @@ var id_imperio_atual = {$imperios[0]->id};
 				$html_lista_imperios .= "<input type='checkbox' onchange='return salva_reabastece(this,{$id_imperio->id},{$estrela->id});' {$abastece_checked}></input><label>{$id_imperio->nome}</label><br>";
 			}
 			
+			if ($roles == "administrator") {
+				$html_nome_npc = "<i>{$nome_npc[$estrela->id]}</i><br>";
+			}
+			
 			$html_lista .= "<div style='display: inline-block; width: 160px; padding: 2px; margin: 5px;'>
 			<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b><br>
+			{$html_nome_npc}
 			{$html_lista_imperios}
 			</div>";
 		
