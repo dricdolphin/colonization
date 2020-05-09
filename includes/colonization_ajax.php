@@ -217,6 +217,8 @@ class colonization_ajax {
 			$imperio = new imperio($_POST['id_imperio']);
 			$dados_salvos['confirma'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). Deseja continuar?";
 			$dados_salvos['custo_pago'] = $pesquisas_imperio;
+		} else {//Chegou até aqui, pode cobrar
+			$consome_pesquisa = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
