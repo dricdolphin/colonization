@@ -60,7 +60,8 @@ class instala_db {
 		desguarnecida BOOLEAN DEFAULT FALSE,
 		oculta BOOLEAN DEFAULT FALSE,
 		icone VARCHAR(255) DEFAULT '',
-		especiais VARCHAR(255) DEFAULT ''
+		especiais VARCHAR(255) DEFAULT '',
+		custos VARCHAR(255) DEFAULT ''
 		)");
 
 		//Tabela com os tipos de recursos existentes

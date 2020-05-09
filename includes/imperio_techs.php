@@ -52,7 +52,7 @@ class imperio_techs
 				<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='{$this->id_tech}' value='{$this->id_tech}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
+				<input type='hidden' data-atributo='funcao_validacao'value='valida_tech_imperio'></input>
 				<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='{$this->id_tech}' data-valor-original='{$tech->nome}'>{$tech->nome}</div>
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>

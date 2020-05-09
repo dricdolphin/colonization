@@ -91,9 +91,15 @@ function valida_tech_imperio(objeto) {
 	var select_linha = linha.getElementsByTagName("SELECT");
 	var dados_ajax = "post_type=POST&action=valida_tech_imperio";
 	var retorno = false;
+	var custo_pago = "";
 
 	for (index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" || inputs_linha[index].getAttribute('data-atributo') == "id") {
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+		}
+		
+		if (inputs_linha[index].getAttribute('data-atributo') == "custo_pago") {
+			custo_pago = inputs_linha[index];
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -113,7 +119,22 @@ function valida_tech_imperio(objeto) {
 		if (this.readyState == 4 && this.status == 200) {
 			var resposta = JSON.parse(this.responseText);
 			if (resposta.resposta_ajax == "OK!") {
-				retorno = true;
+				if (resposta.confirma != "") {
+					let confirma = confirm(resposta.confirma);
+					custo_pago.value = resposta.custo_pago;
+					if (confirma) {
+						if (resposta.custo_pago == 0) {
+							custo_pago.value = 0;
+						}
+					} else {
+						custo_pago.value = resposta.custo_pago;
+					}
+					
+					retorno = confirma;
+				} else {
+					retorno = true;
+					custo_pago.value = resposta.custo_pago;
+				}
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

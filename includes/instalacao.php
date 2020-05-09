@@ -19,6 +19,7 @@ class instalacao
 	public $oculta;
 	public $icone;
 	public $especiais;
+	public $custos;
 	public $id_tech_requisito;
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
@@ -30,7 +31,7 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, oculta, icone, especiais FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, oculta, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -42,6 +43,7 @@ class instalacao
 		$this->icone = $resultado->icone;
 		$this->oculta = $resultado->oculta;
 		$this->especiais = $resultado->especiais;
+		$this->custos = $resultado->custos;
 		
 		$index = 0;
 		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = false");
@@ -106,6 +108,7 @@ class instalacao
 			<td><div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='{$this->oculta}'><input type='checkbox' data-atributo='oculta' data-ajax='true' {$oculta_checked} disabled></input></div></td>
 			<td><div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original='{$this->especiais}'>{$this->especiais}</div></td>
 			<td><div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
+			<td><div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original='{$this->custos}'>{$this->custos}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}

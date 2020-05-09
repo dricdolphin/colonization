@@ -146,9 +146,11 @@ class colonization_ajax {
 		if (empty($_POST['id'])) {
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
 		} else {
+			$tech_imperio = new imperio_techs($_POST['id']);
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}");
 		}
 		
+		$dados_salvos['confirma'] = "";
 		if (!empty($id_tech)) {
 			$dados_salvos['resposta_ajax'] = "O Império já possui essa Tech!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -157,6 +159,16 @@ class colonization_ajax {
 		
 		//Verifica se o Império tem os pré-requisitos da Tech
 		$tech = new tech($_POST['id_tech']);
+		
+		$dados_salvos['custo_pago'] = $_POST['custo_pago'];
+		if ($_POST['custo_pago'] > $tech->custo) {
+			$dados_salvos['resposta_ajax'] = "O custo pago por essa Tech é maior que o custo da Tech! Favor revisar!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		} elseif ($tech->custo == $_POST['custo_pago']) {
+			$dados_salvos['custo_pago'] = 0;
+		}
+
 		if (!empty($tech->id_tech_parent)) {
 			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
 			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0");
@@ -179,6 +191,32 @@ class colonization_ajax {
 					}
 				}
 			}
+		}
+		
+		//Verifica se o Império tem Pesquisa suficiente
+		$id_recurso_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+		
+		if (!empty($_POST['id'])) {
+			if ($_POST['custo_pago'] == 0 && $tech_imperio->custo_pago != 0) {
+				$custo_a_pagar = $tech->custo - $tech_imperio->custo_pago;
+			} else {
+				$custo_a_pagar = $_POST['custo_pago'] - $tech_imperio->custo_pago;
+			}
+		} else {
+			if ($_POST['custo_pago'] == 0) {
+				$custo_a_pagar = $tech->custo;
+			} else {
+				$custo_a_pagar = $_POST['custo_pago'];
+			}
+		}
+		
+		$turno = new turno();
+		$pesquisas_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
+		
+		if ($pesquisas_imperio < $custo_a_pagar) {
+			$imperio = new imperio($_POST['id_imperio']);
+			$dados_salvos['confirma'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). Deseja continuar?";
+			$dados_salvos['custo_pago'] = $pesquisas_imperio;
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
