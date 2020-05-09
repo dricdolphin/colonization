@@ -27,6 +27,9 @@ class tech
 		$this->id = $id;
 		
 		if ($this->id == 0) {
+			$this->nome = "";
+			$this->id_tech_parent = 0;
+			$this->lista_requisitos = "";
 			return;
 		}
 

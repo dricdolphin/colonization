@@ -15,13 +15,13 @@ function novo_imperio(evento) {
 	var tabela_imperios = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela_imperios.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var dados_jogador = linha_nova.insertCell(1);
-	var nome_imperio = linha_nova.insertCell(2);
-	var prestigio = linha_nova.insertCell(3);
-	var populacao = linha_nova.insertCell(4);
-	var pontuacao = linha_nova.insertCell(5);
-	var gerencia = linha_nova.insertCell(6);
+	var id = linha_nova.insertCell(-1);
+	var dados_jogador = linha_nova.insertCell(-1);
+	var nome_imperio = linha_nova.insertCell(-1);
+	var prestigio = linha_nova.insertCell(-1);
+	var populacao = linha_nova.insertCell(-1);
+	var pontuacao = linha_nova.insertCell(-1);
+	var gerencia = linha_nova.insertCell(-1);
 	
 	var lista_jogadores = lista_jogadores_html(); //Pega a lista de usuários do Fórum
 	
@@ -64,13 +64,13 @@ function nova_estrela(evento) {
 	var tabela_estrelas = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela_estrelas.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var nome = linha_nova.insertCell(0);
-	var estrela_x = linha_nova.insertCell(1);
-	var estrela_y = linha_nova.insertCell(2);
-	var estrela_z = linha_nova.insertCell(3);
-	var estrela_tipo = linha_nova.insertCell(4);
-	var gerencia = linha_nova.insertCell(5);
+	var id = linha_nova.insertCell(-1);
+	var nome = linha_nova.insertCell(-1);
+	var estrela_x = linha_nova.insertCell(-1);
+	var estrela_y = linha_nova.insertCell(-1);
+	var estrela_z = linha_nova.insertCell(-1);
+	var estrela_tipo = linha_nova.insertCell(-1);
+	var gerencia = linha_nova.insertCell(-1);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -103,9 +103,9 @@ function novo_reabastecimento(evento) {
 	var tabela = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var imperio = linha_nova.insertCell(1);
-	var estrela = linha_nova.insertCell(2);
+	var id = linha_nova.insertCell(-1);
+	var imperio = linha_nova.insertCell(-1);
+	var estrela = linha_nova.insertCell(-1);
 
 	var lista_imperios = lista_imperios_html();
 	var lista_estrelas = lista_estrelas_html();
@@ -143,15 +143,15 @@ function novo_planeta(evento, id_estrela = 0) {
 	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
 	var tabela = document.getElementsByTagName('TABLE')[0];
 	var linha_nova = tabela.insertRow(-1);
-	var id = linha_nova.insertCell(0);
-	var nome = linha_nova.insertCell(1);
-	var estrela = linha_nova.insertCell(2);
-	var posicao = linha_nova.insertCell(3);
-	var classe = linha_nova.insertCell(4);
-	var subclasse = linha_nova.insertCell(5);
-	var tamanho = linha_nova.insertCell(6);
-	var inospito = linha_nova.insertCell(7);
-	var gerencia = linha_nova.insertCell(8);
+	var id = linha_nova.insertCell(-1);
+	var nome = linha_nova.insertCell(-1);
+	var estrela = linha_nova.insertCell(-1);
+	var posicao = linha_nova.insertCell(-1);
+	var classe = linha_nova.insertCell(-1);
+	var subclasse = linha_nova.insertCell(-1);
+	var tamanho = linha_nova.insertCell(-1);
+	var inospito = linha_nova.insertCell(-1);
+	var gerencia = linha_nova.insertCell(-1);
 	var link_gerenciamento = "\"page=colonization_admin_planetas\"";
 	
 	if (id_estrela == 0) {
@@ -207,13 +207,13 @@ function novo_recurso(evento) {
 	tabela = tabela[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var nome = linha_nova.insertCell(1);
-	var descricao = linha_nova.insertCell(2);
-	var nivel = linha_nova.insertCell(3);
-	var acumulavel = linha_nova.insertCell(4);
-	var extrativo = linha_nova.insertCell(5);
-	var local = linha_nova.insertCell(6);
+	var id = linha_nova.insertCell(-1);
+	var nome = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
+	var nivel = linha_nova.insertCell(-1);
+	var acumulavel = linha_nova.insertCell(-1);
+	var extrativo = linha_nova.insertCell(-1);
+	var local = linha_nova.insertCell(-1);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -251,17 +251,17 @@ function nova_tech(evento) {
 	tabela = tabela[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var nome = linha_nova.insertCell(1);
-	var descricao = linha_nova.insertCell(2);
-	var nivel = linha_nova.insertCell(3);
-	var custo = linha_nova.insertCell(4);
-	var id_tech_parent = linha_nova.insertCell(5);
-	var lista_requisitos = linha_nova.insertCell(6);
-	var belica = linha_nova.insertCell(7);
-	var publica = linha_nova.insertCell(8);
-	var especiais = linha_nova.insertCell(9);
-	var icone = linha_nova.insertCell(10);
+	var id = linha_nova.insertCell(-1);
+	var nome = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
+	var nivel = linha_nova.insertCell(-1);
+	var custo = linha_nova.insertCell(-1);
+	var id_tech_parent = linha_nova.insertCell(-1);
+	var lista_requisitos = linha_nova.insertCell(-1);
+	var belica = linha_nova.insertCell(-1);
+	var publica = linha_nova.insertCell(-1);
+	var especiais = linha_nova.insertCell(-1);
+	var icone = linha_nova.insertCell(-1);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -306,9 +306,9 @@ function nova_tech_imperio(evento, id_imperio) {
 	
 	var lista_techs = lista_techs_html();
 	
-	var nome_tech = linha_nova.insertCell(0);
-	var custo_pago = linha_nova.insertCell(1);
-	var turno = linha_nova.insertCell(2);
+	var nome_tech = linha_nova.insertCell(-1);
+	var custo_pago = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);
 
 	nome_tech.innerHTML = "<td style='width: 300px;'>"
 	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
@@ -345,16 +345,19 @@ function nova_instalacao(evento) {
 	tabela = tabela[0];
 	var linha_nova = tabela.insertRow(-1);
 	
-	var id = linha_nova.insertCell(0);
-	var nome = linha_nova.insertCell(1);
-	var descricao = linha_nova.insertCell(2);
-	var slots = linha_nova.insertCell(3);
-	var autonoma = linha_nova.insertCell(4);
-	var desguarnecida = linha_nova.insertCell(5);
-	var oculta = linha_nova.insertCell(6);
-	var especiais = linha_nova.insertCell(7);
-	var icone = linha_nova.insertCell(8);
-	var gerencia = linha_nova.insertCell(9);
+	var lista_techs = lista_techs_html();
+	
+	var id = linha_nova.insertCell(-1);
+	var nome = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
+	var tech_requisito = linha_nova.insertCell(-1);
+	var slots = linha_nova.insertCell(-1);
+	var autonoma = linha_nova.insertCell(-1);
+	var desguarnecida = linha_nova.insertCell(-1);
+	var oculta = linha_nova.insertCell(-1);
+	var especiais = linha_nova.insertCell(-1);
+	var icone = linha_nova.insertCell(-1);
+	var gerencia = linha_nova.insertCell(-1);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -365,6 +368,7 @@ function nova_instalacao(evento) {
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	tech_requisito.innerHTML = "<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='' data-valor-original=''>"+lista_techs+"</div>";
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
@@ -395,9 +399,9 @@ function novo_instalacao_recurso(evento, consome = 1) {
 	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
 	var tabela = document.getElementsByTagName('TABLE')[consome];
 	var linha_nova = tabela.insertRow(-1);
-	var id = linha_nova.insertCell(0);
-	var recurso = linha_nova.insertCell(1);
-	var qtd_por_nivel = linha_nova.insertCell(2);
+	var id = linha_nova.insertCell(-1);
+	var recurso = linha_nova.insertCell(-1);
+	var qtd_por_nivel = linha_nova.insertCell(-1);
 		
 	var lista_recursos = lista_recursos_html();
 	
@@ -497,10 +501,10 @@ function novo_planeta_recurso(evento, id_planeta) {
 	var tabela = document.getElementsByTagName('TABLE')[0];
 	
 	var linha_nova = tabela.insertRow(-1);
-	var id = linha_nova.insertCell(0);
-	var nome_recurso = linha_nova.insertCell(1);
-	var disponivel = linha_nova.insertCell(2);
-	var turno = linha_nova.insertCell(3);
+	var id = linha_nova.insertCell(-1);
+	var nome_recurso = linha_nova.insertCell(-1);
+	var disponivel = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);
 	
 	var lista_recursos = lista_recursos_html();
 	
@@ -541,12 +545,12 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	var tabela = document.getElementsByTagName('TABLE')[1];
 	
 	var linha_nova = tabela.insertRow(-1);
-	var id = linha_nova.insertCell(0);
-	var nome_instalacao = linha_nova.insertCell(1);
-	var nivel = linha_nova.insertCell(2);
-	var turno = linha_nova.insertCell(3);
-	var turno_destroi = linha_nova.insertCell(4);		
-	var gerencia = linha_nova.insertCell(5);
+	var id = linha_nova.insertCell(-1);
+	var nome_instalacao = linha_nova.insertCell(-1);
+	var nivel = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);
+	var turno_destroi = linha_nova.insertCell(-1);		
+	var gerencia = linha_nova.insertCell(-1);
 	
 	var lista_instalacao = lista_instalacoes_html();
 	
@@ -598,29 +602,29 @@ function nova_nave(evento, id_imperio) {
 	
 	var linha_nova = tabela.insertRow(-1);
 	
-	var nome = linha_nova.insertCell(0);
-	var categoria = linha_nova.insertCell(1);
-	var qtd = linha_nova.insertCell(2);
-	var X = linha_nova.insertCell(3);
-	var Y = linha_nova.insertCell(4);
-	var Z = linha_nova.insertCell(5);
-	var string_nave = linha_nova.insertCell(6);
-	var tamanho = linha_nova.insertCell(7);
-	var HP = linha_nova.insertCell(8);
-	var velocidade = linha_nova.insertCell(9);
-	var alcance = linha_nova.insertCell(10);
-	var PDF_laser = linha_nova.insertCell(11);
-	var PDF_torpedo = linha_nova.insertCell(12);
-	var PDF_projetil = linha_nova.insertCell(13);
-	var blindagem = linha_nova.insertCell(14);
-	var escudos = linha_nova.insertCell(15);
-	var PDF_bombardeamento = linha_nova.insertCell(16);
-	var poder_invasao = linha_nova.insertCell(17);
-	var pesquisa = linha_nova.insertCell(18);
-	var nivel_estacao_orbital = linha_nova.insertCell(19);
-	var especiais = linha_nova.insertCell(20);
-	var turno = linha_nova.insertCell(21);
-	var gerenciar = linha_nova.insertCell(22);
+	var nome = linha_nova.insertCell(-1);
+	var categoria = linha_nova.insertCell(-1);
+	var qtd = linha_nova.insertCell(-1);
+	var X = linha_nova.insertCell(-1);
+	var Y = linha_nova.insertCell(-1);
+	var Z = linha_nova.insertCell(-1);
+	var string_nave = linha_nova.insertCell(-1);
+	var tamanho = linha_nova.insertCell(-1);
+	var HP = linha_nova.insertCell(-1);
+	var velocidade = linha_nova.insertCell(-1);
+	var alcance = linha_nova.insertCell(-1);
+	var PDF_laser = linha_nova.insertCell(-1);
+	var PDF_torpedo = linha_nova.insertCell(-1);
+	var PDF_projetil = linha_nova.insertCell(-1);
+	var blindagem = linha_nova.insertCell(-1);
+	var escudos = linha_nova.insertCell(-1);
+	var PDF_bombardeamento = linha_nova.insertCell(-1);
+	var poder_invasao = linha_nova.insertCell(-1);
+	var pesquisa = linha_nova.insertCell(-1);
+	var nivel_estacao_orbital = linha_nova.insertCell(-1);
+	var especiais = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);
+	var gerenciar = linha_nova.insertCell(-1);
 
 	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
@@ -677,10 +681,10 @@ function nova_acao_admin(evento) {
 	var tabela = document.getElementsByTagName('TABLE')[0];
 	
 	var linha_nova = tabela.insertRow(-1);
-	var nome_imperio = linha_nova.insertCell(0);
-	var lista_recursos = linha_nova.insertCell(1);
-	var descricao = linha_nova.insertCell(2);
-	var turno = linha_nova.insertCell(3);
+	var nome_imperio = linha_nova.insertCell(-1);
+	var lista_recursos = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
+	var turno = linha_nova.insertCell(-1);
 	
 	var lista_imperios = lista_imperios_html();
 	

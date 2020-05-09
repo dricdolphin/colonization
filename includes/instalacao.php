@@ -12,12 +12,14 @@ class instalacao
 	public $id;
 	public $nome;
 	public $descricao;
+	public $id_tech;
 	public $slots;
 	public $autonoma;
 	public $desguarnecida;
 	public $oculta;
 	public $icone;
 	public $especiais;
+	public $id_tech_requisito;
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
 	public $recursos_consome = [];
@@ -28,11 +30,12 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, slots, autonoma, desguarnecida, oculta, icone, especiais FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, oculta, icone, especiais FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
+		$this->id_tech = $resultado->id_tech;
 		$this->slots = $resultado->slots;
 		$this->autonoma = $resultado->autonoma;
 		$this->desguarnecida = $resultado->desguarnecida;
@@ -83,6 +86,7 @@ class instalacao
 			$oculta_checked = "";
 		}
 		
+		$tech = new tech($this->id_tech);
 		//Exibe os dados do objeto
 		$html = "				<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -95,6 +99,7 @@ class instalacao
 			</td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='descricao' data-editavel='true' data-valor-original='{$this->descricao}'>{$this->descricao}</div></td>
+			<td><div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='{$this->id_tech}' data-valor-original='{$tech->nome}'>{$tech->nome}</div></td>
 			<td><div data-atributo='slots' data-editavel='true' data-valor-original='{$this->slots}' data-style='width: 30px;'>{$this->slots}</div></td>
 			<td><div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='{$this->autonoma}'><input type='checkbox' data-atributo='autonoma' data-ajax='true' {$autonoma_checked} disabled></input></div></td>
 			<td><div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='{$this->desguarnecida}'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true' {$desguarnecida_checked} disabled></input></div></td>

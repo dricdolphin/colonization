@@ -377,10 +377,12 @@ class colonization_ajax {
 	function valida_colonia_instalacao() {
 		global $wpdb; 
 		$wpdb->hide_errors();
-
+		
+		$dados_salvos['debug'] = "";
+		
+		$turno = new turno();
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			//Realiza a atualização do histórico de upgrades
-			$turno = new turno();
 			$colonia_instalacao = new colonia_instalacao($_POST['id']);
 			
 			if ($_POST['nivel'] != $colonia_instalacao->nivel || $_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) {//É uma atualização! Pode ser um upgrade ou um downgrade
@@ -402,7 +404,77 @@ class colonization_ajax {
 		
 
 		$planeta = new planeta($_POST['id_planeta']);
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
+		$colonia = new colonia($id_colonia);
+		$imperio = new imperio($colonia->id_imperio);
+		
 		$instalacao = new instalacao($_POST['id_instalacao']);
+		$nivel = 1;
+		$tech_requisito[$nivel] = new tech($instalacao->id_tech); //Pega todos os níveis de Tech
+		while ($tech_requisito[$nivel]->id != 0) {
+			$id_tech_child = $wpdb->get_var("SELECT id FROM colonization_tech 
+			WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
+			OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'");
+			
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_tech 
+			WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
+			OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
+			";
+			
+			$nivel++;
+			if (!empty($id_tech_child)) {
+				$tech_requisito[$nivel] = new tech($id_tech_child);
+			} else {
+				$tech_requisito[$nivel] = new tech(0);
+			}
+		}
+		$tech_requisito[$nivel] = "";
+		
+		$dados_salvos['confirma'] = "";
+		//Verifica se o Império tem os Pré-Requisitos
+		if ($imperio->id != 0) {//É um jogador
+			if (!empty($tech_requisito[$_POST['nivel']])) {
+				for ($nivel_tech = 1; $nivel_tech <= $_POST['nivel']; $nivel_tech++) {
+					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$tech_requisito[$nivel_tech]->id} AND custo_pago=0");
+					if (empty($id_tech_imperio)) {
+						$dados_salvos['confirma'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'. Tem certeza que deseja continuar?";
+						break;
+					}
+				}
+			} else {
+				$dados_salvos['confirma'] = "Não existe Tech que permita esse nível de Instalação. Deseja continuar?";
+			}
+		}
+		
+		if ($instalacao->especiais != "") {
+			$especiais = explode(";",$instalacao->especiais);
+			
+			//Especiais: tech_requisito=id_tech
+			//Requer uma Tech especial como requisito
+
+			$tech_requisito = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'tech_requisito') !== false;
+			}));
+			
+			if (!empty($tech_requisito)) {
+				$valor_tech_requisito = explode("=",$tech_requisito[0]);
+				$id_tech_requisito = $valor_tech_requisito[1];
+				$tech_requisito = new tech ($id_tech_requisito);
+				$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$id_tech_requisito} AND custo_pago=0");
+				if (empty($id_tech_imperio)) {
+					$dados_salvos['confirma'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'. Tem certeza que deseja continuar?";
+				}
+			}
+		}
+		
+		if ($instalacao->autonoma == 0 && $planeta->inospito == 1) {
+			$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em planetas habitáveis!";
+		}
+		
 		if (empty($dados_salvos['resposta_ajax'])) {
 			if ($planeta->instalacoes + $instalacao->slots <= $planeta->tamanho) {
 				$dados_salvos['resposta_ajax'] = "OK!";

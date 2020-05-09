@@ -11,10 +11,10 @@ function valida_generico(objeto) {
 	var celulas = linha.cells;
 	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
 	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var textarea_linha = linha.getElementsByTagName("INPUT");
+	var textarea_linha = linha.getElementsByTagName("TEXTAREA");
 	var select_linha = linha.getElementsByTagName("SELECT");
 
-	let inputs_linha_temp = "";
+	let inputs_linha_temp = [];
 	for (var index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
@@ -390,7 +390,12 @@ function valida_colonia_instalacao(objeto) {
 		if (this.readyState == 4 && this.status == 200) {
 			var resposta = JSON.parse(this.responseText);
 			if (resposta.resposta_ajax == "OK!") {
-				retorno = true;
+				if (resposta.confirma != "") {
+					let confirma = confirm(resposta.confirma);
+					retorno = confirma;
+				} else {
+					retorno = true;
+				}
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

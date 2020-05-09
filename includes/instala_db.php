@@ -54,6 +54,7 @@ class instala_db {
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
 		descricao TEXT NOT NULL,
+		id_tech INT(6) DEFAULT 0,
 		slots INT(6) DEFAULT 1,
 		autonoma BOOLEAN DEFAULT FALSE,
 		desguarnecida BOOLEAN DEFAULT FALSE,

@@ -624,7 +624,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
-			<tr><th>ID</th><th>Nome</th><th>Descrição</th><th style='width: 40px;'>Slots</th><th>Autônoma</th><th>Desguarnecida</th><th>Oculta</th><th>Especiais</th><th>Ícone</th><th>&nbsp;</th>
+			<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th><th>Autônoma</th><th>Desguarnecida</th><th>Oculta</th><th>Especiais</th><th>Ícone</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>";
