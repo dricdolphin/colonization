@@ -421,9 +421,12 @@ class colonization_ajax {
 		$dados_salvos['debug'] = "";
 		
 		$turno = new turno();
+		
+		$nivel_original = 0;
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			//Realiza a atualização do histórico de upgrades
 			$colonia_instalacao = new colonia_instalacao($_POST['id']);
+			$nivel_original = $colonia_instalacao->nivel;
 			
 			if ($_POST['nivel'] != $colonia_instalacao->nivel || $_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) {//É uma atualização! Pode ser um upgrade ou um downgrade
 				$turno_upgrade = $wpdb->get_var("SELECT MAX(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = {$_POST['id']}");
@@ -438,8 +441,6 @@ class colonization_ajax {
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			$dados_salvos['debug'] = "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}";
-			
-			$dados_salvos['resposta_ajax'] = "OK!";
 		}
 		
 
@@ -458,11 +459,12 @@ class colonization_ajax {
 			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
 			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'");
 			
-			$dados_salvos['debug'] .= "SELECT id FROM colonization_tech 
-			WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
-			OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
-			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
-			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
+			$dados_salvos['debug'] .= "
+SELECT id FROM colonization_tech 
+WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
+OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
+OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
+OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 			";
 			
 			$nivel++;
@@ -481,32 +483,56 @@ class colonization_ajax {
 				for ($nivel_tech = 1; $nivel_tech <= $_POST['nivel']; $nivel_tech++) {
 					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$tech_requisito[$nivel_tech]->id} AND custo_pago=0");
 					if (empty($id_tech_imperio)) {
-						$dados_salvos['confirma'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'. Tem certeza que deseja continuar?";
+						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'.";
 						break;
 					}
 				}
 			} else {
-				$dados_salvos['confirma'] = "Não existe Tech que permita esse nível de Instalação. Deseja continuar?";
+				$dados_salvos['resposta_ajax'] = "Não existe Tech que permita esse nível de Instalação.";
 			}
-		}
-		
-		if ($instalacao->especiais != "") {
-			$especiais = explode(";",$instalacao->especiais);
-			
-			//Especiais: tech_requisito=id_tech
-			//Requer uma Tech especial como requisito
 
-			$tech_requisito = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'tech_requisito') !== false;
-			}));
-			
-			if (!empty($tech_requisito)) {
-				$valor_tech_requisito = explode("=",$tech_requisito[0]);
-				$id_tech_requisito = $valor_tech_requisito[1];
-				$tech_requisito = new tech ($id_tech_requisito);
-				$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$id_tech_requisito} AND custo_pago=0");
-				if (empty($id_tech_imperio)) {
-					$dados_salvos['confirma'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'. Tem certeza que deseja continuar?";
+			if ($instalacao->especiais != "") {
+				$especiais = explode(";",$instalacao->especiais);
+				
+				//Especiais: tech_requisito=id_tech
+				//Requer uma Tech especial como requisito
+
+				$tech_requisito = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'tech_requisito') !== false;
+				}));
+				
+				if (!empty($tech_requisito)) {
+					$valor_tech_requisito = explode("=",$tech_requisito[0]);
+					$id_tech_requisito = $valor_tech_requisito[1];
+					$tech_requisito = new tech ($id_tech_requisito);
+					$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$id_tech_requisito} AND custo_pago=0");
+					if (empty($id_tech_imperio)) {
+						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'.";
+					}
+				}
+			}
+
+			//Verifica se o Império tem os Recursos para construir ou realizar o upgrade
+			$niveis = $_POST['nivel'] - $nivel_original;
+			$dados_salvos['debug'] .= "
+{$niveis} = {$_POST['nivel']} - {$nivel_original};
+			";
+			if ($niveis > 0) {
+				if ($instalacao->custos != "") {
+					$custos = explode(";",$instalacao->custos);
+					
+					foreach ($custos as $chave => $recurso) {
+						$recursos = explode("=",$recurso);
+						$id_recurso = $recursos[0];
+						$qtd = $recursos[1];
+					
+						$qtd_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+						$custo_recursos = $qtd*$niveis;
+						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+						if ($qtd_imperio < $custo_recursos) {
+							$dados_salvos['resposta_ajax'] = "O Império não tem Recursos suficientes para concluir essa operação.";	
+						}
+					}
 				}
 			}
 		}
@@ -516,11 +542,21 @@ class colonization_ajax {
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
-			if ($planeta->instalacoes + $instalacao->slots <= $planeta->tamanho) {
-				$dados_salvos['resposta_ajax'] = "OK!";
+			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {
+				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";				
 			} else {
-				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
-			}
+				$dados_salvos['resposta_ajax'] = "OK!";
+				
+				//Se chegou até aqui pode atualizar os Recursos do Império
+				if ($imperio->id != 0) {
+					foreach ($query_update_recursos as $chave => $query) {
+						$dados_salvos['debug'] .= "
+{$query}
+						";
+						$update_recursos = $wpdb->query($query);
+					}
+				}
+			} 
 		}
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
