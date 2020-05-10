@@ -21,6 +21,7 @@ class imperio
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
 	public $max_pop = 0;
+	public $alcance_logistica = 0;
 	public $bonus_recurso = [];
 	public $sinergia = [];
 	public $extrativo = [];
@@ -100,44 +101,13 @@ class imperio
 		) AS custo_tech");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 
-		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
-		$tech = new tech();
-		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
-
-		$user = wp_get_current_user();
-		$roles = $user->roles[0];
-
-		$icone_html = [];
-		
-		foreach ($icones AS $icone) {
-			$tech_icone = new tech($icone->id);
-			
-			if ($icone->custo_pago == 0) {
-				if ($tech_icone->id_tech_parent != 0) {
-					$ids_tech_parent = explode(";",$tech_icone->id_tech_parent);
-					foreach ($ids_tech_parent as $chave => $id_tech) {
-						if (!empty($icone_html[$id_tech])) {
-							$icone_html[$id_tech] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-						} else {
-							$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-						}
-					}
-				} else {
-					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-				}
-				//$this->icones_html .= " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-			}
-		}
-		
-		foreach ($icone_html as $chave => $html) {
-			$this->icones_html .= $html;
-		}
-		
 		//***********************************
 		// ALTERAÇÕES DE TECH (ESPECIAIS)
 		//***********************************
 		//No momento existem as seguintes funções especiais para Techs:
-		//max_pop=porcentagem -- tech que aumenta o máximo de pop de uma colônia 
+		//max_pop=porcentagem -- tech que aumenta o máximo de pop de uma colônia
+		//logistica=alcance -- tech que permite criar Instalações e Colônias à uma determinada distância
+		//bonus_logistica=bonus -- bônus de alcance
 		//
 		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
@@ -166,6 +136,28 @@ class imperio
 			if (!empty($max_pop)) {
 				$max_pop_valor = explode("=",$max_pop[0]);
 				$this->max_pop = $this->max_pop	+ $max_pop_valor[1];
+			}
+			
+			//Especiais -- logistica
+			$logistica = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'logistica') !== false;
+			}));
+			
+			if (!empty($logistica)) {
+				$logistica_valor = explode("=",$logistica[0]);
+				if ($this->alcance_logistica < $logistica_valor[1]) {
+					$this->alcance_logistica = $logistica_valor[1];
+				}
+			}
+			
+			//Especiais -- bonus_logistica
+			$bonus_logistica = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_logistica') !== false;
+			}));
+			
+			if (!empty($bonus_logistica)) {
+				$bonus_logistica_valor = explode("=",$bonus_logistica[0]);
+				$this->alcance_logistica = $this->logistica + $bonus_logistica_valor[1];
 			}
 
 			//Especiais -- bonus_pesquisa_naves
@@ -243,6 +235,44 @@ class imperio
 				}
 			}
 		}
+
+		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
+		$tech = new tech();
+		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
+
+		$user = wp_get_current_user();
+		$roles = $user->roles[0];
+
+		$icone_html = [];
+		
+		foreach ($icones AS $icone) {
+			$tech_icone = new tech($icone->id);
+			
+			if ($icone->custo_pago == 0) {
+				$mostra_logistica = "";
+				if (strpos($tech_icone->especiais,"logistica") !== false) {
+					$mostra_logistica = " ".$this->alcance_logistica."pc";
+				}
+				if ($tech_icone->id_tech_parent != 0) {
+					$ids_tech_parent = explode(";",$tech_icone->id_tech_parent);
+					foreach ($ids_tech_parent as $chave => $id_tech) {
+						if (!empty($icone_html[$id_tech])) {
+							$icone_html[$id_tech] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+						} else {
+							$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+						}
+					}
+				} else {
+					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+				}
+				//$this->icones_html .= " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+			}
+		}
+		
+		foreach ($icone_html as $chave => $html) {
+			$this->icones_html .= $html;
+		}
+
 		
 		if ($this->max_pop >0) {
 			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";

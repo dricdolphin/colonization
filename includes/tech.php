@@ -19,6 +19,7 @@ class tech
 	public $id_tech_requisito = [];
 	public $belica;
 	public $publica;
+	public $especiais;
 	public $icone;
 	
 	function __construct($id=0) {

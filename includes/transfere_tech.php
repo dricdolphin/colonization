@@ -158,7 +158,21 @@ class transfere_tech
 			
 			if (!empty($tech->lista_requisitos)) {
 				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$id_requisito}");
+					$tech_alternativa = new tech($id_requisito); //Algumas Techs tem Techs Alternativas (especiais -- tech_alternativa)
+					$especiais = explode(";",$tech_alternativa->especiais);
+					
+					//Especiais -- tech_alternativa
+					$tech_alternativa = array_values(array_filter($especiais, function($value) {
+						return strpos($value, 'tech_alternativa') !== false;
+					}));
+					
+					$id_tech_alternativa = 0;
+					if (!empty($tech_alternativa)) {
+						$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
+						$id_tech_alternativa = $tech_alternativa_valor[1];
+					}
+					
+					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND (id_tech={$id_requisito} OR id_tech={$id_tech_alternativa})");
 					if ($tech_requisito == 0) {
 						if (empty($html)) {
 							$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s):<br>";
