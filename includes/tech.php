@@ -17,6 +17,7 @@ class tech
 	public $id_tech_parent;
 	public $lista_requisitos;
 	public $id_tech_requisito = [];
+	public $id_tech_alternativa = 0;
 	public $belica;
 	public $publica;
 	public $especiais;
@@ -49,6 +50,19 @@ class tech
 		$this->publica = $resultado->publica;
 		$this->especiais = $resultado->especiais;
 		$this->icone = $resultado->icone;
+		
+		$especiais = explode(";",$this->especiais);
+		
+		//Especiais -- tech_alternativa
+		$tech_alternativa = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'tech_alternativa') !== false;
+		}));
+		
+		$id_tech_alternativa = 0;
+		if (!empty($tech_alternativa)) {
+			$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
+			$this->id_tech_alternativa = $tech_alternativa_valor[1];
+		}
 	}
 
 	/***********************
