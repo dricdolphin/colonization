@@ -173,12 +173,23 @@ function calcula_custos(evento, objeto) {
 		categoria = "Destroier";
 	} else if (chassi > 50 && chassi <= 100) {
 		categoria = "Cruzador";
+	} else if (chassi > 100 && chassi <= 200) {
+		categoria = "Nave de Guerra";
+	} else if (chassi > 200 && chassi <= 300) {
+		categoria = "Nave de Batalha";
+	} else if (chassi > 300 && chassi <= 500) {
+		categoria = "Couraçado";
+	} else if (chassi > 500 && chassi <= 1000) {
+		categoria = "Dreadnought";
+	} else if (chassi > 1000 && chassi <= 5000) {
+		categoria = "Nave-Mãe";
 	} else {
 		categoria = "????????";
 	}
-	
-	if (qtd_estacao_orbital != 0) {
+
+	if (qtd_estacao_orbital.value != 0) {
 		categoria = "Estação Orbital";
+	}
 	}
 	
 	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 

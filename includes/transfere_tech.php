@@ -160,7 +160,7 @@ class transfere_tech
 				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
 					$tech_requisito = new tech ($id_requisito);
 
-					$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa})");
+					$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
 					if ($tech_requisito_query == 0) {
 						if (empty($html)) {
 							$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s):<br>";
