@@ -37,16 +37,20 @@ class roda_turno {
 		if ($roles == "administrator") {//Somente pode rodar o turno se for um Administrador
 			$turno = new turno(); //Pega o turno atual
 			$proximo_turno = $turno->turno + 1;
-			$proxima_semana = new DateTime($turno->data_turno);
+			$timezone = new DateTimeZone('America/Sao_Paulo');
+			$proxima_semana = new DateTime($turno->data_turno, $timezone);
 			$proxima_semana->modify('+7 days');
 
 			//**
 			if ($turno->bloqueado) {
 				$html = "<div>Não é possível rodar o turno. Ele se encontra BLOQUEADO!<br>";
-				$timezone = new DateTimeZone('America/Sao_Paulo');
 				$data_atual = new DateTime("now", $timezone);
-
+				$data_atual_string = $data_atual->format('Y-m-d H:i:s');
+				$proxima_semana_string = $proxima_semana->format('Y-m-d H:i:s');
+				
 				$diferenca_datas = $data_atual->diff($proxima_semana);
+				
+				//$html .= "Now: {$data_atual_string} / Próximo: {$proxima_semana_string} || {$diferenca_datas->invert} | {$diferenca_datas->h}";
 				
 				if ($diferenca_datas->invert == 1) {
 					$html .= "<a href='#' class='page-title-action colonization_admin_botao' onclick='return desbloquear_turno(event, this);'>DESBLOQUEAR TURNO</a></div>
@@ -160,11 +164,10 @@ class roda_turno {
 					//Aumenta a população
 					//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
 					//No entanto, a poluição reduz o crescimento populacional
+					$nova_pop = $colonia->pop;
 					if ($alimentos > $colonia->pop && $acoes->recursos_balanco[$id_alimento] > 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
-						if ($planeta->inospito == 0) {
-							if ($poluicao > 100) {//Se a poluição for maior que 100, a população não cresce
-								$nova_pop = $colonia->pop;
-							} else {
+						if ($planeta->inospito == 0) {//Se for planeta habitável, a Pop pode crescer
+							if ($poluicao <= 100) {//Se a poluição for maior que 100, a população não cresce
 								$limite_pop_planeta = $planeta->tamanho*10; 
 								//Caso o Império tenha uma Tech de Bônus Populacional...
 								if ($imperio->max_pop >0) {
@@ -184,11 +187,9 @@ class roda_turno {
 							}
 						}
 					} else {
-						//Caso os Alimentos sejam 0 (ou menos), a população CAI em 10%
+						//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%
 						if ($alimentos < $colonia->pop) {
 							$nova_pop = round(0.9*$colonia->pop);
-						} else {
-							$nova_pop = $colonia->pop;
 						}
 					}
 				

@@ -181,7 +181,21 @@ class colonization_ajax {
 			
 			if (!empty($tech->lista_requisitos)) {
 				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$id_requisito} AND custo_pago = 0");
+					$tech_alternativa = new tech($id_requisito); //Algumas Techs tem Techs Alternativas (especiais -- tech_alternativa)
+					$especiais = explode(";",$tech_alternativa->especiais);
+					
+					//Especiais -- tech_alternativa
+					$tech_alternativa = array_values(array_filter($especiais, function($value) {
+						return strpos($value, 'tech_alternativa') !== false;
+					}));
+					
+					$id_tech_alternativa = 0;
+					if (!empty($tech_alternativa)) {
+						$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
+						$id_tech_alternativa = $tech_alternativa_valor[1];
+					}
+
+					$tech_requisito = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$id_requisito} OR id_tech={$id_tech_alternativa})AND custo_pago = 0");
 					if ($tech_requisito == 0) {
 						if (empty($dados_salvos['resposta_ajax'])) {
 							$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
@@ -481,7 +495,21 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 		if ($imperio->id != 0) {//É um jogador
 			if (!empty($tech_requisito[$_POST['nivel']])) {
 				for ($nivel_tech = 1; $nivel_tech <= $_POST['nivel']; $nivel_tech++) {
-					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$tech_requisito[$nivel_tech]->id} AND custo_pago=0");
+					$tech_alternativa = new tech($tech_requisito[$nivel_tech]->id); //Algumas Techs tem Techs Alternativas (especiais -- tech_alternativa)
+					$especiais = explode(";",$tech_alternativa->especiais);
+					
+					//Especiais -- tech_alternativa
+					$tech_alternativa = array_values(array_filter($especiais, function($value) {
+						return strpos($value, 'tech_alternativa') !== false;
+					}));
+					
+					$id_tech_alternativa = 0;
+					if (!empty($tech_alternativa)) {
+						$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
+						$id_tech_alternativa = $tech_alternativa_valor[1];
+					}
+
+					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$id_tech_alternativa}) AND custo_pago=0");
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'.";
 						break;
@@ -505,7 +533,23 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 					$valor_tech_requisito = explode("=",$tech_requisito[0]);
 					$id_tech_requisito = $valor_tech_requisito[1];
 					$tech_requisito = new tech ($id_tech_requisito);
-					$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$id_tech_requisito} AND custo_pago=0");
+					
+					$tech_alternativa = new tech($tech_requisito->id); //Algumas Techs tem Techs Alternativas (especiais -- tech_alternativa)
+					$especiais = explode(";",$tech_alternativa->especiais);
+					
+					//Especiais -- tech_alternativa
+					$tech_alternativa = array_values(array_filter($especiais, function($value) {
+						return strpos($value, 'tech_alternativa') !== false;
+					}));
+					
+					$id_tech_alternativa = 0;
+					if (!empty($tech_alternativa)) {
+						$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
+						$id_tech_alternativa = $tech_alternativa_valor[1];
+					}
+
+
+					$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$id_tech_requisito} OR id_tech={$id_tech_alternativa}) AND custo_pago=0");
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'.";
 					}
@@ -960,7 +1004,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 			$dados_salvos['resposta_ajax'] = "É necessário ser um Administrador para poder executar essa ação!";
 		} else {
 			$turno = new turno($_POST['turno']);
-			$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1, data_turno='{$turno->data_modificado}'");
+			$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1, data_turno='{$turno->data_turno}' WHERE turno={$turno->turno}");
 			$wpdb->query("UPDATE wp_forum_topics SET closed = 1 WHERE name LIKE 'Turno {$turno->turno}%'");
 		}
 		

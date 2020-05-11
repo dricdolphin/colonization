@@ -1033,15 +1033,14 @@ class menu_admin {
 		$string_data_atual = $data_atual->format('Y-m-d H:i:s');
 
 		$proxima_semana = new DateTime($turno->data_turno);
-		$proxima_semana = new DateTime($turno->data_turno);
 		$proxima_semana->modify('+7 days');
-		$proxima_semana = $proxima_semana->format('Y-m-d H:i:s');
+		$proxima_semana_string = $proxima_semana->format('Y-m-d H:i:s');
 		
 		$html = "<div id='div_turno'><h2>COLONIZATION - RODA TURNO</h2>
 		<h3>TURNO ATUAL - {$turno->turno}</h3><br>
 		<div>DATA ATUAL - {$string_data_atual}</div>
 		<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
-		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana}</div></div>
+		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana_string}</div></div>
 		<table class='wp-list-table widefat fixed striped users' id='dados_acoes_imperios'>
 		<thead>
 		<tr><th style='width: 200px;'>Nome do Império</th><th style='width: 200px;'>Dt Última Modificação</th><th style='width: 80px;'>Pontuação</th><th style='width: 100%;'>Balanço dos Recursos</th></tr>
@@ -1067,9 +1066,6 @@ class menu_admin {
 		<br>";
 
 		$proximo_turno = $turno->turno + 1;
-		$proxima_semana = new DateTime($turno->data_turno);
-		$proxima_semana->modify('+7 days');
-
 
 		if ($turno->bloqueado) {
 			$diferenca_datas = $data_atual->diff($proxima_semana);
