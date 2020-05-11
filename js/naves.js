@@ -187,9 +187,8 @@ function calcula_custos(evento, objeto) {
 		categoria = "????????";
 	}
 
-	if (qtd_estacao_orbital.value != 0) {
+	if (qtd_estacao_orbital != 0) {
 		categoria = "Estação Orbital";
-	}
 	}
 	
 	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
