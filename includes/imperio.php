@@ -254,13 +254,18 @@ class imperio
 					$mostra_logistica = " ".$this->alcance_logistica."pc";
 				}
 				if ($tech_icone->id_tech_parent != 0) {
-					$ids_tech_parent = explode(";",$tech_icone->id_tech_parent);
-					foreach ($ids_tech_parent as $chave => $id_tech) {
-						if (!empty($icone_html[$id_tech])) {
-							$icone_html[$id_tech] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-						} else {
-							$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-						}
+					$tech_parent = new tech ($tech_icone->id_tech_parent);
+					$icone_colocado = false;
+					do {
+						if (!empty($icone_html[$tech_parent->id])) {
+							$icone_html[$tech_parent->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+							$icone_colocado = true;
+							break;
+						} 
+						$tech_parent = new tech ($tech_parent->id_tech_parent);
+					} while ($tech_parent->id != 0);
+					if (!$icone_colocado) {
+						$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
 					}
 				} else {
 					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";

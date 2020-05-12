@@ -42,12 +42,11 @@ class colonization_ajax {
 	function processa_recebimento_tech() {
 		global $wpdb;
 		
-		//Se aceitou, é para adicionar a Tech na lista de Techs
 		$turno = new turno();
 		$transfere_tech = new transfere_tech($_POST['id']);
 		$tech = new tech($transfere_tech->id_tech);
 
-		if ($_POST['autorizado'] == 1) {
+		if ($_POST['autorizado'] == 1) {//Se aceitou, é para adicionar a Tech na lista de Techs
 			$custo_pago = floor($tech->custo*0.3);
 			$wpdb->query("INSERT INTO colonization_imperio_techs SET id_imperio={$transfere_tech->id_imperio_destino}, custo_pago={$custo_pago}, id_tech={$transfere_tech->id_tech}, turno={$turno->turno}");
 		} else {
@@ -55,6 +54,7 @@ class colonization_ajax {
 			$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$transfere_tech->id_imperio_destino} AND id_tech={$transfere_tech->id_tech}");
 			$bonus = ceil(0.3*$tech->custo);
 			$ressarce = ceil(0.1*$tech->custo);
+			$bonus_parcial = $ressarce;
 		
 			if (!empty($id_tech_imperio)) {
 			$imperio_tech = new imperio_techs($id_tech_imperio);
@@ -64,7 +64,7 @@ class colonization_ajax {
 				}
 			}
 			
-			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$ressarce} WHERE turno={$turno->turno} AND id_imperio={$transfere_tech->id_imperio_destino} AND id_recurso={$id_pesquisa}");
+			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$bonus_parcial} WHERE turno={$turno->turno} AND id_imperio={$transfere_tech->id_imperio_destino} AND id_recurso={$id_pesquisa}");
 		}
 	
 		//Depois de salvar, registra a transferência
