@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.10
+ * Version: 1.1.11
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -339,53 +339,30 @@ class colonization {
 						$nivel = $nivel_anterior;
 					}
 				}
-				
-				$user = wp_get_current_user();
-				if (!empty($user->ID)) {
-					$roles = $user->roles[0];
-				} else {
-					$roles = "";
-				}
-				
-				if ($roles == "administrator" && $tech->id==95) {
-					var_dump($ids_tech_parent);
-					echo "<br><br>";
-					$ids_tech_parent = $ids_tech_parent[1];
-					var_dump($ids_tech_parent);
-					echo "<br><br>";
-				} elseif ($roles == "administrator") {
-					$ids_tech_parent = $ids_tech_parent[1];
-				} else {
-					$ids_tech_parent = $ids_tech_parent[1];
-				}
-				
+
 				$nivel = 1;
 				
-				//while ($ids_tech_parent[$nivel]) {
-					foreach ($ids_tech_parent as $chave => $id_tech_parent) {
-						$tech_parent = new tech($id_tech_parent);
-						
-						if (!empty($html_tech[$tech_parent->id])) {
-							$wrapper_nivel = "<div class='wrapper_nivel'>";
-							if (!empty($nivel_preenchido[$tech_parent->id][$tech->nivel]) && $tech->nivel > 1) {
-								$wrapper_nivel = "";
-								$html_tech[$tech_parent->id] = substr($html_tech[$tech_parent->id],0,-6); //Reabre o DIV do "wrapper_nivel"
-							}
-							$html_tech[$tech_parent->id] .= "
-						{$wrapper_nivel}
-						<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
-							<div class='wrapper_tech'>
-								<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
-								<span class='tooltiptext'>{$tech->descricao}</span>
-								</div>
-							</div>";
-						
-						$nivel_preenchido[$tech_parent->id][$tech->nivel] = true;
+				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
+					$tech_parent = new tech($id_tech_parent);
+					
+					if (!empty($html_tech[$tech_parent->id])) {
+						$wrapper_nivel = "<div class='wrapper_nivel'>";
+						if (!empty($nivel_preenchido[$tech_parent->id][$tech->nivel]) && $tech->nivel > 1) {
+							$wrapper_nivel = "";
+							$html_tech[$tech_parent->id] = substr($html_tech[$tech_parent->id],0,-6); //Reabre o DIV do "wrapper_nivel"
 						}
+						$html_tech[$tech_parent->id] .= "
+					{$wrapper_nivel}
+					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
+						<div class='wrapper_tech'>
+							<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
+							<span class='tooltiptext'>{$tech->descricao}</span>
+							</div>
+						</div>";
+					
+					$nivel_preenchido[$tech_parent->id][$tech->nivel] = true;
 					}
-				//$nivel++;
-				//}
-				
+				}
 			}
 			
 			if ($tech->lista_requisitos != '') {
