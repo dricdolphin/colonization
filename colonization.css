@@ -146,6 +146,13 @@ content: "\f135";
 	margin: auto;
 }
 
+.wrapper_nivel {
+	padding: 2px;
+	display: inline-block;
+	vertical-align: top;
+	margin: auto;
+}
+
 .tech {
 	border: 2px solid #777;
 	border-radius: 3px !important;
@@ -168,6 +175,12 @@ content: "\f135";
 	border: none; 
 	text-align: center;
 	font-size: 10px;
+}
+
+.wrapper_tech_irma {
+	padding: 2px;
+	vertical-align: top;
+	margin: auto;
 }
 
 .barra_recursos_pad {
