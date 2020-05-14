@@ -115,8 +115,8 @@ class transfere_tech
 			$imperio_origem->nome = $this->nome_npc;
 		}
 		$tech = new tech($this->id_tech);
-		$bonus = ceil(0.3*$tech->custo);
-		$ressarce = ceil(0.1*$tech->custo);
+		$bonus = round(0.3*$tech->custo, 0, PHP_ROUND_HALF_UP);
+		$ressarce = round(0.1*$tech->custo, 0, PHP_ROUND_HALF_UP);
 		
 		//Faz a validação da Tech
 		//Verifica se o Império já tem essa Tech

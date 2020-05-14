@@ -298,8 +298,7 @@ class colonization {
 		
 		
 		$html_tech = [];
-		//$nivel_preenchido = [][];
-		//$nivel_preenchido[] = [];
+
 		foreach ($techs AS $id) {
 			$tech = new tech($id->id);
 			if ($id->custo_pago != 0) {
@@ -341,6 +340,7 @@ class colonization {
 				}
 
 				$nivel = 1;
+				$ids_tech_parent = $ids_tech_parent[1];
 				
 				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
 					$tech_parent = new tech($id_tech_parent);

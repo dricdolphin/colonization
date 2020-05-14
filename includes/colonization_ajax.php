@@ -47,13 +47,13 @@ class colonization_ajax {
 		$tech = new tech($transfere_tech->id_tech);
 
 		if ($_POST['autorizado'] == 1) {//Se aceitou, é para adicionar a Tech na lista de Techs
-			$custo_pago = floor($tech->custo*0.3);
+			$custo_pago = round($tech->custo*0.3, 0, PHP_ROUND_HALF_UP);
 			$wpdb->query("INSERT INTO colonization_imperio_techs SET id_imperio={$transfere_tech->id_imperio_destino}, custo_pago={$custo_pago}, id_tech={$transfere_tech->id_tech}, turno={$turno->turno}");
 		} else {
 			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 			$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$transfere_tech->id_imperio_destino} AND id_tech={$transfere_tech->id_tech}");
-			$bonus = ceil(0.3*$tech->custo);
-			$ressarce = ceil(0.1*$tech->custo);
+			$bonus = round(0.3*$tech->custo, 0, PHP_ROUND_HALF_UP);
+			$ressarce = round(0.1*$tech->custo, 0, PHP_ROUND_HALF_UP);
 			$bonus_parcial = $ressarce;
 		
 			if (!empty($id_tech_imperio)) {
@@ -111,13 +111,13 @@ class colonization_ajax {
 			$tech = new tech($_POST['id_tech']);
 			
 			$chave_recurso = array_search($id_recurso, $imperio_recursos->id_recurso);
-			if ($imperio_recursos->qtd[$chave_recurso] < ceil(0.1*$tech->custo)) {
+			if ($imperio_recursos->qtd[$chave_recurso] < round(0.1*$tech->custo, 0, PHP_ROUND_HALF_UP)) {
 				$dados_salvos['resposta_ajax'] = "Você não tem Pesquisas suficientes para realizar a transferência!";
 			}
 		
 			if (empty($dados_salvos['resposta_ajax'])) {
 				//Validou! Pode cobrar a Pesquisa
-				$custo = ceil(0.1*$tech->custo);
+				$custo = round(0.1*$tech->custo, 0, PHP_ROUND_HALF_UP);
 				$turno = new turno();
 				$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-$custo WHERE id_recurso={$id_recurso} AND id_imperio={$_POST['id_imperio_origem']} AND turno={$turno->turno}");
 				$dados_salvos['resposta_ajax'] = "OK!";
@@ -311,19 +311,30 @@ class colonization_ajax {
 	function valida_colonia() {
 		global $wpdb; 
 		$wpdb->hide_errors();
-
-		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
-			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']}";
-		} else {
-			$query = "SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND turno = {$_POST['turno']} AND id != {$_POST['id']}";
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		$id_existe = "";
+		if ($_POST['id'] !== "") {//Se o valor estiver em branco, é um novo objeto.
+			$id_existe = " AND id != {$_POST['id']}";			
 		}
 		
-		$resposta = $wpdb->query($query);
+		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND turno = {$_POST['turno']}{$id_existe}");
 
-		if ($resposta === 0) {
-			$dados_salvos['resposta_ajax'] = "OK!";
-		} else {
+		if (!empty($resposta)) {
 			$dados_salvos['resposta_ajax'] = "Este planeta já é a colônia de outro Império!";
+		}
+
+		if ($_POST['capital'] == 1) {
+			if ($_POST['id_imperio'] == 0) {
+				$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE capital=1 AND nome_npc='{$_POST['nome_npc']}' AND turno={$_POST['turno']}{$id_existe}");
+			} else {
+				$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE capital=1 AND id_imperio={$_POST['id_imperio']} AND turno={$_POST['turno']}{$id_existe}");
+			}
+			
+			if (!empty($resposta)) {
+				$dados_salvos['resposta_ajax'] = "Já existe uma Capital para este Império!";
+			}		
 		}
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -484,6 +495,8 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 			if (!empty($tech_requisito[$_POST['nivel']])) {
 				for ($nivel_tech = 1; $nivel_tech <= $_POST['nivel']; $nivel_tech++) {
 					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$tech_requisito[$nivel_tech]->id_tech_alternativa}) AND custo_pago=0");
+					$dados_salvos['debug'] = "
+SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$tech_requisito[$nivel_tech]->id_tech_alternativa}) AND custo_pago=0";
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'.";
 						break;
@@ -508,7 +521,10 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 					$id_tech_requisito = $valor_tech_requisito[1];
 					$tech_requisito = new tech ($id_tech_requisito);
 					
-					$id_tech_imperio = $wpdb->get_var("SELECT FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
+					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
+					$dados_salvos['debug'] .= "
+SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0
+";
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'.";
 					}

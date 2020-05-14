@@ -17,7 +17,7 @@ class tech
 	public $id_tech_parent;
 	public $lista_requisitos;
 	public $id_tech_requisito = [];
-	public $id_tech_alternativa = 0;
+	public $id_tech_alternativa;
 	public $belica;
 	public $publica;
 	public $especiais;
@@ -58,7 +58,7 @@ class tech
 			return strpos($value, 'tech_alternativa') !== false;
 		}));
 		
-		$id_tech_alternativa = 0;
+		$this->id_tech_alternativa = 0;
 		if (!empty($tech_alternativa)) {
 			$tech_alternativa_valor = explode("=",$tech_alternativa[0]);
 			$this->id_tech_alternativa = $tech_alternativa_valor[1];

@@ -253,12 +253,19 @@ function valida_colonia(objeto) {
 	
 	//Verifica se o nome do Império está preenchido
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" ) {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" || inputs_linha[index].getAttribute('data-atributo') == "id_imperio" || inputs_linha[index].getAttribute('data-atributo') == "nome_npc") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+		}
+		if (inputs_linha[index].type == 'checkbox') {
+			if (inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&capital=1";
+			} else {
+				dados_ajax = dados_ajax +"&capital=0";
+			}			
 		}
 	}
 
-	//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
+ 	//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
