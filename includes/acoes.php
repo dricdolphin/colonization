@@ -184,7 +184,7 @@ class acoes
 		
 		$estilo = $estilo_impar;
 		foreach ($this->id AS $chave => $valor) {
-			$planeta = new planeta($this->id_planeta[$chave]);
+			$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
 			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
 			$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);

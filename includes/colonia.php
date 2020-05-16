@@ -46,7 +46,7 @@ class colonia
 		WHERE cpi.id_planeta={$this->id_planeta}
 		AND cpi.turno <={$this->turno->turno}");
 		
-		$this->planeta = new planeta($this->id_planeta);
+		$this->planeta = new planeta($this->id_planeta, $this->turno->turno);
 		$this->estrela = new estrela($this->planeta->id_estrela);
 
 		$this->icone_capital = "";

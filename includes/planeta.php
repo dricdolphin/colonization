@@ -93,6 +93,7 @@ class planeta
 				$this->slots_extra = $this->max_slots;
 			}
 		}
+		
 		$this->tamanho = $this->tamanho + $this->slots_extra;
 		
 		if ($this->inospito == 1) {
