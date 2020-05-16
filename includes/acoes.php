@@ -468,18 +468,27 @@ class acoes
 		}
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
-		//Adiciona o consumo de alimentos para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
+		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id);
-			$recurso = new recurso($id_alimento);
+			$recurso_alimento = new recurso($id_alimento);
+			$recurso_energia = new recurso($id_energia);
 
 			if (empty($this->recursos_consumidos[$id_alimento])) {
 				$this->recursos_consumidos[$id_alimento] = 0;
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
-				$this->recursos_consumidos_nome[$id_alimento] = $recurso->nome;
-				$this->recursos_balanco_nome[$id_alimento] = $recurso->nome;
+				$this->recursos_consumidos_nome[$id_alimento] = $recurso_alimento->nome;
+				$this->recursos_balanco_nome[$id_alimento] = $recurso_alimento->nome;
 			}
+			
+			if (empty($this->recursos_consumidos[$id_energia])) {
+				$this->recursos_consumidos[$id_energia] = 0;
+				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
+				$this->recursos_consumidos_nome[$id_energia] = $recurso_energia->nome;
+				$this->recursos_balanco_nome[$id_energia] = $recurso_energia->nome;
+			}			
 			
 			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia->pop;
@@ -488,6 +497,14 @@ class acoes
 			}
 			
 			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop;
+
+			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
+				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia->pop_robotica;
+			} else {
+				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] + $colonia->pop_robotica;
+			}
+			
+			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $colonia->pop_robotica;
 			
 			foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta])) {

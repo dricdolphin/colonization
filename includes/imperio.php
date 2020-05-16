@@ -452,10 +452,10 @@ class imperio
 			
 			if (empty($mdo_sistema[$planeta_id_estrela[$planeta->id]])) {
 				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo;
-				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $colonia->pop;
+				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $colonia->pop + $colonia->pop_robotica;
 			} else {
 				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo_sistema[$planeta_id_estrela[$planeta->id]] + $mdo;
-				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_sistema[$planeta_id_estrela[$planeta->id]] + $colonia->pop;
+				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_sistema[$planeta_id_estrela[$planeta->id]] + $colonia->pop + $colonia->pop_robotica;
 			}
 			
 			if ($colonia->poluicao < 25) {
@@ -479,7 +479,13 @@ class imperio
 				}
 				
 				$planeta_id_estrela[$planeta->id] = $estrela->id;
-				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia->pop} - Poluição: {$poluicao}; ";
+				$pop_colonia = $colonia->pop + $colonia->pop_robotica;
+				$html_pop_colonia = "{$pop_colonia}";
+				if ($colonia->pop_robotica > 0) {
+					$html_pop_colonia .= "(<div class='fas fa-users-cog tooltip'>&nbsp;<span class='tooltiptext'>População Robótica</span></div>{$colonia->pop_robotica})";
+				}
+				
+				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {

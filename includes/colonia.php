@@ -16,6 +16,7 @@ class colonia
 	public $capital;
 	public $icone_capital;
 	public $pop;
+	public $pop_robotica;
 	public $mdo;
 	public $poluicao;
 	public $turno;
@@ -30,7 +31,7 @@ class colonia
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, pop, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, pop, pop_robotica, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
@@ -38,6 +39,7 @@ class colonia
 		$this->id_planeta = $resultado->id_planeta;
 		$this->capital = $resultado->capital;
 		$this->pop = $resultado->pop;
+		$this->pop_robotica = $resultado->pop_robotica;
 		$this->poluicao = $resultado->poluicao;
 		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
 		FROM colonization_planeta_instalacoes AS cpi
@@ -103,6 +105,7 @@ class colonia
 			<td><div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='{$this->id_planeta}' data-valor-original='{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}'>{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}</div></td>
 			<td><div data-atributo='capital' data-type='checkbox' data-editavel='true' data-valor-original='{$this->capital}'><input type='checkbox' data-atributo='capital' data-ajax='true' {$capital_checked} disabled></input></div></td>			
 			<td><div data-atributo='pop' data-editavel='true' data-valor-original='{$this->pop}' data-style='width: 60px;'>{$this->pop}</div></td>
+			<td><div data-atributo='pop_robotica' data-editavel='true' data-valor-original='{$this->pop_robotica}' data-style='width: 60px;'>{$this->pop_robotica}</div></td>
 			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno->turno}' data-style='width: 30px;'>{$this->turno->turno}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";

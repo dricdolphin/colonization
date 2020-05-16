@@ -168,6 +168,7 @@ class instala_db {
 		id_planeta INT(6) NOT NULL,
 		capital BOOLEAN DEFAULT FALSE,
 		pop INT(6) NOT NULL,
+		pop_robotica INT(6) DEFAULT 0,
 		poluicao INT(6) NOT NULL,
 		turno INT(6) NOT NULL
 		)");
