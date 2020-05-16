@@ -96,9 +96,9 @@ class planeta
 		$this->tamanho = $this->tamanho + $this->slots_extra;
 		
 		if ($this->inospito == 1) {
-			$this->icone_habitavel = "<div class='fas fa-igloo tooltip'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
+			$this->icone_habitavel = "<div class='fas fa-globe tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
 		} else {
-			$this->icone_habitavel = "<div class='fas fa-tree tooltip'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
+			$this->icone_habitavel = "<div class='fas fa-globe-americas tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
 		}
 	}
 

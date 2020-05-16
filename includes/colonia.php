@@ -14,6 +14,7 @@ class colonia
 	public $nome_npc;
 	public $id_planeta;
 	public $capital;
+	public $icone_capital;
 	public $pop;
 	public $mdo;
 	public $poluicao;
@@ -46,6 +47,11 @@ class colonia
 		
 		$this->planeta = new planeta($this->id_planeta);
 		$this->estrela = new estrela($this->planeta->id_estrela);
+
+		$this->icone_capital = "";
+		if ($this->capital == 1) {
+			$this->icone_capital = "<div class='fas fa-crown tooltip' style='color: #DAA520;'>&nbsp;<span class='tooltiptext'>Capital</span></div>";
+		}
 
 		//Atualiza os recursos da Colônia para o Turno atual, se necessário
 		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 

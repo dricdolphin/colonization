@@ -425,7 +425,7 @@ class imperio
 		ON ce.id=cp.id_estrela
 		WHERE cic.id_imperio = {$this->id}
 		AND cic.turno = {$this->turno->turno}
-		ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
 		");
 		
 		$html_lista = "<b>Lista de Colônias</b><br>";
@@ -443,8 +443,8 @@ class imperio
 		$mdo = 0;
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia ($resultado->id_colonia);
-			$planeta = new planeta ($colonia->id_planeta);
-			$estrela = new estrela($planeta->id_estrela);
+			$planeta = $colonia->planeta;
+			$estrela = $colonia->estrela;
 
 			$mdo = $acoes->mdo_planeta($planeta->id);
 			
@@ -479,14 +479,14 @@ class imperio
 				}
 				
 				$planeta_id_estrela[$planeta->id] = $estrela->id;
-				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia->pop} - Poluição: {$poluicao}; ";
+				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia->pop} - Poluição: {$poluicao}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
 				$estrela = new estrela($planeta_id_estrela[$id_planeta]);
 				
-				$html_sistema[$planeta_id_estrela[$id_planeta]] = "Colônias em <span style='font-weight: 600; color: #4F4F4F;'>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}<br>";
+				$html_sistema[$planeta_id_estrela[$id_planeta]] = "<span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}<br>";
 			}
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
 		}
