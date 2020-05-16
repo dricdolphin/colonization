@@ -187,7 +187,7 @@ class acoes
 			$planeta = new planeta($this->id_planeta[$chave]);
 			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
-			$colonia = new colonia($this->id_colonia[$chave]);
+			$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 			
 			if ($ultimo_planeta != $planeta->id) {
