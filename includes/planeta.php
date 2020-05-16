@@ -2,11 +2,11 @@
 /**************************
 PLANETA.PHP
 ----------------
-Cria o objeto "planeta" e mostra os dados do ImpÈrio
+Cria o objeto "planeta" e mostra os dados do Imp√©rio
 ***************************/
 
 //Classe "planeta"
-//ContÈm os dados do planeta
+//Cont√©m os dados do planeta
 class planeta 
 {
 	public $id;
@@ -18,10 +18,11 @@ class planeta
 	public $tamanho;
 	public $estrela;
 	public $inospito;
+	public $icone_habitavel;
 	public $instalacoes;
 	public $turno;
 	
-	//Especiais provenientes de ConstruÁıes e/ou Techs
+	//Especiais provenientes de Constru√ß√µes e/ou Techs
 	public $slots_extra = 0;
 	public $max_slots = 0;
 	
@@ -50,7 +51,7 @@ class planeta
 	
 		$this->estrela = new estrela($this->id_estrela);
 		
-		//Verifica se tem InstalaÁıes que ampliam o tamanho do planeta
+		//Verifica se tem Instala√ß√µes que ampliam o tamanho do planeta
 		$id_instalacoes = $wpdb->get_results("
 		SELECT ci.id
 		FROM colonization_planeta_instalacoes AS cpi
@@ -64,7 +65,7 @@ class planeta
 			$especiais = explode(";",$instalacao->especiais);
 			
 			//Especiais: slots_extra=qtd
-			//Tem tambÈm o max_slots=max, que define o m·ximo de slots
+			//Tem tamb√©m o max_slots=max, que define o m√°ximo de slots
 
 			$slots_extra = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'slots_extra') !== false;
@@ -93,13 +94,19 @@ class planeta
 			}
 		}
 		$this->tamanho = $this->tamanho + $this->slots_extra;
+		
+		if ($this->inospito == 1) {
+			$this->icone_habitavel = "<div class='fas fa-igloo tooltip'>&nbsp;<span class='tooltiptext'>In√≥spito</span></div>";
+		} else {
+			$this->icone_habitavel = "<div class='fas fa-tree tooltip'>&nbsp;<span class='tooltiptext'>Habit√°vel</span></div>";
+		}
 	}
 
 	/***********************
 	function lista_dados()
 	----------------------
 	Exibe os dados do objeto
-	$id_estrela -- caso tenha vindo da p·gina de ediÁ„o de Estrelas
+	$id_estrela -- caso tenha vindo da p√°gina de edi√ß√£o de Estrelas
 	***********************/
 	function lista_dados($id_estrela = 0) {
 		global $wpdb;
@@ -121,7 +128,7 @@ class planeta
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>
-				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligaÁıes (recursos, instalaÁıes etc)?'></input>
+				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas liga√ß√µes (recursos, instala√ß√µes etc)?'></input>
 				<div data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'>{$this->id}</div>
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>

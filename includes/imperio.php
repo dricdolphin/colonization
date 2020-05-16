@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**************************
 IMPERIO.PHP
 ----------------
@@ -367,7 +367,8 @@ class imperio
 			$colonia = new colonia($id->id);
 			$planeta = new planeta($colonia->id_planeta);
 			$estrela = new estrela($planeta->id_estrela);
-			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$planeta->nome} ({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
+			
+			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$planeta->nome}&nbsp;{$planeta->icone_habitavel} ({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
 		}
 		
 		$html .= "</tbody>
@@ -416,7 +417,7 @@ class imperio
 		global $wpdb;
 		
 		$resultados = $wpdb->get_results("
-		SELECT cp.nome, cic.pop, cic.poluicao, cic.id_imperio, cic.id_planeta, cp.id_estrela
+		SELECT cic.id AS id_colonia
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
 		ON cp.id=cic.id_planeta
@@ -434,33 +435,39 @@ class imperio
 		$mdo_sistema = [];
 		$pop_sistema = [];
 
-		if ($resultados[0]->id_imperio != "") {
-			$imperio = new imperio($resultados[0]->id_imperio, false, $this->turno->turno);
+		if (!empty($resultados)) {
+			$imperio = new imperio($this->id, false, $this->turno->turno);
 			$acoes = new acoes($imperio->id, $this->turno->turno);
 		}
 		
 		$mdo = 0;
 		foreach ($resultados as $resultado) {
-			$mdo = $acoes->mdo_planeta($resultado->id_planeta);
-			$planeta_id_estrela[$resultado->id_planeta] = $resultado->id_estrela;
-			if (empty($mdo_sistema[$planeta_id_estrela[$resultado->id_planeta]])) {
-				$mdo_sistema[$planeta_id_estrela[$resultado->id_planeta]] = $mdo;
-				$pop_sistema[$planeta_id_estrela[$resultado->id_planeta]] = $resultado->pop;
+			$colonia = new colonia ($resultado->id_colonia);
+			$planeta = new planeta ($colonia->id_planeta);
+			$estrela = new estrela($planeta->id_estrela);
+
+			$mdo = $acoes->mdo_planeta($planeta->id);
+			
+			$planeta_id_estrela[$planeta->id] = $estrela->id;
+			
+			if (empty($mdo_sistema[$planeta_id_estrela[$planeta->id]])) {
+				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo;
+				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $colonia->pop;
 			} else {
-				$mdo_sistema[$planeta_id_estrela[$resultado->id_planeta]] = $mdo_sistema[$planeta_id_estrela[$resultado->id_planeta]] + $mdo;
-				$pop_sistema[$planeta_id_estrela[$resultado->id_planeta]] = $pop_sistema[$planeta_id_estrela[$resultado->id_planeta]] + $resultado->pop;
+				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo_sistema[$planeta_id_estrela[$planeta->id]] + $mdo;
+				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_sistema[$planeta_id_estrela[$planeta->id]] + $colonia->pop;
 			}
 			
-			if ($resultado->poluicao < 25) {
-				$poluicao = "<span style='color: #007426;'>{$resultado->poluicao}</span>";
-			} elseif ($resultado->poluicao < 50) {
-				$poluicao = "<span style='color: #ffce00;'>{$resultado->poluicao}</span>";
-			} elseif ($resultado->poluicao < 75) {				
-				$poluicao = "<span style='color: #f1711d;'>{$resultado->poluicao}</span>";
+			if ($colonia->poluicao < 25) {
+				$poluicao = "<span style='color: #007426;'>{$colonia->poluicao}</span>";
+			} elseif ($colonia->poluicao < 50) {
+				$poluicao = "<span style='color: #ffce00;'>{$colonia->poluicao}</span>";
+			} elseif ($colonia->poluicao < 75) {				
+				$poluicao = "<span style='color: #f1711d;'>{$colonia->poluicao}</span>";
 			} else {
-				$poluicao = "<span style='color: #ee1509;'>{$resultado->poluicao}</span>";
+				$poluicao = "<span style='color: #ee1509;'>{$colonia->poluicao}</span>";
 			}
-				$id_instalacoes = $wpdb->get_results("SELECT id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta = {$resultado->id_planeta} AND turno <= {$this->turno->turno}");
+				$id_instalacoes = $wpdb->get_results("SELECT id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta = {$planeta->id} AND turno <= {$this->turno->turno}");
 				
 				$icones_planeta = "";
 				foreach ($id_instalacoes as $id_instalacao) {
@@ -471,13 +478,14 @@ class imperio
 					}
 				}
 				
-				$planeta_id_estrela[$resultado->id_planeta] = $resultado->id_estrela;
-				$html_planeta[$resultado->id_planeta] = "<span style='font-style: italic;'>{$resultado->nome}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$resultado->pop} - Poluição: {$poluicao}; ";
+				$planeta_id_estrela[$planeta->id] = $estrela->id;
+				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia->pop} - Poluição: {$poluicao}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
 				$estrela = new estrela($planeta_id_estrela[$id_planeta]);
+				
 				$html_sistema[$planeta_id_estrela[$id_planeta]] = "Colônias em <span style='font-weight: 600; color: #4F4F4F;'>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}<br>";
 			}
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
