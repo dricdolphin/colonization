@@ -979,7 +979,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			$dados_salvos['resposta_ajax'] = "É necessário ser um Administrador para poder executar essa ação!";
 		} else {
 			$turno = new turno($_POST['turno']);
-			$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1, data_turno='{$turno->data_turno}' WHERE turno={$turno->turno}");
+			$wpdb->query("UPDATE colonization_turno_atual SET encerrado=1, data_turno='{$turno->data_turno}' WHERE id={$turno->turno}");
 			$wpdb->query("UPDATE wp_forum_topics SET closed = 1 WHERE name LIKE 'Turno {$turno->turno}%'");
 		}
 		

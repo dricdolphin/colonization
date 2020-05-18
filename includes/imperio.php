@@ -157,7 +157,7 @@ class imperio
 			
 			if (!empty($bonus_logistica)) {
 				$bonus_logistica_valor = explode("=",$bonus_logistica[0]);
-				$this->alcance_logistica = $this->logistica + $bonus_logistica_valor[1];
+				$this->alcance_logistica = $this->alcance_logistica + $bonus_logistica_valor[1];
 			}
 
 			//Especiais -- bonus_pesquisa_naves
