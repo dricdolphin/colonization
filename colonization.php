@@ -340,7 +340,10 @@ class colonization {
 				}
 
 				$nivel = 1;
-				$ids_tech_parent = $ids_tech_parent[1];
+				if (empty($ids_tech_parent[1])) {
+					echo "id_tech:".$tech->id."<br>";
+				}
+					$ids_tech_parent = $ids_tech_parent[1];
 				
 				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
 					$tech_parent = new tech($id_tech_parent);
@@ -864,7 +867,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		<div id='recursos_atuais_imperio_{$imperio->id}' >{$recursos_atuais}</div><br>
 		<div id='recursos_produzidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_produzidos}</div>
 		<div id='recursos_consumidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_consumidos}</div>
-		<div id='recursos_balanco_imperio_{$imperio->id}'><b>Balanço dos Recursos:</b> {$balanco_recursos}</div><br>
+		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>

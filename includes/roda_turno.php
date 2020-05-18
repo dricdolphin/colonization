@@ -176,9 +176,9 @@ class roda_turno {
 								
 								if ($colonia->pop <= $limite_pop_planeta) {//Tem espaço para crescer
 									if ($colonia->pop <=24) {
-										$nova_pop = $colonia->pop + 5;
+										$nova_pop = $colonia->pop + 5*$imperio->crescimento_pop;
 									} else {
-										$nova_pop = $colonia->pop + 10;
+										$nova_pop = $colonia->pop + 10*$imperio->crescimento_pop;
 									}
 									if ($nova_pop > $limite_pop_planeta) {
 										$nova_pop = $limite_pop_planeta;

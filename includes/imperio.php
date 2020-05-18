@@ -27,6 +27,7 @@ class imperio
 	public $extrativo = [];
 	public $max_bonus_recurso = [];
 	public $bonus_pesquisa_naves = 0;
+	public $crescimento_pop = 1;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -106,6 +107,7 @@ class imperio
 		//***********************************
 		//No momento existem as seguintes funções especiais para Techs:
 		//max_pop=porcentagem -- tech que aumenta o máximo de pop de uma colônia
+		//crescimento_pop=velocidade -- tech que aumenta a velocidade de crescimento da Pop
 		//logistica=alcance -- tech que permite criar Instalações e Colônias à uma determinada distância
 		//bonus_logistica=bonus -- bônus de alcance
 		//
@@ -137,6 +139,16 @@ class imperio
 				$max_pop_valor = explode("=",$max_pop[0]);
 				$this->max_pop = $this->max_pop	+ $max_pop_valor[1];
 			}
+			
+			//Especiais -- crescimento_pop
+			$crescimento_pop = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'crescimento_pop') !== false;
+			}));
+			
+			if (!empty($crescimento_pop)) {
+				$crescimento_pop_valor = explode("=",$crescimento_pop[0]);
+				$this->crescimento_pop = $this->crescimento_pop	+ $crescimento_pop_valor[1];
+			}			
 			
 			//Especiais -- logistica
 			$logistica = array_values(array_filter($especiais, function($value) {
