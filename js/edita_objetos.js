@@ -683,9 +683,11 @@ function salva_acao(evento, objeto, cancela = false) {
 						var id_imperio = inputs[index].value;
 					} else if(inputs[index].getAttribute('data-atributo') == "id_planeta") {
 						var id_planeta = inputs[index].value;
+					} else  if(inputs[index].getAttribute('data-atributo') == "id_estrela") {
+						var id_estrela = inputs[index].value;
 					}
 				}
-				atualiza_produtos_acao(id_imperio, id_planeta);
+				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -707,8 +709,8 @@ function atualiza_produtos_acao(id_imperio)
 Pega os produtos da Ação
 id_imperio -- id do Império
 ******************/	
-function atualiza_produtos_acao(id_imperio,id_planeta) {
-	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta;
+function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela) {
+	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
 	
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
@@ -721,18 +723,27 @@ function atualiza_produtos_acao(id_imperio,id_planeta) {
 				id_consome = "recursos_consumidos_imperio_"+id_imperio;
 				id_balanco = "recursos_balanco_imperio_"+id_imperio;
 				id_balanco_planeta = "balanco_planeta_"+id_planeta;
+				id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
+				name_mdo_sistema = "mdo_sistema_"+id_estrela;
 				
 				div_colonias = document.getElementById(id_colonias);
 				div_produz = document.getElementById(id_produz);
 				div_consome = document.getElementById(id_consome);
 				div_balanco = document.getElementById(id_balanco);
 				div_balanco_planeta = document.getElementById(id_balanco_planeta);
+				div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
+				div_mdo_sistema = document.getElementsByName(name_mdo_sistema);
 				
 				div_colonias.innerHTML = resposta.lista_colonias
 				div_produz.innerHTML = resposta.recursos_produzidos;
 				div_consome.innerHTML = resposta.recursos_consumidos;
 				div_balanco.innerHTML = resposta.recursos_balanco;
-				div_balanco_planeta.innerHTML = "<b>Balanço dos Recursos:</b> "+resposta.balanco_planeta;
+				div_balanco_planeta.innerHTML = resposta.balanco_planeta;
+				div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
+				
+				for (let index=0; index < div_mdo_sistema.length; index++) {
+					div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
+				}
 			} else {
 				alert(resposta.resposta_ajax);
 			}

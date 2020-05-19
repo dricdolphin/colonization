@@ -421,6 +421,62 @@ class imperio
 	}
 	
 	/***********************
+	function mdo_sistema()
+	----------------------
+	Exibe o MdO de um Sistema Estelar que o Império controla
+	***********************/	
+	function pop_mdo_sistema ($id_estrela) {
+		global $wpdb;
+		
+		$resultados = $wpdb->get_results("
+		SELECT cic.id AS id_colonia
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id=cic.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cic.id_imperio = {$this->id}
+		AND cic.turno = {$this->turno->turno}
+		AND cp.id_estrela={$id_estrela}
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		");
+
+		if (!empty($resultados)) {
+			$imperio = new imperio($this->id, false, $this->turno->turno);
+			$acoes = new acoes($imperio->id, $this->turno->turno);
+		} else {
+			$resposta = [];
+			$resposta['pop'] = 0;
+			$resposta['mdo'] = 0;
+
+			return $resposta;
+		}
+
+		foreach ($resultados as $resultado) {
+			$colonia = new colonia ($resultado->id_colonia);
+			$planeta = $colonia->planeta;
+			$estrela = $colonia->estrela;
+
+			$mdo = $acoes->mdo_planeta($planeta->id);
+			
+			if (empty($mdo_sistema)) {
+				$mdo_sistema = $mdo;
+				$pop_sistema = $colonia->pop + $colonia->pop_robotica;
+			} else {
+				$mdo_sistema = $mdo_sistema + $mdo;
+				$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
+			}
+		}
+
+		$resposta = [];
+		$resposta['pop'] = $pop_sistema;
+		$resposta['mdo'] = $mdo_sistema;
+		
+		return $resposta;
+	}
+
+	
+	/***********************
 	function exibe_lista_colonias()
 	----------------------
 	Exibe as Colônias atuais Império
@@ -457,18 +513,12 @@ class imperio
 			$colonia = new colonia ($resultado->id_colonia);
 			$planeta = $colonia->planeta;
 			$estrela = $colonia->estrela;
-
-			$mdo = $acoes->mdo_planeta($planeta->id);
-			
 			$planeta_id_estrela[$planeta->id] = $estrela->id;
 			
-			if (empty($mdo_sistema[$planeta_id_estrela[$planeta->id]])) {
-				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo;
-				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $colonia->pop + $colonia->pop_robotica;
-			} else {
-				$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $mdo_sistema[$planeta_id_estrela[$planeta->id]] + $mdo;
-				$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_sistema[$planeta_id_estrela[$planeta->id]] + $colonia->pop + $colonia->pop_robotica;
-			}
+			$pop_mdo_sistema = $this->pop_mdo_sistema($estrela->id);
+			
+			$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['mdo'];
+			$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['pop'];
 			
 			if ($colonia->poluicao < 25) {
 				$poluicao = "<span style='color: #007426;'>{$colonia->poluicao}</span>";
@@ -497,6 +547,7 @@ class imperio
 					$html_pop_colonia .= "(<div class='fas fa-users-cog tooltip'>&nbsp;<span class='tooltiptext'>População Robótica</span></div>{$colonia->pop_robotica})";
 				}
 				
+				$mdo = $acoes->mdo_planeta($planeta->id);
 				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao}; ";
 		}
 		

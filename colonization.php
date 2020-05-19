@@ -860,7 +860,6 @@ var id_imperio_atual = {$imperios[0]->id};
 			$html_frota .= "<b>{$nave->nome}</b> ({$nave->X};{$nave->Y};{$nave->Z}); ";
 		}
 		
-		//TODO -- Pega a data da última ação
 		$html_lista	= "
 		<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno}</h4></div>
 		<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div><br>
@@ -872,7 +871,13 @@ var id_imperio_atual = {$imperios[0]->id};
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr style='background-color: #E5E5E5; font-weight: 700;'><td style='width: 40%;'>Colônia (X;Y;Z;P) | Slots</td><td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<tr style='background-color: #E5E5E5; font-weight: 700;'><td style='width: 40%;'>Slots | Colônia (X;Y;Z;P) | 
+		(<div class='fas fa-user-circle	tooltip'><span class='tooltiptext'>MdO Disponível Sistema</span></div>)
+		<div class='fas fa-user-clock tooltip'><span class='tooltiptext'>MdO</span></div>
+		/<div class='fas fa-user tooltip'><span class='tooltiptext'>Pop</span></div>
+		</td>
+		
+		<td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		

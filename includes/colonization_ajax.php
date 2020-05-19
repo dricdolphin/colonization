@@ -767,6 +767,11 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
 		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
 		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
+		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
+
+		$pop_sistema = $imperio->pop_mdo_sistema($_POST['id_estrela']);
+		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
+		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		

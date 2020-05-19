@@ -11,6 +11,7 @@ as ações de um determinado turno de um jogador.
 class acoes 
 {
 	public $id = [];
+	public $imperio;
 	public $id_imperio;
 	public $id_planeta = [];
 	public $id_colonia = [];
@@ -47,8 +48,8 @@ class acoes
 			$this->disabled = 'disabled';
 		}
 					
-		$imperio = new imperio($id_imperio, false, $this->turno->turno);
-		$this->id_imperio = $imperio->id;
+		$this->imperio = new imperio($id_imperio, false, $this->turno->turno);
+		$this->id_imperio = $this->imperio->id;
 
 		$resultados =$wpdb->get_results("
 			SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
@@ -157,6 +158,29 @@ class acoes
 		return $mdo;
 	}
 
+
+	/***********************
+	function exibe_pop_mdo_planeta()
+	----------------------
+	Exibe a os dados de Pop e MdO de um planeta
+	----
+	$id_planeta = planeta escolhido
+	***********************/	
+	function exibe_pop_mdo_planeta($id_planeta) {
+		global $wpdb;
+		
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$id_planeta} AND id_imperio={$this->imperio->id} AND turno={$this->turno->turno}");
+		
+		$planeta = new planeta($id_planeta, $this->turno->turno);
+		$colonia = new colonia($id_colonia, $this->turno->turno);
+		
+		$mdo_planeta = $this->mdo_planeta($planeta->id);
+		$pop_sistema = $this->imperio->pop_mdo_sistema($planeta->id_estrela);
+		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
+		
+		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta }/{$colonia->pop}";
+	}
+
 	/***********************
 	function lista_dados()
 	----------------------
@@ -196,8 +220,11 @@ class acoes
 				
 				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
 				
+				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
+				
 				$primeira_linha = "<td rowspan='{$colonia->instalacoes}'>
-				<div data-atributo='nome_planeta'>{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | {$colonia->instalacoes}/{$planeta->tamanho}</div>
+				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
+				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
 				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
 				</td>";
 				if ($estilo == $estilo_par) {
@@ -258,6 +285,7 @@ class acoes
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 					<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta[$chave]}' value='{$this->id_planeta[$chave]}'></input>
+					<input type='hidden' data-atributo='id_estrela' data-valor-original='{$estrela->id}' value='{$estrela->id}'></input>
 					<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='{$this->id_instalacao[$chave]}' value='{$this->id_instalacao[$chave]}'></input>
 					<input type='hidden' data-atributo='id_planeta_instalacoes' data-ajax='true' data-valor-original='{$this->id_planeta_instalacoes[$chave]}' value='{$this->id_planeta_instalacoes[$chave]}'></input>
 					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
@@ -595,7 +623,7 @@ class acoes
 
 	function exibe_balanco_planeta($id_planeta) {
 		$balanco_temp = [];
-		$balanco_planeta = "";
+		$balanco_planeta = "<b>Balanço dos Recursos:</b> ";
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 			if (!empty($this->recursos_balanco_planeta[$id_recurso][$id_planeta])) {
 				$balanco_temp[$id_recurso] = $this->recursos_balanco_planeta[$id_recurso][$id_planeta];
