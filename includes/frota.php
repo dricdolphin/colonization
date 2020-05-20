@@ -16,6 +16,7 @@ class frota
 	public $X;
 	public $Y;
 	public $Z;
+	public $estrela;
 	public $string_nave;
 	public $tamanho;
 	public $velocidade;
@@ -34,6 +35,7 @@ class frota
 	public $HP_max;
 	public $qtd;
 	public $turno;
+	public $id_estrela_destino;
 	
 	function __construct($id=0) {
 		global $wpdb;
@@ -49,7 +51,7 @@ class frota
 		PDF_laser, PDF_projetil, PDF_torpedo,
 		blindagem, escudos, 
 		PDF_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
-		especiais, turno
+		especiais, turno, id_estrela_destino
 		FROM colonization_imperio_frota 
 		WHERE id={$this->id}");
 		
@@ -61,6 +63,10 @@ class frota
 		$this->X = $resultado->X;
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
+		
+		$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$this->X} AND Y={$this->Y} AND Z={$this->Z}");
+		$this->estrela = new estrela($id_estrela);
+		
 		$this->string_nave = $resultado->string_nave;
 		$this->tamanho = $resultado->tamanho;
 		$this->velocidade = $resultado->velocidade;
@@ -77,9 +83,27 @@ class frota
 		$this->especiais = $resultado->especiais;
 		$this->HP = $resultado->HP;
 		$this->HP_max = $this->tamanho*10;
-		$this->turno = $resultado->turno;		
+		$this->turno = $resultado->turno;
+		$this->id_estrela_destino = $resultado->id_estrela_destino;
 	}
 	
+	/***********************
+	function exibe_autoriza()
+	----------------------
+	Exibe a autorização para mover uma nave
+	***********************/
+	function exibe_autoriza() {
+		global $wpdb;
+	
+		$imperio = new imperio($this->id_imperio);
+		$estrela = new estrela($this->id_estrela_destino);
+		
+		$html = "<div>O {$imperio->nome} deseja enviar a nave '{$this->nome}' para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</div>
+		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
+
+		return $html;
+	}
+
 
 	/***********************
 	function lista_dados()
@@ -142,45 +166,138 @@ class frota
 		global $wpdb;
 		
 		//1 Estação Orbital "Orbit One" (1;8;9) - Tamanho 100; Velocidade 1; Alcance 0; PdF Laser 10/Torpedo 10; Blindagem 10; HP 1000; Especiais: (1) - Produz até 50 Equipamentos de Naves por turno
-		$html = "<b>{$this->qtd} {$this->tipo} \"{$this->nome}\" ({$this->X};{$this->Y};{$this->Z})</b> - Tamanho: {$this->tamanho}; Velocidade: {$this->velocidade}; Alcance: {$this->alcance};";
+		$html = "<td>
+		<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
+		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+		<input type='hidden' data-atributo='where_clause' value='id'></input>
+		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
+		<b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b>
+		</td>
+		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>
+		<td>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
 		
 		$html_armas = "";
 		if ($this->PDF_laser >0) {
-			$html_armas .= " PdF Laser: {$this->PDF_laser}/";
+			$html_armas .= " PdF Laser: {$this->PDF_laser};";
 		}
 
 		if ($this->PDF_torpedo >0) {
-			$html_armas .= " PdF Torpedo: {$this->PDF_torpedo}/";
+			$html_armas .= " PdF Torpedo: {$this->PDF_torpedo};";
 		}
 
 		if ($this->PDF_projetil >0) {
-			$html_armas .= " PdF Projétil: {$this->PDF_projetil}/";
-		}
-		
-		if ($html_armas != "") {
-			$html_armas = substr($html_armas,0,-1);
-			$html_armas .= ";";
-		}
-		$html .= $html_armas;
-		
-		if ($this->blindagem >0) {
-			$html .= " Blindagem: {$this->blindagem};";
+			$html_armas .= " PdF Projétil: {$this->PDF_projetil};";
 		}
 
-		if ($this->escudos >0) {
-			$html .= " Escudos: {$this->escudos};";
-		}		
+		$html .= $html_armas;
+		
+		$html .= " Blindagem: {$this->blindagem}; Escudos: {$this->escudos};";
 
 		$html .= " HP: {$this->HP}/{$this->HP_max};";
 		
-		if ($this->especiais == "") {
-			$html = substr($html,0,-1);
+
+		if ($this->especiais != "") {
+		$html .= " Especiais: {$this->especiais};";
+		} 
+		$html .= "</td>";
+		
+		if ($this->alcance == 0) {
+			$html .= "<td>&nbsp;</td>";
 		} else {
-			$html .= " Especiais: {$this->especiais}";
+			//TODO - Mostrar quais estrelas a Nave pode ir
+			if ($this->id_estrela_destino == 0) {
+				$html .= $this->exibe_estrelas_destino();
+			} else {
+				$html .= $this->exibe_estrelas_destino('disabled');
+			}
 		}
 
 		return $html;
 	}		
+
+
+	/***********************
+	function exibe_frota()
+	----------------------
+	Exibe uma Nave
+	***********************/	
+	function exibe_estrelas_destino($disabled='') {
+		global $wpdb;
+		
+		$turno = new turno();
+		
+		$display = '';
+		if ($disabled == 'disabled') {
+			$display = " style='display: none;'";
+		}
+		
+		$ids_estrelas_imperio = [];
+		$id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} and turno={$turno->turno}");
+		foreach ($id_colonias as $id) {
+			$colonia = new colonia($id->id);
+			$ids_estrelas_imperio[$colonia->estrela->id] = $colonia->estrela->id;
+		}
+		
+		$id_esrelas_reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$this->id_imperio}");
+		
+		foreach ($id_esrelas_reabastece as $id) {
+			$estrela = new estrela ($id->id_estrela);
+			$ids_estrelas_imperio[$estrela->id] = $estrela->id;
+		}
+		
+		$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
+		
+		
+		$options = [];
+		foreach ($ids_estrelas_imperio as $chave_origem => $id_origem) {
+			$estrela_origem = new estrela($id_origem);
+			foreach ($id_estrelas as $id_destino) {
+				$estrela_destino = new estrela($id_destino->id);
+				
+				if ($estrela_origem->id != $estrela_destino->id) {
+					$distancia = $this->distancia_estrelas($estrela_origem->id,$estrela_destino->id);
+					$alcance = $this->alcance;
+					if (!empty($ids_estrelas_imperio[$estrela_destino->id])) {
+						$alcance = $this->alcance*2;
+					}
+					$selected = "";
+					if ($this->id_estrela_destino == $estrela_destino->id) {
+						$selected = " selected";
+					}
+					if ($alcance >= $distancia) {
+						$options[$estrela_destino->id] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
+					}
+				}
+			}
+		}
+		
+		$html = "<td>
+		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
+		<select data-atributo='id_estrela' style='width: 100%' {$disabled}>";
+		
+		foreach ($options as $chave => $valor) {
+			$html .= "
+			{$valor}
+			";
+		}
+		
+		
+		$html .= "</select>
+		</div>
+		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
+		</td>";
+		
+		return $html; 
+	}
+	
+	function distancia_estrelas ($id_estrela_origem, $id_estrela_destino) {
+		$estrela_origem = new estrela($id_estrela_origem);
+		$estrela_destino = new estrela($id_estrela_destino);
+		
+		$distancia = sqrt(($estrela_origem->X - $estrela_destino->X)**2 + ($estrela_origem->Y - $estrela_destino->Y)**2 + ($estrela_origem->Z - $estrela_destino->Z)**2);
+		
+		return $distancia;
+	}
 
 }
 ?>

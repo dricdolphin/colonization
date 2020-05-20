@@ -25,6 +25,16 @@ class estrela
 	***********************/
 	function __construct($id_estrela) {
 		global $wpdb;
+		
+		if (empty($id_estrela)) {
+			$this->id = 0;
+			$this->nome = "";
+			$this->X = 0;
+			$this->Y = 0;
+			$this->Z = 0;
+			
+			return;
+		}
 		$this->id = $id_estrela;
 
 		$resultados = $wpdb->get_results("SELECT nome, X, Y, Z, tipo FROM colonization_estrela WHERE id=".$this->id);

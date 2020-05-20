@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.11
+ * Version: 1.1.12
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -69,7 +69,8 @@ class colonization {
 		add_action('wp_head', array($this,'colonization_ajaxurl')); //Necessário para incluir o ajaxurl
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
-		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona a barra de recursos de cada Império
+		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
+		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
 		
 		//date_default_timezone_set('America/Sao_Paulo');
 	}
@@ -94,6 +95,37 @@ class colonization {
 		
 		return $html;
 	}
+	
+
+	/******************
+	function colonization_exibe_viagem_frota()
+	-----------
+	Exibe no painel principal se existem viagens de Naves pendentes
+	******************/	
+	function colonization_exibe_viagem_frota() {
+		global $asgarosforum, $wpdb;
+		
+		$user = wp_get_current_user();
+
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			if ($roles == "administrator") {
+				$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0");
+				
+				foreach ($naves_pendentes as $id) {
+					$nave = new frota($id->id);
+					$notice = $nave->exibe_autoriza();
+					$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+					$asgarosforum->add_notice($notice);
+				}
+			}
+		
+			return;
+		} 
+		
+	}
+	
+	
 	
 	/******************
 	function colonization_exibe_tech_transfere_pendente()
@@ -984,15 +1016,22 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		$turno = new turno();
 		
-		$html = "<div>";
+		$html = "
+		<div style='width: auto; height: auto;'>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_frota'>
+		<thead>
+		<tr><th style='width: 150px;'>Nome</th><th style='width: 200px;'>Posição</th><th style='width: 200px;'>Atributos</th><th>Despachar Nave</th></tr>
+		</thead>
+		";
 		
 		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
 		
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
-			$html .= $frota->exibe_frota() . "<br>";
+			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 		}
-		$html .= "</div>";
+		$html .= "</table>
+		</div>";
 
 		return $html;
 	}

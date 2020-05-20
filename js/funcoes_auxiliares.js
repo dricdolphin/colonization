@@ -462,7 +462,7 @@ function lista_distancia() {
 	});	
 	
 	
-	mapped_estrelas_destino.forEach(function(valor_destini, chave_destino, mapa_destino) {
+	mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
 		html_lista = html_lista + lista_nome_estrela[chave_destino] +" ("+lista_x_estrela[chave_destino]+";"+lista_y_estrela[chave_destino]+";"+lista_z_estrela[chave_destino]+")<br>";
 		distancia[chave_destino] = true;
 	});

@@ -270,6 +270,114 @@ function atualiza_lista_techs(objeto) {
 		xhttp_salvou.send(dados_ajax);
 }
 
+//envia_nave
+/******************
+function envia_nave()
+--------------------
+Envia uma nave para algum lugar
+******************/
+function envia_nave (objeto, evento, id_nave) {
+	let linha = pega_ascendente(objeto,"TR");
+	let divs = linha.getElementsByTagName("DIV");
+	
+	for (let index=0; index < divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == "nome_estrela") {
+			for (let index_child=0; index_child<divs[index].childNodes.length; index_child++) {
+				if (divs[index].childNodes[index_child].tagName == "SELECT") {
+					var id_estrela = divs[index].childNodes[index_child].value;
+					divs[index].childNodes[index_child].disabled = true;
+				}
+			}
+		}
+	}
+	
+	var dados_ajax = "post_type=POST&action=envia_nave&id="+id_nave+"&id_estrela="+id_estrela;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+	
+	objeto.style.display='none';
+
+	evento.preventDefault();
+	return false;
+}
+
+
+
+/******************
+function processa_viagem_nave()
+--------------------
+Aceita ou rejeita o recebimento de uma Tech
+******************/
+function processa_viagem_nave (objeto, evento, id_nave) {
+	let div_notice = objeto;
+	
+	while (div_notice.getAttribute("class") != "notice") {
+		div_notice = div_notice.parentNode;
+	}
+
+	let div_notice_panel = div_notice;
+	while (div_notice_panel.getAttribute("class") != "notices-panel") {
+		div_notice_panel = div_notice.parentNode;
+	}
+
+	var dados_ajax = "post_type=POST&action=processa_viagem_nave&id="+id_nave;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+
+	div_notice.remove();
+	if (div_notice_panel.childElementCount == 0) {
+		div_notice_panel.remove();
+	}
+		
+	let envia_tech = document.getElementById("envia_tech");
+	if (envia_tech !== undefined && envia_tech !== null) {
+		atualiza_lista_techs(envia_tech);
+	}
+	
+	evento.preventDefault();
+	return false;
+}
+
 /******************
 function processa_recebimento_tech()
 --------------------

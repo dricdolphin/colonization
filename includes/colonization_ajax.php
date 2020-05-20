@@ -31,6 +31,53 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_transfere_tech', array ($this, 'valida_transfere_tech'));//valida_transfere_tech
 		add_action('wp_ajax_dados_transfere_tech', array ($this, 'dados_transfere_tech'));//dados_transfere_tech
 		add_action('wp_ajax_processa_recebimento_tech', array ($this, 'processa_recebimento_tech'));//salva_transfere_tech
+		add_action('wp_ajax_processa_viagem_nave', array ($this, 'processa_viagem_nave'));//processa_viagem_nave
+		add_action('wp_ajax_envia_nave', array ($this, 'envia_nave'));//envia_nave
+	}
+
+	/***********************
+	function processa_viagem_nave ()
+	----------------------
+	Processa uma viagem
+	***********************/	
+	function envia_nave() {
+		global $wpdb;
+		
+		$nave = new frota($_POST['id']);
+
+		$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
+		
+		$dados_salvos['resposta_ajax'] = "SALVO!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
+	}
+
+
+	/***********************
+	function processa_viagem_nave ()
+	----------------------
+	Processa uma viagem
+	***********************/	
+	function processa_viagem_nave() {
+		global $wpdb;
+		
+		$nave = new frota($_POST['id']);
+		$estrela = new estrela($nave->id_estrela_destino);
+
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+
+		if ($roles == "administrator") {
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0 WHERE id={$nave->id}");
+		}
+		
+		$dados_salvos['resposta_ajax'] = "SALVO!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
 	}
 	
 

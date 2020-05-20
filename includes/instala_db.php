@@ -198,7 +198,8 @@ class instala_db {
 		especiais TEXT DEFAULT NULL,
 		HP INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
-		turno INT(6) NOT NULL
+		turno INT(6) NOT NULL,
+		id_estrela_destino INT(6) DEFAULT 0
 		)");
 
 		//Tabela com o histórico de Pesquisas das naves do Império
