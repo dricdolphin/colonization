@@ -106,6 +106,10 @@ class acoes
 					$this->id_instalacao[$chave] = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
 				}
 			}
+			if (!empty($valor->turno_destroi)) {
+				$this->pop[$chave] = 0;
+			}
+
 			$chave++;
 		}
 
