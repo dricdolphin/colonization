@@ -44,10 +44,27 @@ class colonization_ajax {
 		global $wpdb;
 		
 		$nave = new frota($_POST['id']);
-
-		$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
 		
-		$dados_salvos['resposta_ajax'] = "SALVO!";
+		$imperio = new imperio($nave->id_imperio);
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+		
+		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode despachar sua nave!";
+		if ($imperio->id == $nave->id_imperio || $roles == "administrator") {
+			if ($nave->id_estrela_destino == 0) {
+				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
+				$dados_salvos['resposta_ajax'] = "SALVO!";
+			} else {
+				$estrela = new estrela($nave->id_estrela_destino);
+				$dados_salvos['resposta_ajax'] = "Essa nave já foi despachada para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})!";
+			}
+		}
+		
+		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die();
 	}
@@ -92,7 +109,21 @@ class colonization_ajax {
 		$turno = new turno();
 		$transfere_tech = new transfere_tech($_POST['id']);
 		$tech = new tech($transfere_tech->id_tech);
-
+		
+		$imperio = new imperio($transfere_tech->id_imperio_destino);
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+		
+		if ($roles != "administrator" && $imperio->id != $transfere_tech->id_imperio_destino) {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die();
+		}
+		
 		if ($_POST['autorizado'] == 1) {//Se aceitou, é para adicionar a Tech na lista de Techs
 			$custo_pago = round($tech->custo*0.3, 0, PHP_ROUND_HALF_UP);
 			$wpdb->query("INSERT INTO colonization_imperio_techs SET id_imperio={$transfere_tech->id_imperio_destino}, custo_pago={$custo_pago}, id_tech={$transfere_tech->id_tech}, turno={$turno->turno}");
@@ -337,6 +368,20 @@ class colonization_ajax {
 		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		
 		$dados_salvos['debug'] = $resposta;
+		$imperio = new imperio($_POST['id_imperio']);
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+		
+		if ($roles != "administrator" && $imperio->id != $_POST['id_imperio']) {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die();
+		}
+
 		
 		if (empty($resposta)) {//Não existe o ponto, pode adicionar
 			$resposta = $wpdb->query("INSERT INTO colonization_imperio_abastecimento SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
@@ -481,6 +526,18 @@ class colonization_ajax {
 		$dados_salvos['debug'] = "";
 		
 		$turno = new turno();
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+		
+		if ($roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
 		
 		$nivel_original = 0;
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
@@ -635,7 +692,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	***********************/	
 	function salva_objeto() {
 		global $wpdb; 
-		//$wpdb->hide_errors();
+		$wpdb->hide_errors();
 		
 		foreach ($_POST as $chave => $valor) {
 			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
@@ -745,7 +802,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	***********************/	
 	function dados_imperio() {
 		global $wpdb; 
-		//$wpdb->hide_errors();
+		$wpdb->hide_errors();
 		$dados_salvos = [];
 		
 		$dados_salvos = $wpdb->get_results("SELECT * FROM colonization_imperio WHERE id={$_POST['id']}");
@@ -833,7 +890,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	***********************/	
 	function valida_acao() {
 		global $wpdb; 
-		//$wpdb->hide_errors();		
+		$wpdb->hide_errors();		
 
 		$turno = new turno($_POST['turno']);
 		if ($turno->encerrado == 1) {
@@ -949,7 +1006,20 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	function roda_turno() {
 		global $wpdb;
 		$html = [];
+
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
 		
+		if ($roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+
 		$roda_turno = new roda_turno();
 		$html['html'] = $roda_turno->executa_roda_turno();
 		
@@ -1001,6 +1071,19 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	***********************/	
 	function libera_turno() {
 		global $wpdb;
+
+		$user = wp_get_current_user();
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		} else {
+			$roles = "";
+		}
+		
+		if ($roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
 		
 		$wpdb->query("UPDATE colonization_turno_atual SET bloqueado=false, data_turno=data_turno");
 		

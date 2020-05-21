@@ -48,15 +48,13 @@ class imperio
 		if ($roles != "administrator" && !$super) {
 			$this->id_jogador = get_current_user_id();
 			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
-		} else {
-			$this->id = $id;
-			if (empty($this->id)) {
+		} 
+		$this->id = $id;
+		if (empty($this->id)) {
 				return;
-			}
-			$this->id_jogador = $wpdb->get_var("SELECT id_jogador FROM colonization_imperio WHERE id=".$this->id);
 		}
-		
 
+		$this->id_jogador = $wpdb->get_var("SELECT id_jogador FROM colonization_imperio WHERE id=".$this->id);
 		
 		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
 		$this->prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id=".$this->id);
