@@ -245,31 +245,80 @@ class frota
 			$ids_estrelas_imperio[$estrela->id] = $estrela->id;
 		}
 		
-		$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
-		
 		
 		$options = [];
-		foreach ($ids_estrelas_imperio as $chave_origem => $id_origem) {
-			$estrela_origem = new estrela($id_origem);
-			foreach ($id_estrelas as $id_destino) {
-				$estrela_destino = new estrela($id_destino->id);
+		//Primeiro verifica se consegue chegar da estrela atual para qualquer estrela do Império ou ponto de Reabastecimento
+		$novos_pontos_reabastece = false;
+		foreach ($ids_estrelas_imperio as $chave => $id_destino) {
+
+			$estrela_destino = new estrela($id_destino);
+			
+			//if ($this->estrela->id != $estrela_destino->id) {
+				$distancia = $this->distancia_estrelas($this->estrela->id,$estrela_destino->id);
+				//$alcance = $this->alcance;
+				//if (!empty($ids_estrelas_imperio[$estrela_destino->id])) {
+					$alcance = $this->alcance*2;
+				//}
 				
-				if ($estrela_origem->id != $estrela_destino->id) {
-					$distancia = $this->distancia_estrelas($estrela_origem->id,$estrela_destino->id);
-					$alcance = $this->alcance;
-					if (!empty($ids_estrelas_imperio[$estrela_destino->id])) {
-						$alcance = $this->alcance*2;
-					}
-					$selected = "";
-					if ($this->id_estrela_destino == $estrela_destino->id) {
-						$selected = " selected";
-					}
-					if ($alcance >= $distancia) {
-						$options[$estrela_destino->id] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
+				$selected = "";
+				if ($this->id_estrela_destino == $estrela_destino->id) {
+					$selected = " selected";
+				}
+				if ($alcance >= $distancia) {//Verifica se consegue chegar até qualquer um desses pontos
+					$options[$estrela_destino->id] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
+					$novos_pontos_reabastece = true;
+				}
+			//}
+		}
+		
+
+		//Agora, com todos os pontos onde a nave pode chegar, verifica à partir deles _TODAS_ as estrelas da Galáxia
+		do {
+			$novos_pontos_reabastece = false;
+			$options_temp = [];
+			foreach ($options as $id_origem => $valor_origem) {
+
+				$estrela_origem = new estrela($id_origem);
+				$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
+				foreach ($id_estrelas as $id_destino) {
+					$estrela_destino = new estrela($id_destino->id);
+					
+					if ($estrela_origem->id != $estrela_destino->id && empty($options[$estrela_destino->id])) {
+						$distancia = $this->distancia_estrelas($estrela_origem->id,$estrela_destino->id);
+						$alcance = $this->alcance;
+						if (!empty($ids_estrelas_imperio[$estrela_destino->id])) {
+							//Estrelas do Império ou Pontos de Reabastecimento permitem irmos para irmos até o DOBRO da distância
+							$alcance = $this->alcance*2;
+						}
+						$selected = "";
+						if ($this->id_estrela_destino == $estrela_destino->id) {
+							$selected = " selected";
+						}
+						if ($alcance >= $distancia) {
+							$options_temp[$estrela_destino->id] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
+							if ($alcance == $this->alcance*2) {//É um novo ponto de reabastecimento!
+								$novos_pontos_reabastece = true;
+							}
+						}
 					}
 				}
 			}
+			
+			foreach ($options_temp as $chave => $valor) {
+				if (empty($options[$chave])) {
+					$options[$chave] = $valor;
+				}
+			}
+		} while ($novos_pontos_reabastece === true);
+		
+		//Remove o ponto atual da lista de estrelas
+		$options_temp = [];
+		foreach ($options as $chave => $valor) {
+			if ($chave != $this->estrela->id) {
+				$options_temp[$chave] = $valor;
+			}
 		}
+		$options = $options_temp;
 		
 		$html = "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
