@@ -214,6 +214,7 @@ class frota
 				//$html .= $this->exibe_estrelas_destino();
 			}
 			
+			//***
 			$html .= "<td>
 			<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
 			<select data-atributo='id_estrela' data-alcance='{$this->alcance}' style='width: 100%' {$disabled}>";
@@ -222,6 +223,7 @@ class frota
 			</div>
 			<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
 			</td>";
+			//***/
 		}
 
 		return $html;
@@ -285,45 +287,42 @@ class frota
 		
 
 		//Agora, com todos os pontos onde a nave pode chegar, verifica à partir deles _TODAS_ as estrelas da Galáxia
-
+		$start_time = hrtime(true);
+		$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
+		$id_estrelas_temp =[];
+		foreach ($id_estrelas as $id) {
+			$id_estrelas_temp[$id->id] = $id->id;
+		}
+		$id_estrelas = $id_estrelas_temp;	
+		$end_time = hrtime(true);
+		$diferenca = round(($end_time - $start_time)/1000000,0);
+		echo "Populando as Estrelas: {$diferenca}<br>";
 		
+		$start_time = hrtime(true);
 		do {
 			$novos_pontos_reabastece = false;
 			$options_temp = [];
-			/**
-			$where_estrelas_option = "WHERE id NOT IN (";
-			foreach ($options as $id_origem => $valor_origem) {
-				$where_estrelas_option .= $id_origem.",";
-			}
-			if ($where_estrelas_option == "WHERE id NOT IN (") {
-				$where_estrelas_option = substr($where_estrelas_option,0,-1);
-				$where_estrelas_option .= ")";
-			} else {
-				$where_estrelas_option = "";
-			}
-			**/			
-			$where_estrelas_option = "";
 			
 			foreach ($options as $id_origem => $valor_origem) {
-
-				$estrela_origem = new estrela($id_origem);
-				$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela {$where_estrelas_option}");
-				foreach ($id_estrelas as $id_destino) {
-					$estrela_destino = new estrela($id_destino->id);
+				//$estrela_origem = new estrela($id_origem);
+				
+				foreach ($id_estrelas as $chave => $id_destino) {
+					//$estrela_destino = new estrela($id_destino);
 					
-					if ($estrela_origem->id != $estrela_destino->id && empty($options[$estrela_destino->id])) {
-						$distancia = $this->distancia_estrelas($estrela_origem->id,$estrela_destino->id);
+					if ($id_origem != $id_destino && empty($options[$id_destino])) {
+						$distancia = $this->distancia_estrelas($id_origem,$id_destino);
 						$alcance = $this->alcance;
-						if (!empty($ids_estrelas_imperio[$estrela_destino->id])) {
+						if (!empty($ids_estrelas_imperio[$id_destino])) {
 							//Estrelas do Império ou Pontos de Reabastecimento permitem irmos para irmos até o DOBRO da distância
 							$alcance = $this->alcance*2;
 						}
 						$selected = "";
-						if ($this->id_estrela_destino == $estrela_destino->id) {
+						if ($this->id_estrela_destino == $id_destino) {
 							$selected = " selected";
 						}
 						if ($alcance >= $distancia) {
-							$options_temp[$estrela_destino->id] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
+							$estrela_destino = new estrela($id_destino);
+							$options_temp[$id_destino] = "<option value='{$estrela_destino->id}' {$selected}>{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</option>";
 							if ($alcance == $this->alcance*2) {//É um novo ponto de reabastecimento!
 								$novos_pontos_reabastece = true;
 							}
@@ -338,6 +337,9 @@ class frota
 				}
 			}
 		} while ($novos_pontos_reabastece === true);
+		$end_time = hrtime(true);
+		$diferenca = round(($end_time - $start_time)/1000000,0);
+		echo "Buscando os Caminhos: {$diferenca}<br>";
 		
 		//Remove o ponto atual da lista de estrelas
 		$options_temp = [];
@@ -350,7 +352,7 @@ class frota
 		
 		$html = "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
-		<select data-atributo='id_estrela' style='width: 100%' {$disabled}>";
+		<select data-atributo='id_estrela_destino' style='width: 100%' {$disabled}>";
 		
 		foreach ($options as $chave => $valor) {
 			$html .= "

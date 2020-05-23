@@ -425,6 +425,8 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 	var mapped_estrelas_origem = "";
 	var mapped_estrelas_destino = "";
 	var mapped_estrelas_temp = "";
+	var startDate = new Date();
+	// Do your operations
 	while (tem_ponto_reabastece) {
 		tem_ponto_reabastece = false;
 		estrelas_destino_temp = [];
@@ -467,7 +469,10 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 			estrelas_destino[id_estrela_origem] = true;
 		});	
 	}
-
+	var endDate   = new Date();
+	var miliseconds = (endDate.getTime() - startDate.getTime());	
+	console.log("Buscando os Caminhos: "+miliseconds*1);
+	
 	mapped_estrelas_origem = estrelas_destino.map(function(el, i) {
 		return { index: i, value: el };
 	});
