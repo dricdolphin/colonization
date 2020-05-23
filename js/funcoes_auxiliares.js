@@ -393,7 +393,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 	function(valor, chave, mapa) {
 		//A chave será o id_estrela_origem
 		distancia[chave] = [];
-		estrelas_imperio[chave] = valor;
+		estrelas_imperio[chave] = true;
 	});
 
 	var mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
@@ -402,7 +402,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 
 	mapped_estrelas_reabastece.forEach(
 	function(valor_reabastece, chave_reabastece, mapa_reabastece) {
-		estrelas_imperio[chave_reabastece] = chave_reabastece;
+		estrelas_imperio[chave_reabastece] = true;
 	});
 	
 
@@ -447,7 +447,8 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 				if (estrelas_imperio.hasOwnProperty(id_estrela_destino)) {
 					alcance_real = alcance_nave*alcance_extendido;
 				}
-				if (alcance_real*1 >= distancia_parsecs*1 && !estrelas_destino.hasOwnProperty(id_estrela_destino) && estrelas_imperio.hasOwnProperty(id_estrela_origem)) {
+				//Caso a distância entre a estrela_origem e a estrela_destino esteja no alcance da nave e caso a estrela_origem faça parte dos pontos de reabastecimento do Império, pode colocar e estrela destino como um novo destino
+				if (alcance_real*1 >= distancia_parsecs*1 && estrelas_destino[id_estrela_destino] !== true && estrelas_imperio[id_estrela_origem] === true) {
 					estrelas_destino_temp[id_estrela_destino] = true;
 					
 					if (estrelas_imperio.hasOwnProperty(id_estrela_destino)) {
