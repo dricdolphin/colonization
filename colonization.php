@@ -496,6 +496,7 @@ class colonization {
 				$html_javascript = "
 var lista_estrelas_colonia=[];
 var lista_estrelas_reabastece=[];
+var estrela_capital=[];
 var id_imperio_atual = {$imperios[0]->id};
 				";
 				
@@ -509,8 +510,14 @@ var id_imperio_atual = {$imperios[0]->id};
 						$colonia = new colonia($id_colonia->id);
 						$planeta = new planeta($colonia->id_planeta);
 						
-						$html_javascript .= "lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};\n
-						";
+						$html_javascript .= "
+						lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
+						
+						if ($colonia->capital == 1) {
+							$html_javascript .= "
+							estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
+						}
+						
 					}
 					
 					$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
@@ -536,7 +543,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			</div>
 			<div id='distancia'><b>Distância:</b> 0.0</div><br>
 			<div id='div_alcance_nave'><label>Alcance da Nave: </label><input type='number' min=0 max=30 value=0 id='alcance_nave' onchange='return lista_distancia();'></input></div><br>
-			<div><b>Estrelas que podem ser visitadas:</b></div>
+			<div><b>Estrelas que podem ser visitadas à partir da Capital:</b></div>
 			<div id='lista_distancia'>&nbsp;</div>
 		</div>
 		<script>
@@ -555,10 +562,10 @@ var id_imperio_atual = {$imperios[0]->id};
 			var select_imperios = div_imperios.childNodes[1]
 			select_imperios.addEventListener('change', function () {
 				id_imperio_atual = this.value;
-				let id_estrela = Object.keys(lista_estrelas_colonia[this.value]);
+				let id_estrela = estrela_capital[id_imperio_atual];
 				
 				for (let index=0; index<select_estrela_origem.options.length; index++) {
-					if (select_estrela_origem.options[index].value == id_estrela[0]) {
+					if (select_estrela_origem.options[index].value == id_estrela) {
 						select_estrela_origem.selectedIndex = index;
 						calcula_distancia();
 						lista_distancia();
@@ -1026,12 +1033,97 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
 		
+		$index = 0;
+		$html_id_estrela_destino = "";
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
+			
+			$html_id_estrela_destino .= "
+			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};
+			id_estrela_atual[{$index}] = {$frota->estrela->id};";
+			if ($frota->alcance != 0) {
+				$index++;
+			}
 			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 		}
 		$html .= "</table>
 		</div>";
+
+		//Popula o JavaScript
+		$html_javascript = "
+var lista_estrelas_colonia=[];
+var lista_estrelas_reabastece=[];
+var estrela_capital=[];
+var id_estrela_atual = [];
+var id_imperio_atual = {$imperio->id};
+				";
+				
+		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+		$html_javascript .= "
+		lista_estrelas_colonia[{$imperio->id}]=[];
+		lista_estrelas_reabastece[{$imperio->id}]=[];
+		";
+		foreach ($colonias as $id_colonia) {
+			$colonia = new colonia($id_colonia->id);
+			$planeta = new planeta($colonia->id_planeta);
+
+				$html_javascript .= "
+				lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
+				
+				if ($colonia->capital == 1) {
+				$html_javascript .= "
+				estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
+				}
+			}
+
+		$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
+		foreach ($reabastece as $id_estrela) {
+			$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_estrela->id_estrela}]={$id_estrela->id_estrela};\n
+			";
+		}
+		
+		$html .= "
+		<script>
+		{$html_javascript}
+		var id_estrela_destino = [];
+		{$html_id_estrela_destino}
+		var html_lista_estrelas = lista_estrelas_html();
+		
+		function popula_selects() {
+			let selects = document.getElementsByTagName('SELECT');
+			
+			for (let index=0; index < selects.length; index++) {
+				if (selects[index].getAttribute('data-atributo') == 'id_estrela') {
+					let alcance_nave = selects[index].getAttribute('data-alcance');
+					let estrelas_destino = array_estrelas(alcance_nave,2,id_estrela_atual[index]);
+		
+					var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
+						return { index: i, value: el };
+					});
+					
+					html_lista = '';
+					mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
+						let selecionado = '';
+						if (id_estrela_destino[index] == 0) {
+							id_estrela_destino[index] = estrela_capital[id_imperio_atual];
+						}
+
+						if (chave_destino == id_estrela_destino[index]) {
+							selecionado = 'selected';
+						}
+						html_lista = html_lista + '<option value=\"'+chave_destino+'\" '+selecionado+'>'+lista_nome_estrela[chave_destino] +' ('+lista_x_estrela[chave_destino]+';'+lista_y_estrela[chave_destino]+';'+lista_z_estrela[chave_destino]+')</option>';
+						
+						//distancia[chave_destino] = true;
+					});
+					
+					selects[index].innerHTML = html_lista;
+				}
+			}
+		}
+		
+		let popula = popula_selects();
+		</script>
+		";
 
 		return $html;
 	}

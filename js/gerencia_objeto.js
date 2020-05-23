@@ -321,6 +321,9 @@ function envia_nave (objeto, evento, id_nave) {
 	return false;
 }
 
+function alerta(texto) {
+	alert(texto);
+}
 
 
 /******************

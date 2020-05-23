@@ -205,11 +205,23 @@ class frota
 			$html .= "<td>&nbsp;</td>";
 		} else {
 			//TODO - Mostrar quais estrelas a Nave pode ir
+			
+			$disabled = "disabled";
+			$display = "style='display: none;'";
 			if ($this->id_estrela_destino == 0) {
-				$html .= $this->exibe_estrelas_destino();
-			} else {
-				$html .= $this->exibe_estrelas_destino('disabled');
+				$disabled = "";
+				$display = "";
+				//$html .= $this->exibe_estrelas_destino();
 			}
+			
+			$html .= "<td>
+			<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
+			<select data-atributo='id_estrela' data-alcance='{$this->alcance}' style='width: 100%' {$disabled}>";
+				
+			$html .= "</select>
+			</div>
+			<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
+			</td>";
 		}
 
 		return $html;
@@ -217,9 +229,9 @@ class frota
 
 
 	/***********************
-	function exibe_frota()
+	function exibe_estrelas_destino()
 	----------------------
-	Exibe uma Nave
+	Exibe as estrelas do destino
 	***********************/	
 	function exibe_estrelas_destino($disabled='') {
 		global $wpdb;
@@ -273,13 +285,29 @@ class frota
 		
 
 		//Agora, com todos os pontos onde a nave pode chegar, verifica à partir deles _TODAS_ as estrelas da Galáxia
+
+		
 		do {
 			$novos_pontos_reabastece = false;
 			$options_temp = [];
+			/**
+			$where_estrelas_option = "WHERE id NOT IN (";
+			foreach ($options as $id_origem => $valor_origem) {
+				$where_estrelas_option .= $id_origem.",";
+			}
+			if ($where_estrelas_option == "WHERE id NOT IN (") {
+				$where_estrelas_option = substr($where_estrelas_option,0,-1);
+				$where_estrelas_option .= ")";
+			} else {
+				$where_estrelas_option = "";
+			}
+			**/			
+			$where_estrelas_option = "";
+			
 			foreach ($options as $id_origem => $valor_origem) {
 
 				$estrela_origem = new estrela($id_origem);
-				$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
+				$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela {$where_estrelas_option}");
 				foreach ($id_estrelas as $id_destino) {
 					$estrela_destino = new estrela($id_destino->id);
 					
