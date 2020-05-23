@@ -893,6 +893,7 @@ var id_imperio_atual = {$imperios[0]->id};
 	
 		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id}");
 		
+		$naves_por_linha = 0;
 		foreach ($ids_frota as $ids) {
 			$nave = new frota($ids->id);
 			
@@ -903,8 +904,11 @@ var id_imperio_atual = {$imperios[0]->id};
 			if (empty($pesquisa_anterior) && $nave->pesquisa==1) {
 				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div>";	
 			}
-			
-			$html_frota .= "<b>{$nave->nome}</b> {$html_pesquisa_nave}({$nave->X};{$nave->Y};{$nave->Z}); ";
+			$naves_por_linha++;
+			$html_frota .= "<b>{$nave->nome}</b> {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
+			if ($naves_por_linha == 2) {
+				$html_frota .= "<br>";
+			}
 		}
 		
 		$html_lista	= "

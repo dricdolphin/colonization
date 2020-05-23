@@ -373,7 +373,6 @@ Retorna um Array com as das estrelas possíveis de serem alcançadas
 ******************/
 function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital') {
 
-	let distancia = [];
 	var estrelas_imperio = [];
 	var estrelas_destino = [];
 
@@ -392,7 +391,6 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 	mapped_estrelas_colonia.forEach(
 	function(valor, chave, mapa) {
 		//A chave será o id_estrela_origem
-		distancia[chave] = [];
 		estrelas_imperio[chave] = true;
 	});
 
@@ -405,7 +403,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 		estrelas_imperio[chave_reabastece] = true;
 	});
 	
-
+	let caminho_completo = "";
 	//Verifica qual estrela do Império (incluindo pontos de Reabastecimento), à partir da estrela atual, a nave consegue chegar
 	var mapped_estrelas_imperio= estrelas_imperio.map(function(el, i) {
 		return { index: i, value: el };
@@ -418,6 +416,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 		alcance_real = alcance_nave*alcance_extendido;
 		if (alcance_real*1 >= distancia_parsecs*1 && !estrelas_destino.hasOwnProperty(id_estrela_destino) ) {
 			estrelas_destino[id_estrela_destino] = true;
+			caminho_completo = caminho_completo + lista_nome_estrela[estrela_atual] + "->" + lista_nome_estrela[id_estrela_destino] + "("+distancia_parsecs+")\n";
 			tem_ponto_reabastece = true;
 		}
 	});
@@ -444,14 +443,15 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 			function(valor_estrelas_imperio, id_estrela_destino, mapa_estrelas_imperio) {
 				distancia_parsecs = calcula_distancia(false, id_estrela_origem, id_estrela_destino);
 				alcance_real = alcance_nave*1;
-				if (estrelas_imperio.hasOwnProperty(id_estrela_destino)) {
+				if (estrelas_imperio[id_estrela_destino] === true) {
 					alcance_real = alcance_nave*alcance_extendido;
 				}
 				//Caso a distância entre a estrela_origem e a estrela_destino esteja no alcance da nave e caso a estrela_origem faça parte dos pontos de reabastecimento do Império, pode colocar e estrela destino como um novo destino
 				if (alcance_real*1 >= distancia_parsecs*1 && estrelas_destino[id_estrela_destino] !== true && estrelas_imperio[id_estrela_origem] === true) {
 					estrelas_destino_temp[id_estrela_destino] = true;
+					caminho_completo = caminho_completo + lista_nome_estrela[id_estrela_origem] + "->" + lista_nome_estrela[id_estrela_destino] + "("+distancia_parsecs+")\n";
 					
-					if (estrelas_imperio.hasOwnProperty(id_estrela_destino)) {
+					if (estrelas_imperio[id_estrela_destino] === true) {
 						tem_ponto_reabastece = true;
 					}
 				}
@@ -480,6 +480,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 		}
 	});	
 	
+	console.log(caminho_completo);
 	return estrelas_destino;
 }
 
@@ -508,22 +509,7 @@ function lista_distancia() {
 	
 	mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
 		html_lista = html_lista + lista_nome_estrela[chave_destino] +" ("+lista_x_estrela[chave_destino]+";"+lista_y_estrela[chave_destino]+";"+lista_z_estrela[chave_destino]+")<br>";
-		//distancia[chave_destino] = true;
 	});
-	
-	/***
-	mapped_origem.forEach(function(valor_origem, chave_origem, mapa_origem) {
-		let mapped_destino = distancia[chave_origem].map(function(el, i) {
-			return { index: i, value: el };
-		});	
-		mapped_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {		
-			if (distancia[chave_origem][chave_destino] === false) {
-				html_lista = html_lista + lista_nome_estrela[chave_origem] + " -> " + lista_nome_estrela[chave_destino] + "<br>";
-				distancia[chave_origem][chave_destino] = true;
-			}
-		});
-	});
-	***/
 	
 	div_lista_distancia.innerHTML = html_lista;
 	
