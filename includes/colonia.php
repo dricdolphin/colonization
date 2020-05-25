@@ -64,7 +64,9 @@ class colonia
 
 		foreach ($max_turnos as $max_turno) {
 			if ($max_turno->turno < $this->turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
-				$wpdb->query("UPDATE colonization_planeta_recursos SET turno={$this->turno->turno} WHERE turno={$max_turno->turno} AND id_planeta={$this->id_planeta} AND id_recurso={$max_turno->id_recurso}");
+				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$this->id_planeta} AND id_recurso={$max_turno->id_recurso} AND turno={$max_turno->turno}");
+				$planeta_recurso = new planeta_recurso($id_planeta_recurso);
+				$wpdb->query("INSERT INTO colonization_planeta_recursos SET turno={$this->turno->turno}, id_planeta={$this->id_planeta}, id_recurso={$max_turno->id_recurso}, disponivel={$planeta_recurso->qtd_disponivel}");
 			}
 		}
 	}

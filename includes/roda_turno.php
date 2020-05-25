@@ -196,12 +196,20 @@ class roda_turno {
 		
 		//Ao terminar de rodar o Turno, muda o Turno para o próximo turno!
 		$html .= "Atualizando Colônias dos NPCs e indo para o próximo Turno...<br>";
-		$html.= "UPDATE colonization_imperio_colonias SET turno={$proximo_turno} WHERE id_imperio=0<br>";
+		$colonias_npcs = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio=0 AND turno={$turno->turno}");
+		
+		foreach ($colonias_npcs as $id_colonia) {
+			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc={$colonia->nome_npc}, id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}<br>";	
+			$colonia = new colonia($id_colonia->id);
+
+			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc={$colonia->nome_npc}, id_planeta={$colonia->id_planeta}, capital={$colonia->capital},
+			pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}");
+		}
+		
 		$html.= "UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'<br>";
 		$html.= "UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'<br>";
 		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1<br>";
 		
-		$wpdb->query("UPDATE colonization_imperio_colonias SET turno={$proximo_turno} WHERE id_imperio=0");
 		$wpdb->query("UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'");
 		$wpdb->query("UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'");
 		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");		
