@@ -86,18 +86,6 @@ class roda_turno {
 						if ($recursos_disponivel > 0) {
 							$recursos_disponivel = $recursos_disponivel - $qtd_produzido_planeta;
 
-						/***************************************************
-						--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-						***************************************************/
-						//TODO -- Aqui entram os Especiais de cada Império
-						//No caso, tenho apenas o "hard-coded" do Império 3
-						if ($imperio->id == 3) {
-							$recurso = new recurso($id_recurso);
-							
-							if ($recurso->extrativo == 1) {
-								$recursos_disponivel = $recursos_disponivel - floor($qtd_produzido_planeta*0.1);
-							}
-						}
 							$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno};<br>";
 							$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 						}
@@ -108,23 +96,12 @@ class roda_turno {
 				
 				//Faz o balanço dos resultados
 				foreach ($imperio_recursos->id_recurso as $chave => $id_recurso) {
+					$recurso = new recurso($id_recurso);
 					if (empty($acoes->recursos_balanco[$id_recurso])) {
 						$acoes->recursos_balanco[$id_recurso] = 0;
 					}
 					//$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
-					
-					/***************************************************
-					--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-					***************************************************/
-					//TODO -- Aqui entram os Especiais de cada Império
-					//No caso, tenho apenas o "hard-coded" do Império 3
-					$recurso = new recurso($id_recurso);
-					if ($imperio->id == 3) {
-						if ($recurso->extrativo == 1) {
-							$acoes->recursos_balanco[$id_recurso] = floor($acoes->recursos_balanco[$id_recurso]*1.1);
-						}
-					}
-					
+
 					$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 					if ($id_recurso == $id_alimento) {
 						$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
@@ -193,8 +170,8 @@ class roda_turno {
 						}
 					}
 				
-					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}");
+					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}<br>";
+					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}");
 				}
 
 				//Registra a pesquisa das naves

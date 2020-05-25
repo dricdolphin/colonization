@@ -321,6 +321,26 @@ class instala_db {
 		DELETE FROM colonization_imperio_techs WHERE id_tech = old.id;
 		END$$
 		DELIMITER ;");
+		
+		$wpdb->query("		DELIMITER $$
+		CREATE TRIGGER deleta_turno
+		AFTER DELETE
+		ON colonization_turno_atual FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_planeta_recursos WHERE turno = old.id;
+		DELETE FROM colonization_planeta_instalacoes WHERE turno = old.id;
+		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE turno = old.id;
+		DELETE FROM colonization_imperio_recursos WHERE turno = old.id;
+		DELETE FROM colonization_imperio_transfere_techs WHERE turno = old.id;
+		DELETE FROM colonization_imperio_techs WHERE turno = old.id;
+		DELETE FROM colonization_imperio_colonias WHERE turno = old.id;
+		DELETE FROM colonization_imperio_frota WHERE turno = old.id;
+		DELETE FROM colonization_imperio_historico_pesquisa WHERE turno = old.id;
+		DELETE FROM colonization_acoes_turno WHERE turno = old.id;
+		DELETE FROM colonization_acoes_admin WHERE turno = old.id;
+		END$$
+		DELIMITER ;");
+		
 	}
 }
 ?>

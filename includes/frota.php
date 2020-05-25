@@ -165,6 +165,8 @@ class frota
 	function exibe_frota() {
 		global $wpdb;
 		
+		$turno = new turno();
+		
 		//1 Estação Orbital "Orbit One" (1;8;9) - Tamanho 100; Velocidade 1; Alcance 0; PdF Laser 10/Torpedo 10; Blindagem 10; HP 1000; Especiais: (1) - Produz até 50 Equipamentos de Naves por turno
 		$html = "<td>
 		<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -208,7 +210,7 @@ class frota
 			
 			$disabled = "disabled";
 			$display = "style='display: none;'";
-			if ($this->id_estrela_destino == 0) {
+			if ($this->id_estrela_destino == 0 && $turno->bloqueado != 1) {
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
