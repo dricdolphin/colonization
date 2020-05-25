@@ -210,7 +210,7 @@ class frota
 			
 			$disabled = "disabled";
 			$display = "style='display: none;'";
-			if ($this->id_estrela_destino == 0 && $turno->bloqueado != 1) {
+			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1) {
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
