@@ -34,7 +34,7 @@ class colonia_instalacao
 		$this->turno = $resultado->turno;
 		$this->turno_destroi = $resultado->turno_destroi;
 		
-		$this->planeta = new planeta($this->id_planeta);
+		//$this->planeta = new planeta($this->id_planeta);
 		$this->instalacao = new instalacao($this->id_instalacao);
 	}
 

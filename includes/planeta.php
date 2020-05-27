@@ -18,6 +18,7 @@ class planeta
 	public $tamanho;
 	public $estrela;
 	public $inospito;
+	public $pop_inospito;
 	public $icone_habitavel;
 	public $instalacoes;
 	public $turno;
@@ -42,6 +43,7 @@ class planeta
 		$this->subclasse = $resultado->subclasse;
 		$this->tamanho = $resultado->tamanho;
 		$this->inospito = $resultado->inospito;
+		$this->pop_inospito = 0;
 
 		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
 		FROM colonization_planeta_instalacoes AS cpi
@@ -51,17 +53,14 @@ class planeta
 	
 		$this->estrela = new estrela($this->id_estrela);
 		
-		//Verifica se tem Instalações que ampliam o tamanho do planeta
+		//Verifica se tem Instalações com Especiais
 		$id_instalacoes = $wpdb->get_results("
-		SELECT ci.id
+		SELECT cpi.id, cpi.id_instalacao
 		FROM colonization_planeta_instalacoes AS cpi
-		JOIN colonization_instalacao AS ci
-		ON ci.id = cpi.id_instalacao
-		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno}
-		AND ci.especiais != ''");
+		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno}");
 		
 		foreach ($id_instalacoes as $id) {
-			$instalacao = new instalacao($id->id);
+			$instalacao = new instalacao($id->id_instalacao);
 			$especiais = explode(";",$instalacao->especiais);
 			
 			//Especiais: slots_extra=qtd
@@ -85,6 +84,18 @@ class planeta
 				if ($this->max_slots < $max_slots_valor[1]) {
 					$this->max_slots = $max_slots_valor[1];
 				}
+			}
+			
+			//Especiais: pop_inospito=qtd
+			$pop_inospito = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pop_inospito') !== false;
+			}));
+			
+			if (!empty($pop_inospito)) {
+				$colonia_instalacao = new colonia_instalacao($id->id);
+
+				$pop_inospito_valor = explode("=",$pop_inospito[0]);
+				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
 			}
 		}
 		

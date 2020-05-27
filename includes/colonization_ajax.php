@@ -429,6 +429,15 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Já existe uma Capital para este Império!";
 			}		
 		}
+		
+		$planeta = new planeta($_POST['id_planeta']);
+		
+		if ($planeta->inospito == 1) {
+			if ($_POST['pop'] > $planeta->pop_inospito) {
+				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
+			}
+		}
+		
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
