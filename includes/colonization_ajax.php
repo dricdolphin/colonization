@@ -240,7 +240,8 @@ class colonization_ajax {
 		
 		$dados_salvos['custo_pago'] = $_POST['custo_pago'];
 		if ($_POST['custo_pago'] > $tech->custo) {
-			$dados_salvos['resposta_ajax'] = "O custo pago por essa Tech é maior que o custo da Tech! Favor revisar!";
+			$dados_salvos['resposta_ajax'] = "O custo pago por essa Tech é maior que o custo da Tech ({$tech->custo})! Favor revisar!";
+			$dados_salvos['custo_pago'] = $tech->custo;
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		} elseif ($tech->custo == $_POST['custo_pago']) {
@@ -256,19 +257,19 @@ class colonization_ajax {
 				$tech = new tech($id_tech_parent);
 				$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a Tech '{$tech->nome}'";
 			}
-			
-			if (!empty($tech->lista_requisitos)) {
-				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-					$tech_requisito = new tech($id_requisito);
+		}
 
-					$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa})AND custo_pago = 0");
-					if ($tech_requisito_query == 0) {
-						if (empty($dados_salvos['resposta_ajax'])) {
-							$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
-						}
-						$tech = new tech($id_requisito);
-						$dados_salvos['resposta_ajax'] .= $tech->nome."; ";
+		if (!empty($tech->lista_requisitos)) {
+			foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
+				$tech_requisito = new tech($id_requisito);
+
+				$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa})AND custo_pago = 0");
+				if ($tech_requisito_query == 0) {
+					if (empty($dados_salvos['resposta_ajax'])) {
+						$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
 					}
+					$tech = new tech($id_requisito);
+					$dados_salvos['resposta_ajax'] .= $tech->nome."; ";
 				}
 			}
 		}
