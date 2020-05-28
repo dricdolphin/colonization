@@ -473,15 +473,16 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 	var miliseconds = (endDate.getTime() - startDate.getTime());	
 	console.log("Buscando os Caminhos: "+miliseconds*1);
 	
+	//estrelas_destino.sort();
 	mapped_estrelas_origem = estrelas_destino.map(function(el, i) {
-		return { index: i, value: el };
+		return { index: i, value: el, id_estrela: i };
 	});
 	
 	estrelas_destino = [];
 	mapped_estrelas_origem.forEach(
 	function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
-		if (id_estrela_origem != estrela_atual) {
-			estrelas_destino[id_estrela_origem] = true;
+		if (valor_estrelas_imperio.id_estrela != estrela_atual) {
+			estrelas_destino[valor_estrelas_imperio.id_estrela] = true;
 		}
 	});	
 	
@@ -508,12 +509,22 @@ function lista_distancia() {
 	estrelas_destino = array_estrelas(alcance_nave, alcance_extendido);
 	
 	var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
-		return { index: i, value: el };
+		return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: " ("+lista_x_estrela[i]+";"+lista_y_estrela[i]+";"+lista_z_estrela[i]+")" };
 	});	
 	
+	mapped_estrelas_destino.sort(function(firstEl, secondEl) {
+		if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
+		return -1;
+		}
+		if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
+		return 1;
+		}
+		// a must be equal to b
+		return 0;
+	});
 	
 	mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
-		html_lista = html_lista + lista_nome_estrela[chave_destino] +" ("+lista_x_estrela[chave_destino]+";"+lista_y_estrela[chave_destino]+";"+lista_z_estrela[chave_destino]+")<br>";
+		html_lista = html_lista + valor_destino.nome_estrela +" "+  valor_destino.posicao_estrela +"<br>";
 	});
 	
 	div_lista_distancia.innerHTML = html_lista;

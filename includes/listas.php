@@ -72,11 +72,38 @@ var turno_atual={$turno->turno};
 					selecionado[index] = '';
 				}
 			}
-			
-{$lista_options}
-			for (index = 0; index < lista.length; index++) {
-				html = html+lista[index];
-			}
+
+			var mapped_estrelas_destino = lista_x_estrela.map(function(el, i) {
+				return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
+			});	
+				
+			mapped_estrelas_destino.sort(function(firstEl, secondEl) {
+				if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
+				return -1;
+				}
+				if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
+				return 1;
+				}
+				// a must be equal to b
+				return 0;
+			});
+				
+				html_lista = '';
+				mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
+					let selecionado = '';
+					if (valor_destino.id_estrela == id) {
+						selecionado = 'selected';
+					}
+					html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela +'</option>';
+					
+					//distancia[chave_destino] = true;
+				});			
+
+			//lista.sort();
+			//for (index = 0; index < lista.length; index++) {
+			//	html = html+lista[index];
+			//}
+			html = html + html_lista;
 			html = html +\"			</select>\";
 
 

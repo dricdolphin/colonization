@@ -1101,9 +1101,20 @@ var id_imperio_atual = {$imperio->id};
 					let alcance_nave = selects[index].getAttribute('data-alcance');
 					let estrelas_destino = array_estrelas(alcance_nave,2,id_estrela_atual[index]);
 		
-					var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
-						return { index: i, value: el };
-					});
+				var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
+					return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
+				});	
+				
+				mapped_estrelas_destino.sort(function(firstEl, secondEl) {
+					if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
+					return -1;
+					}
+					if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
+					return 1;
+					}
+					// a must be equal to b
+					return 0;
+				});
 					
 					html_lista = '';
 					mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
@@ -1112,10 +1123,10 @@ var id_imperio_atual = {$imperio->id};
 							id_estrela_destino[index] = estrela_capital[id_imperio_atual];
 						}
 
-						if (chave_destino == id_estrela_destino[index]) {
+						if (valor_destino.id_estrela == id_estrela_destino[index]) {
 							selecionado = 'selected';
 						}
-						html_lista = html_lista + '<option value=\"'+chave_destino+'\" '+selecionado+'>'+lista_nome_estrela[chave_destino] +' ('+lista_x_estrela[chave_destino]+';'+lista_y_estrela[chave_destino]+';'+lista_z_estrela[chave_destino]+')</option>';
+						html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela +'</option>';
 						
 						//distancia[chave_destino] = true;
 					});
