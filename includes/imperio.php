@@ -361,8 +361,35 @@ class imperio
 	***********************/
 	function imperio_exibe_colonias_imperio() {
 		global $wpdb;
-		
-		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
+
+		$id_estrelas_imperio = $wpdb->get_results("
+		SELECT DISTINCT ce.id
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id = cp.id_estrela
+		WHERE cic.id_imperio = {$this->id} 
+		AND cic.turno = {$this->turno->turno}
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+		");
+
+		$resultados = [];
+		foreach ($id_estrelas_imperio as $id_estrela) {
+			$resultados_temp =$wpdb->get_results("
+			SELECT cic.id 
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno}
+			AND ce.id={$id_estrela->id}
+			ORDER BY cic.capital DESC, cp.posicao
+			");
+			
+			$resultados = array_merge($resultados,$resultados_temp);
+		}
 		
 		$html = $this->html_header;
 		
@@ -373,12 +400,12 @@ class imperio
 		<tbody>
 		";
 		
-		foreach ($colonias as $id) {
+		foreach ($resultados as $id) {
 			$colonia = new colonia($id->id);
 			$planeta = new planeta($colonia->id_planeta);
 			$estrela = new estrela($planeta->id_estrela);
 			
-			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$planeta->nome}&nbsp;{$planeta->icone_habitavel} ({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
+			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
 		}
 		
 		$html .= "</tbody>
