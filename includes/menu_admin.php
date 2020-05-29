@@ -790,7 +790,15 @@ class menu_admin {
 				//$html_dados = $imperio->lista_dados();
 				
 				$html .= "<br><div><h3>Colônias de '{$imperio->nome}'</h3></div>";
-				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$id->id} AND turno={$turno->turno}");
+				$lista_id_colonias = $wpdb->get_results("
+				SELECT cic.id 
+				FROM colonization_imperio_colonias  AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio={$id->id} AND cic.turno={$turno->turno} 
+				ORDER BY cic.nome_npc, cic.capital DESC");
 
 				$html_lista = "			
 				<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>

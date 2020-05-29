@@ -1232,7 +1232,8 @@ var id_imperio_atual = {$imperio->id};
 			$lista_id = $wpdb->get_results("
 			SELECT cic.id 
 			FROM colonization_imperio_colonias AS cic
-			WHERE cic.turno={$turno->turno}");
+			WHERE cic.turno={$turno->turno}
+			ORDER BY id_imperio, nome_npc");
 		} else {
 			$lista_id = $wpdb->get_results("
 			SELECT cic.id 

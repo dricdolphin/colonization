@@ -76,7 +76,7 @@ class acoes
 			WHERE cic.id_imperio = {$this->id_imperio} 
 			AND cic.turno = {$this->turno->turno}
 			AND cpi.turno <={$this->turno->turno}
-			ORDER BY ce.X, ce.Y, ce.Z, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
+			ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
 			");
 		
 		$chave = 0;
