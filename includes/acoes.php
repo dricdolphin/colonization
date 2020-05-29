@@ -51,34 +51,52 @@ class acoes
 		$this->imperio = new imperio($id_imperio, false, $this->turno->turno);
 		$this->id_imperio = $this->imperio->id;
 
-		$resultados =$wpdb->get_results("
-			SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
-			cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
-			cat.pop AS pop, cat.data_modifica AS data_modifica
-			FROM colonization_imperio_colonias AS cic 
-			JOIN colonization_planeta_instalacoes AS cpi
-			ON cpi.id_planeta = cic.id_planeta
-			LEFT JOIN 
-			(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, data_modifica
-			 FROM colonization_acoes_turno
-			 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
-			) AS cat
-			ON cat.id_planeta = cic.id_planeta
-			AND cat.id_instalacao = cpi.id_instalacao
-			AND cat.id_planeta_instalacoes = cpi.id
-			AND cat.id_imperio = cic.id_imperio
-			JOIN colonization_instalacao AS ci
-			ON ci.id = cpi.id_instalacao
-			JOIN colonization_planeta AS cp
-			ON cp.id = cic.id_planeta
-			JOIN colonization_estrela AS ce
-			ON ce.id = cp.id_estrela
-			WHERE cic.id_imperio = {$this->id_imperio} 
-			AND cic.turno = {$this->turno->turno}
-			AND cpi.turno <={$this->turno->turno}
-			ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
-			");
-		
+		$id_estrelas_imperio = $wpdb->get_results("
+		SELECT DISTINCT ce.id
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id = cp.id_estrela
+		WHERE cic.id_imperio = {$this->id_imperio} 
+		AND cic.turno = {$this->turno->turno}
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+		");
+
+		$resultados = [];
+		foreach ($id_estrelas_imperio as $id_estrela) {
+			$resultados_temp =$wpdb->get_results("
+				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
+				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
+				cat.pop AS pop, cat.data_modifica AS data_modifica
+				FROM colonization_imperio_colonias AS cic 
+				JOIN colonization_planeta_instalacoes AS cpi
+				ON cpi.id_planeta = cic.id_planeta
+				LEFT JOIN 
+				(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, data_modifica
+				 FROM colonization_acoes_turno
+				 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+				) AS cat
+				ON cat.id_planeta = cic.id_planeta
+				AND cat.id_instalacao = cpi.id_instalacao
+				AND cat.id_planeta_instalacoes = cpi.id
+				AND cat.id_imperio = cic.id_imperio
+				JOIN colonization_instalacao AS ci
+				ON ci.id = cpi.id_instalacao
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio = {$this->id_imperio} 
+				AND cic.turno = {$this->turno->turno}
+				AND cpi.turno <={$this->turno->turno}
+				AND ce.id = {$id_estrela->id}
+				ORDER BY cic.capital DESC, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
+				");
+			
+			$resultados = array_merge($resultados,$resultados_temp);
+		}
+
 		$chave = 0;
 		foreach ($resultados as $valor) {
 			if ($valor->id === null) {
@@ -114,6 +132,7 @@ class acoes
 		}
 
 		$chave = 0;
+		//*****
 		if (isset($this->id[$chave])) {
 			foreach ($this->id as $chave => $valor) {
 				if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
@@ -136,6 +155,7 @@ class acoes
 				}
 			}
 		}
+		//*****/
 		
 		$this->pega_balanco_recursos();
 		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
