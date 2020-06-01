@@ -395,7 +395,7 @@ class imperio
 		
 		$html .= "<table class='wp-list-table widefat fixed striped users'>
 		<thead>
-		<tr><td>Estrela (X;Y;Z)</td><td>Planeta (posição)</td><td>População</td><td>Poluição</td></tr>
+		<tr><td>Estrela (X;Y;Z;P)</td><td>Planeta</td><td>População</td><td>Poluição</td></tr>
 		</thead>
 		<tbody>
 		";
@@ -405,7 +405,7 @@ class imperio
 			$planeta = new planeta($colonia->id_planeta);
 			$estrela = new estrela($planeta->id_estrela);
 			
-			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</td><td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}({$planeta->posicao})</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
+			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao})</td><td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
 		}
 		
 		$html .= "</tbody>

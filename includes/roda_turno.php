@@ -200,9 +200,9 @@ class roda_turno {
 		
 		foreach ($colonias_npcs as $id_colonia) {
 			$colonia = new colonia($id_colonia->id);
-			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc={$colonia->nome_npc}, id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}<br>";	
+			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}<br>";	
 
-			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc={$colonia->nome_npc}, id_planeta={$colonia->id_planeta}, capital={$colonia->capital},
+			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital},
 			pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}");
 		}
 		
