@@ -928,7 +928,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		/<div class='fas fa-user tooltip'><span class='tooltiptext'>Pop</span></div>
 		</td>
 		
-		<td>Instalação</td><td>Utilização (0-10)</td><td>&nbsp;</td></tr>
+		<td style='width: 35%;'>Instalação</td><td style='width: 35%;'>Utilização (0-10)</td><td style='width: 2%;'>&nbsp;</td></tr>
 		</thead>
 		<tbody>";
 		

@@ -803,7 +803,7 @@ class menu_admin {
 				$html_lista = "			
 				<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>
 				<thead>
-				<tr><th>ID</th>{$imperios_npcs}<th>Planeta</th><th style='width: 80px;'>Capital</th><th style='width: 100px;'>População</th><th style='width: 100px;'>Robôs</th><th style='width: 100px;'>Poluição</th><th>Turno</th><th>&nbsp;</th>
+				<tr><th>ID</th>{$imperios_npcs}<th>Planeta</th><th style='width: 80px;'>Capital</th><th style='width: 80px;'>Vassalo</th><th style='width: 100px;'>População</th><th style='width: 100px;'>Robôs</th><th style='width: 100px;'>Poluição</th><th>Turno</th><th>&nbsp;</th>
 				</tr>
 				</thead>
 				<tbody>";

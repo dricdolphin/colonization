@@ -14,7 +14,9 @@ class colonia
 	public $nome_npc;
 	public $id_planeta;
 	public $capital;
+	public $vassalo;
 	public $icone_capital;
+	public $icone_vassalo;
 	public $pop;
 	public $pop_robotica;
 	public $mdo;
@@ -31,13 +33,14 @@ class colonia
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, pop, pop_robotica, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, vassalo, pop, pop_robotica, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
 		$this->nome_npc = $resultado->nome_npc;
 		$this->id_planeta = $resultado->id_planeta;
 		$this->capital = $resultado->capital;
+		$this->vassalo = $resultado->vassalo;
 		$this->pop = $resultado->pop;
 		$this->pop_robotica = $resultado->pop_robotica;
 		$this->poluicao = $resultado->poluicao;
@@ -54,6 +57,11 @@ class colonia
 		$this->icone_capital = "";
 		if ($this->capital == 1) {
 			$this->icone_capital = "<div class='fas fa-crown tooltip' style='color: #DAA520;'>&nbsp;<span class='tooltiptext'>Capital</span></div>";
+		}
+
+		$this->icone_vassalo = "";
+		if ($this->vassalo == 1) {
+			$this->icone_vassalo = "<div class='fas fa-pray tooltip' style='color: #4A4B14;'>&nbsp;<span class='tooltiptext'>Vassalo</span></div>";
 		}
 
 		//Atualiza os recursos da Colônia para o Turno atual, se necessário
@@ -79,12 +87,16 @@ class colonia
 	function lista_dados() {
 		global $wpdb;
 
+		$capital_checked = "";
 		if ($this->capital == 1) {
 			$capital_checked = "checked";
-		} else {
-			$capital_checked = "";
 		}
 		
+		$vassalo_checked = "";
+		if ($this->vassalo == 1) {
+			$vassalo_checked = "checked";
+		}
+
 		if ($this->id_imperio == 0) {
 			$imperios_npc = "<td><div data-atributo='nome_npc' data-editavel='true' data-valor-original='{$this->nome_npc}' data-style='width: 120px;'>{$this->nome_npc}</div></td>";
 		} else {
@@ -106,6 +118,7 @@ class colonia
 			{$imperios_npc}
 			<td><div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='{$this->id_planeta}' data-valor-original='{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}'>{$this->planeta->nome} - {$this->estrela->X};{$this->estrela->Y};{$this->estrela->Z} / {$this->planeta->posicao}</div></td>
 			<td><div data-atributo='capital' data-type='checkbox' data-editavel='true' data-valor-original='{$this->capital}'><input type='checkbox' data-atributo='capital' data-ajax='true' {$capital_checked} disabled></input></div></td>			
+			<td><div data-atributo='vassalo' data-type='checkbox' data-editavel='true' data-valor-original='{$this->vassalo}'><input type='checkbox' data-atributo='vassalo' data-ajax='true' {$vassalo_checked} disabled></input></div></td>			
 			<td><div data-atributo='pop' data-editavel='true' data-valor-original='{$this->pop}' data-style='width: 60px;'>{$this->pop}</div></td>
 			<td><div data-atributo='pop_robotica' data-editavel='true' data-valor-original='{$this->pop_robotica}' data-style='width: 60px;'>{$this->pop_robotica}</div></td>
 			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>

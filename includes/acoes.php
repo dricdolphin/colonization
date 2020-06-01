@@ -215,15 +215,6 @@ class acoes
 	function lista_dados($turno_atual=true) {
 		global $wpdb;
 		
-		if ($turno_atual) {
-			$this->disabled = "";
-		} else {
-			$turno_atual = new turno();
-			if ($this->turno->turno != $turno_atual->turno || $this->turno->encerrado == 1) {
-				$this->disabled = "disabled";
-			}
-		}
-		
 		$html = "";
 		$ultimo_planeta = 0;
 		$estilo_par = "style='background-color: #FAFAFA;'";
@@ -237,6 +228,25 @@ class acoes
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
 			$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			
+			$user = wp_get_current_user();
+			$roles = "";
+			if (!empty($user->roles[0])) {
+				$roles = $user->roles[0];		
+			}
+
+			if ($turno_atual) {
+				$this->disabled = "";
+			} else {
+				$turno_atual = new turno();
+				if ($this->turno->turno != $turno_atual->turno || $this->turno->encerrado == 1) {
+					$this->disabled = "disabled";
+				}
+			}
+
+			if ($colonia->vassalo == 1 && $roles != "administrator") {
+				$this->disabled = "disabled";
+			}
 			
 			if ($ultimo_planeta != $planeta->id) {
 				$slots = 0;
@@ -292,7 +302,7 @@ class acoes
 			}
 			
 			if ($instalacao->desguarnecida == 0) {
-				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return efetua_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 20px;'>{$this->pop[$chave]}</label>";
+				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return efetua_acao(event, this);' ontouchend='return efetua_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
 			} else {
 				$exibe_acoes = "&nbsp";
 			}

@@ -459,6 +459,7 @@ function nova_colonia(evento, id_imperio) {
 	
 	var nome_planeta = linha_nova.insertCell(-1);
 	var capital = linha_nova.insertCell(-1);
+	var vassalo = linha_nova.insertCell(-1);
 	var pop = linha_nova.insertCell(-1);
 	var pop_robotica = linha_nova.insertCell(-1);
 	var poluicao = linha_nova.insertCell(-1);
@@ -478,6 +479,7 @@ function nova_colonia(evento, id_imperio) {
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
 	capital.innerHTML = "<div data-atributo='capital' data-type='checkbox' data-editavel='true' data-valor-original=''><input type='checkbox' data-atributo='capital' data-ajax='true' value='1'></input></div>";
+	vassalo.innerHTML = "<div data-atributo='vassalo' data-type='checkbox' data-editavel='true' data-valor-original=''><input type='checkbox' data-atributo='vassalo' data-ajax='true' value='1'></input></div>";
 	pop.innerHTML = "<div data-atributo='pop' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop' data-ajax='true' style='width: 30px;'></input></div>";
 	pop_robotica.innerHTML = "<div data-atributo='pop_robotica' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop_robotica' data-ajax='true' style='width: 30px;' value=0></input></div>";
 	poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;'></input></div>";

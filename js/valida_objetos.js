@@ -258,9 +258,9 @@ function valida_colonia(objeto) {
 		}
 		if (inputs_linha[index].type == 'checkbox') {
 			if (inputs_linha[index].checked) {
-				dados_ajax = dados_ajax +"&capital=1";
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
 			} else {
-				dados_ajax = dados_ajax +"&capital=0";
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
 			}			
 		}
 	}

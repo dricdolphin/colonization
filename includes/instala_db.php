@@ -167,6 +167,7 @@ class instala_db {
 		nome_npc VARCHAR(255) DEFAULT '',
 		id_planeta INT(6) NOT NULL,
 		capital BOOLEAN DEFAULT FALSE,
+		vassalo BOOLEAN DEFAULT FALSE,
 		pop INT(6) NOT NULL,
 		pop_robotica INT(6) DEFAULT 0,
 		poluicao INT(6) NOT NULL,

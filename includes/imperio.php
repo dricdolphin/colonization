@@ -573,7 +573,7 @@ class imperio
 				}
 				
 				$mdo = $acoes->mdo_planeta($planeta->id);
-				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao}; ";
+				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {
