@@ -650,19 +650,29 @@ function salva_acao(evento, objeto, cancela = false) {
 		}
 	}
 	
+	/***
 	if (!valida_acao(dados)) {
 		evento.preventDefault();
 		return false;
 	}
+	//***/
 
 	//Cria o string que será passado para o AJAX
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_acao&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
 
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				//var objeto_desabilitado = desabilita_edicao_objeto(objeto);
@@ -687,7 +697,11 @@ function salva_acao(evento, objeto, cancela = false) {
 						var id_estrela = inputs[index].value;
 					}
 				}
-				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela);
+				
+				
+				
+				
+				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, resposta);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -709,50 +723,37 @@ function atualiza_produtos_acao(id_imperio)
 Pega os produtos da Ação
 id_imperio -- id do Império
 ******************/	
-function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela) {
+function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
 	
-	//Envia a chamada de AJAX para salvar o objeto
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			if (resposta.resposta_ajax == "OK!") {
-				id_colonias = "lista_colonias_imperio_"+id_imperio;
-				id_produz = "recursos_produzidos_imperio_"+id_imperio;
-				id_consome = "recursos_consumidos_imperio_"+id_imperio;
-				id_balanco = "recursos_balanco_imperio_"+id_imperio;
-				id_balanco_planeta = "balanco_planeta_"+id_planeta;
-				id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
-				name_mdo_sistema = "mdo_sistema_"+id_estrela;
-				
-				div_colonias = document.getElementById(id_colonias);
-				div_produz = document.getElementById(id_produz);
-				div_consome = document.getElementById(id_consome);
-				div_balanco = document.getElementById(id_balanco);
-				div_balanco_planeta = document.getElementById(id_balanco_planeta);
-				div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
-				div_mdo_sistema = document.getElementsByName(name_mdo_sistema);
-				
-				div_colonias.innerHTML = resposta.lista_colonias
-				div_produz.innerHTML = resposta.recursos_produzidos;
-				div_consome.innerHTML = resposta.recursos_consumidos;
-				div_balanco.innerHTML = resposta.recursos_balanco;
-				div_balanco_planeta.innerHTML = resposta.balanco_planeta;
-				div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
-				
-				for (let index=0; index < div_mdo_sistema.length; index++) {
-					div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
-				}
-			} else {
-				alert(resposta.resposta_ajax);
-			}
+	if (resposta.resposta_ajax == "SALVO!") {
+		id_colonias = "lista_colonias_imperio_"+id_imperio;
+		id_produz = "recursos_produzidos_imperio_"+id_imperio;
+		id_consome = "recursos_consumidos_imperio_"+id_imperio;
+		id_balanco = "recursos_balanco_imperio_"+id_imperio;
+		id_balanco_planeta = "balanco_planeta_"+id_planeta;
+		id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
+		name_mdo_sistema = "mdo_sistema_"+id_estrela;
+		
+		div_colonias = document.getElementById(id_colonias);
+		div_produz = document.getElementById(id_produz);
+		div_consome = document.getElementById(id_consome);
+		div_balanco = document.getElementById(id_balanco);
+		div_balanco_planeta = document.getElementById(id_balanco_planeta);
+		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
+		div_mdo_sistema = document.getElementsByName(name_mdo_sistema);
+		
+		div_colonias.innerHTML = resposta.lista_colonias
+		div_produz.innerHTML = resposta.recursos_produzidos;
+		div_consome.innerHTML = resposta.recursos_consumidos;
+		div_balanco.innerHTML = resposta.recursos_balanco;
+		div_balanco_planeta.innerHTML = resposta.balanco_planeta;
+		div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
+		
+		for (let index=0; index < div_mdo_sistema.length; index++) {
+			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
 		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-
+	}
 }
 
 /******************

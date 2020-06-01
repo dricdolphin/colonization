@@ -21,6 +21,7 @@ class imperio
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
 	public $max_pop = 0;
+	public $limite_poluicao = 0;
 	public $alcance_logistica = 0;
 	public $bonus_recurso = [];
 	public $sinergia = [];
@@ -108,6 +109,7 @@ class imperio
 		//crescimento_pop=velocidade -- tech que aumenta a velocidade de crescimento da Pop
 		//logistica=alcance -- tech que permite criar Instalações e Colônias à uma determinada distância
 		//bonus_logistica=bonus -- bônus de alcance
+		//limite_poluicao=porcentagem -- tech que aumenta o limite de poluição aceitável
 		//
 		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
@@ -169,6 +171,16 @@ class imperio
 				$bonus_logistica_valor = explode("=",$bonus_logistica[0]);
 				$this->alcance_logistica = $this->alcance_logistica + $bonus_logistica_valor[1];
 			}
+
+			//Especiais -- limite_poluicao
+			$limite_poluicao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'limite_poluicao') !== false;
+			}));
+			
+			if (!empty($limite_poluicao)) {
+				$limite_poluicao_valor = explode("=",$limite_poluicao[0]);
+				$this->limite_poluicao = $this->alcance_logistica + $limite_poluicao_valor[1];
+			}			
 
 			//Especiais -- bonus_pesquisa_naves
 			$bonus_pesquisa_naves = array_values(array_filter($especiais, function($value) {

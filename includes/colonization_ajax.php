@@ -12,6 +12,7 @@ class colonization_ajax {
 		//Adiciona as funções que serão utilizadas
 		//TODO -- Adicionar as funções conforme necessário
 		add_action('wp_ajax_salva_objeto', array ($this, 'salva_objeto'));
+		add_action('wp_ajax_salva_acao', array ($this, 'salva_acao'));
 		add_action('wp_ajax_deleta_objeto', array ($this, 'deleta_objeto'));
 		add_action('wp_ajax_valida_estrela', array ($this, 'valida_estrela'));
 		add_action('wp_ajax_valida_colonia', array ($this, 'valida_colonia'));
@@ -696,11 +697,29 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	}
 	
 	/***********************
+	function salva_acao ()
+	----------------------
+	Salva uma Ação e devolve os dados 
+	***********************/	
+	function salva_acao() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+		
+		$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
+		$resposta = array_merge($resposta, $this->produtos_acao());
+		$resposta['resposta_ajax'] = "SALVO!";
+		
+		echo json_encode($resposta);
+		wp_die();
+	}
+
+
+	/***********************
 	function salva_objeto ()
 	----------------------
 	Salva o objeto desejado
 	***********************/	
-	function salva_objeto() {
+	function salva_objeto($ajax = true) {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
@@ -743,8 +762,12 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			$dados_salvos['resposta_ajax'] .= "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
 		}
 		
-		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-		wp_die(); //Termina o script e envia a resposta
+		if ($ajax) {
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		} else {
+			return $dados_salvos; 
+		}
 	}
 
 	/***********************
@@ -889,8 +912,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
-		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-		wp_die(); //Termina o script e envia a resposta
+		return $dados_salvos; //Envia a resposta via echo, codificado como JSON
+		//wp_die(); //Termina o script e envia a resposta
 	}
 
 	/***********************
