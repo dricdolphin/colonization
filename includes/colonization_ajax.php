@@ -719,7 +719,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	----------------------
 	Salva o objeto desejado
 	***********************/	
-	function salva_objeto($ajax = true) {
+	function salva_objeto($resposta_ajax = 1) {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
@@ -762,11 +762,12 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			$dados_salvos['resposta_ajax'] .= "Ocorreu um erro ao tentar salvar o objeto! Por favor, tente novamente!";
 		}
 		
-		if ($ajax) {
+		$dados_salvos['debug'] = "Resposta Ajax: {$resposta_ajax}";
+		if ($resposta_ajax === false) {
+			return $dados_salvos; 
+		} else {
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
-		} else {
-			return $dados_salvos; 
 		}
 	}
 

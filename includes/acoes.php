@@ -64,8 +64,9 @@ class acoes
 		");
 
 		$resultados = [];
+		$index = 0;
 		foreach ($id_estrelas_imperio as $id_estrela) {
-			$resultados_temp =$wpdb->get_results("
+			$resultados_temp = $wpdb->get_results("
 				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
 				cat.pop AS pop, cat.data_modifica AS data_modifica
@@ -94,7 +95,7 @@ class acoes
 				ORDER BY cic.capital DESC, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
 				");
 			
-			$resultados = array_merge($resultados,$resultados_temp);
+			$resultados = array_merge($resultados, $resultados_temp);
 		}
 
 		$chave = 0;
@@ -248,7 +249,7 @@ class acoes
 				$this->disabled = "disabled";
 			}
 			
-			if ($ultimo_planeta != $planeta->id) {
+			if ($ultimo_planeta != $planeta->id && $instalacao->oculta == 0) {
 				$slots = 0;
 				$balanco_planeta = "";
 				
