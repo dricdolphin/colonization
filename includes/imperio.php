@@ -32,9 +32,11 @@ class imperio
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
+	public $pdf_torpedo = 0;
 	public $defesa_invasao = 1;
 	public $torpedos_sistema_estelar = false;
 	public $torpedeiros_sistema_estelar = false;
+	
 
 	/***********************
 	function __construct($id, $super=false)
@@ -274,6 +276,16 @@ class imperio
 				$this->pdf_planetario = $this->pdf_planetario	+ $pdf_planetario_valor[1];
 			}
 
+			//Especiais -- pdf_torpedo
+			$pdf_torpedo = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pdf_torpedo') !== false;
+			}));
+			
+			if (!empty($pdf_torpedo)) {
+				$pdf_torpedo_valor = explode("=",$pdf_torpedo[0]);
+				$this->pdf_torpedo = $this->pdf_torpedo	+ $pdf_torpedo_valor[1];
+			}			
+
 			//Especiais -- defesa_invasao
 			$defesa_invasao = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'defesa_invasao') !== false;
@@ -486,7 +498,7 @@ class imperio
 				$html_defesas = "PdF Planetário: {$pdf_planetario}<br>Defesa Invasão: {$defesa_invasao}";
 				
 				if ($this->torpedos_sistema_estelar) {
-					$html_defesas .= "<br>Torpedos Estelares: {$qtd_defesas}";
+					$html_defesas .= "<br>Torpedos Estelares: {$qtd_defesas} (Pdf Torpedo: {$this->pdf_torpedo})";
 				}
 				
 				if ($this->torpedeiros_sistema_estelar !== false) {
