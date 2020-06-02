@@ -705,7 +705,7 @@ class imperio
 		
 		$mdo = 0;
 		foreach ($resultados as $resultado) {
-			$colonia = new colonia ($resultado->id_colonia);
+			$colonia = new colonia ($resultado->id);
 			$planeta = $colonia->planeta;
 			$estrela = $colonia->estrela;
 			$planeta_id_estrela[$planeta->id] = $estrela->id;
