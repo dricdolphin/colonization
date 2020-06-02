@@ -285,7 +285,7 @@ class imperio
 			}
 			
 			//Especiais -- torpedos_sistema_estelar
-			$defesa_invasao = array_values(array_filter($especiais, function($value) {
+			$torpedos_sistema_estelar = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'torpedos_sistema_estelar') !== false;
 			}));
 			
