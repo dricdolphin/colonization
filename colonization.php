@@ -9,7 +9,7 @@
  */
 
 //Inclui os arquivos necessários para o sistema "Colonization"
-include_once(ABSPATH . 'wp-includes/pluggable.php'); //Arquivo do WordPress
+//include_once(ABSPATH . 'wp-includes/pluggable.php'); //Arquivo do WordPress
 include_once('includes/menu_admin.php');
 include_once('includes/colonization_ajax.php');
 include_once('includes/instalacao.php');
@@ -33,7 +33,6 @@ include_once('includes/turno.php');
 include_once('includes/frota.php');
 include_once('includes/roda_turno.php');
 include_once('includes/reabastece_imperio.php');
-include_once('js/listas_js.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -64,17 +63,21 @@ class colonization {
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe a transferência de Techs e o histórico
-
-
+		
+		add_action( 'plugins_loaded', array($this,'carrega_actions') );
+		//date_default_timezone_set('America/Sao_Paulo');
+	}
+	
+	function carrega_actions() {
+		
+		include_once('js/listas_js.php');
 		add_action('wp_head', array($this,'colonization_ajaxurl')); //Necessário para incluir o ajaxurl
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
-		
-		//date_default_timezone_set('America/Sao_Paulo');
 	}
-	
+
 	function colonization_ajaxurl() {
 
 		echo "<script type='text/javascript'>
