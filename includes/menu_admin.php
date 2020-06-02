@@ -58,7 +58,8 @@ class menu_admin {
 			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
 			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
 			wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
-			wp_enqueue_script('fonte_awesome_js', 'https://kit.fontawesome.com/f748229918.js',false,$hoje);
+			wp_enqueue_script('fonte_awesome_js', '/wp-includes/fontawesome/js/all.js',false,$hoje);
+			wp_enqueue_style('fonteawesome_css', '/wp-includes/fontawesome/css/all.css',false,$hoje);
 			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}
 	
@@ -76,8 +77,8 @@ class menu_admin {
 		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
 		wp_enqueue_script('gerencia_naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
 		wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
-		wp_enqueue_script('fonte_awesome_js', 'https://kit.fontawesome.com/f748229918.js',false,$hoje);
-		wp_enqueue_script('google_charts', 'https://www.gstatic.com/charts/loader.js');
+		wp_enqueue_script('fonte_awesome_js', '/wp-includes/fontawesome/js/all.js',false,$hoje);
+		wp_enqueue_style('fonteawesome_css', '/wp-includes/fontawesome/css/all.css',false,$hoje);
 		wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}	
 
@@ -790,16 +791,7 @@ class menu_admin {
 				//$html_dados = $imperio->lista_dados();
 				
 				$html .= "<br><div><h3>Colônias de '{$imperio->nome}'</h3></div>";
-				$lista_id_colonias = $wpdb->get_results("
-				SELECT cic.id 
-				FROM colonization_imperio_colonias  AS cic
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				JOIN colonization_estrela AS ce
-				ON ce.id = cp.id_estrela
-				WHERE cic.id_imperio={$id->id} AND cic.turno={$turno->turno} 
-				ORDER BY cic.nome_npc, cic.capital DESC");
-
+				
 				$html_lista = "			
 				<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}'>
 				<thead>
@@ -807,6 +799,35 @@ class menu_admin {
 				</tr>
 				</thead>
 				<tbody>";
+
+				$id_estrelas_imperio = $wpdb->get_results("
+				SELECT DISTINCT ce.id
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio = {$imperio->id} 
+				AND cic.turno = {$turno->turno}
+				ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+				");
+
+				$lista_id_colonias = [];
+				foreach ($id_estrelas_imperio as $id_estrela) {
+					$resultados_temp =$wpdb->get_results("
+					SELECT cic.id 
+					FROM colonization_imperio_colonias AS cic
+					JOIN colonization_planeta AS cp
+					ON cp.id = cic.id_planeta
+					JOIN colonization_estrela AS ce
+					ON ce.id = cp.id_estrela
+					WHERE cic.id_imperio={$imperio->id} AND cic.turno={$turno->turno}
+					AND ce.id={$id_estrela->id}
+					ORDER BY cic.capital DESC, cp.posicao
+					");
+					
+					$lista_id_colonias = array_merge($lista_id_colonias,$resultados_temp);
+				}
 				
 				foreach ($lista_id_colonias as $id_colonia) {
 					$colonia = new colonia($id_colonia->id);

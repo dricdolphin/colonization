@@ -29,6 +29,12 @@ class imperio
 	public $max_bonus_recurso = [];
 	public $bonus_pesquisa_naves = 0;
 	public $crescimento_pop = 1;
+	
+	//Atributos de defesa planetária
+	public $pdf_planetario = 10;
+	public $defesa_invasao = 1;
+	public $torpedos_sistema_estelar = false;
+	public $torpedeiros_sistema_estelar = false;
 
 	/***********************
 	function __construct($id, $super=false)
@@ -148,7 +154,7 @@ class imperio
 			if (!empty($crescimento_pop)) {
 				$crescimento_pop_valor = explode("=",$crescimento_pop[0]);
 				$this->crescimento_pop = $this->crescimento_pop	+ $crescimento_pop_valor[1];
-			}			
+			}
 			
 			//Especiais -- logistica
 			$logistica = array_values(array_filter($especiais, function($value) {
@@ -256,6 +262,47 @@ class imperio
 					}
 				}
 			}
+		
+			//Atributos de defesa planetária
+			//Especiais -- pdf_planetario
+			$pdf_planetario = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pdf_planetario') !== false;
+			}));
+			
+			if (!empty($pdf_planetario)) {
+				$pdf_planetario_valor = explode("=",$pdf_planetario[0]);
+				$this->pdf_planetario = $this->pdf_planetario	+ $pdf_planetario_valor[1];
+			}
+
+			//Especiais -- defesa_invasao
+			$defesa_invasao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'defesa_invasao') !== false;
+			}));
+			
+			if (!empty($defesa_invasao)) {
+				$defesa_invasao_valor = explode("=",$defesa_invasao[0]);
+				$this->defesa_invasao = $this->defesa_invasao	+ $defesa_invasao_valor[1];
+			}
+			
+			//Especiais -- torpedos_sistema_estelar
+			$defesa_invasao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'torpedos_sistema_estelar') !== false;
+			}));
+			
+			if (!empty($torpedos_sistema_estelar)) {
+				$this->torpedos_sistema_estelar = true;
+			}
+			
+			//Especiais -- torpedeiros_sistema_estelar			
+			$torpedeiros_sistema_estelar = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'torpedeiros_sistema_estelar') !== false;
+			}));
+			
+			if (!empty($torpedeiros_sistema_estelar)) {
+				$torpedeiros_sistema_estelar_valor = explode("=",$torpedeiros_sistema_estelar[0]);
+				$this->torpedeiros_sistema_estelar = $torpedeiros_sistema_estelar_valor[1];
+			}			
+
 		}
 
 		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
@@ -407,7 +454,7 @@ class imperio
 		
 		$html .= "<table class='wp-list-table widefat fixed striped users'>
 		<thead>
-		<tr><td>Estrela (X;Y;Z;P)</td><td>Planeta</td><td>População</td><td>Poluição</td></tr>
+		<tr><td>Estrela (X;Y;Z;P)</td><td>Planeta</td><td>Defesas</td><td>População</td><td>Poluição</td></tr>
 		</thead>
 		<tbody>
 		";
@@ -416,8 +463,90 @@ class imperio
 			$colonia = new colonia($id->id);
 			$planeta = new planeta($colonia->id_planeta);
 			$estrela = new estrela($planeta->id_estrela);
+
+			$html_pop_colonia = "{$colonia->pop}";
+			if ($colonia->pop_robotica > 0) {
+				$html_pop_colonia .= "(<div class='fas fa-users-cog tooltip'>&nbsp;<span class='tooltiptext'>População Robótica</span></div>{$colonia->pop_robotica})";
+			}
 			
-			$html .= "<tr><td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao})</td><td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}</td><td>{$colonia->pop}</td><td>{$colonia->poluicao}</td></tr>";
+			
+			$qtd_defesas = round(($colonia->pop/10),0,PHP_ROUND_HALF_DOWN);
+			
+			/***
+			public $pdf_planetario = 1;
+			public $defesa_invasao = 1;
+			public $torpedos_sistema_estelar = false;
+			public $torpedeiros_sistema_estelar = false;
+			//***/
+			
+			$html_defesas = "";
+			if ($qtd_defesas > 0) {
+				$pdf_planetario = round(($this->pdf_planetario*$qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
+				$defesa_invasao = $this->defesa_invasao*$qtd_defesas;
+				$html_defesas = "PdF Planetário: {$pdf_planetario}<br>Defesa Invasão: {$defesa_invasao}";
+				
+				if ($this->torpedos_sistema_estelar) {
+					$html_defesas .= "<br>Torpedos Estelares: {$qtd_defesas}";
+				}
+				
+				if ($this->torpedeiros_sistema_estelar !== false) {
+
+					switch($this->torpedeiros_sistema_estelar) {
+						case 1:
+							$nivel = "Mk I";
+							break;
+						case 2:
+							$nivel = "Mk II";
+							break;					
+						default:
+							$nivel = "";
+					}
+
+					$html_defesas .= "<br>Torpedeiros Estelares: {$qtd_defesas} {$nivel}";
+				}
+			}
+			
+			$qtd_instalacao_ataque_id = [];
+			$html_instalacao_ataque = [];
+			foreach ($planeta->instalacoes_ataque as $chave => $id_instalacao) {
+				$instalacao_ataque = new instalacao($id_instalacao);
+				$especiais = explode(";",$instalacao_ataque->especiais);
+				//Especiais: pdf_instalacoes=valor
+				$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'pdf_instalacoes') !== false;
+				}));				
+				
+				$pdf_instalacoes =  explode("=",$pdf_instalacoes[0]);
+				$pdf_instalacoes =  $pdf_instalacoes[1];
+				
+				if (!empty($qtd_instalacao_ataque_id[$id_instalacao])) {
+					$qtd_instalacao_ataque_id[$id_instalacao]++;
+					$qtd_instalacao="{$qtd_instalacao_ataque_id[$id_instalacao]} x";
+				} else {
+					$qtd_instalacao_ataque_id[$id_instalacao] = 1;
+					$qtd_instalacao = "";
+				}
+				
+				$html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao} <div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span></div> PdF Torpedo: {$pdf_instalacoes}<br>";
+			}
+			
+			if ($html_defesas != "") {
+				$html_defesas .= "<br>";
+			}
+			foreach ($html_instalacao_ataque as $chave => $html_instalacao) {
+				$html_defesas .= $html_instalacao;
+			}
+			
+			if ($html_defesas == "") {
+				$html_defesas = "&nbsp;";
+			}
+			
+			$html .= "<tr>
+			<td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao})</td>
+			<td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}</td>
+			<td>{$html_defesas}</td>
+			<td>{$html_pop_colonia}</td><td>{$colonia->poluicao}</td>
+			</tr>";
 		}
 		
 		$html .= "</tbody>
@@ -520,19 +649,36 @@ class imperio
 	***********************/
 	function exibe_lista_colonias() {
 		global $wpdb;
-		
-		$resultados = $wpdb->get_results("
-		SELECT cic.id AS id_colonia
+
+		$id_estrelas_imperio = $wpdb->get_results("
+		SELECT DISTINCT ce.id
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
-		ON cp.id=cic.id_planeta
+		ON cp.id = cic.id_planeta
 		JOIN colonization_estrela AS ce
-		ON ce.id=cp.id_estrela
-		WHERE cic.id_imperio = {$this->id}
+		ON ce.id = cp.id_estrela
+		WHERE cic.id_imperio = {$this->id} 
 		AND cic.turno = {$this->turno->turno}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
 		");
-		
+
+		$resultados = [];
+		foreach ($id_estrelas_imperio as $id_estrela) {
+			$resultados_temp =$wpdb->get_results("
+			SELECT cic.id 
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno}
+			AND ce.id={$id_estrela->id}
+			ORDER BY cic.capital DESC, cp.posicao
+			");
+			
+			$resultados = array_merge($resultados,$resultados_temp);
+		}		
+
 		$html_lista = "<b>Lista de Colônias</b><br>";
 		$html_sistema = [];
 		$html_planeta = [];

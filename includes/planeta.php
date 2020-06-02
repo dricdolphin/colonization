@@ -23,6 +23,10 @@ class planeta
 	public $instalacoes;
 	public $turno;
 	
+	//Defesas Planetárias oferecidas por Instalações
+	public $instalacoes_ataque = [];
+	//public $pdf_instalacoes = [];
+	
 	//Especiais provenientes de Construções e/ou Techs
 	public $slots_extra = 0;
 	public $max_slots = 0;
@@ -96,6 +100,18 @@ class planeta
 
 				$pop_inospito_valor = explode("=",$pop_inospito[0]);
 				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
+			}
+			
+			//Especiais: pdf_instalacoes=valor
+			$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pdf_instalacoes') !== false;
+			}));
+			
+			if (!empty($pdf_instalacoes)) {
+				$colonia_instalacao = new colonia_instalacao($id->id);
+
+				$index = count($this->instalacoes_ataque);
+				$this->instalacoes_ataque[$index] = $colonia_instalacao->id_instalacao;
 			}
 		}
 		
