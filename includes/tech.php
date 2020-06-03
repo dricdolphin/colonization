@@ -138,10 +138,9 @@ class tech
 		$nivel = 0;
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 
 		do {

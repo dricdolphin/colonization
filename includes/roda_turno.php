@@ -28,7 +28,10 @@ class roda_turno {
 		global $wpdb;
 		
 		$user = wp_get_current_user();
-		$roles = $user->roles[0];
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		$html = "";
 		//Rodar o turno é simples: primeiro, CRIAMOS todos os recursos, depois CONSUMIMOS todos os recursos, e por fim AUMENTAMOS a população dos planetas onde isso for possível

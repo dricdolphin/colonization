@@ -11,8 +11,6 @@ class menu_admin {
 	function __construct() {
 		global $asgarosforum;
 		
-		$colonization_ajax = new colonization_ajax();
-		
 		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
 		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
 	
@@ -58,7 +56,6 @@ class menu_admin {
 			wp_enqueue_script('valida_objetos_js', '/wp-content/plugins/colonization/js/valida_objetos.js',false,$hoje);
 			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
 			wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
-			wp_enqueue_script('fonte_awesome_js', '/wp-includes/fontawesome/js/all.js',false,$hoje);
 			wp_enqueue_style('fonteawesome_css', '/wp-includes/fontawesome/css/all.css',false,$hoje);
 			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}
@@ -77,9 +74,10 @@ class menu_admin {
 		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
 		wp_enqueue_script('gerencia_naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
 		wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
-		wp_enqueue_script('fonte_awesome_js', '/wp-includes/fontawesome/js/all.js',false,$hoje);
 		wp_enqueue_style('fonteawesome_css', '/wp-includes/fontawesome/css/all.css',false,$hoje);
 		wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
+	
+		
 	}	
 
 

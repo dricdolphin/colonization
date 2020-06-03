@@ -48,7 +48,10 @@ class transfere_tech
 		global $wpdb;
 		
 		$user = wp_get_current_user();
-		$roles = $user->roles[0];		
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 
 		if ($id_imperio != 0) {

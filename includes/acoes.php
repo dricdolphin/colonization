@@ -203,7 +203,7 @@ class acoes
 		$pop_sistema = $this->imperio->pop_mdo_sistema($planeta->id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
 		
-		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta }/{$colonia->pop}";
+		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}";
 	}
 
 	/***********************
@@ -232,7 +232,7 @@ class acoes
 			
 			$user = wp_get_current_user();
 			$roles = "";
-			if (!empty($user->roles[0])) {
+			if (!empty($user->ID)) {
 				$roles = $user->roles[0];		
 			}
 

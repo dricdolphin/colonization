@@ -15,6 +15,7 @@ class instala_db {
 	***********************/
 	function __construct() {
 		global $wpdb; //Objeto WordPress de banco de dados
+		$wpdb->hide_errors();
 		
 		//Tabela com os dados do Império
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio (

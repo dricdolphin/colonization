@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**************************
 IMPERIO.PHP
 ----------------
@@ -51,7 +51,10 @@ class imperio
 		$this->turno = new turno($turno);
 		
 		$user = wp_get_current_user();
-		$roles = $user->roles[0];
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
 		if ($roles != "administrator" && !$super) {
@@ -322,7 +325,10 @@ class imperio
 		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
 
 		$user = wp_get_current_user();
-		$roles = $user->roles[0];
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 
 		$icone_html = [];
 		

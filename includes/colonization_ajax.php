@@ -10,7 +10,6 @@ class colonization_ajax {
 	
 	function __construct() {
 		//Adiciona as funções que serão utilizadas
-		//TODO -- Adicionar as funções conforme necessário
 		add_action('wp_ajax_salva_objeto', array ($this, 'salva_objeto'));
 		add_action('wp_ajax_salva_acao', array ($this, 'salva_acao'));
 		add_action('wp_ajax_deleta_objeto', array ($this, 'deleta_objeto'));
@@ -21,7 +20,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
-		add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
+		//add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
@@ -48,10 +47,9 @@ class colonization_ajax {
 		
 		$imperio = new imperio($nave->id_imperio);
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode despachar sua nave!";
@@ -83,10 +81,9 @@ class colonization_ajax {
 		$estrela = new estrela($nave->id_estrela_destino);
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 
 		if ($roles == "administrator") {
@@ -113,10 +110,9 @@ class colonization_ajax {
 		
 		$imperio = new imperio($transfere_tech->id_imperio_destino);
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if ($roles != "administrator" && $imperio->id != $transfere_tech->id_imperio_destino) {
@@ -372,10 +368,9 @@ class colonization_ajax {
 		$dados_salvos['debug'] = $resposta;
 		$imperio = new imperio($_POST['id_imperio']);
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if ($roles != "administrator" && $imperio->id != $_POST['id_imperio']) {
@@ -538,10 +533,9 @@ class colonization_ajax {
 		
 		$turno = new turno();
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if ($roles != "administrator") {
@@ -719,7 +713,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	----------------------
 	Salva o objeto desejado
 	***********************/	
-	function salva_objeto($resposta_ajax = 1) {
+	function salva_objeto($resposta_ajax = true) {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
@@ -765,10 +759,10 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$dados_salvos['debug'] = "Resposta Ajax: {$resposta_ajax}";
 		if ($resposta_ajax === false) {
 			return $dados_salvos; 
-		} else {
-			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-			wp_die(); //Termina o script e envia a resposta
 		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
 	}
 
 	/***********************
@@ -899,6 +893,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		
 		$imperio = new imperio($_POST['id_imperio']);
 		$acoes = new acoes($imperio->id);
+		$planeta = new planeta($_POST['id_planeta']);
+
 		
 		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
@@ -907,7 +903,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
 		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
 
-		$pop_sistema = $imperio->pop_mdo_sistema($_POST['id_estrela']);
+		$pop_sistema = $imperio->pop_mdo_sistema($planeta->id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
 		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
 		
@@ -1042,10 +1038,9 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$html = [];
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if ($roles != "administrator") {
@@ -1107,10 +1102,9 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		global $wpdb;
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if ($roles != "administrator") {
@@ -1138,10 +1132,9 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 
 		if ($roles != "administrator") {

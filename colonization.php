@@ -64,7 +64,7 @@ class colonization {
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe a transferência de Techs e o histórico
 		
-		add_action( 'plugins_loaded', array($this,'carrega_actions') );
+		add_action('plugins_loaded', array($this,'carrega_actions') );
 		//date_default_timezone_set('America/Sao_Paulo');
 	}
 	
@@ -76,6 +76,8 @@ class colonization {
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
+		
+		$colonization_ajax = new colonization_ajax();
 	}
 
 	function colonization_ajaxurl() {
@@ -109,26 +111,24 @@ class colonization {
 		global $asgarosforum, $wpdb;
 		
 		$user = wp_get_current_user();
-
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-			if ($roles == "administrator") {
-				$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0");
-				
-				foreach ($naves_pendentes as $id) {
-					$nave = new frota($id->id);
-					$notice = $nave->exibe_autoriza();
-					$notice = apply_filters('asgarosforum_filter_login_message', $notice);
-					$asgarosforum->add_notice($notice);
-				}
+		}
+	
+		if ($roles == "administrator") {
+			$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0");
+			
+			foreach ($naves_pendentes as $id) {
+				$nave = new frota($id->id);
+				$notice = $nave->exibe_autoriza();
+				$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+				$asgarosforum->add_notice($notice);
 			}
-		
-			return;
-		} 
-		
+		}
+	
+		return;
 	}
-	
-	
 	
 	/******************
 	function colonization_exibe_tech_transfere_pendente()
@@ -140,28 +140,29 @@ class colonization {
 		
 		$user = wp_get_current_user();
 		$ids_pendentes = [];
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-			if ($roles != "administrator") {
-				$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-				$imperio = new imperio($id_imperio, true);
-
-			}
-			
-			if (!empty($imperio->id)) {
-				$ids_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
-			}
-			
-			foreach ($ids_pendentes as $id) {
-				$transfere_tech = new transfere_tech($id->id);
-				
-				$notice = $transfere_tech->exibe_autoriza();
-				$notice = apply_filters('asgarosforum_filter_login_message', $notice);
-				$asgarosforum->add_notice($notice);
-			}
+		}
 		
-			return;
-		} 
+		if ($roles != "administrator") {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			$imperio = new imperio($id_imperio, true);
+		}
+		
+		if (!empty($imperio->id)) {
+			$ids_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
+		}
+		
+		foreach ($ids_pendentes as $id) {
+			$transfere_tech = new transfere_tech($id->id);
+			
+			$notice = $transfere_tech->exibe_autoriza();
+			$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+			$asgarosforum->add_notice($notice);
+		}
+		
+		return;
 	}
 	
 	/******************
@@ -175,10 +176,9 @@ class colonization {
 		$turno = new turno();
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		if (isset($atts['id'])) {
@@ -470,65 +470,69 @@ class colonization {
 		$id_estrela_capital = "";
 		$turno = new turno();
 		$div_imperios = "";
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-			if ($roles != "administrator") {
-				$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-				$imperios[0] = new imperio($id_imperio, true);
-				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
-				$colonia = new colonia($colonias[0]->id);
-				$planeta = new planeta($colonia->id_planeta);
-				$id_estrela_capital = $planeta->id_estrela;
-			} else {
-				$id_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio ORDER BY nome");
-				$imperios = [];
-				$div_imperios = "
-				<div id='div_imperios' style='width: 300px;'>&nbsp;</div>
-				";
-				foreach ($id_imperios as $chave => $id) {
-					$imperios[$chave] = new imperio ($id->id);
-				}
-				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
-				$colonia = new colonia($colonias[0]->id);
-				$planeta = new planeta($colonia->id_planeta);
-				$id_estrela_capital = $planeta->id_estrela;
+		}
+
+		if ($roles != "administrator") {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			$imperios[0] = new imperio($id_imperio, true);
+			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+			$colonia = new colonia($colonias[0]->id);
+			$planeta = new planeta($colonia->id_planeta);
+			$id_estrela_capital = $planeta->id_estrela;
+		} else {
+			$id_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio ORDER BY nome");
+			$imperios = [];
+			$div_imperios = "
+			<div id='div_imperios' style='width: 300px;'>&nbsp;</div>
+			";
+			foreach ($id_imperios as $chave => $id) {
+				$imperios[$chave] = new imperio ($id->id);
 			}
-		}			
+			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+			$colonia = new colonia($colonias[0]->id);
+			$planeta = new planeta($colonia->id_planeta);
+			$id_estrela_capital = $planeta->id_estrela;
+		}
+
 		
-				//Popula o JavaScript
-				$html_javascript = "
+		//Popula o JavaScript
+		$html_javascript = "
 var lista_estrelas_colonia=[];
 var lista_estrelas_reabastece=[];
 var estrela_capital=[];
 var id_imperio_atual = {$imperios[0]->id};
 				";
 				
-				foreach ($imperios as $imperio) {
-					$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+		foreach ($imperios as $imperio) {
+			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+
+			$html_javascript .= "
+			lista_estrelas_colonia[{$imperio->id}]=[];
+			lista_estrelas_reabastece[{$imperio->id}]=[];
+			";
+
+			foreach ($colonias as $id_colonia) {
+				$colonia = new colonia($id_colonia->id);
+				$planeta = new planeta($colonia->id_planeta);
+				
+				$html_javascript .= "
+				lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
+				
+				if ($colonia->capital == 1) {
 					$html_javascript .= "
-					lista_estrelas_colonia[{$imperio->id}]=[];
-					lista_estrelas_reabastece[{$imperio->id}]=[];
-					";
-					foreach ($colonias as $id_colonia) {
-						$colonia = new colonia($id_colonia->id);
-						$planeta = new planeta($colonia->id_planeta);
-						
-						$html_javascript .= "
-						lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
-						
-						if ($colonia->capital == 1) {
-							$html_javascript .= "
-							estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
-						}
-						
-					}
-					
-					$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
-					foreach ($reabastece as $id_estrela) {
-						$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_estrela->id_estrela}]={$id_estrela->id_estrela};\n
-						";
-					}
+					estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
 				}
+			}
+			
+			$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
+			foreach ($reabastece as $id_estrela) {
+				$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_estrela->id_estrela}]={$id_estrela->id_estrela};\n
+				";
+			}
+		}
 
 
 		$html = "
@@ -649,10 +653,9 @@ var id_imperio_atual = {$imperios[0]->id};
 		}
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 		
 		$html = "<div id='barra_recursos' class='nojq'>";
@@ -703,8 +706,13 @@ var id_imperio_atual = {$imperios[0]->id};
 	function colonization_exibe_prestigio($author_id, $author_posts) {
 		global $asgarosforum, $wpdb;
 
+	
 		$user_meta=get_userdata($author_id);
-		$user_roles=$user_meta->roles[0];
+		$user_roles="";
+		if (!empty($user_meta->roles[0])) {
+			$user_roles=$user_meta->roles[0];
+		}
+		
 			
 		if ($user_roles == "administrator") {
 			$prestigio = "&infin;";
@@ -1215,10 +1223,9 @@ var id_imperio_atual = {$imperio->id};
 		global $wpdb;
 
 		$user = wp_get_current_user();
+		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-		} else {
-			$roles = "";
 		}
 
 		$turno = new turno();

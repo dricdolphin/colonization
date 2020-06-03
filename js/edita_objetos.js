@@ -733,7 +733,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 		id_balanco = "recursos_balanco_imperio_"+id_imperio;
 		id_balanco_planeta = "balanco_planeta_"+id_planeta;
 		id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
-		name_mdo_sistema = "mdo_sistema_"+id_estrela;
+		nome_mdo_sistema = "mdo_sistema_"+id_estrela;
 		
 		div_colonias = document.getElementById(id_colonias);
 		div_produz = document.getElementById(id_produz);
@@ -741,7 +741,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 		div_balanco = document.getElementById(id_balanco);
 		div_balanco_planeta = document.getElementById(id_balanco_planeta);
 		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
-		div_mdo_sistema = document.getElementsByName(name_mdo_sistema);
+		div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
 		
 		div_colonias.innerHTML = resposta.lista_colonias
 		div_produz.innerHTML = resposta.recursos_produzidos;
