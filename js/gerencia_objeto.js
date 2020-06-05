@@ -270,7 +270,45 @@ function atualiza_lista_techs(objeto) {
 		xhttp_salvou.send(dados_ajax);
 }
 
-//envia_nave
+/******************
+function nave_visivel()
+--------------------
+Torna a nave visível
+******************/
+function nave_visivel (objeto, evento, id_nave) {
+	//let linha = pega_ascendente(objeto,"TR");
+	//let divs = linha.getElementsByTagName("DIV");
+	
+	var dados_ajax = "post_type=POST&action=nave_visivel&id="+id_nave;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+	
+	objeto.style.display='none';
+
+	evento.preventDefault();
+	return false;
+}
+
 /******************
 function envia_nave()
 --------------------
@@ -449,7 +487,6 @@ function encerra_turno
 Encerra o Turno
 --------
 ******************/
-		
 function encerra_turno(evento, objeto) {
 	var div_resultados = document.getElementById('resultado_turno');
 	div_resultados.innerHTML = "Encerrando o Turno...";

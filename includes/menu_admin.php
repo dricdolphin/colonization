@@ -893,6 +893,7 @@ class menu_admin {
 			<th rowspan='2' style='width: 70px;'>Bombard.</th>
 			<th rowspan='2' style='width: 60px;'>Invasão</th>
 			<th rowspan='2' style='width: 70px;'>Pesquisa</th>
+			<th rowspan='2' style='width: 70px;'>Camufl.</th>
 			<th rowspan='2' style='width: 100px;'>Estação Orbital</th>
 			<th rowspan='2' style='width: 120px;'>Especiais</th>
 			<th rowspan='2' style='width: 40px;'>Turno</th>

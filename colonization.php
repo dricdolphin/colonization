@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.13
+ * Version: 1.1.14
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -62,7 +62,9 @@ class colonization {
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
-		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
+		
 		
 		add_action('plugins_loaded', array($this,'carrega_actions') );
 		//date_default_timezone_set('America/Sao_Paulo');
@@ -100,8 +102,193 @@ class colonization {
 		
 		return $html;
 	}
-	
 
+
+	/******************
+	function colonization_exibe_mapa_naves()
+	-----------
+	Exibe a posição de todas as naves do Império e também nas Colônias
+	******************/		
+	function colonization_exibe_mapa_naves($atts = [], $content = null) {
+		global $asgarosforum, $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+		} else {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio, true);
+		}		
+		
+		if ($imperio->id == 0 && $roles == "administrator") {
+			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota");
+			$ids_estrelas = $wpdb->get_results("
+			SELECT DISTINCT ce.id 
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+			");
+		} else {
+			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id}");
+			$ids_estrelas = $wpdb->get_results("
+			SELECT DISTINCT ce.id
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cic.id_imperio = {$imperio->id}
+			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+			");			
+		}
+		
+		if (isset($atts['apenas_naves'])) {
+			$ids_estrelas = [];
+		}
+		
+		$html_estrela = [];
+		$exibiu_nave = [];
+		foreach ($ids_estrelas as $id_estrela) {
+			$estrela = new estrela($id_estrela->id);
+			
+			$ids_imperios = $wpdb->get_results("
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cp.id_estrela = {$estrela->id}
+			");
+			
+			$nomes_imperios = "";
+			foreach ($ids_imperios as $id_imperio) {
+				if ($id_imperio->id_imperio == 0) {
+					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
+				} else {
+					$imperio_estrela = new imperio($id_imperio->id_imperio);
+					$nomes_imperios .= "{$imperio_estrela->nome}; ";
+				}
+			}
+			if (!empty($nomes_imperios)) {
+				$nomes_imperios = substr($nomes_imperios,0,-2);
+				$nomes_imperios = "<span style='text-decoration: underline;'>{$nomes_imperios}</span>";
+			}
+			
+			if (empty($html_estrela[$estrela->id])) {
+				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X},{$estrela->Y},{$estrela->Z}) {$nomes_imperios}<br>";
+			}
+			
+			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
+			foreach ($ids_naves_na_estrela AS $id_frota) {
+				$nave = new frota($id_frota->id);
+				$imperio_nave = new imperio($nave->id_imperio);
+				
+				if ($roles != "administrator") {
+					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1) {
+						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$exibiu_nave[$nave->id] = true;
+					}
+				} else {
+					$exibiu_nave[$nave->id] = true;
+					if ($nave->camuflagem > 0) {
+						$html_estrela[$estrela->id] .= "<i>{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+					} else {
+						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+					}
+				}
+			}
+		}
+		
+		foreach ($ids_naves as $id_nave) {
+			$nave = new frota($id_nave->id);
+			$imperio_nave = new imperio($nave->id_imperio);
+			
+			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+			$estrela = new estrela($id_estrela);
+			
+			$ids_imperios = $wpdb->get_results("
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cp.id_estrela = {$estrela->id}
+			");
+			
+			$nomes_imperios = "";
+			foreach ($ids_imperios as $id_imperio) {
+				if ($id_imperio->id_imperio == 0) {
+					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
+				} else {
+					$imperio_estrela = new imperio($id_imperio->id_imperio);
+					$nomes_imperios .= "{$imperio_estrela->nome}; ";
+				}
+			}
+			if (!empty($nomes_imperios)) {
+				$nomes_imperios = substr($nomes_imperios,0,-2);
+				$nomes_imperios = "<span style='text-decoration: underline;'>{$nomes_imperios}</span>";
+			}
+			
+			if (empty($html_estrela[$estrela->id])) {
+				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X},{$estrela->Y},{$estrela->Z}) {$nomes_imperios}<br>";
+			}
+			
+			if (empty($exibiu_nave[$nave->id])) {
+				if ($roles != "administrator") {
+					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1) {
+						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+					}
+				} else {
+					if ($nave->camuflagem > 0) {
+						$html_estrela[$estrela->id] .= "<i>{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+					} else {
+						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+					}
+				}
+			}
+		}
+		
+		$html_final = "";
+		$chaves = implode(",",array_keys($html_estrela));
+		$ids_estrelas = $wpdb->get_results("
+		SELECT DISTINCT ce.id 
+		FROM colonization_estrela AS ce
+		LEFT JOIN colonization_planeta AS cp
+		ON cp.id_estrela = ce.id
+		LEFT JOIN colonization_imperio_colonias AS cic
+		ON cic.id_planeta = cp.id
+		WHERE ce.id IN ({$chaves})
+		ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+		");
+
+		$par_impar = "background-color: #DDD;";
+		foreach ($ids_estrelas as $chave) {
+			if ($par_impar == "background-color: #DDD;") {
+				$par_impar = "background-color: #EEE;";
+			} else {
+				$par_impar = "background-color: #DDD;";
+			}
+			$html_final .= "<div style='margin-bottom: 5px;{$par_impar}'>".$html_estrela[$chave->id]."</div>";
+		}
+		
+		//$html_final = "Império {$imperio->id} // {$roles}";
+		return $html_final;
+	}
+	
+	
 	/******************
 	function colonization_exibe_viagem_frota()
 	-----------
@@ -916,7 +1103,11 @@ var id_imperio_atual = {$imperios[0]->id};
 				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div>";	
 			}
 			$naves_por_linha++;
-			$html_frota .= "<b>{$nave->nome}</b> {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
+			$link_visivel = "";
+			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
+				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div></a>";
+			}
+			$html_frota .= "<b>{$nave->nome}</b> {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
 			if ($naves_por_linha == 2) {
 				$html_frota .= "<br>";
 			}

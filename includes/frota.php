@@ -29,6 +29,7 @@ class frota
 	public $PDF_bombardeamento;
 	public $poder_invasao;
 	public $pesquisa;
+	public $camuflagem;
 	public $nivel_estacao_orbital;
 	public $especiais;
 	public $HP;
@@ -36,6 +37,7 @@ class frota
 	public $qtd;
 	public $turno;
 	public $id_estrela_destino;
+	public $visivel;
 	
 	function __construct($id=0) {
 		global $wpdb;
@@ -51,7 +53,7 @@ class frota
 		PDF_laser, PDF_projetil, PDF_torpedo,
 		blindagem, escudos, 
 		PDF_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
-		especiais, turno, id_estrela_destino
+		camuflagem, especiais, turno, id_estrela_destino, visivel
 		FROM colonization_imperio_frota 
 		WHERE id={$this->id}");
 		
@@ -78,6 +80,7 @@ class frota
 		$this->escudos = $resultado->escudos;
 		$this->PDF_bombardeamento = $resultado->PDF_bombardeamento;
 		$this->poder_invasao = $resultado->poder_invasao;
+		$this->camuflagem = $resultado->camuflagem;
 		$this->pesquisa = $resultado->pesquisa;
 		$this->nivel_estacao_orbital = $resultado->nivel_estacao_orbital;
 		$this->especiais = $resultado->especiais;
@@ -85,6 +88,7 @@ class frota
 		$this->HP_max = $this->tamanho*10;
 		$this->turno = $resultado->turno;
 		$this->id_estrela_destino = $resultado->id_estrela_destino;
+		$this->visivel = $resultado->visivel;
 	}
 	
 	/***********************
@@ -148,6 +152,7 @@ class frota
 			<td><div data-atributo='PDF_bombardeamento' data-editavel='true' data-valor-original='{$this->PDF_bombardeamento}' data-style='width: 50px;' data-id='qtd_bombas'>{$this->PDF_bombardeamento}</div></td>
 			<td><div data-atributo='poder_invasao' data-editavel='true' data-valor-original='{$this->poder_invasao}' data-style='width: 50px;' data-id='qtd_tropas'>{$this->poder_invasao}</div></td>
 			<td><div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->pesquisa}' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' {$pesquisa_checked} disabled></input></div></td>
+			<td><div data-atributo='camuflagem' data-editavel='true' data-valor-original='{$this->camuflagem}' data-style='width: 50px;'>{$this->camuflagem}</div></td>
 			<td><div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='{$this->nivel_estacao_orbital}' data-style='width: 50px;' data-id='nivel_estacao_orbital'>{$this->nivel_estacao_orbital}</div></td>			
 			<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;'>{$this->especiais}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>

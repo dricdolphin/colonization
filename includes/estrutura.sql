@@ -180,12 +180,14 @@ escudos INT(6) NOT NULL,
 PDF_bombardeamento INT(6) NOT NULL,
 poder_invasao INT(6) NOT NULL,
 pesquisa BOOLEAN DEFAULT FALSE,
+camuflagem INT(6) DEFAULT 0,
 nivel_estacao_orbital INT(6) DEFAULT 0,
 especiais TEXT DEFAULT NULL,
 HP INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
 turno INT(6) NOT NULL,
-id_estrela_destino INT(6) DEFAULT 0
+id_estrela_destino INT(6) DEFAULT 0,
+visivel BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com o histórico de Pesquisas das naves do Império

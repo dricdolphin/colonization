@@ -29,6 +29,7 @@ class imperio
 	public $max_bonus_recurso = [];
 	public $bonus_pesquisa_naves = 0;
 	public $crescimento_pop = 1;
+	public $sensores = 0;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -121,6 +122,7 @@ class imperio
 		//logistica=alcance -- tech que permite criar Instalações e Colônias à uma determinada distância
 		//bonus_logistica=bonus -- bônus de alcance
 		//limite_poluicao=porcentagem -- tech que aumenta o limite de poluição aceitável
+		//sensores=nivel -- nível das Techs de Sensores
 		//
 		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
@@ -160,6 +162,16 @@ class imperio
 				$crescimento_pop_valor = explode("=",$crescimento_pop[0]);
 				$this->crescimento_pop = $this->crescimento_pop	+ $crescimento_pop_valor[1];
 			}
+			
+			//Especiais -- sensores
+			$sensores = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'sensores') !== false;
+			}));
+			
+			if (!empty($sensores)) {
+				$sensores_valor = explode("=",$sensores[0]);
+				$this->sensores = $this->sensores	+ $sensores_valor[1];
+			}			
 			
 			//Especiais -- logistica
 			$logistica = array_values(array_filter($especiais, function($value) {

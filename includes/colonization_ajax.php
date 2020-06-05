@@ -33,6 +33,7 @@ class colonization_ajax {
 		add_action('wp_ajax_processa_recebimento_tech', array ($this, 'processa_recebimento_tech'));//salva_transfere_tech
 		add_action('wp_ajax_processa_viagem_nave', array ($this, 'processa_viagem_nave'));//processa_viagem_nave
 		add_action('wp_ajax_envia_nave', array ($this, 'envia_nave'));//envia_nave
+		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//envia_nave
 	}
 
 	/***********************
@@ -87,7 +88,7 @@ class colonization_ajax {
 		}
 
 		if ($roles == "administrator") {
-			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0 WHERE id={$nave->id}");
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}");
 		}
 		
 		$dados_salvos['resposta_ajax'] = "SALVO!";
@@ -95,6 +96,32 @@ class colonization_ajax {
 		wp_die();
 	}
 	
+	/***********************
+	function nave_visivel ()
+	----------------------
+	Faz uma nave ficar visível
+	***********************/	
+	function nave_visivel() {
+		global $wpdb;
+		
+		$nave = new frota($_POST['id']);
+		$imperio = new imperio($nave->id_imperio);
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		if ($roles == "administrator" || $user->ID == $imperio->id_jogador) {
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET visivel=true WHERE id={$nave->id}");
+		}
+		
+		$dados_salvos['resposta_ajax'] = "SALVO!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
+	}
+
 
 	/***********************
 	function processa_recebimento_tech ()
