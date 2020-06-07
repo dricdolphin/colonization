@@ -187,7 +187,7 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X},{$estrela->Y},{$estrela->Z}) {$nomes_imperios}<br>";
+				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br>";
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
@@ -243,7 +243,7 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X},{$estrela->Y},{$estrela->Z}) {$nomes_imperios}<br>";
+				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br>";
 			}
 			
 			if (empty($exibiu_nave[$nave->id])) {
