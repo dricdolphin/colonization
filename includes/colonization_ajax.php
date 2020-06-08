@@ -594,15 +594,18 @@ class colonization_ajax {
 				
 				if ($instalacao->limite > 0) {
 					$instalacoes_no_planeta = $wpdb->get_var("
-					SELECT COUNT(id) FROM
+					SELECT COUNT(cpi.id)
 					FROM colonization_planeta_instalacoes AS cpi
+					JOIN colonization_imperio_colonias AS cic
+					ON cic.id_planeta = cpi.id_planeta
+					AND cic.turno = {$turno->turno}
 					WHERE cpi.id_instalacao = {$instalacao->id}
-					AND cpi.id_imperio = {$imperio->id}
+					AND cic.id_imperio = {$imperio->id}
 					AND cpi.id_planeta = {$planeta->id}
 					AND cpi.turno <= {$turno->turno}
 					");
 					
-					if ($instalacao->limite < $instalacoes_no_planeta) {
+					if ($instalacao->limite <= $instalacoes_no_planeta) {
 							$texto_limite = "{$instalacao->limite} Instalações";
 						if ($instalacao->limite == 1) {
 							$texto_limite = "uma Instalação";
@@ -697,15 +700,30 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 
 			if ($_POST['id'] == "" && $instalacao->limite > 0) {
 				$instalacoes_no_planeta = $wpdb->get_var("
-				SELECT COUNT(id) FROM
+				SELECT COUNT(cpi.id)
 				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$turno->turno}
 				WHERE cpi.id_instalacao = {$instalacao->id}
-				AND cpi.id_imperio = {$imperio->id}
+				AND cic.id_imperio = {$imperio->id}
 				AND cpi.id_planeta = {$planeta->id}
 				AND cpi.turno <= {$turno->turno}
 				");
 				
-				if ($instalacao->limite < $instalacoes_no_planeta) {
+				$dados_salvos['debug'] .= "
+				SELECT COUNT(cpi.id)
+				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$turno->turno}
+				WHERE cpi.id_instalacao = {$instalacao->id}
+				AND cic.id_imperio = {$imperio->id}
+				AND cpi.id_planeta = {$planeta->id}
+				AND cpi.turno <= {$turno->turno}
+				";
+				
+				if ($instalacao->limite <= $instalacoes_no_planeta) {
 						$texto_limite = "{$instalacao->limite} Instalações";
 					if ($instalacao->limite == 1) {
 						$texto_limite = "uma Instalação";
