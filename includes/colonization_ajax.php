@@ -77,9 +77,6 @@ class colonization_ajax {
 	***********************/	
 	function processa_viagem_nave() {
 		global $wpdb;
-		
-		$nave = new frota($_POST['id']);
-		$estrela = new estrela($nave->id_estrela_destino);
 
 		$user = wp_get_current_user();
 		$roles = "";
@@ -87,7 +84,9 @@ class colonization_ajax {
 			$roles = $user->roles[0];
 		}
 
-		if ($roles == "administrator") {
+		$nave = new frota($_POST['id']);
+		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
+			$estrela = new estrela($nave->id_estrela_destino);
 			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}");
 		}
 		
