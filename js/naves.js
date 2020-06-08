@@ -154,6 +154,12 @@ function calcula_custos(evento, objeto) {
 	if (duranium_blindagem < qtd_blindagem) {
 		duranium_blindagem = qtd_blindagem;
 	}
+	
+	let nor_duranium_blindagem = 0;
+	if (mk_blindagem > 2) {
+		nor_duranium_blindagem = duranium_blindagem;
+		duranium_blindagem = 0;
+	}
 
 	let energium_escudos = Math.ceil(chassi/15)*qtd_escudos;
 	if (energium_escudos < qtd_escudos) {
@@ -164,6 +170,11 @@ function calcula_custos(evento, objeto) {
 	energium = Math.ceil(custo_estacao_orbital/4) + qtd_tropas*1 + qtd_bombas*5 + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1;
 	dillithium = qtd_dobra*mk_dobra;
 	duranium = duranium_blindagem*1 + qtd_projetil*1;
+	
+	let texto_nor_duranium = "";
+	if (nor_duranium_blindagem > 0) {
+		texto_nor_duranium = " | Nor-Duranium: "+nor_duranium_blindagem;
+	}
 	
 	if (chassi <= 10) {
 		categoria = "Corveta";
@@ -194,7 +205,7 @@ function calcula_custos(evento, objeto) {
 	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
 	+"PdF Laser: "+pdf_laser+"/ PdF Torpedo: "+pdf_torpedo+"/ PdF Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
 	chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
-	custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+duranium;
+	custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium;
 	
 	texto_partes_nave_div.innerHTML = qtd_laser+"="+mk_laser+";"+qtd_torpedo+"="+mk_torpedo+";"+qtd_projetil+"="+mk_projetil+";"
 	+qtd_blindagem+"="+mk_blindagem+";"+qtd_escudos+"="+mk_escudos+";"
