@@ -236,13 +236,10 @@ class acoes
 				$roles = $user->roles[0];		
 			}
 
-			if ($turno_atual) {
-				$this->disabled = "";
-			} else {
-				$turno_atual = new turno();
-				if ($this->turno->turno != $turno_atual->turno || $this->turno->encerrado == 1) {
+			$this->disabled = "";
+			$turno_atual = new turno();
+			if (($this->turno->turno != $turno_atual->turno) || $this->turno->encerrado == 1) {
 					$this->disabled = "disabled";
-				}
 			}
 
 			if ($colonia->vassalo == 1 && $roles != "administrator") {
@@ -257,7 +254,7 @@ class acoes
 				
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				
-				$primeira_linha = "<td rowspan='{$colonia->instalacoes}'>
+				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
 				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
 				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
 				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>

@@ -1089,7 +1089,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		$balanco_recursos = $imperio_acoes->exibe_recursos_balanco();
 		$html_frota = "";
 	
-		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id}");
+		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} ORDER BY nivel_estacao_orbital DESC");
 		
 		$naves_por_linha = 0;
 		foreach ($ids_frota as $ids) {
@@ -1102,12 +1102,18 @@ var id_imperio_atual = {$imperios[0]->id};
 			if (empty($pesquisa_anterior) && $nave->pesquisa==1) {
 				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div>";	
 			}
+			
+			$html_estacao_orbital = "";
+			if ($nave->nivel_estacao_orbital > 0) {
+				$html_estacao_orbital = "<div class='fas fa-drone tooltip'><span class='tooltiptext'>Estação Orbital</span></div>";	
+			}
+			
 			$naves_por_linha++;
 			$link_visivel = "";
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div></a>";
 			}
-			$html_frota .= "<b>{$nave->nome}</b> {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
+			$html_frota .= "{$html_estacao_orbital}<b>{$nave->nome}</b> {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
 			if ($naves_por_linha == 2) {
 				$html_frota .= "<br>";
 			}

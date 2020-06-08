@@ -25,6 +25,7 @@ class colonia
 	public $planeta;
 	public $estrela;
 	public $instalacoes;
+	public $num_instalacoes;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -50,6 +51,15 @@ class colonia
 		ON ci.id = cpi.id_instalacao
 		WHERE cpi.id_planeta={$this->id_planeta}
 		AND cpi.turno <={$this->turno->turno}");
+		
+		$this->num_instalacoes = $wpdb->get_var("SELECT COUNT(cpi.id) 
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta={$this->id_planeta}
+		AND cpi.turno <={$this->turno->turno}
+		AND ci.oculta = false
+		");		
 		
 		$this->planeta = new planeta($this->id_planeta, $this->turno->turno);
 		$this->estrela = new estrela($this->planeta->id_estrela);
