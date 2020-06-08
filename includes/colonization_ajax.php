@@ -570,6 +570,13 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
+		$planeta = new planeta($_POST['id_planeta']);
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
+		$colonia = new colonia($id_colonia);
+		$imperio = new imperio($colonia->id_imperio);
+		
+		$instalacao = new instalacao($_POST['id_instalacao']);
+
 		$nivel_original = 0;
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			//Realiza a atualização do histórico de upgrades
@@ -583,6 +590,27 @@ class colonization_ajax {
 				} else {
 					$wpdb->query("INSERT INTO colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_instalacao_anterior={$colonia_instalacao->id_instalacao}, id_planeta_instalacoes={$_POST['id']}, turno={$turno->turno}");
 				}
+				
+				
+				if ($instalacao->limite > 0) {
+					$instalacoes_no_planeta = $wpdb->get_var("
+					SELECT COUNT(id) FROM
+					FROM colonization_planeta_instalacoes AS cpi
+					WHERE cpi.id_instalacao = {$instalacao->id}
+					AND cpi.id_imperio = {$imperio->id}
+					AND cpi.id_planeta = {$planeta->id}
+					AND cpi.turno <= {$turno->turno}
+					");
+					
+					if ($instalacao->limite < $instalacoes_no_planeta) {
+							$texto_limite = "{$instalacao->limite} Instalações";
+						if ($instalacao->limite == 1) {
+							$texto_limite = "uma Instalação";
+						}
+						$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite é de {$texto_limite}.";
+					}
+				}			
+			
 			}
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
@@ -591,13 +619,6 @@ class colonization_ajax {
 			$dados_salvos['debug'] = "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}";
 		}
 		
-
-		$planeta = new planeta($_POST['id_planeta']);
-		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
-		$colonia = new colonia($id_colonia);
-		$imperio = new imperio($colonia->id_imperio);
-		
-		$instalacao = new instalacao($_POST['id_instalacao']);
 		$nivel = 1;
 		$tech_requisito[$nivel] = new tech($instalacao->id_tech); //Pega todos os níveis de Tech
 		while ($tech_requisito[$nivel]->id != 0) {
@@ -666,6 +687,33 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				}
 			}
 
+			if ($instalacao->autonoma == 0 && $planeta->inospito == 1) {
+				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em planetas habitáveis!";
+			}
+
+			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {
+				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
+			}
+
+			if ($_POST['id'] == "" && $instalacao->limite > 0) {
+				$instalacoes_no_planeta = $wpdb->get_var("
+				SELECT COUNT(id) FROM
+				FROM colonization_planeta_instalacoes AS cpi
+				WHERE cpi.id_instalacao = {$instalacao->id}
+				AND cpi.id_imperio = {$imperio->id}
+				AND cpi.id_planeta = {$planeta->id}
+				AND cpi.turno <= {$turno->turno}
+				");
+				
+				if ($instalacao->limite < $instalacoes_no_planeta) {
+						$texto_limite = "{$instalacao->limite} Instalações";
+					if ($instalacao->limite == 1) {
+						$texto_limite = "uma Instalação";
+					}
+					$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite é de {$texto_limite}.";
+				}
+			}
+
 			//Verifica se o Império tem os Recursos para construir ou realizar o upgrade
 			$niveis = $_POST['nivel'] - $nivel_original;
 			$dados_salvos['debug'] .= "
@@ -689,29 +737,24 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 					}
 				}
 			}
-		}
-		
-		if ($instalacao->autonoma == 0 && $planeta->inospito == 1) {
-			$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em planetas habitáveis!";
+
+
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
-			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {
-				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";				
-			} else {
-				$dados_salvos['resposta_ajax'] = "OK!";
-				
-				//Se chegou até aqui pode atualizar os Recursos do Império
-				if ($imperio->id != 0) {
-					foreach ($query_update_recursos as $chave => $query) {
-						$dados_salvos['debug'] .= "
+			$dados_salvos['resposta_ajax'] = "OK!";
+
+			//Se chegou até aqui pode atualizar os Recursos do Império
+			if ($imperio->id != 0) {
+				foreach ($query_update_recursos as $chave => $query) {
+					$dados_salvos['debug'] .= "
 {$query}
-						";
-						$update_recursos = $wpdb->query($query);
-					}
+					";
+					$update_recursos = $wpdb->query($query);
 				}
-			} 
+			}
 		}
+
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}

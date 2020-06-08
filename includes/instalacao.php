@@ -19,6 +19,7 @@ class instalacao
 	public $oculta;
 	public $icone;
 	public $especiais;
+	public $limite = 0;
 	public $custos;
 	public $id_tech_requisito;
 	public $recursos_produz = [];
@@ -59,6 +60,20 @@ class instalacao
 			$this->recursos_consome[$index] = $recurso->id_recurso;
 			$this->recursos_consome_qtd[$index] = $recurso->qtd_por_nivel;
 			$index++;
+		}
+	
+	
+		//Especiais
+		//limite=qtd -- determina quantas dessa Instalação podem ser construídas no planeta (default 0, para sem limite)
+		$especiais = explode(";",$this->especiais);
+
+		$limite = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'limite') !== false;
+		}));
+
+		if (!empty($limite)) {
+			$limite_valor = explode("=",$limite[0]);
+			$this->limite = $this->limite + $limite_valor[1];
 		}
 	}
 
