@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.14
+ * Version: 1.1.15
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -1307,22 +1307,39 @@ var id_imperio_atual = {$imperio->id};
 			for (let index=0; index < selects.length; index++) {
 				if (selects[index].getAttribute('data-atributo') == 'id_estrela') {
 					let alcance_nave = selects[index].getAttribute('data-alcance');
-					let estrelas_destino = array_estrelas(alcance_nave,2,id_estrela_atual[index]);
-		
-				var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
-					return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
-				});	
-				
-				mapped_estrelas_destino.sort(function(firstEl, secondEl) {
-					if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
-					return -1;
-					}
-					if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
-					return 1;
-					}
-					// a must be equal to b
-					return 0;
-				});
+					let alcance_estendido = 2;
+					let reabastece = true;
+					let estrela_atual = id_estrela_atual[index]
+					let estrelas_destino = array_estrelas(alcance_nave,alcance_estendido,reabastece,estrela_atual);
+					
+					let alcance_local = selects[index].getAttribute('data-alcance-local');
+					reabastece = false;
+					alcance_estendido = 1;
+					let estrelas_destino_local = array_estrelas(alcance_local,alcance_estendido,reabastece,estrela_atual);
+
+					mapped_estrelas_destino_local = estrelas_destino_local.map(function(el, i) {
+						return { index: i, value: el };
+					});
+
+					mapped_estrelas_destino_local.forEach(
+					function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+						estrelas_destino[id_estrela_origem] = true;
+					});						
+					
+					var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
+						return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
+					});	
+					
+					mapped_estrelas_destino.sort(function(firstEl, secondEl) {
+						if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
+						return -1;
+						}
+						if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
+						return 1;
+						}
+						// a must be equal to b
+						return 0;
+					});
 					
 					html_lista = '';
 					mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {

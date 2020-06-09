@@ -100,9 +100,9 @@ class frota
 		global $wpdb;
 	
 		$imperio = new imperio($this->id_imperio);
-		$estrela = new estrela($this->id_estrela_destino);
+		$estrela_destino = new estrela($this->id_estrela_destino);
 		
-		$html = "<div>O {$imperio->nome} deseja enviar a nave '{$this->nome}' para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</div>
+		$html = "<div>O {$imperio->nome} deseja enviar a nave '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
 		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
 
 		return $html;
@@ -208,30 +208,49 @@ class frota
 		} 
 		$html .= "</td>";
 		
-		if ($this->alcance == 0) {
-			$html .= "<td>&nbsp;</td>";
-		} else {
-			//TODO - Mostrar quais estrelas a Nave pode ir
+		//$html .= "<td>&nbsp;</td>";
+		
+		
+		$planetas_estrela = $wpdb->get_results("
+		SELECT cp.id
+		FROM colonization_planeta AS cp
+		WHERE cp.id_estrela = {$this->estrela->id}
+		");
+		
+		$alcance_local = 0;
+		$tamanho_alcance_local = 0;
+		foreach ($planetas_estrela as $id) {
+			$planeta_estrela = new planeta ($id->id);
 			
-			$disabled = "disabled";
-			$display = "style='display: none;'";
+			if ($planeta_estrela->alcance_local > $alcance_local) {
+				$alcance_local = $planeta_estrela->alcance_local;
+			}
+
+			if ($planeta_estrela->tamanho_alcance_local > $tamanho_alcance_local) {
+				$tamanho_alcance_local = $planeta_estrela->tamanho_alcance_local;
+			}
+		}
+		
+		$disabled = "disabled";
+		$display = "style='display: none;'";
+
+		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
+
 			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1) {
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
 			}
-			
-			//***
-			$html .= "<td>
-			<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
-			<select data-atributo='id_estrela' data-alcance='{$this->alcance}' style='width: 100%' {$disabled}>";
-				
-			$html .= "</select>
-			</div>
-			<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
-			</td>";
-			//***/
-		}
+		}			
+
+		$html .= "<td>
+		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
+		<select data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%' {$disabled}>
+		</select>
+		</div>
+		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
+		</td>";			
+
 
 		return $html;
 	}		

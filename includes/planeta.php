@@ -30,6 +30,8 @@ class planeta
 	//Especiais provenientes de Construções e/ou Techs
 	public $slots_extra = 0;
 	public $max_slots = 0;
+	public $alcance_local = 0;
+	public $tamanho_alcance_local = 0;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -65,11 +67,12 @@ class planeta
 		
 		foreach ($id_instalacoes as $id) {
 			$instalacao = new instalacao($id->id_instalacao);
+			$colonia_instalacao = new colonia_instalacao($id->id);
 			$especiais = explode(";",$instalacao->especiais);
 			
 			//Especiais: slots_extra=qtd
 			//Tem também o max_slots=max, que define o máximo de slots
-
+			
 			$slots_extra = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'slots_extra') !== false;
 			}));
@@ -96,10 +99,24 @@ class planeta
 			}));
 			
 			if (!empty($pop_inospito)) {
-				$colonia_instalacao = new colonia_instalacao($id->id);
-
 				$pop_inospito_valor = explode("=",$pop_inospito[0]);
 				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
+			}
+
+			//Especiais: alcance_local=qtd
+			$alcance_local = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'alcance_local') !== false;
+			}));
+			
+			if (!empty($alcance_local)) {
+				$alcance_local_valor = explode("=",$alcance_local[0]);
+				if ($alcance_local_valor > $this->alcance_local) {
+					$this->alcance_local = $alcance_local_valor[1];
+				}
+				
+				if (10*$colonia_instalacao->nivel > $this->tamanho_alcance_local) {
+					$this->tamanho_alcance_local = 10*$colonia_instalacao->nivel;
+				}
 			}
 			
 			//Especiais: pdf_instalacoes=valor

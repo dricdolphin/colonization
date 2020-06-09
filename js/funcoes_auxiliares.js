@@ -371,7 +371,7 @@ function array_estrelas
 --------------------
 Retorna um Array com as das estrelas possíveis de serem alcançadas
 ******************/
-function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital') {
+function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrela_atual='capital') {
 
 	var estrelas_imperio = [];
 	var estrelas_destino = [];
@@ -417,7 +417,11 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 		if (alcance_real*1 >= distancia_parsecs*1 && !estrelas_destino.hasOwnProperty(id_estrela_destino) ) {
 			estrelas_destino[id_estrela_destino] = true;
 			caminho_completo = caminho_completo + lista_nome_estrela[estrela_atual] + "->" + lista_nome_estrela[id_estrela_destino] + "("+distancia_parsecs+")\n";
-			tem_ponto_reabastece = true;
+			if (reabastece) {
+				tem_ponto_reabastece = true;
+			} else if (id_estrela_destino == estrela_atual) {
+				tem_ponto_reabastece = true;
+			}
 		}
 	});
 
@@ -426,7 +430,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 	var mapped_estrelas_destino = "";
 	var mapped_estrelas_temp = "";
 	var startDate = new Date();
-	// Do your operations
+	
 	while (tem_ponto_reabastece) {
 		tem_ponto_reabastece = false;
 		estrelas_destino_temp = [];
@@ -454,7 +458,9 @@ function array_estrelas (alcance_nave,alcance_extendido=2,estrela_atual='capital
 					caminho_completo = caminho_completo + lista_nome_estrela[id_estrela_origem] + "->" + lista_nome_estrela[id_estrela_destino] + "("+distancia_parsecs+")\n";
 					
 					if (estrelas_imperio[id_estrela_destino] === true) {
-						tem_ponto_reabastece = true;
+						if (reabastece) {
+							tem_ponto_reabastece = true;
+						}
 					}
 				}
 			});
@@ -506,7 +512,8 @@ function lista_distancia() {
 	}
 	
 	let html_lista = "";
-	estrelas_destino = array_estrelas(alcance_nave, alcance_extendido);
+	let reabastece = true;
+	estrelas_destino = array_estrelas(alcance_nave, alcance_extendido, reabastece);
 	
 	var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
 		return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: " ("+lista_x_estrela[i]+";"+lista_y_estrela[i]+";"+lista_z_estrela[i]+")" };
