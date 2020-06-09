@@ -134,8 +134,7 @@ class roda_turno {
 						$acoes->recursos_consumidos_planeta[$id_poluicao][$planeta->id] = 0;
 					}
 					
-					$poluicao = $colonia->poluicao +$acoes->recursos_produzidos_planeta[$id_poluicao][$planeta->id] -$acoes->recursos_consumidos_planeta[$id_poluicao][$planeta->id];
-					$poluicao = $poluicao-25; //Os planetas conseguem reduzir a poluição em 25 todos os turnos
+					$poluicao = $colonia->poluicao + $acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id];
 					
 					if ($poluicao<0) {
 						$poluicao=0;

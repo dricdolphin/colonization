@@ -538,6 +538,7 @@ class acoes
 			
 			$recurso_alimento = new recurso($id_alimento);
 			$recurso_energia = new recurso($id_energia);
+			$recurso_poluicao = new recurso($id_poluicao);
 
 			if (empty($this->recursos_consumidos[$id_alimento])) {
 				$this->recursos_consumidos[$id_alimento] = 0;
@@ -551,7 +552,14 @@ class acoes
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
 				$this->recursos_consumidos_nome[$id_energia] = $recurso_energia->nome;
 				$this->recursos_balanco_nome[$id_energia] = $recurso_energia->nome;
-			}			
+			}
+
+			if (empty($this->recursos_consumidos[$id_poluicao])) {
+				$this->recursos_consumidos[$id_poluicao] = 0;
+				$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
+				$this->recursos_consumidos_nome[$id_poluicao] = $recurso_poluicao->nome;
+				$this->recursos_balanco_nome[$id_poluicao] = $recurso_poluicao->nome;
+			}				
 			
 			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia->pop;
@@ -578,6 +586,16 @@ class acoes
 			
 			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $colonia->pop_robotica;
 			
+			//A base de consumo de poluição de planetas habitáveis é de 25 unidades
+			if ($planeta->inospito == 0) {
+				if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25;
+				} else {
+					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] + 25;
+				}
+			}
+			
+			//Faz o balanço de todos os recursos produzidos e/ou consumidos
 			foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta])) {
 					$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] = 0;
@@ -588,9 +606,6 @@ class acoes
 				}
 
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
-				if ($id_recurso == $id_poluicao && $planeta->inospito == 0) {
-					$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] - 25;
-				}
 			}
 		}
 		
