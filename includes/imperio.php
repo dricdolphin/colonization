@@ -21,7 +21,7 @@ class imperio
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
 	public $max_pop = 0;
-	public $limite_poluicao = 0;
+	public $limite_poluicao = 100;
 	public $alcance_logistica = 0;
 	public $bonus_recurso = [];
 	public $sinergia = [];
@@ -206,7 +206,7 @@ class imperio
 			
 			if (!empty($limite_poluicao)) {
 				$limite_poluicao_valor = explode("=",$limite_poluicao[0]);
-				$this->limite_poluicao = $this->alcance_logistica + $limite_poluicao_valor[1];
+				$this->limite_poluicao = $this->limite_poluicao + $limite_poluicao_valor[1];
 			}
 			
 			//Especiais -- bonus_pesquisa_naves
@@ -757,11 +757,11 @@ class imperio
 			$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['mdo'];
 			$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['pop'];
 			
-			if ($colonia->poluicao < 25) {
+			if ($colonia->poluicao < round($this->limite_poluicao*0.33,0)) {
 				$poluicao = "<span style='color: #007426;'>{$colonia->poluicao}</span>";
-			} elseif ($colonia->poluicao < 50) {
+			} elseif ($colonia->poluicao < round($this->limite_poluicao*0.66,0)) {
 				$poluicao = "<span style='color: #ffce00;'>{$colonia->poluicao}</span>";
-			} elseif ($colonia->poluicao < 75) {				
+			} elseif ($colonia->poluicao < $this->limite_poluicao) {				
 				$poluicao = "<span style='color: #f1711d;'>{$colonia->poluicao}</span>";
 			} else {
 				$poluicao = "<span style='color: #ee1509;'>{$colonia->poluicao}</span>";

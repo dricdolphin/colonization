@@ -529,11 +529,13 @@ class acoes
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id);
 			$planeta = new planeta($id->id_planeta);
+			
 			$recurso_alimento = new recurso($id_alimento);
 			$recurso_energia = new recurso($id_energia);
 
@@ -559,7 +561,7 @@ class acoes
 			
 			//Existem algumas Techs que aumentam o consumo
 			$consumo_extra_inospito = 0;
-			if ($planeta->inospito == 1 ) {
+			if ($planeta->inospito == 1) {
 				if ($colonia->pop > $planeta->pop_inospito) {
 					$pop_inospito = $colonia->pop - $planeta->pop_inospito;
 					$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
@@ -586,11 +588,15 @@ class acoes
 				}
 
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
+				if ($id_recurso == $id_poluicao && $planeta->inospito == 0) {
+					$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] - 25;
+				}
 			}
 		}
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
+			$recurso = new recurso($id_recurso);
 			if (empty($this->recursos_produzidos[$id_recurso])) {
 				$this->recursos_produzidos[$id_recurso] = 0;
 			}
@@ -598,8 +604,10 @@ class acoes
 			if (empty($this->recursos_consumidos[$id_recurso])) {
 				$this->recursos_consumidos[$id_recurso] = 0;
 			}
-
-			$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
+				
+			if ($recurso->local == 0) {
+				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
+			}
 		}
 	}
 
