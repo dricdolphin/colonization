@@ -30,6 +30,8 @@ class imperio
 	public $bonus_pesquisa_naves = 0;
 	public $crescimento_pop = 1;
 	public $sensores = 0;
+	public $coloniza_inospito = 0;
+	public $alimento_inospito = 0;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -123,8 +125,10 @@ class imperio
 		//bonus_logistica=bonus -- bônus de alcance
 		//limite_poluicao=porcentagem -- tech que aumenta o limite de poluição aceitável
 		//sensores=nivel -- nível das Techs de Sensores
-		//
 		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
+		//coloniza_inospito=valor -- Pode colonizar planetas inóspitos
+		//alimento_inospito=valor -- Consome recursos a mais em planetas inóspitos
+		//
 		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
 		//Essa Tech pode ter os seguintes atributos
 		//id_recurso=recursos -- pode ser uma lista separada por vírgula ou *, para todos os recursos => OBRIGATÓRIO
@@ -203,8 +207,8 @@ class imperio
 			if (!empty($limite_poluicao)) {
 				$limite_poluicao_valor = explode("=",$limite_poluicao[0]);
 				$this->limite_poluicao = $this->alcance_logistica + $limite_poluicao_valor[1];
-			}			
-
+			}
+			
 			//Especiais -- bonus_pesquisa_naves
 			$bonus_pesquisa_naves = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'bonus_pesquisa_naves') !== false;
@@ -213,8 +217,28 @@ class imperio
 			if (!empty($bonus_pesquisa_naves)) {
 				$bonus_pesquisa_naves = explode("=",$bonus_pesquisa_naves[0]);
 				$this->bonus_pesquisa_naves = $this->bonus_pesquisa_naves + $bonus_pesquisa_naves[1];
+			}			
+			
+			//Especiais -- coloniza_inospito
+			$coloniza_inospito = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'coloniza_inospito') !== false;
+			}));
+			
+			if (!empty($coloniza_inospito)) {
+				$coloniza_inospito_valor = explode("=",$coloniza_inospito[0]);
+				$this->coloniza_inospito = $coloniza_inospito_valor[1];
 			}
 
+			//Especiais -- alimento_inospito
+			$alimento_inospito = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'alimento_inospito') !== false;
+			}));
+			
+			if (!empty($alimento_inospito)) {
+				$alimento_inospito_valor = explode("=",$alimento_inospito[0]);
+				$this->alimento_inospito = $alimento_inospito_valor[1];
+			}			
+			
 			//Especiais -- produz_recursos
 			$bonus_recurso = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'produz_recurso') !== false;

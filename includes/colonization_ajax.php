@@ -453,8 +453,9 @@ class colonization_ajax {
 		}
 		
 		$planeta = new planeta($_POST['id_planeta']);
+		$imperio = new imperio($_POST['id_imperio']);
 		
-		if ($planeta->inospito == 1) {
+		if ($planeta->inospito == 1 && $imperio->coloniza_inospito != 1) {
 			if ($_POST['pop'] > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}

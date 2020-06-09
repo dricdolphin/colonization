@@ -533,6 +533,7 @@ class acoes
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id);
+			$planeta = new planeta($id->id_planeta);
 			$recurso_alimento = new recurso($id_alimento);
 			$recurso_energia = new recurso($id_energia);
 
@@ -556,7 +557,16 @@ class acoes
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia->pop;
 			}
 			
-			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop;
+			//Existem algumas Techs que aumentam o consumo
+			$consumo_extra_inospito = 0;
+			if ($planeta->inospito == 1 ) {
+				if ($colonia->pop > $planeta->pop_inospito) {
+					$pop_inospito = $colonia->pop - $planeta->pop_inospito;
+					$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
+				}
+			}
+			
+			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop + $consumo_extra_inospito;
 
 			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia->pop_robotica;
