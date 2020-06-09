@@ -966,7 +966,12 @@ class menu_admin {
 			<div id='recursos_balanco_imperio_{$imperio->id}'>{$recursos_balanco}</div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
-			<tr><th>Colônia (X;Y;Z) | P</th><th>Instalação</th><th>Utilização (0-10)</th><th>&nbsp;</th></tr>
+			<tr style='background-color: #E5E5E5; font-weight: 700;'><td style='width: 40%;'>Slots | Colônia (X;Y;Z;P) | 
+			(<div class='fas fa-user-circle	tooltip'><span class='tooltiptext'>MdO Disponível Sistema</span></div>)
+			<div class='fas fa-user-clock tooltip'><span class='tooltiptext'>MdO</span></div>
+			/<div class='fas fa-user tooltip'><span class='tooltiptext'>Pop</span></div>
+			</td>
+			<td style='width: 35%;'>Instalação</td><td style='width: 35%;'>Utilização (0-10)</td><td style='width: 2%;'>&nbsp;</td></tr>
 			</thead>
 			<tbody>";
 			

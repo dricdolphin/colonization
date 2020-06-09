@@ -219,6 +219,10 @@ class frota
 		
 		$alcance_local = 0;
 		$tamanho_alcance_local = 0;
+		
+		$disabled = "disabled";
+		$display = "style='display: none;'";
+		$display_select = "display: none;";
 		foreach ($planetas_estrela as $id) {
 			$planeta_estrela = new planeta ($id->id);
 			
@@ -230,12 +234,9 @@ class frota
 				$tamanho_alcance_local = $planeta_estrela->tamanho_alcance_local;
 			}
 		}
-		
-		$disabled = "disabled";
-		$display = "style='display: none;'";
 
 		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
-
+			$display_select = "";
 			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1) {
 				$disabled = "";
 				$display = "";
@@ -245,7 +246,7 @@ class frota
 
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
-		<select data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%' {$disabled}>
+		<select data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' {$disabled}>
 		</select>
 		</div>
 		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>

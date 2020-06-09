@@ -766,7 +766,13 @@ class imperio
 			} else {
 				$poluicao = "<span style='color: #ee1509;'>{$colonia->poluicao}</span>";
 			}
-				$id_instalacoes = $wpdb->get_results("SELECT id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta = {$planeta->id} AND turno <= {$this->turno->turno}");
+				$id_instalacoes = $wpdb->get_results(
+				"SELECT cpi.id_instalacao 
+				FROM colonization_planeta_instalacoes AS cpi 
+				JOIN colonization_instalacao AS ci
+				ON ci.id = cpi.id_instalacao
+				WHERE cpi.id_planeta = {$planeta->id} AND cpi.turno <= {$this->turno->turno}
+				ORDER BY ci.nome");
 				
 				$icones_planeta = "";
 				foreach ($id_instalacoes as $id_instalacao) {
