@@ -791,7 +791,16 @@ class imperio
 				}
 				
 				$mdo = $acoes->mdo_planeta($planeta->id);
-				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao}; ";
+				$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
+				$balanco_poluicao_planeta = "";
+				if (!empty($acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id])) {
+					if ($acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id] > 0) {
+						$balanco_poluicao_planeta = "(<span style='color: red;'>+{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
+					} else {
+						$balanco_poluicao_planeta = "(<span style='color: green;'>{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
+					}
+				}
+				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}; ";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {

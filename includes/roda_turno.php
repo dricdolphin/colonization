@@ -145,7 +145,7 @@ class roda_turno {
 					//No entanto, a poluição reduz o crescimento populacional
 					$nova_pop = $colonia->pop;
 					if ($alimentos > $colonia->pop && $acoes->recursos_balanco[$id_alimento] > 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
-						if ($planeta->inospito == 0) {//Se for planeta habitável, a Pop pode crescer
+						if ($planeta->inospito == 0 || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
 							if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
 								$limite_pop_planeta = $planeta->tamanho*10; 
 								//Caso o Império tenha uma Tech de Bônus Populacional...
