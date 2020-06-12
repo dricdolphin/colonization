@@ -88,6 +88,14 @@ class roda_turno {
 						$recursos_disponivel = $wpdb->get_var("SELECT disponivel FROM colonization_planeta_recursos WHERE id_planeta={$id_planeta} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
 						if ($recursos_disponivel > 0) {
 							$recursos_disponivel = $recursos_disponivel - $qtd_produzido_planeta;
+							
+							if ($recursos_disponivel < 0) {
+								$acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] + $recursos_disponivel;
+								$recursos_disponivel = 0;
+								if ($acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] < 0) {
+									$acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] = 0;
+								}
+							}
 
 							$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno};<br>";
 							$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");

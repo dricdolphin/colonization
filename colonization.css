@@ -246,6 +246,11 @@ th {
 
 @media only screen and (max-width: 782px) {
 	#barra_recursos {
-		visibility: hidden;
+		/*visibility: hidden;*/
+		top: 46px;
+		min-width: unset;
+		font-size: 10px;
+		max-height: 14px;
+		position: static;
 	}
 }

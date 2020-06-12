@@ -373,7 +373,7 @@ class imperio
 			
 			if ($icone->custo_pago == 0) {
 				$mostra_logistica = "";
-				if (strpos($tech_icone->especiais,"logistica") !== false) {
+				if (strpos($tech_icone->especiais,"logistica") !== false && strpos($tech_icone->especiais,"bonus_logistica") === false) {
 					$mostra_logistica = " ".$this->alcance_logistica."pc";
 				}
 				if ($tech_icone->id_tech_parent != 0) {

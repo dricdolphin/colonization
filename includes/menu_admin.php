@@ -807,7 +807,7 @@ class menu_admin {
 				ON ce.id = cp.id_estrela
 				WHERE cic.id_imperio = {$imperio->id} 
 				AND cic.turno = {$turno->turno}
-				ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+				ORDER BY cic.nome_npc, cic.capital DESC, ce.X, ce.Y, ce.Z
 				");
 
 				$lista_id_colonias = [];
