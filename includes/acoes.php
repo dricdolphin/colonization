@@ -561,13 +561,16 @@ class acoes
 				$this->recursos_balanco_nome[$id_poluicao] = $recurso_poluicao->nome;
 			}				
 			
+			//Para calcular o consumo de alimento direito, primeiro ZERA o consumo de alimento relativo às Instalações
+			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] - $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
+			//Depois calcula o consumo relativo à Pop
 			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia->pop;
 			} else {
 				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia->pop;
 			}
 			
-			//Existem algumas Techs que aumentam o consumo
+			//Existem algumas Techs que aumentam o consumo de alimentos
 			$consumo_extra_inospito = 0;
 			if ($planeta->inospito == 1) {
 				if ($colonia->pop > $planeta->pop_inospito) {
@@ -578,19 +581,27 @@ class acoes
 			
 			//População acima do limite de Slots do planeta consome o DOBRO de alimento
 			$consumo_extra_pop = 0;
-			if ($colonia->pop > $planeta->slots*10) {
-				$consumo_extra_pop = ($colonia->pop - $planeta->slots*10);
+			if ($colonia->pop > $planeta->tamanho*10) {
+				$consumo_extra_pop = ($colonia->pop - $planeta->tamanho*10);
 			}
 			
-			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop + $consumo_extra_pop + $consumo_extra_inospito;
-
+			//Agora recalcula o consumo do planeta de acordo com condições especiais
+			$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $consumo_extra_pop + $consumo_extra_inospito;
+			//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais
+			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
+			
+			//Pop Robótica consome ENERGIA!
+			//Primeiro desconsidera o consumo de energia pelas unidades do planeta
+			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] - $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
+			//Depois recalcula o consumo de energia do planeta considerando o consumo da Pop Robótica
 			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia->pop_robotica;
 			} else {
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] + $colonia->pop_robotica;
 			}
 			
-			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $colonia->pop_robotica;
+			//E por fim acerta o consumo global levando em consideração o consumo das unidades E da Pop Robótica
+			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
 			
 			//A base de consumo de poluição de planetas habitáveis é de 25 unidades
 			if ($planeta->inospito == 0) {
