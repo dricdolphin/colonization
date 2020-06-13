@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.16
+ * Version: 1.1.17
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
