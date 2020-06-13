@@ -59,12 +59,13 @@ class imperio
 			$roles = $user->roles[0];
 		}
 		
+		$this->id = $id;
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
-		if ($roles != "administrator" && !$super) {
+		if ($roles != "administrator" && $super === false) {
 			$this->id_jogador = get_current_user_id();
 			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
 		} 
-		$this->id = $id;
+		
 		if (empty($this->id)) {
 				return;
 		}
