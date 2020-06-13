@@ -576,7 +576,13 @@ class acoes
 				}
 			}
 			
-			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop + $consumo_extra_inospito;
+			//População acima do limite de Slots do planeta consome o DOBRO de alimento
+			$consumo_extra_pop = 0;
+			if ($colonia->pop > $planeta->slots*10) {
+				$consumo_extra_pop = ($colonia->pop - $planeta->slots*10);
+			}
+			
+			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $colonia->pop + $consumo_extra_pop + $consumo_extra_inospito;
 
 			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia->pop_robotica;

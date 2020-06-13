@@ -152,7 +152,7 @@ class roda_turno {
 					//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
 					//No entanto, a poluição reduz o crescimento populacional
 					$nova_pop = $colonia->pop;
-					if ($alimentos > $colonia->pop && $acoes->recursos_balanco[$id_alimento] > 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
+					if ($alimentos > $colonia->pop && $acoes->recursos_balanco[$id_alimento] > 0 && $colonia->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
 						if ($planeta->inospito == 0 || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
 							if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
 								$limite_pop_planeta = $planeta->tamanho*10; 
@@ -180,8 +180,8 @@ class roda_turno {
 						}
 					}
 				
-					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}");
+					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}<br>";
+					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}");
 				}
 
 				//Registra a pesquisa das naves
