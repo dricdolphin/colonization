@@ -110,7 +110,7 @@ class menu_admin {
 		$html = $this->html_header;
 		
 		if (isset($_GET['id'])) {
-			$imperio = new imperio($_GET['id']);
+			$imperio = new imperio($_GET['id'],true);
 			$imperio_recursos = new imperio_recursos($_GET['id']);
 			$html_dados_imperio = $imperio_recursos->lista_dados();
 
@@ -172,7 +172,7 @@ class menu_admin {
 			$html_lista_imperios = "";
 			
 			foreach ($lista_id_imperio as $id) {
-				$imperio = new imperio($id->id);
+				$imperio = new imperio($id->id,true);
 				$acoes = new acoes($id->id);
 				
 				$html_dados_imperio = $imperio->lista_dados();
@@ -670,7 +670,7 @@ class menu_admin {
 		
 		if (isset($_GET['id'])) {
 			$colonia = new colonia($_GET['id']);
-			$imperio = new imperio($colonia->id_imperio);
+			$imperio = new imperio($colonia->id_imperio,true);
 			if ($imperio->id == 0) {
 				$imperio->nome = $colonia->nome_npc;
 			}
@@ -781,7 +781,7 @@ class menu_admin {
 			
 			$imperios_npcs = "";
 			foreach ($lista_id as $id) {
-				$imperio = new imperio($id->id);
+				$imperio = new imperio($id->id,true);
 				if ($imperio->id == 0) {
 					$imperio->nome = "Impérios NPCs";
 					$imperios_npcs = "<th>Nome do Império</th>";
@@ -871,7 +871,7 @@ class menu_admin {
 		$html_lista = "";
 		
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id);
+			$imperio = new imperio($id->id,true);
 
 			
 			$html_lista	.= "
@@ -948,7 +948,7 @@ class menu_admin {
 		$html_lista = "";
 		
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id);
+			$imperio = new imperio($id->id,true);
 			$imperio_acoes = new acoes($imperio->id,$turno->turno);
 			
 			$lista_colonias = $imperio->exibe_lista_colonias();
@@ -1090,7 +1090,7 @@ class menu_admin {
 		$html_lista_imperios = "";
 		
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id);
+			$imperio = new imperio($id->id,true);
 			$acoes = new acoes($imperio->id,$turno->turno);
 			$balanco = $acoes->exibe_recursos_balanco();
 			
