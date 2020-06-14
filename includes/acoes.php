@@ -255,7 +255,7 @@ class acoes
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
-				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$colonia->icone_capital}{$colonia->vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
+				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
 				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
 				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
 				</td>";
