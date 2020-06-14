@@ -999,7 +999,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		$html = "
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
-		<tr><td style='width: 300px;'>Planeta (X;Y;Z)</td><td>Recursos</td></tr>
+		<tr><th style='width: 30%;'>Planeta (X;Y;Z)</th><th>Recursos</th></tr>
 		</thead>
 		<tbody>";
 		
@@ -1249,7 +1249,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		<div style='width: auto; height: auto;'>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_frota'>
 		<thead>
-		<tr><th style='width: 150px;'>Nome</th><th style='width: 200px;'>Posição</th><th style='width: 200px;'>Atributos</th><th>Despachar Nave</th></tr>
+		<tr><th style='width: 30%;'>Nome</th><th style='width: 22%;'>Posição</th><th style='width: 30%;'>Atributos</th><th style='width: 18%;'>Despachar Nave</th></tr>
 		</thead>
 		";
 		

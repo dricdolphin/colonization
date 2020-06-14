@@ -509,7 +509,7 @@ class imperio
 		
 		$html .= "<table class='wp-list-table widefat fixed striped users'>
 		<thead>
-		<tr><td>Estrela (X;Y;Z;P)</td><td>Planeta</td><td>Defesas</td><td>População</td><td>Poluição</td></tr>
+		<tr><th style='width: 22%;'>Estrela (X;Y;Z;P)</th><th style='width: 23%;'>Planeta</th><th style='width: 30%;'>Defesas</th><th style='width: 10%;'>Pop.</th><th style='width: 15%;'>Poluição</th></tr>
 		</thead>
 		<tbody>
 		";
@@ -801,20 +801,20 @@ class imperio
 						$balanco_poluicao_planeta = "(<span style='color: green;'>{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
 					}
 				}
-				$html_planeta[$planeta->id] = "<span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}; ";
+				$html_planeta[$planeta->id] = "<div><span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
 				$estrela = new estrela($planeta_id_estrela[$id_planeta]);
 				
-				$html_sistema[$planeta_id_estrela[$id_planeta]] = "<span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}<br>";
+				$html_sistema[$planeta_id_estrela[$id_planeta]] = "<div style='margin-bottom: 5px;'><div><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}</div>";
 			}
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
 		}
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
-			$html_lista .= $html."<br>";
+			$html_lista .= $html."</div>";
 		}
 		
 		return $html_lista;
