@@ -201,11 +201,12 @@ class colonization {
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
-					$exibiu_nave[$nave->id] = true;
 					if ($nave->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
 						$html_estrela[$estrela->id] .= "<i>{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+						$exibiu_nave[$nave->id] = true;
 					} else {
 						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$exibiu_nave[$nave->id] = true;
 					}
 				}
 			}
@@ -251,16 +252,19 @@ class colonization {
 				$nave_na_estrela = new frota($id_frota->id);
 				$imperio_nave_na_estrela = new imperio($nave_na_estrela->id_imperio,true);
 
-				if (empty($exibiu_nave[$nave_na_estrela->id])) {
+				if (empty($exibiu_nave[$nave_na_estrela->id]) || $exibiu_nave[$nave_na_estrela->id] == false) {
 					if ($roles != "administrator") {
 						if (($imperio->sensores > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
 							$html_estrela[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
 							$html_estrela[$estrela->id] .= "<i>{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
+							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
 							$html_estrela[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}
 				}				
