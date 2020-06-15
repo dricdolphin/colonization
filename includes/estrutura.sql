@@ -234,3 +234,24 @@ descricao TEXT DEFAULT NULL,
 turno INT(6) NOT NULL,
 data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 )
+
+--Tabela com os dados das Missões
+CREATE TABLE IF NOT EXISTS colonization_missao (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+descricao TEXT DEFAULT NULL,
+lista_recurso VARCHAR(255) NOT NULL,
+qtd VARCHAR(255) NOT NULL,
+id_imperio INT(6) DEFAULT 0,
+id_imperios_aceitaram VARCHAR(255) DEFAULT '',
+turno INT(6) NOT NULL,
+turno_validade INT(6) NOT NULL
+)
+
+--Tabela com as referências do Fórum
+CREATE TABLE IF NOT EXISTS colonization_referencia_forum (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+descricao TEXT DEFAULT '',
+id_post INT(6) DEFAULT NULL,
+page_id BOOLEAN DEFAULT FALSE,
+deletavel BOOLEAN DEFAULT TRUE
+)

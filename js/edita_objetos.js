@@ -449,7 +449,8 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	}	
 	
 	inputs = inputs_linha_temp;
-
+	
+	let html_deletar = " | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>"; //HTML com o link para deletar o objeto
 	//Pega cada um dos inputs e tira do modo de edição
 	var tamanho_maximo = inputs.length-1;
 	for (var index = tamanho_maximo; index >-1; index--) {
@@ -478,6 +479,12 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 			} else {
 				inputs[index].disabled = true;
 			}
+		} else if (inputs[index].type == 'hidden') {
+			if (inputs[index].getAttribute('data-atributo') == "deletavel") {
+				if (inputs[index].value == 0) {
+					html_deletar = "";
+				}
+			}
 		}
 	}
 
@@ -501,7 +508,7 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	var divs = celula.getElementsByTagName("DIV");
 	for (let index=0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
-			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>";
+			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>"+html_deletar;
 		} else if (divs[index].getAttribute('data-atributo') == "processa_string") {
 			divs[index].style.visibility = "hidden";
 		}

@@ -190,6 +190,43 @@ function novo_planeta(evento, id_estrela = 0) {
 
 
 /******************
+function nova_configuracao
+--------------------
+Insere uma nova configuração
+******************/
+function nova_configuracao(evento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault()
+		return false;
+	}
+		
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+	var tabela = document.getElementsByTagName('TABLE')[0];
+	var linha_nova = tabela.insertRow(-1);
+	var id = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
+	var id_post = linha_nova.insertCell(-1);
+	var page_id = linha_nova.insertCell(-1);
+
+	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='deletavel' value='0'></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta configuração?'></input>"
+	+"<div data-atributo='id' data-valor-original='' value=''>#</div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	id_post.innerHTML = "<div data-atributo='id_post' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='id_post' data-ajax='true' style='width: 30px;'></input></div>";
+	page_id.innerHTML = "<div data-atributo='page_id' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='page_id' data-ajax='true'></input></div>";
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
 function novo_recurso
 --------------------
 Insere um novo recurso

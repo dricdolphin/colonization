@@ -364,6 +364,10 @@ class acoes
 		//Pega a produção das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
+				continue;
+			}
+
 			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
 			
 			foreach ($instalacao->recursos_produz as $chave_recursos => $id_recurso) {
@@ -496,6 +500,10 @@ class acoes
 		//Pega o Consumo das Instalações
 		foreach ($this->id AS $chave => $valor) {
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
+				continue;
+			}
+			
 			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
 			
 			foreach ($instalacao->recursos_consome as $chave_recursos => $id_recurso) {

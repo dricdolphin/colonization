@@ -26,8 +26,9 @@ class menu_admin {
 	******************/
 	function colonization_setup_menu() {
 		//Adiciona o menu "Colonization", que pode ser acessador por quem tem a opção de Editor ('publish_pages') -- os Admins tem essa função também, além da ('manage_options')
-		add_menu_page('Gerenciar Impérios','Colonization','publish_pages','colonization_admin_menu',array($this,'colonization_admin_menu'),'none');
-		add_submenu_page('colonization_admin_menu','Impérios','Impérios','publish_pages','colonization_admin_menu',array($this,'colonization_admin_menu'));
+		add_menu_page('Colonization','Colonization','publish_pages','colonization_admin_menu',array($this,'colonization_admin_configura'),'none');
+		add_submenu_page('colonization_admin_menu','Configuração','Configuração','publish_pages','colonization_admin_menu',array($this,'colonization_admin_configura'));
+		add_submenu_page('colonization_admin_menu','Impérios','Impérios','publish_pages','colonization_admin_imperios',array($this,'colonization_admin_imperios'));
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','publish_pages','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
 		add_submenu_page('colonization_admin_menu','Planetas','Planetas','publish_pages','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','publish_pages','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
@@ -98,13 +99,50 @@ class menu_admin {
 	}	
 
 
+	//colonization_admin_configura
+	function colonization_admin_configura() {
+		global $wpdb, $wp_admin_bar;
+		
+		$html = $this->html_header;
+
+		$html .= "<div><h2>COLONIZATION - Configurações</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_referencia_forum'>
+		<thead>
+		<tr><th>ID</th><th>Descrição</th><th>ID Post ou Página</th><th>Página</th></tr>
+		</thead>
+		<tbody>";
+		
+		//Pega a lista de configurações
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_referencia_forum");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {
+			$configuracao = new configuracao($id->id);
+			
+			$html_dados = $configuracao->lista_dados();
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+		
+		$html.= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_configuracao(event);'>Adicionar nova Configuração</a></div>";
+		
+		echo $html;
+	}
+
 	
 	/******************
-	function colonization_admin_menu()
+	function colonization_admin_imperios()
 	-----------
-	Exibe a página principal do plugin, onde você pode criar e editar Impérios (dados básicos)
+	Exibe a página onde você pode criar e editar Impérios (dados básicos)
 	******************/
-	function colonization_admin_menu() {
+	function colonization_admin_imperios() {
 		global $wpdb, $wp_admin_bar;
 		
 		$html = $this->html_header;

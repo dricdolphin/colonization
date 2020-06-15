@@ -1,7 +1,7 @@
 <?php
 //colonization_planeta_instalacoes
 /**************************
-COLONIA.PHP
+COLONIA_INSTALACAO.PHP
 ----------------
 Cria o objeto "colônia_instalação"
 ***************************/

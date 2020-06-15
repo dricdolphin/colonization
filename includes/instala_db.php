@@ -240,7 +240,7 @@ class instala_db {
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 		)");
 		
-		//Tabela com os dados do turno atual
+		//Tabela com as ações do Admin
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
@@ -250,7 +250,32 @@ class instala_db {
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 		)");
-	
+
+		//Tabela com as Missões
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_missao (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		descricao TEXT DEFAULT NULL,
+		lista_recurso VARCHAR(255) NOT NULL,
+		qtd VARCHAR(255) NOT NULL,
+		id_imperio INT(6) DEFAULT 0,
+		id_imperios_aceitaram VARCHAR(255) DEFAULT '',
+		turno INT(6) NOT NULL,
+		turno_validade INT(6) NOT NULL
+		)");	
+
+		//Tabela com as Referências do Fórum
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_referencia_forum (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		descricao TEXT DEFAULT '',
+		id_post INT(6) DEFAULT NULL,
+		page_id BOOLEAN DEFAULT FALSE,
+		deletavel BOOLEAN DEFAULT TRUE
+		)");
+		
+		//Cria as duas configurações que NÃO podem ser deletadas
+		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=1, descricao='Page ID do Fórum', id_post=357, page_id=1, deletavel=0");
+		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=2, descricao='ID do Tópico de Missões', id_post=321, page_id=0, deletavel=0");
+
 		//Cria os "triggers"
 		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_imperio

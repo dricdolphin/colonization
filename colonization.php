@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.18
+ * Version: 1.1.19
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -33,6 +33,7 @@ include_once('includes/turno.php');
 include_once('includes/frota.php');
 include_once('includes/roda_turno.php');
 include_once('includes/reabastece_imperio.php');
+include_once('includes/configuracao.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -78,8 +79,17 @@ class colonization {
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
+		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
 		
 		$colonization_ajax = new colonization_ajax();
+	}
+
+	function colonization_menu_asgaros() {
+	  global $asgarosforum, $wpdb;
+	  $page_id_forum = new configuracao(1);
+	  $id_missao = new configuracao(2);
+	  
+	  echo "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_missao->id_post}'>Missões</a>";
 	}
 
 	function colonization_ajaxurl() {
@@ -843,9 +853,11 @@ var id_imperio_atual = {$imperios[0]->id};
 	function colonization_exibe_barra_recursos() {
 		global $asgarosforum, $wpdb;
 
-		if (empty($_GET['page_id'])) {//Só mostra a barra de recursos se for o Fórum
+		$page_id_forum = new configuracao(1);
+		//Só mostra a barra de recursos se for o Fórum
+		if (empty($_GET['page_id'])) {
 			return;
-		} elseif ($_GET['page_id'] != "357") {
+		} elseif ($_GET['page_id'] != $page_id_forum->id_post) {
 			return;
 		}
 
