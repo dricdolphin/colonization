@@ -15,6 +15,10 @@ class imperio
 	public $prestigio;
 	public $pop = 0;
 	public $pontuacao = 0;
+	public $pontuacao_tech = 0;
+	public $pontuacao_colonia = 0;
+	public $pontuacao_desenvolvimento = 0;
+	public $pontuacao_belica = 0;
 	public $html_header;
 	public $turno;
 	
@@ -87,27 +91,32 @@ class imperio
 		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves + Custo das Techs
 		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_colonia = $this->pontuacao_colonia + $pontuacao;
 		
-		$pontuacao = $wpdb->get_var("SELECT SUM(nivel)*10 
+		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_colonia = $this->pontuacao_colonia + $pontuacao;
+
+		$pontuacao = $wpdb->get_var("SELECT SUM(cpi.nivel)*10 
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_imperio_colonias  AS cic
 		ON cic.id_planeta = cpi.id_planeta
 		WHERE cic.id_imperio={$this->id}
 		AND cic.turno = {$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
-
-		$pontuacao = $wpdb->get_var("SELECT SUM(pop) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
-		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;
 
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;
 		
-		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");
+		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + pesquisa + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_belica = $this->pontuacao_belica + $pontuacao;
 
 		$pontuacao = $wpdb->get_var("SELECT SUM(custo) 
 		FROM
-		(SELECT (CASE WHEN cit.custo_pago > 0 THEN cit.custo_pago ELSE ct.custo END) AS custo
+		(SELECT (CASE WHEN cit.custo_pago > 0 THEN cit.custo_pago ELSE ct.custo END)*ct.nivel AS custo
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech
@@ -115,6 +124,7 @@ class imperio
 		AND cit.turno <= {$this->turno->turno}
 		) AS custo_tech");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_tech = $this->pontuacao_tech + $pontuacao;
 
 		//***********************************
 		// ALTERAÇÕES DE TECH (ESPECIAIS)
@@ -775,12 +785,19 @@ class imperio
 				WHERE cpi.id_planeta = {$planeta->id} AND cpi.turno <= {$this->turno->turno}
 				ORDER BY ci.nome");
 				
-				$icones_planeta = "";
+				$icones_planeta = [];
+				$qtd_instalacao_icone = [];
 				foreach ($id_instalacoes as $id_instalacao) {
 					$instalacao = new instalacao($id_instalacao->id_instalacao);
 					
 					if (!empty($instalacao->icone)) {
-						$icones_planeta .= " <div class='{$instalacao->icone} tooltip'><span class='tooltiptext'>{$instalacao->nome}</span></div>";
+						if (empty($icones_planeta[$instalacao->id])) {
+							$qtd_instalacao_icone[$instalacao->id] = 1;
+							$icones_planeta[$instalacao->id] = " <div class='{$instalacao->icone} tooltip'><span class='tooltiptext'>{$instalacao->nome}</span></div>";
+						} else {
+							$qtd_instalacao_icone[$instalacao->id]++;
+							$icones_planeta[$instalacao->id] = " <div class='{$instalacao->icone} tooltip'>x{$qtd_instalacao_icone[$instalacao->id]}<span class='tooltiptext'>{$instalacao->nome}</span></div>";
+						}
 					}
 				}
 				
@@ -801,7 +818,13 @@ class imperio
 						$balanco_poluicao_planeta = "(<span style='color: green;'>{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
 					}
 				}
-				$html_planeta[$planeta->id] = "<div><span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+				
+				$html_icones_planeta = "";
+				foreach ($icones_planeta as $id_instalacao => $html) {
+					$html_icones_planeta .= $html;
+				}
+				
+				$html_planeta[$planeta->id] = "<div><span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {

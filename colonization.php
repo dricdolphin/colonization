@@ -324,7 +324,7 @@ class colonization {
 		}
 	
 		if ($roles == "administrator") {
-			$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0");
+			$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0 ORDER BY id_imperio");
 			
 			foreach ($naves_pendentes as $id) {
 				$nave = new frota($id->id);
@@ -1063,10 +1063,17 @@ var id_imperio_atual = {$imperios[0]->id};
 		arsort($lista_pontuacao, SORT_NUMERIC);
 		
 		foreach ($lista_pontuacao as $id_imperio => $pontuacao) {
+			$imperio = new imperio($id_imperio);
+			$html_pontuacao = "<div class='fas fa-search tooltip'>{$imperio->pontuacao}
+			<span class='tooltiptext'>Colônias: {$imperio->pontuacao_colonia}<br>
+			Desenvolvimento: {$imperio->pontuacao_desenvolvimento}<br>
+			Techs: {$imperio->pontuacao_tech}<br>
+			Bélica: {$imperio->pontuacao_belica}<br>
+			</span></div>";	
+			
 			$html .= "<tr><td>{$lista_nome[$id_imperio]}</td>
-			<td>{$pontuacao}</td>
-			</tr>
-			";
+			<td>{$html_pontuacao}</td>
+			</tr>";
 
 		}
 		
