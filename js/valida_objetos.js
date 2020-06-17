@@ -156,7 +156,7 @@ function salva_reabastece(objeto, id_imperio, id_estrela)
 --------------------
 Salva o Reabastecimento
 ******************/	
-function salva_reabastece(objeto, id_imperio, id_estrela) {
+function salva_reabastece(evento, objeto, id_imperio, id_estrela) {
 	
 	var dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela;
 	var retorno = false;
@@ -171,12 +171,22 @@ function salva_reabastece(objeto, id_imperio, id_estrela) {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}		
 		}
 	};
 	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 
+	if (!retorno) {
+		if (objeto.checked) {
+			objeto.checked = false;
+		} else {
+			objeto.checked = true;
+		}
+	}
 	return retorno;
 }
 

@@ -1533,7 +1533,7 @@ var id_imperio_atual = {$imperio->id};
 					$abastece_checked = "checked";
 				}
 				
-				$html_lista_imperios .= "<input type='checkbox' onchange='return salva_reabastece(this,{$id_imperio->id},{$estrela->id});' {$abastece_checked}></input><label>{$id_imperio->nome}</label><br>";
+				$html_lista_imperios .= "<input type='checkbox' onchange='return salva_reabastece(event, this,{$id_imperio->id},{$estrela->id});' {$abastece_checked}></input><label>{$id_imperio->nome}</label><br>";
 			}
 			
 			if ($roles == "administrator") {

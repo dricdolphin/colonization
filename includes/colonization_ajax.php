@@ -390,21 +390,32 @@ class colonization_ajax {
 		$wpdb->hide_errors();
 
 		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
-		
 		$dados_salvos['debug'] = $resposta;
-		$imperio = new imperio($_POST['id_imperio']);
+		
+		$id_jogador = get_current_user_id();
+		$id_imperio_autorizando = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$id_jogador);
+
+		$id_colonia = $wpdb->get_var("
+		SELECT MAX(cic.id)
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cic.id_imperio = {$id_imperio_autorizando}
+		AND cp.id_estrela = {$_POST['id_estrela']}
+		");
+
+		$imperio = new imperio($_POST['id_imperio'],true);
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
 		}
 		
-		if ($roles != "administrator" && $imperio->id != $_POST['id_imperio']) {
+		if ($roles != "administrator" && $id_colonia == null) {
 			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die();
 		}
-
 		
 		if (empty($resposta)) {//Não existe o ponto, pode adicionar
 			$resposta = $wpdb->query("INSERT INTO colonization_imperio_abastecimento SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
