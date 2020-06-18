@@ -623,6 +623,10 @@ class acoes
 				$this->recursos_balanco_nome[$id_alimento] = $recurso_alimento->nome;
 			}
 			
+			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
+			}
+			
 			if (empty($this->recursos_consumidos[$id_energia])) {
 				$this->recursos_consumidos[$id_energia] = 0;
 				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
@@ -630,12 +634,20 @@ class acoes
 				$this->recursos_balanco_nome[$id_energia] = $recurso_energia->nome;
 			}
 
+			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
+				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
+			}			
+
 			if (empty($this->recursos_consumidos[$id_poluicao])) {
 				$this->recursos_consumidos[$id_poluicao] = 0;
 				$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
 				$this->recursos_consumidos_nome[$id_poluicao] = $recurso_poluicao->nome;
 				$this->recursos_balanco_nome[$id_poluicao] = $recurso_poluicao->nome;
-			}				
+			}			
+
+			if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
+				$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
+			}						
 			
 			//Para calcular o consumo de alimento direito, primeiro ZERA o consumo de alimento relativo às Instalações
 			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] - $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];

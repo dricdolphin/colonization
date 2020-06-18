@@ -786,12 +786,12 @@ class imperio
 			$this->debug  .= "
 exibe_lista_colonias(): Criou objetos na entrada do ForEach para Colônia {$resultado->id}: {$diferenca}ms";
 			
-			$pop_mdo_sistema = $this->pop_mdo_sistema($estrela->id);
+			$pop_mdo_sistema = $this->acoes->pop_mdo_sistema($estrela->id);
 
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time_global)/1000000,0);
 			$this->debug  .= "
-exibe_lista_colonias(): this->pop_mdo_sistema({$estrela->id}): {$diferenca}ms";
+exibe_lista_colonias(): this->acoes->pop_mdo_sistema({$estrela->id}): {$diferenca}ms";
 			
 			$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['mdo'];
 			$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['pop'];
