@@ -705,13 +705,13 @@ function salva_acao(evento, objeto, cancela = false) {
 					}
 				}
 				
-				
-				
-				
 				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, resposta);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
+			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
 			}
 		}
 	};

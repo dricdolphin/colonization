@@ -1054,21 +1054,23 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		$lista_pontuacao = [];
 		$lista_nome = [];
+		$imperio = [];
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id, true);
-			$lista_pontuacao[$id->id] = $imperio->pontuacao;
-			$lista_nome[$id->id] = $imperio->nome;
+			$imperio[$id->id] = new imperio($id->id, true);
+			$lista_pontuacao[$id->id] = $imperio[$id->id]->pontuacao;
+			$lista_nome[$id->id] = $imperio[$id->id]->nome;
 		}
 		
 		arsort($lista_pontuacao, SORT_NUMERIC);
 		
 		foreach ($lista_pontuacao as $id_imperio => $pontuacao) {
-			$imperio = new imperio($id_imperio);
-			$html_pontuacao = "<div class='fas fa-search tooltip'>{$imperio->pontuacao}
-			<span class='tooltiptext'>Colônias: {$imperio->pontuacao_colonia}<br>
-			Desenvolvimento: {$imperio->pontuacao_desenvolvimento}<br>
-			Techs: {$imperio->pontuacao_tech}<br>
-			Bélica: {$imperio->pontuacao_belica}<br>
+			//$imperio = new imperio($id_imperio, true);
+			$html_pontuacao = "<div class='fas fa-search tooltip'>{$imperio[$id_imperio]->pontuacao}
+			<span class='tooltiptext'>
+			Desenvolvimento: {$imperio[$id_imperio]->pontuacao_desenvolvimento}<br>			
+			Colônias: {$imperio[$id_imperio]->pontuacao_colonia}<br>
+			Techs: {$imperio[$id_imperio]->pontuacao_tech}<br>
+			Bélica: {$imperio[$id_imperio]->pontuacao_belica}<br>
 			</span></div>";	
 			
 			$html .= "<tr><td>{$lista_nome[$id_imperio]}</td>
@@ -1547,7 +1549,7 @@ var id_imperio_atual = {$imperio->id};
 			</div>";
 		
 			$coluna++;
-			if ($coluna == 6) {
+			if ($coluna == 5) {
 				$coluna = 1;
 				$html_lista .= "<br>";
 			}

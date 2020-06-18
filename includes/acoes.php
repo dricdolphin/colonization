@@ -37,6 +37,7 @@ class acoes
 	public $recursos_balanco_nome = [];
 	public $disabled = "";
 	
+	public $debug = "";
 	
 	
 	function __construct($id_imperio, $turno=0) {
@@ -48,8 +49,8 @@ class acoes
 			$this->disabled = 'disabled';
 		}
 					
-		$this->imperio = new imperio($id_imperio, false, $this->turno->turno);
-		$this->id_imperio = $this->imperio->id;
+		//$this->imperio = new imperio($id_imperio, false, $this->turno->turno);
+		$this->id_imperio = $id_imperio;
 
 		$id_estrelas_imperio = $wpdb->get_results("
 		SELECT DISTINCT ce.id
@@ -63,6 +64,7 @@ class acoes
 		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
 		");
 
+		$start_time = hrtime(true);
 		$resultados = [];
 		$index = 0;
 		foreach ($id_estrelas_imperio as $id_estrela) {
@@ -157,8 +159,20 @@ class acoes
 			}
 		}
 		//*****/
+		$end_time = hrtime(true);
+		$diferenca = round(($end_time - $start_time)/1000000,0);
+		$this->debug .= "
+			Carregando dados das Acões... {$diferenca}ms";
 		
+		$start_time = hrtime(true);
 		$this->pega_balanco_recursos();
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug .= "
+			this->pega_balanco_recursos()... {$diferenca}ms
+			";		
+
+		
 		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 	}
 
@@ -194,17 +208,71 @@ class acoes
 	function exibe_pop_mdo_planeta($id_planeta) {
 		global $wpdb;
 		
-		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$id_planeta} AND id_imperio={$this->imperio->id} AND turno={$this->turno->turno}");
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$id_planeta} AND id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 		
 		$planeta = new planeta($id_planeta, $this->turno->turno);
 		$colonia = new colonia($id_colonia, $this->turno->turno);
 		
 		$mdo_planeta = $this->mdo_planeta($planeta->id);
-		$pop_sistema = $this->imperio->pop_mdo_sistema($planeta->id_estrela);
+		
+		$pop_sistema = $this->pop_mdo_sistema($planeta->id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
 		
 		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}";
 	}
+
+	/***********************
+	function pop_mdo_sistema()
+	----------------------
+	Exibe o MdO de um Sistema Estelar que o Império controla
+	***********************/	
+	function pop_mdo_sistema ($id_estrela) {
+		global $wpdb;
+		
+		$resultados = $wpdb->get_results("
+		SELECT cic.id AS id_colonia
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id=cic.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cic.id_imperio = {$this->id_imperio}
+		AND cic.turno = {$this->turno->turno}
+		AND cp.id_estrela={$id_estrela}
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		");
+
+		if (empty($resultados)) {
+			$resposta = [];
+			$resposta['pop'] = 0;
+			$resposta['mdo'] = 0;
+
+			return $resposta;
+		}
+
+		foreach ($resultados as $resultado) {
+			$colonia = new colonia ($resultado->id_colonia);
+			$planeta = $colonia->planeta;
+			$estrela = $colonia->estrela;
+
+			$mdo = $this->mdo_planeta($planeta->id);
+			
+			if (empty($mdo_sistema)) {
+				$mdo_sistema = $mdo;
+				$pop_sistema = $colonia->pop + $colonia->pop_robotica;
+			} else {
+				$mdo_sistema = $mdo_sistema + $mdo;
+				$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
+			}
+		}
+
+		$resposta = [];
+		$resposta['pop'] = $pop_sistema;
+		$resposta['mdo'] = $mdo_sistema;
+		
+		return $resposta;
+	}
+
 
 	/***********************
 	function lista_dados()

@@ -21,6 +21,7 @@ class imperio
 	public $pontuacao_belica = 0;
 	public $html_header;
 	public $turno;
+	public $acoes;
 	
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
@@ -44,6 +45,8 @@ class imperio
 	public $torpedos_sistema_estelar = false;
 	public $torpedeiros_sistema_estelar = false;
 	
+	public $debug = "";
+	
 
 	/***********************
 	function __construct($id, $super=false)
@@ -65,7 +68,7 @@ class imperio
 		
 		$this->id = $id;
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
-		if ($roles != "administrator" && !$super) {
+		if ($roles != "administrator" && $super == false) {
 			$this->id_jogador = get_current_user_id();
 			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
 		} 
@@ -74,6 +77,7 @@ class imperio
 				return;
 		}
 
+		$start_time = hrtime(true);
 		$this->id_jogador = $wpdb->get_var("SELECT id_jogador FROM colonization_imperio WHERE id=".$this->id);
 		
 		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
@@ -377,6 +381,11 @@ class imperio
 			$roles = $user->roles[0];
 		}
 
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug  .= "
+			Objeto Império: Carregando dados... {$diferenca}ms";	
+
 		$icone_html = [];
 		
 		foreach ($icones AS $icone) {
@@ -416,7 +425,6 @@ class imperio
 		if ($this->max_pop >0) {
 			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
 		}
-		
 	}
 
 	/***********************
@@ -651,11 +659,12 @@ class imperio
 		return $html;
 	}
 	
+	
 	/***********************
-	function mdo_sistema()
+	function pop_mdo_sistema()
 	----------------------
 	Exibe o MdO de um Sistema Estelar que o Império controla
-	***********************/	
+	***********************
 	function pop_mdo_sistema ($id_estrela) {
 		global $wpdb;
 		
@@ -673,8 +682,11 @@ class imperio
 		");
 
 		if (!empty($resultados)) {
-			$imperio = new imperio($this->id, false, $this->turno->turno);
-			$acoes = new acoes($imperio->id, $this->turno->turno);
+			//$imperio = new imperio($this->id, false, $this->turno->turno);
+			if (empty($this->acoes)) {
+				$this->acoes = new acoes($this->id, $this->turno->turno);
+			}
+			//$acoes = new acoes($this->id, $this->turno->turno);
 		} else {
 			$resposta = [];
 			$resposta['pop'] = 0;
@@ -688,7 +700,7 @@ class imperio
 			$planeta = $colonia->planeta;
 			$estrela = $colonia->estrela;
 
-			$mdo = $acoes->mdo_planeta($planeta->id);
+			$mdo = $this->acoes->mdo_planeta($planeta->id);
 			
 			if (empty($mdo_sistema)) {
 				$mdo_sistema = $mdo;
@@ -705,6 +717,7 @@ class imperio
 		
 		return $resposta;
 	}
+	//***********************/	
 
 	
 	/***********************
@@ -715,6 +728,8 @@ class imperio
 	function exibe_lista_colonias() {
 		global $wpdb;
 
+		$this->debug = "";
+		
 		$id_estrelas_imperio = $wpdb->get_results("
 		SELECT DISTINCT ce.id
 		FROM colonization_imperio_colonias AS cic
@@ -752,18 +767,31 @@ class imperio
 		$pop_sistema = [];
 
 		if (!empty($resultados)) {
-			$imperio = new imperio($this->id, false, $this->turno->turno);
-			$acoes = new acoes($imperio->id, $this->turno->turno);
+			//$imperio = new imperio($this->id, false, $this->turno->turno);
+			if (empty($this->acoes)) {
+				$this->acoes = new acoes($this->id, $this->turno->turno);
+			}
 		}
 		
 		$mdo = 0;
+		$start_time_global = hrtime(true);
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia ($resultado->id);
 			$planeta = $colonia->planeta;
 			$estrela = $colonia->estrela;
 			$planeta_id_estrela[$planeta->id] = $estrela->id;
+
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time_global)/1000000,0);
+			$this->debug  .= "
+exibe_lista_colonias(): Criou objetos na entrada do ForEach para Colônia {$resultado->id}: {$diferenca}ms";
 			
 			$pop_mdo_sistema = $this->pop_mdo_sistema($estrela->id);
+
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time_global)/1000000,0);
+			$this->debug  .= "
+exibe_lista_colonias(): this->pop_mdo_sistema({$estrela->id}): {$diferenca}ms";
 			
 			$mdo_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['mdo'];
 			$pop_sistema[$planeta_id_estrela[$planeta->id]] = $pop_mdo_sistema['pop'];
@@ -787,8 +815,13 @@ class imperio
 				
 				$icones_planeta = [];
 				$qtd_instalacao_icone = [];
+				
 				foreach ($id_instalacoes as $id_instalacao) {
 					$instalacao = new instalacao($id_instalacao->id_instalacao);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time_global)/1000000,0);
+			$this->debug  .= "
+exibe_lista_colonias(): Criou objetos do ForEach das Instalações ({$id_instalacao->id_instalacao}): {$diferenca}ms";				
 					
 					if (!empty($instalacao->icone)) {
 						if (empty($icones_planeta[$instalacao->id])) {
@@ -808,23 +841,33 @@ class imperio
 					$html_pop_colonia .= "(<div class='fas fa-users-cog tooltip'>&nbsp;<span class='tooltiptext'>População Robótica</span></div>{$colonia->pop_robotica})";
 				}
 				
-				$mdo = $acoes->mdo_planeta($planeta->id);
+				$mdo = $this->acoes->mdo_planeta($planeta->id);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time_global)/1000000,0);
+			$this->debug  .= "
+exibe_lista_colonias(): acoes->mdo_planeta({$planeta->id}): {$diferenca}ms";
+				
 				$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 				$balanco_poluicao_planeta = "";
-				if (!empty($acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id])) {
-					if ($acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id] > 0) {
-						$balanco_poluicao_planeta = "(<span style='color: red;'>+{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
+				if (!empty($this->acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id])) {
+					if ($this->acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id] > 0) {
+						$balanco_poluicao_planeta = "(<span style='color: red;'>+{$this->acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
 					} else {
-						$balanco_poluicao_planeta = "(<span style='color: green;'>{$acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
+						$balanco_poluicao_planeta = "(<span style='color: green;'>{$this->acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id]}</span>)";
 					}
 				}
 				
 				$html_icones_planeta = "";
 				foreach ($icones_planeta as $id_instalacao => $html) {
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time_global)/1000000,0);
+			$this->debug  .= "
+exibe_lista_colonias(): ForEach dos Icones do Planeta: {$diferenca}ms";
 					$html_icones_planeta .= $html;
 				}
-				
+
 				$html_planeta[$planeta->id] = "<div><span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+			
 		}
 		
 		foreach ($html_planeta AS $id_planeta => $html) {
