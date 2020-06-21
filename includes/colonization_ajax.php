@@ -33,7 +33,62 @@ class colonization_ajax {
 		add_action('wp_ajax_processa_recebimento_tech', array ($this, 'processa_recebimento_tech'));//salva_transfere_tech
 		add_action('wp_ajax_processa_viagem_nave', array ($this, 'processa_viagem_nave'));//processa_viagem_nave
 		add_action('wp_ajax_envia_nave', array ($this, 'envia_nave'));//envia_nave
-		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//envia_nave
+		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//nave_visivel
+		add_action('wp_ajax_aceita_missao', array ($this, 'aceita_missao'));//aceita_missao
+	}
+
+	/***********************
+	function aceita_missao ()
+	----------------------
+	Aceita ou Rejeita uma missão
+	***********************/	
+	function aceita_missao() {
+		global $wpdb;
+		
+		$imperio = new imperio($nave->id_imperio);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		$dados_salvos['debug'] = "";
+		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode processar sua missão!";
+		if ($imperio->id == $_POST['id_imperio'] || $roles == "administrator") {
+			$missao = new missoes($_POST['id']);
+			//Verifica se o player já aceitou ou se rejeitou essa Missão. Uma missão REJEITADA pode ser aceita posteriormente, mas uma missão ACEITA não pode mais ser editada
+			$id_imperios_aceitaram = explode(";",$missao->id_imperios_aceitaram);
+			$id_imperios_rejeitaram = explode(";",$missao->id_imperios_rejeitaram);
+			
+			$aceitou = array_search($_POST['id_imperio'],$id_imperios_aceitaram);
+			$rejeitou = array_search($_POST['id_imperio'],$id_imperios_rejeitaram);
+
+			$dados_salvos['debug'] .= "\$_POST['aceita']: {$_POST['aceita']}";
+			if ($_POST['aceita'] == "true") {
+				//Verifica se está na lista de rejeitados
+				if ($rejeitou !== false) {
+					unset($id_imperios_rejeitaram[$rejeitou]);
+				}
+				
+				$lista_imperios_rejeitaram = implode(";",$id_imperios_rejeitaram);
+				if (empty($missao->id_imperios_aceitaram)) {//É o primeiro império a aceitar!
+					$wpdb->query("UPDATE colonization_missao SET id_imperios_aceitaram='{$_POST['id_imperio']}', id_imperios_rejeitaram='{$lista_imperios_rejeitaram}' WHERE id={$_POST['id']}");
+				} else {
+					$lista_imperios_aceitaram = "{$missao->id_imperios_aceitaram};{$_POST['id_imperio']}";
+					$wpdb->query("UPDATE colonization_missao SET id_imperios_aceitaram='{$lista_imperios_aceitaram}', id_imperios_rejeitaram='{$lista_imperios_rejeitaram}'  WHERE id={$_POST['id']}");
+				}
+			} else {//Rejeitou!
+				if (empty($missao->id_imperios_rejeitaram)) {//É o primeiro império a rejeitar!
+					$wpdb->query("UPDATE colonization_missao SET id_imperios_rejeitaram='{$_POST['id_imperio']}' WHERE id={$_POST['id']}");
+				} else {
+					$lista_imperios_rejeitaram = "{$missao->id_imperios_rejeitaram};{$_POST['id_imperio']}";
+					$wpdb->query("UPDATE colonization_missao SET id_imperios_rejeitaram='{$lista_imperios_rejeitaram}' WHERE id={$_POST['id']}");
+				}
+			}
+			$dados_salvos['resposta_ajax'] = "SALVO!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
 	}
 
 	/***********************

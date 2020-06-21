@@ -364,6 +364,57 @@ function alerta(texto) {
 }
 
 
+//aceita_missao(event,{$id_imperio},{$this->id},false)
+
+/******************
+function aceita_missao()
+--------------------
+Aceita ou rejeita uma missão
+******************/
+function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
+	let div_notice = objeto;
+	
+	while (div_notice.getAttribute("data-atributo") != "gerenciar") {
+		div_notice = div_notice.parentNode;
+	}
+	
+	var dados_ajax = "post_type=POST&action=aceita_missao&id="+id_missao+"&id_imperio="+id_imperio+"&aceita="+aceita;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+				if (aceita === true) {
+					div_notice.innerHTML = "<span style='color: #009922 !important;'><b>MISSÃO ACEITA!</b></span>";
+				} else {
+					div_notice.innerHTML = "<span style='color: #DD0022 !important;'><b>MISSÃO REJEITADA!</b></span> => <a href='#' onclick='return aceita_missao(this,event,"+id_imperio+","+id_missao+");' style='color: #009922 !important;'> Aceitar a Missão</a>";
+				}
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+
+	evento.preventDefault();
+	return false;
+}
+
 /******************
 function processa_viagem_nave()
 --------------------

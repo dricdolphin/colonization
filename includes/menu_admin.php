@@ -39,6 +39,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Reabastecimentos','Reabastecimentos','publish_pages','colonization_admin_reabastece_imperio',array($this,'colonization_admin_reabastece_imperio'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','publish_pages','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
 		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','publish_pages','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
+		add_submenu_page('colonization_admin_menu','Missões','Missões','publish_pages','colonization_admin_missoes',array($this,'colonization_admin_missoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','publish_pages','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 		add_action( 'admin_bar_menu', array($this,'add_link_forum_admin_bar'),999 ); //Adiciona um link para o Fórum
 	}
@@ -1024,6 +1025,50 @@ class menu_admin {
 
 		$html .= $html_lista;
 
+		echo $html;
+	}
+
+
+//colonization_admin_missoes
+	/******************
+	function colonization_admin_missoes()
+	-----------
+	Exibe as Ações do Admin
+	******************/
+	function colonization_admin_missoes() {
+		global $wpdb;
+
+		$html = "<div><h2>COLONIZATION - Missões</h2></div>";
+		
+		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_missao'>
+		<thead>
+		<tr><th style='width: 80px;'>ID</th><th style='width: 140px;'>Descrição</th><th style='width: 140px;'>Vitória</th><th style='width: 140px;'>Derrota</th>
+		<th style='width: 60px;'>ID Império</th><th style='width: 120px;'>IDs Aceitam</th><th style='width: 120px;'>IDs Rejeitam</th>
+		<th style='width: 60px;'>Ativa</th><th style='width: 60px;'>Turno</th><th style='width: 60px;'>Validade</th>
+		</tr>
+		</thead>
+		<tbody>";
+
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_missao ORDER BY turno");
+		$html_lista = "";
+		
+		foreach ($lista_id as $id) {		
+			$missao = new missoes($id->id);
+			
+			$html_dados = $missao->lista_dados();
+			
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";
+		}
+
+		$html .= $html_lista;
+		
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_missao(event);'>Adicionar nova Missão</a></div><br>";
+		
 		echo $html;
 	}
 

@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.19
+ * Version: 1.1.20
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -34,6 +34,7 @@ include_once('includes/frota.php');
 include_once('includes/roda_turno.php');
 include_once('includes/reabastece_imperio.php');
 include_once('includes/configuracao.php');
+include_once('includes/missoes.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -51,9 +52,11 @@ class colonization {
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_lista_imperios',array($this,'colonization_exibe_lista_imperios')); //Exibe a lista dos Impérios e suas pontuações
+		add_shortcode('colonization_exibe_lista_imperios_pontuacao',array($this,'colonization_exibe_lista_imperios_pontuacao')); //Exibe a Pontuação dos Impérios
 		add_shortcode('colonization_exibe_recursos_colonias_imperio',array($this,'colonization_exibe_recursos_colonias_imperio')); //Exibe os dados das Colônias do Império
 		add_shortcode('colonization_exibe_acoes_imperio',array($this,'colonization_exibe_acoes_imperio')); //Exibe a lista de ações do Império
 		add_shortcode('colonization_exibe_mapa_estelar',array($this,'colonization_exibe_mapa_estelar')); //Exibe o Mapa Estelar
+		add_shortcode('colonization_exibe_missoes',array($this,'colonization_exibe_missoes')); //Exibe a Lista de Missões
 		add_shortcode('colonization_exibe_frota_imperio',array($this,'colonization_exibe_frota_imperio')); //Exibe a Frota de um Império
 		add_shortcode('colonization_exibe_techs_imperio',array($this,'colonization_exibe_techs_imperio')); //Exibe as Techs de um Império
 		add_shortcode('colonization_exibe_reabastece_imperio',array($this,'colonization_exibe_reabastece_imperio')); //Exibe os pontos de Reabastecimento de um Império
@@ -79,6 +82,7 @@ class colonization {
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
+		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_missoes_pendente')); //Adiciona as mensagens de missões pendentes
 		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
 		
 		$colonization_ajax = new colonization_ajax();
@@ -99,6 +103,65 @@ class colonization {
          </script>";
 	}
 
+	/******************
+	function colonization_exibe_missoes()
+	-----------
+	Mostra a lista com as missões do Império (atuais ou não)
+	******************/	
+	function colonization_exibe_missoes($atts = [], $content = null) {
+		global $asgarosforum, $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+		} else {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio, false);
+		}		
+		
+		$html_lista = "<h3>Lista das Missões do Império</h3>";
+		if ($imperio->id == 0 && $roles == "administrator") {
+			$lista_id = $wpdb->get_results("
+			SELECT id 
+			FROM colonization_missao 
+			ORDER BY turno");
+
+			foreach ($lista_id as $id) {
+				$missao = new missoes($id->id);
+				
+				$html_dados = $missao->exibe_missao();
+				
+				$html_lista .= "
+				{$html_dados}<br>";
+			}
+		} else {
+			$lista_id = $wpdb->get_results("
+			SELECT id 
+			FROM colonization_missao 
+			WHERE id_imperio={$imperio->id} 
+			OR id_imperio=0
+			ORDER BY turno");
+
+			foreach ($lista_id as $id) {
+				$missao = new missoes($id->id);
+				
+				$html_dados = $missao->exibe_missao($imperio->id);
+				
+				$html_lista .= "
+				{$html_dados}<br>";
+			}
+		}
+		
+		return $html_lista;
+	}
 
 	/******************
 	function colonization_turno_atual()
@@ -336,6 +399,54 @@ class colonization {
 	
 		return;
 	}
+
+
+	/******************
+	function colonization_exibe_missoes_pendente()
+	-----------
+	Exibe no painel principal se existem transferências de Tech pendentes
+	******************/	
+	function colonization_exibe_missoes_pendente() {
+		global $asgarosforum, $wpdb;
+		
+		$user = wp_get_current_user();
+		$ids_pendentes = [];
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		if ($roles != "administrator") {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			$imperio = new imperio($id_imperio, true);
+		} else {
+			return;
+		}
+		
+		if (!empty($imperio->id)) {
+			$ids_pendentes = $wpdb->get_var("
+			SELECT COUNT(id) FROM colonization_missao
+			WHERE ativo=1 AND
+			((id_imperio=0 AND id_imperios_aceitaram NOT LIKE '{$imperio->id};%' AND id_imperios_aceitaram NOT LIKE '%;{$imperio->id};%' AND id_imperios_aceitaram NOT LIKE '%;{$imperio->id}' AND id_imperios_aceitaram !='{$imperio->id}') AND 
+			(id_imperio=0 AND id_imperios_rejeitaram NOT LIKE '{$imperio->id};%' AND id_imperios_rejeitaram NOT LIKE '%;{$imperio->id};%' AND id_imperios_rejeitaram NOT LIKE '%;{$imperio->id}' AND id_imperios_rejeitaram !='{$imperio->id}') OR
+			(id_imperio={$imperio->id} AND id_imperios_aceitaram='' AND id_imperios_rejeitaram=''))
+			");
+		}
+		
+		if ($ids_pendentes == 0) {
+			return;
+		}
+		
+		$page_id_forum = new configuracao(1);
+		$id_missao = new configuracao(2);
+	  
+		$notice = "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_missao->id_post}'>Existem Missões pendentes para seu Império</a>";
+		$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+		$asgarosforum->add_notice($notice);
+		
+		return;
+	}
+
 	
 	/******************
 	function colonization_exibe_tech_transfere_pendente()
@@ -1178,6 +1289,72 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		return $html_lista;
 	}
+
+	function colonization_exibe_lista_imperios_pontuacao($atts = [], $content = null) {
+		global $wpdb;
+		
+		$estrelas = $wpdb->get_results("SELECT nome, tipo, X, Y, Z, ROUND(X+Z*(SQRT(2)/2),2) AS X3D, ROUND(Y+Z*(SQRT(2)/2),2) AS Y3D FROM colonization_estrela");
+
+		$html_lista = "    <script type='text/javascript'>
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        
+		var data = new google.visualization.DataTable();
+        data.addColumn('number', 'X');
+        data.addColumn('number', 'Y');
+		data.addColumn({type: 'string', role: 'tooltip'});
+		data.addColumn({type: 'string', role: 'style'});
+
+        data.addRows([";
+		
+		
+		$html_estrela = "";
+	    
+		foreach ($estrelas as $estrela) {
+			//,'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})'
+			if (stripos($estrela->tipo,"amarela") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFFF00; }';
+			} elseif (stripos($estrela->tipo,"branca") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFFFFF; }';
+			} elseif (stripos($estrela->tipo,"vermelha") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FF0000; }';
+			} elseif (stripos($estrela->tipo,"azul") !== false) {
+				$estilo = 'point { size: 4; fill-color: #F0F0FF; }';
+			} elseif (stripos($estrela->tipo,"laranja") !== false) {
+				$estilo = 'point { size: 4; fill-color: #FFA500; }';				
+			} else {
+				$estilo = 'point { size: 4; fill-color: #DDDDDD; }';
+			}
+			
+			$html_estrela	.= "[{$estrela->X3D},{$estrela->Y3D},'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})','{$estilo}'],";
+		}
+		
+		$html_estrela = substr($html_estrela,0,-1);
+		
+		$html_lista .= $html_estrela;
+		
+		$html_lista	.= "]);
+        var options = {
+          title: 'Lista das Estrelas',
+		  chartArea: {backgroundColor: '#111111'},
+		  hAxis: {title: 'X', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
+          vAxis: {title: 'Y', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
+          legend: 'none'
+        };
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+	    chart.draw(data, options);
+      }
+    </script>
+	<div id='chart_div' style='width: 800px; height: 500px;'></div>";
+	
+		return $html_lista;
+		
+		
+	}
+
 
 	/***********************
 	function colonization_exibe_mapa_estelar($atts = [], $content = null)

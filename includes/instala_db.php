@@ -255,11 +255,15 @@ class instala_db {
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_missao (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		descricao TEXT DEFAULT NULL,
+		texto_sucesso TEXT DEFAULT NULL,
+		texto_fracasso TEXT DEFAULT NULL,
 		lista_recurso VARCHAR(255) NOT NULL,
 		qtd VARCHAR(255) NOT NULL,
 		id_imperio INT(6) DEFAULT 0,
 		id_imperios_aceitaram VARCHAR(255) DEFAULT '',
+		id_imperios_rejeitaram VARCHAR(255) DEFAULT '',
 		turno INT(6) NOT NULL,
+		ativo BOOLEAN DEFAULT TRUE,
 		turno_validade INT(6) NOT NULL
 		)");	
 
