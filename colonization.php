@@ -132,7 +132,7 @@ class colonization {
 			$lista_id = $wpdb->get_results("
 			SELECT id 
 			FROM colonization_missao 
-			ORDER BY turno");
+			ORDER BY id_imperio, ativo DESC, turno");
 
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);
@@ -148,7 +148,7 @@ class colonization {
 			FROM colonization_missao 
 			WHERE id_imperio={$imperio->id} 
 			OR id_imperio=0
-			ORDER BY turno");
+			ORDER BY id_imperio, ativo DESC, turno");
 
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);

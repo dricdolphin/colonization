@@ -21,6 +21,7 @@ class missoes
 	public $turno;
 	public $ativo;
 	public $turno_validade;
+	public $sucesso;
 	
 	/***********************
 	function __construct()
@@ -37,7 +38,7 @@ class missoes
 		
 
 		$resultados = $wpdb->get_results("SELECT id, descricao, texto_sucesso, texto_fracasso, lista_recurso, qtd, 
-		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade
+		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade, sucesso
 		FROM colonization_missao WHERE id={$id}");
 		$resultado = $resultados[0];
 		
@@ -53,6 +54,7 @@ class missoes
 		$this->turno = $resultado->turno;
 		$this->ativo = $resultado->ativo;
 		$this->turno_validade = $resultado->turno_validade;
+		$this->sucesso = $resultado->sucesso;
 	}
 	
 	function lista_dados() {
@@ -61,6 +63,11 @@ class missoes
 		$ativo_checked = "";
 		if ($this->ativo == 1) {
 			$ativo_checked = "checked";
+		}			
+		
+		$sucesso_checked = "";
+		if ($this->sucesso == 1) {
+			$sucesso_checked = "checked";
 		}	
 		
 		$html = "<td>
@@ -80,6 +87,7 @@ class missoes
 		<td><div data-atributo='ativo' data-editavel='true' data-type='checkbox' data-valor-original='{$this->ativo}'><input type='checkbox' data-atributo='ativo' data-ajax='true' {$ativo_checked} disabled></input></div></td>
 		<td><div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno}'>{$this->turno}</div></td>
 		<td><div data-atributo='turno_validade' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno_validade}'>{$this->turno_validade}</div></td>
+		<td><div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-valor-original='{$this->sucesso}'><input type='checkbox' data-atributo='sucesso' data-ajax='true' {$sucesso_checked} disabled></input></div></td>
 		";
 	
 		return $html;
@@ -118,11 +126,28 @@ class missoes
 		$html_imperio = "";
 		if ($id_imperio == 0 && $this->id_imperio != 0) {
 			$imperio = new imperio($this->id_imperio);
+			$aceitou = array_search($this->id_imperio,$id_imperios_aceitaram);
+			
 			$html_imperio = "<i>({$imperio->nome})</i>";
+			
+			if ($aceitou !== false) {
+				$html_imperio .= " <span style='color: #009922 !important;'><b>ACEITA!</b></span>";
+			}
+		}
+		
+		$estilo_sucesso = "";
+		$html_sucesso = "";
+		if ($this->sucesso == 1 && $aceitou !== false) {
+			$estilo_sucesso = "style='color: #009922 !important;'";
+			$html_sucesso = "<b>* CONCLUÍDO! *</b>";
+		}
+		
+		if ($this->ativo == 0 && $this->sucesso == 0 && $aceitou !== false) {
+			$estilo_sucesso = "style='color: #DD0022 !important;'";
 		}
 		
 		$html = "<div>
-			<div><b>MISSÃO:</b> {$this->descricao} {$html_imperio}</div>
+			<div {$estilo_sucesso}><b>MISSÃO:</b><span style='color: #000000 !important;'> {$this->descricao} {$html_imperio} {$html_sucesso}</span></div>
 			<div><b>SUCESSO:</b> {$this->texto_sucesso}</div>
 			{$html_fracasso}
 			<div>Missão deve ser concluída até o Turno {$this->turno_validade}</div>

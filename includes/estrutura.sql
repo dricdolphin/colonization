@@ -248,7 +248,8 @@ id_imperios_aceitaram VARCHAR(255) DEFAULT '',
 id_imperios_rejeitaram VARCHAR(255) DEFAULT '',
 turno INT(6) NOT NULL,
 ativo BOOLEAN DEFAULT TRUE,
-turno_validade INT(6) NOT NULL
+turno_validade INT(6) NOT NULL,
+sucesso BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com as referências do Fórum
