@@ -243,6 +243,25 @@ th {
   z-index: 99;	
 }
 
+.topic {
+	position: relative;
+}
+
+.icone_topico {
+	position: absolute; 
+	width: 50px;
+	height: 50px;
+	left: 12px; 
+	top: 20px;
+	background-color: #F1F8FF; 
+	padding-left: 15px;
+}
+
+@media only screen and (max-width: 1209px) {
+	.icone_topico {
+		/*visibility: hidden;*/
+	}
+}
 
 @media only screen and (max-width: 782px) {
 	#barra_recursos {
@@ -254,3 +273,4 @@ th {
 		position: static;
 	}
 }
+

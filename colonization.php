@@ -84,16 +84,36 @@ class colonization {
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_missoes_pendente')); //Adiciona as mensagens de missões pendentes
 		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
+		add_action('asgarosforum_custom_topic_column', array($this,'colonization_muda_icone_topico'), 10, 2);
 		
 		$colonization_ajax = new colonization_ajax();
 	}
 
+	
+	function colonization_muda_icone_topico($topic_id) {
+		global $asgarosforum, $wpdb;
+		$page_id_forum = new configuracao(1);
+		$id_missao = new configuracao(2);
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		//if ($roles == "administrator") {
+			if ($topic_id == $id_missao->id_post) {
+				echo "<div class='icone_topico'><i class='fad fa-route' style='font-size: 32px;'></i></div>";
+			}
+		//}
+	}
+	
 	function colonization_menu_asgaros() {
-	  global $asgarosforum, $wpdb;
-	  $page_id_forum = new configuracao(1);
-	  $id_missao = new configuracao(2);
-	  
-	  echo "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_missao->id_post}'>Missões</a>";
+		global $asgarosforum, $wpdb;
+		$page_id_forum = new configuracao(1);
+		$id_missao = new configuracao(2);
+
+		echo "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_missao->id_post}'>Missões</a>";
 	}
 
 	function colonization_ajaxurl() {
@@ -1461,9 +1481,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			$html_id_estrela_destino .= "
 			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};
 			id_estrela_atual[{$index}] = {$frota->estrela->id};";
-			if ($frota->alcance != 0) {
-				$index++;
-			}
+			$index++;
 			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 		}
 		$html .= "</table>
@@ -1519,12 +1537,12 @@ var id_imperio_atual = {$imperio->id};
 					let reabastece = true;
 					let estrela_atual = id_estrela_atual[index]
 					let estrelas_destino = array_estrelas(alcance_nave,alcance_estendido,reabastece,estrela_atual);
-					
+					console.log('Index: '+index+'; '+estrela_atual);
 					let alcance_local = selects[index].getAttribute('data-alcance-local');
 					reabastece = false;
 					alcance_estendido = 1;
 					let estrelas_destino_local = array_estrelas(alcance_local,alcance_estendido,reabastece,estrela_atual);
-
+					
 					mapped_estrelas_destino_local = estrelas_destino_local.map(function(el, i) {
 						return { index: i, value: el };
 					});
