@@ -286,7 +286,7 @@ class colonization {
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				$nave = new frota($id_frota->id);
-				$imperio_nave = new imperio($nave->id_imperio);
+				$imperio_nave = new imperio($nave->id_imperio,true);
 				if ($imperio_nave->id == 0) {
 					$imperio_nave->nome = $nave->nome_npc;
 				}
