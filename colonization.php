@@ -287,6 +287,9 @@ class colonization {
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				$nave = new frota($id_frota->id);
 				$imperio_nave = new imperio($nave->id_imperio);
+				if ($imperio_nave->id == 0) {
+					$imperio_nave->nome = $nave->nome_npc;
+				}
 				
 				if ($roles != "administrator") {
 					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
@@ -294,11 +297,11 @@ class colonization {
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
-					if ($nave->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
-						$html_estrela[$estrela->id] .= "<i>{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+					if ($nave->camuflagem > 0 && $nave->visivel == 0) {
+						$html_estrela[$estrela->id] .= "<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
 						$exibiu_nave[$nave->id] = true;
 					} else {
-						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$html_estrela[$estrela->id] .= "{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
@@ -344,6 +347,9 @@ class colonization {
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				$nave_na_estrela = new frota($id_frota->id);
 				$imperio_nave_na_estrela = new imperio($nave_na_estrela->id_imperio,true);
+				if ($imperio_nave_na_estrela->id == 0) {
+					$imperio_nave_na_estrela->nome = $nave_na_estrela->nome_npc;
+				}
 
 				if (empty($exibiu_nave[$nave_na_estrela->id]) || $exibiu_nave[$nave_na_estrela->id] == false) {
 					if ($roles != "administrator") {
@@ -353,10 +359,10 @@ class colonization {
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
-							$html_estrela[$estrela->id] .= "<i>{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
+							$html_estrela[$estrela->id] .= "<i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
-							$html_estrela[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$html_estrela[$estrela->id] .= "{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}

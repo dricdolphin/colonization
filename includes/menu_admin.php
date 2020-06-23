@@ -909,10 +909,48 @@ class menu_admin {
 		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
 		$html_lista = "";
 		
+		//Naves dos NPCs
+		$html_lista	.= "
+		<div><h4>COLONIZATION - Frotas dos NPCs - Turno {$turno->turno}</h4></div>
+		<table class='wp-list-table widefat fixed striped users' data-id-imperio='0' data-tabela='colonization_imperio_frota'>
+		<thead>
+		<tr>
+		<th rowspan='2' style='width: 200px;'>Nome do Império</th>
+		<th rowspan='2' style='width: 140px;'>Nome da nave</th>
+		<th rowspan='2' style='width: 100px;'>Categoria</th>
+		<th rowspan='2' style='width: 30px;'>Qtd</th>
+		<th colspan='3' style='width: 120px;'>Posição</th>
+		<th rowspan='2' style='width: 40px;'>Turno</th>
+		<th rowspan='2' style='width: 80px;'>&nbsp;</th>
+		</tr>
+		<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th>
+		</tr>
+		</thead>
+		<tbody>";
+		
+		
+		$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio=0");
+		foreach ($lista_id_frota as $id_frota) {
+			$frota = new frota($id_frota->id);
+			
+			$html_dados = $frota->lista_dados();
+			
+			$html_lista .= "
+			<tr>
+			{$html_dados}
+			</tr>";	
+		}
+		//$html_lista .= $imperio_acoes->lista_dados();
+			
+		$html_lista .= "</tbody>
+		</table>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_nave(event, 0);'>Adicionar nova Nave</a></div>";
+
+
+		//Naves dos Jogadores
 		foreach ($lista_id_imperio as $id) {
 			$imperio = new imperio($id->id,true);
 
-			
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
 			<table class='wp-list-table widefat fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>

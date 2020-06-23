@@ -706,55 +706,76 @@ function nova_nave(evento, id_imperio) {
 	var X = linha_nova.insertCell(-1);
 	var Y = linha_nova.insertCell(-1);
 	var Z = linha_nova.insertCell(-1);
-	var string_nave = linha_nova.insertCell(-1);
-	var tamanho = linha_nova.insertCell(-1);
-	var HP = linha_nova.insertCell(-1);
-	var velocidade = linha_nova.insertCell(-1);
-	var alcance = linha_nova.insertCell(-1);
-	var PDF_laser = linha_nova.insertCell(-1);
-	var PDF_torpedo = linha_nova.insertCell(-1);
-	var PDF_projetil = linha_nova.insertCell(-1);
-	var blindagem = linha_nova.insertCell(-1);
-	var escudos = linha_nova.insertCell(-1);
-	var PDF_bombardeamento = linha_nova.insertCell(-1);
-	var poder_invasao = linha_nova.insertCell(-1);
-	var pesquisa = linha_nova.insertCell(-1);
-	var camuflagem = linha_nova.insertCell(-1);
-	var nivel_estacao_orbital = linha_nova.insertCell(-1);
-	var especiais = linha_nova.insertCell(-1);
-	var turno = linha_nova.insertCell(-1);
-	var gerenciar = linha_nova.insertCell(-1);
 
-	nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
-	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
-	+"<input type='hidden' data-atributo='where_value' value=''></input>"
-	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
-	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
-	+"<div data-atributo='nome' data-editavel='true' data-valor-original='' data-style='width: 100px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 80px;'></input></div>"
-	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>"
-	+"<div data-atributo='processa_string' data-valor-original=''><a href='#' onclick='return processa_string_admin(event, this);'>Processa String</a></div>";
 	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>";
 	qtd.innerHTML = "<div data-atributo='qtd' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 30px;'></input></div>";
 	X.innerHTML = "<div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div>";
 	Y.innerHTML = "<div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' style='width: 30px;'></input></div>";
 	Z.innerHTML = "<div data-atributo='Z' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Z' data-ajax='true' style='width: 30px;'></input></div>";
-	string_nave.innerHTML = "<div data-atributo='string_nave' data-editavel='true' data-type='textarea' data-valor-original='' data-style='width: 80px; height: 200px;' data-id='string_nave'><textarea data-atributo='string_nave' data-ajax='true' style='width: 80px; height: 200px;' id='string_nave'></textarea></div>";
-	tamanho.innerHTML = "<div data-atributo='tamanho' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='tamanho'><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 50px;' id='tamanho'></input></div>";
-	HP.innerHTML = "<div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='HP'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;' id='HP'></input></div>";
-	velocidade.innerHTML = "<div data-atributo='velocidade' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='velocidade'><input type='text' data-atributo='velocidade' data-ajax='true' style='width: 50px;' id='velocidade'></input></div>";
-	alcance.innerHTML = "<div data-atributo='alcance' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='alcance'><input type='text' data-atributo='alcance' data-ajax='true' style='width: 50px;' id='alcance'></input></div>";
-	PDF_laser.innerHTML = "<div data-atributo='PDF_laser' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_laser'><input type='text' data-atributo='PDF_laser' data-ajax='true' style='width: 50px;' id='PDF_laser'></input></div>";
-	PDF_torpedo.innerHTML = "<div data-atributo='PDF_torpedo' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_torpedo'><input type='text' data-atributo='PDF_torpedo' data-ajax='true' style='width: 50px;' id='PDF_torpedo'></input></div>";
-	PDF_projetil.innerHTML = "<div data-atributo='PDF_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_projetil'><input type='text' data-atributo='PDF_projetil' data-ajax='true' style='width: 50px;' id='PDF_projetil'></input></div>";
-	blindagem.innerHTML = "<div data-atributo='blindagem' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='blindagem'><input type='text' data-atributo='blindagem' data-ajax='true' style='width: 50px;' id='blindagem'></input></div>";
-	escudos.innerHTML = "<div data-atributo='escudos' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='escudos'><input type='text' data-atributo='escudos' data-ajax='true' style='width: 50px;' id='escudos'></input></div>";
-	PDF_bombardeamento.innerHTML = "<div data-atributo='PDF_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombas'><input type='text' data-atributo='PDF_bombardeamento' data-ajax='true' style='width: 50px;' id='qtd_bombas'></input></div>";
-	poder_invasao.innerHTML = "<div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div>";
-	pesquisa.innerHTML = "<div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa'></input></div>";
-	camuflagem.innerHTML = "<div data-atributo='camuflagem' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='camuflagem' data-ajax='true' style='width: 50px;' value=0></input></div>";
-	nivel_estacao_orbital.innerHTML = "<div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='nivel_estacao_orbital'><input type='text' data-atributo='nivel_estacao_orbital' data-ajax='true' style='width: 50px;' id='nivel_estacao_orbital'></input></div>";
-	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='' data-branco='true' data-style='width: 120px; height: 100px;'><textarea data-atributo='especiais' data-ajax='true' style='width: 120px; height: 100px;' data-branco='true'></textarea></div>";
+
+
+	if (id_imperio != 0) {
+	
+		var string_nave = linha_nova.insertCell(-1);
+		var tamanho = linha_nova.insertCell(-1);
+		var HP = linha_nova.insertCell(-1);
+		var velocidade = linha_nova.insertCell(-1);
+		var alcance = linha_nova.insertCell(-1);
+		var PDF_laser = linha_nova.insertCell(-1);
+		var PDF_torpedo = linha_nova.insertCell(-1);
+		var PDF_projetil = linha_nova.insertCell(-1);
+		var blindagem = linha_nova.insertCell(-1);
+		var escudos = linha_nova.insertCell(-1);
+		var PDF_bombardeamento = linha_nova.insertCell(-1);
+		var poder_invasao = linha_nova.insertCell(-1);
+		var pesquisa = linha_nova.insertCell(-1);
+		var camuflagem = linha_nova.insertCell(-1);
+		var nivel_estacao_orbital = linha_nova.insertCell(-1);
+		var especiais = linha_nova.insertCell(-1);
+
+		nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
+		+"<div data-atributo='nome' data-editavel='true' data-valor-original='' data-style='width: 100px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 80px;'></input></div>"
+		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>"
+		+"<div data-atributo='processa_string' data-valor-original=''><a href='#' onclick='return processa_string_admin(event, this);'>Processa String</a></div>";
+	
+		string_nave.innerHTML = "<div data-atributo='string_nave' data-editavel='true' data-type='textarea' data-valor-original='' data-style='width: 80px; height: 200px;' data-id='string_nave'><textarea data-atributo='string_nave' data-ajax='true' style='width: 80px; height: 200px;' id='string_nave'></textarea></div>";
+		tamanho.innerHTML = "<div data-atributo='tamanho' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='tamanho'><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 50px;' id='tamanho'></input></div>";
+		HP.innerHTML = "<div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='HP'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;' id='HP'></input></div>";
+		velocidade.innerHTML = "<div data-atributo='velocidade' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='velocidade'><input type='text' data-atributo='velocidade' data-ajax='true' style='width: 50px;' id='velocidade'></input></div>";
+		alcance.innerHTML = "<div data-atributo='alcance' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='alcance'><input type='text' data-atributo='alcance' data-ajax='true' style='width: 50px;' id='alcance'></input></div>";
+		PDF_laser.innerHTML = "<div data-atributo='PDF_laser' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_laser'><input type='text' data-atributo='PDF_laser' data-ajax='true' style='width: 50px;' id='PDF_laser'></input></div>";
+		PDF_torpedo.innerHTML = "<div data-atributo='PDF_torpedo' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_torpedo'><input type='text' data-atributo='PDF_torpedo' data-ajax='true' style='width: 50px;' id='PDF_torpedo'></input></div>";
+		PDF_projetil.innerHTML = "<div data-atributo='PDF_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_projetil'><input type='text' data-atributo='PDF_projetil' data-ajax='true' style='width: 50px;' id='PDF_projetil'></input></div>";
+		blindagem.innerHTML = "<div data-atributo='blindagem' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='blindagem'><input type='text' data-atributo='blindagem' data-ajax='true' style='width: 50px;' id='blindagem'></input></div>";
+		escudos.innerHTML = "<div data-atributo='escudos' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='escudos'><input type='text' data-atributo='escudos' data-ajax='true' style='width: 50px;' id='escudos'></input></div>";
+		PDF_bombardeamento.innerHTML = "<div data-atributo='PDF_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombas'><input type='text' data-atributo='PDF_bombardeamento' data-ajax='true' style='width: 50px;' id='qtd_bombas'></input></div>";
+		poder_invasao.innerHTML = "<div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div>";
+		pesquisa.innerHTML = "<div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa'></input></div>";
+		camuflagem.innerHTML = "<div data-atributo='camuflagem' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='camuflagem' data-ajax='true' style='width: 50px;' value=0></input></div>";
+		nivel_estacao_orbital.innerHTML = "<div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='nivel_estacao_orbital'><input type='text' data-atributo='nivel_estacao_orbital' data-ajax='true' style='width: 50px;' id='nivel_estacao_orbital'></input></div>";
+		especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='' data-branco='true' data-style='width: 120px; height: 100px;'><textarea data-atributo='especiais' data-ajax='true' style='width: 120px; height: 100px;' data-branco='true'></textarea></div>";
+	} else {
+		var nome_npc = linha_nova.insertCell(0);
+		
+		nome_npc.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_generico'></input>"
+		+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta Frota?'></input>"
+		+"<div data-atributo='nome_npc' data-editavel='true' data-valor-original='' data-style='width: 180px;'><input type='text' data-atributo='nome_npc' data-ajax='true' style='width: 180px;'></input></div>"
+		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+		
+		nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original='' data-style='width: 120px;'><input type='text' data-atributo='nome' data-ajax='true' style='width: 120px;'></input></div>";
+	}
+
+	var turno = linha_nova.insertCell(-1);
+	var gerenciar = linha_nova.insertCell(-1);	
 	
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
 	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
