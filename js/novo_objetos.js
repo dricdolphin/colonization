@@ -66,6 +66,7 @@ function nova_estrela(evento) {
 	
 	var id = linha_nova.insertCell(-1);
 	var nome = linha_nova.insertCell(-1);
+	var descricao = linha_nova.insertCell(-1);
 	var estrela_x = linha_nova.insertCell(-1);
 	var estrela_y = linha_nova.insertCell(-1);
 	var estrela_z = linha_nova.insertCell(-1);
@@ -79,6 +80,8 @@ function nova_estrela(evento) {
 	+"<div data-atributo='id' data-valor-original=''>#</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
+	descricao.innerHTML = "<div data-atributo='descricao' data-type='textarea' data-editavel='true' data-valor-original='' data-style='width: 190px; height: 50px;' data-id='descricao'>"
+	+"<textarea data-atributo='descricao' data-ajax='true' style='width: 190px; height: 50px;' id='descricao'></textarea></div>";
 	estrela_x.innerHTML = "<div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='X' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_y.innerHTML = "<div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Y' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";

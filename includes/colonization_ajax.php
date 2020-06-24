@@ -143,6 +143,12 @@ class colonization_ajax {
 		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
 			$estrela = new estrela($nave->id_estrela_destino);
 			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}");
+			
+			//Verifica se a Estrela já foi visitada, e se não foi marca como visitada
+			$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+			if (empty($estrela_visitada)) {
+				$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}");
+			}
 		}
 		
 		$dados_salvos['resposta_ajax'] = "SALVO!";
@@ -444,7 +450,7 @@ class colonization_ajax {
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
+		$resposta = $wpdb->get_var("SELECT id FROM {$_POST['tabela']} WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		$dados_salvos['debug'] = $resposta;
 		
 		$id_jogador = get_current_user_id();
@@ -473,9 +479,9 @@ class colonization_ajax {
 		}
 		
 		if (empty($resposta)) {//Não existe o ponto, pode adicionar
-			$resposta = $wpdb->query("INSERT INTO colonization_imperio_abastecimento SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
+			$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
 		} else {//Existe o ponto, é para remover
-			$resposta = $wpdb->query("DELETE FROM colonization_imperio_abastecimento WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
+			$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		}
 
 		$dados_salvos['resposta_ajax'] = "OK!";

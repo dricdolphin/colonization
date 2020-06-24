@@ -38,6 +38,11 @@ class imperio_recursos
 		");
 		
 		$chave = 0;
+		
+		if ($imperio->id == 0) {
+			return;
+		}
+		
 		foreach ($resultado as $valor) {
 			if ($valor->id === null) {
 				$this->id[$chave] = 0;

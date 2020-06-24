@@ -30,6 +30,7 @@ class menu_admin {
 		add_submenu_page('colonization_admin_menu','Configuração','Configuração','publish_pages','colonization_admin_menu',array($this,'colonization_admin_configura'));
 		add_submenu_page('colonization_admin_menu','Impérios','Impérios','publish_pages','colonization_admin_imperios',array($this,'colonization_admin_imperios'));
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','publish_pages','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
+		add_submenu_page('colonization_admin_menu','Estrelas Visitadas','Estrelas Visitadas','publish_pages','colonization_admin_estrelas_visitadas',array($this,'colonization_admin_estrelas_visitadas'));		
 		add_submenu_page('colonization_admin_menu','Planetas','Planetas','publish_pages','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','publish_pages','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Techs','Techs','publish_pages','colonization_admin_techs',array($this,'colonization_admin_techs'));		
@@ -282,7 +283,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
 			<thead>
-			<tr><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'>Nome da estrela</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>&nbsp;</th></tr>
+			<tr><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'  style='width: 150px;'>Nome da estrela</th><th rowspan='2' style='width: 200px;'>Descrição</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>&nbsp;</th></tr>
 			<tr><th class='th_linha_2' style='width: 30px;'>X</th><th class='th_linha_2' style='width: 30px;'>Y</th><th class='th_linha_2' style='width: 30px;'>Z</th></tr>
 			
 			</thead>
@@ -461,7 +462,75 @@ class menu_admin {
 
 	}
 
+		
 	
+	/******************
+	function colonization_admin_estrelas_visitadas()
+	-----------
+	Exibe a página com todas as estrelas e mostra por quais impérios elas já foram visitadas
+	******************/
+	function colonization_admin_estrelas_visitadas() {
+		global $plugin_colonization, $wpdb;
+
+		$html = $this->html_header;
+		
+		$html .= "<div><h2>COLONIZATION - Estrelas Visitadas</h2></div>
+		<div>
+		";
+
+		$lista_id = $wpdb->get_results("
+		SELECT ce.id 
+		FROM colonization_estrela AS ce
+		ORDER BY ce.nome");
+		
+		$lista_ids_imperios = $wpdb->get_results("
+		SELECT id, nome
+		FROM colonization_imperio
+		ORDER BY nome
+		");
+		
+		$html_lista = "";
+		
+		$lista_id_estrela = [];
+		$coluna = 1;
+		
+		foreach ($lista_id as $id) {
+			$estrela = new estrela($id->id);
+			
+			$html_lista_imperios = "";
+			foreach ($lista_ids_imperios as $id_imperio) {
+				$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$id_imperio->id} AND id_estrela={$estrela->id}");
+				$abastece_checked = "";
+				if (!empty($estrela_visitada)) {
+					$abastece_checked = "checked";
+				}
+				
+				$html_lista_imperios .= "<input type='checkbox' onchange='return salva_reabastece(event, this,{$id_imperio->id},{$estrela->id},\"colonization_estrelas_historico\");' {$abastece_checked}></input><label>{$id_imperio->nome}</label><br>";
+			}
+			
+			$html_lista .= "<div style='display: inline-block; width: 160px; padding: 2px; margin: 5px;'>
+			<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b><br>
+			{$html_lista_imperios}
+			</div>";
+		
+			$coluna++;
+			if ($coluna == 6) {
+				$coluna = 1;
+				$html_lista .= "<br>";
+			}
+		
+		}
+		
+		$html .= $html_lista;
+		
+		//$html .= $plugin_colonization->colonization_exibe_autoriza_reabastece_imperio();
+		
+		$html .= "</div>";
+		
+		echo $html;
+	}
+
+
 	/******************
 	function colonization_admin_reabastece_imperio()
 	-----------

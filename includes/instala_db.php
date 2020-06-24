@@ -29,6 +29,7 @@ class instala_db {
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_estrela (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
+		descricao TEXT DEFAULT '',
 		X INT(6) NOT NULL,
 		Y INT(6) NOT NULL,
 		Z INT(6) NOT NULL,
@@ -221,6 +222,14 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		id_estrela INT(6) NOT NULL
 		)");
+		
+		//Tabela com o histórico de estrelas visitadas por um Império
+		$wpdb->query("CREATE TABLE colonization_estrelas_historico (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) NOT NULL,
+		id_estrela INT(6) NOT NULL
+		)");
+		
 
 		//Tabela com os dados do turno atual
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_turno_atual (
@@ -293,6 +302,8 @@ class instala_db {
 		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
+		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
 		END$$
 		DELIMITER ;");
 		

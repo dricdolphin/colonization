@@ -66,22 +66,34 @@ class imperio
 			$roles = $user->roles[0];
 		}
 		
+
 		$this->id = $id;
+		if (empty($this->id)) {
+			$this->id = 0;
+			return;
+		}		
+		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
 		if ($roles != "administrator" && $super == false) {
 			$this->id_jogador = get_current_user_id();
-			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador=".$this->id_jogador);
+			
+			$this->id = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$this->id_jogador}");
 		} 
 		
-		if (empty($this->id)) {
-				return;
+		$resultado = $wpdb->get_results("SELECT id, id_jogador, nome, prestigio FROM colonization_imperio WHERE id={$this->id}");
+		
+		if (empty($resultado)) {
+			$this->id = 0;
+			return;
 		}
 
+		$resultado = $resultado[0];
 		$start_time = hrtime(true);
-		$this->id_jogador = $wpdb->get_var("SELECT id_jogador FROM colonization_imperio WHERE id=".$this->id);
 		
-		$this->nome = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id=".$this->id);
-		$this->prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id=".$this->id);
+		$this->id = $resultado->id;
+		$this->id_jogador = $resultado->id_jogador;
+		$this->nome = $resultado->nome;
+		$this->prestigio = $resultado->prestigio;
 		
 		$this->pop = $wpdb->get_var("SELECT 
 		(CASE 

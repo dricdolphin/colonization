@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.1.20
+ * Version: 1.1.21
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -35,6 +35,7 @@ include_once('includes/roda_turno.php');
 include_once('includes/reabastece_imperio.php');
 include_once('includes/configuracao.php');
 include_once('includes/missoes.php');
+include_once('includes/estrelas_historico.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -67,6 +68,7 @@ class colonization {
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
 		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('colonization_exibe_dados_estrelas',array($this,'colonization_exibe_dados_estrelas')); //Exibe os dados de uma estrela ou de todas as estrelas que um Jogador já visitou
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
 		
 		
@@ -95,6 +97,10 @@ class colonization {
 		$page_id_forum = new configuracao(1);
 		$id_missao = new configuracao(2);
 		
+		$id_lista_estrelas = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID do Tópico da Lista de Estrelas'");
+		$id_lista_estrelas = new configuracao($id_lista_estrelas);
+		
+		
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
@@ -105,6 +111,10 @@ class colonization {
 			if ($topic_id == $id_missao->id_post) {
 				echo "<div class='icone_topico'><i class='fad fa-route' style='font-size: 32px;'></i></div>";
 			}
+			
+			if ($topic_id == $id_lista_estrelas->id_post) {
+				echo "<div class='icone_topico'><i class='far fa-stars' style='font-size: 32px;'></i></div>";
+			}
 		//}
 	}
 	
@@ -112,8 +122,12 @@ class colonization {
 		global $asgarosforum, $wpdb;
 		$page_id_forum = new configuracao(1);
 		$id_missao = new configuracao(2);
+		
+		$id_lista_estrelas = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID do Tópico da Lista de Estrelas'");
+		$id_lista_estrelas = new configuracao($id_lista_estrelas);		
 
 		echo "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_missao->id_post}'>Missões</a>";
+		//echo "<a href='?page_id={$page_id_forum->id_post}&view=topic&id={$id_lista_estrelas->id_post}'>Estrelas Visitadas</a>";
 	}
 
 	function colonization_ajaxurl() {
@@ -162,7 +176,7 @@ class colonization {
 				$html_lista .= "
 				{$html_dados}<br>";
 			}
-		} else {
+		} elseif ($imperio->id != 0) {
 			$lista_id = $wpdb->get_results("
 			SELECT id 
 			FROM colonization_missao 
@@ -192,6 +206,69 @@ class colonization {
 		$turno = new turno(); //Pega o turno atual
 
 		$html = "O Turno {$turno->turno} já começou!";
+		
+		return $html;
+	}
+
+	/******************
+	function colonization_exibe_dados_estrelas()
+	-----------
+	Exibe os dados de uma estrela ou de todas as estrelas conhecidas por um Império
+	******************/		
+	function colonization_exibe_dados_estrelas($atts = [], $content = null) {
+		global $asgarosforum, $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+		} else {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio, true);
+		}		
+		
+		if ($imperio->id == 0 && $roles == "administrator") {
+			$id_estrelas = $wpdb->get_results("SELECT id AS id_estrela FROM colonization_estrela");
+		} else {
+			$id_estrelas = $wpdb->get_results("SELECT id_estrela FROM colonization_estrelas_historico WHERE id_imperio={$imperio->id}");
+		}
+		
+		$lista_id_estrela = [];
+		foreach ($id_estrelas as $id) {
+			$lista_id_estrela[$id->id_estrela] = $id->id_estrela;
+		}
+		
+		$lista_id_estrela = implode(",",$lista_id_estrela);
+		
+		$id_estrelas = $wpdb->get_results("SELECT id AS id_estrela FROM colonization_estrela WHERE id IN ({$lista_id_estrela}) ORDER BY nome");
+		
+		$html = "";
+		$par_impar = "background-color: #DDD;";
+		foreach ($id_estrelas as $id) {
+			$estrela = new estrela($id->id_estrela);
+			
+			$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$imperio->id} AND id_estrela={$estrela->id}");
+			$html_pesquisa_nave = "";
+			if (empty($pesquisa_anterior)) {
+				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema ainda NÃO pesquisado</span></div>";	
+			}
+			
+			$descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
+			$html .= "<div style='margin-bottom: 5px; {$par_impar}'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$descricao_html}</div>";
+			
+			if ($par_impar == "background-color: #DDD;") {
+				$par_impar = "background-color: #EEE;";
+			} else {
+				$par_impar = "background-color: #DDD;";
+			}
+		}
 		
 		return $html;
 	}
@@ -446,6 +523,10 @@ class colonization {
 			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
 			$imperio = new imperio($id_imperio, true);
 		} else {
+			return;
+		}
+		
+		if ($imperio->id == 0) {
 			return;
 		}
 		

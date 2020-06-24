@@ -11,6 +11,7 @@ class estrela
 {
 	public $id;
 	public $nome;
+	public $descricao;
 	public $X;
 	public $Y;
 	public $Z;
@@ -37,10 +38,19 @@ class estrela
 		}
 		$this->id = $id_estrela;
 
-		$resultados = $wpdb->get_results("SELECT nome, X, Y, Z, tipo FROM colonization_estrela WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, nome, descricao, X, Y, Z, tipo FROM colonization_estrela WHERE id=".$this->id);
+		if (empty($resultados)) {
+			$this->id = 0;
+			$this->X = -1;
+			$this->Y = -1;
+			$this->Z = -1;
+			return;
+		}
+		
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
+		$this->descricao = $resultado->descricao;
 		$this->X = $resultado->X;
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
@@ -75,9 +85,10 @@ class estrela
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_estrela'></input>
 				<div data-atributo='id' data-valor-original='{$this->id}'>{$this->id}</div>
-				<div><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,\"Deseja mesmo excluir esta estrela?\");'>Excluir</a></div>
+				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='excluir_objeto(this,\"Deseja mesmo excluir esta estrela?\");'>Excluir</a></div>
 			</td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true' {$estilo_colonias}>{$this->nome}</div></td>
+			<td><div data-atributo='descricao' data-type='textarea' data-editavel='true' data-valor-original='{$this->descricao}' data-style='width: 190px; height: 50px;' data-id='descricao'>{$this->descricao}</div></td>
 			<td><div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->X}'>{$this->X}</div></td>
 			<td><div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Y}'>{$this->Y}</div></td>
 			<td><div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Z}' >{$this->Z}</div></td>

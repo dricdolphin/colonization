@@ -15,6 +15,7 @@ prestigio INT(30) DEFAULT 0
 CREATE TABLE colonization_estrela (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(255) NOT NULL,
+descricao TEXT DEFAULT '',
 X INT(6) NOT NULL,
 Y INT(6) NOT NULL,
 Z INT(6) NOT NULL,
@@ -201,6 +202,13 @@ turno INT(6) NOT NULL
 
 --Tabela com os pontos de reabastecimento do Império
 CREATE TABLE colonization_imperio_abastecimento (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_estrela INT(6) NOT NULL
+)
+
+--Tabela com as estrelas visitadas por um Império
+CREATE TABLE colonization_estrelas_historico (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_estrela INT(6) NOT NULL
