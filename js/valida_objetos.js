@@ -562,7 +562,7 @@ Pega os produtos da Ação
 dados -- dados do objeto
 ******************/	
 function valida_acao(dados) {
-	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
+	var dados_ajax = "post_type=POST&action=valida_acao&id="+dados['id']+"&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
 	var retorno = true;
 	
 	//Envia a chamada de AJAX para salvar o objeto

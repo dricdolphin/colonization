@@ -1913,6 +1913,8 @@ var id_imperio_atual = {$imperio->id};
 $plugin_colonization = new colonization();
 $menu_admin_colonization = new menu_admin();
 
+$acoes_imperio = []; //Cria uma variável global
+
 //Ganchos de instalação e desinstalação do plugin "Colonization"
 register_activation_hook( __FILE__, array($plugin_colonization,'colonization_install'));
 register_deactivation_hook( __FILE__, array($plugin_colonization,'colonization_deactivate'));

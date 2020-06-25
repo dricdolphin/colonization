@@ -570,7 +570,7 @@ function efetua_acao (evento, objeto) {
 	var dados = []; //Dados que serão enviados para a validação
 	
 	for (index=0;index<inputs.length;index++) {
-		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
+		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "id") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
@@ -582,7 +582,7 @@ function efetua_acao (evento, objeto) {
 	let valida = valida_acao(dados); //Valida os dados
 	
 	if (!valida) {
-		salva_acao(evento, objeto,true); //Se não liberou, falhou a validação, então cancela a ação.	
+		salva_acao(evento, objeto, true); //Se não liberou, falhou a validação, então cancela a ação.	
 	} else {
 		salva_acao(evento, objeto); //Pode salvar!
 		

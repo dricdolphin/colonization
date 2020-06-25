@@ -861,19 +861,19 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 
 		$resposta['debug'] = "";
 		
-		$start_time = hrtime(true);
+			$start_time = hrtime(true);
 		$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$resposta['debug']  .= "
-		salva_acao(): Salvando o objeto... {$diferenca}ms";
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$resposta['debug']  .= "
+salva_acao(): Salvando o objeto... {$diferenca}ms";
 		
-		$start_time = hrtime(true);
+
 		$resposta = array_merge($resposta, $this->produtos_acao());
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$resposta['debug']  .= "
-		salva_acao(): Pegando os produtos das Ações... {$diferenca}ms";
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$resposta['debug']  .= "
+salva_acao(): Pegando os produtos das Ações... {$diferenca}ms";
 		
 		$resposta['resposta_ajax'] = "SALVO!";
 		
@@ -1072,75 +1072,69 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Império... {$diferenca}ms";
+produtos_acao(): new Império... {$diferenca}ms";
 
-		$start_time = hrtime(true);		
+		
 		$acoes = new acoes($imperio->id);
-		$dados_salvos['debug']  .= $acoes->debug;
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Ações... {$diferenca}ms";
+produtos_acao(): new Ações... {$diferenca}ms";
 
-		$start_time = hrtime(true);		
+		$imperio->acoes = $acoes; //Passa o objeto Ações para o Império, para economizar tempo de carregamento
+		$dados_salvos['debug']  .= $acoes->debug;
+
+
 		$planeta = new planeta($_POST['id_planeta']);
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Planeta... {$diferenca}ms";
+produtos_acao():  new Planeta... {$diferenca}ms";
 
-		$start_time = hrtime(true);				
 		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= $imperio->debug;
 			$dados_salvos['debug']  .= "
-			produtos_acao(): imperio->exibe_lista_colonias()... {$diferenca}ms";
-			
+produtos_acao(): imperio->exibe_lista_colonias()... {$diferenca}ms";
 
-		$start_time = hrtime(true);					
 		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_produzidos()... {$diferenca}ms";
+produtos_acao(): acoes->exibe_recursos_produzidos()... {$diferenca}ms";
 
-		$start_time = hrtime(true);					
 		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_consumidos()... {$diferenca}ms";
+produtos_acao(): acoes->exibe_recursos_consumidos()... {$diferenca}ms";
 
-		$start_time = hrtime(true);				
 		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_balanco()... {$diferenca}ms";
+produtos_acao(): acoes->exibe_recursos_balanco()... {$diferenca}ms";
 
-		$start_time = hrtime(true);					
 		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_balanco_planeta... {$diferenca}ms";
+produtos_acao(): acoes->exibe_balanco_planeta... {$diferenca}ms";
 
-		$start_time = hrtime(true);					
 		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_pop_mdo_planeta... {$diferenca}ms";		
+produtos_acao(): acoes->exibe_pop_mdo_planeta... {$diferenca}ms";		
 
-		$start_time = hrtime(true);		
 		$pop_sistema = $acoes->pop_mdo_sistema($planeta->id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
 		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time)/1000000,0);
 			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->pop_mdo_sistema... {$diferenca}ms";			
+produtos_acao(): acoes->pop_mdo_sistema... {$diferenca}ms";			
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
@@ -1154,8 +1148,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 	Valida o objeto desejado
 	***********************/	
 	function valida_acao() {
-		global $wpdb; 
-		$wpdb->hide_errors();		
+		global $wpdb, $acoes_imperio;
+		$wpdb->hide_errors();
 
 		$turno = new turno($_POST['turno']);
 		if ($turno->encerrado == 1) {
@@ -1165,31 +1159,62 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			wp_die(); //Termina o script e envia a resposta
 		}
 
-
-		$dados_salvos['debug'] = "";
-		$acoes = new acoes($_POST['id_imperio'],$_POST['turno']);
-		
 		$dados_salvos = [];
 		$dados_salvos['balanco_acao'] = "";
-		
+
+			$start_time = hrtime(true);
+		$dados_salvos['debug'] = "Iniciando o Debug";
+		$acoes = new acoes($_POST['id_imperio'],$_POST['turno']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  new Ações {$diferenca}ms";
+
 		//Verifica se existe MdO suficiente na Colônia (ou no Sistema, para o caso de unidades Autônomas)
-		$start_time = hrtime(true);
 		$instalacao = new instalacao($_POST['id_instalacao']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  new Instalação {$diferenca}ms";		
+		
 		$planeta = new planeta($_POST['id_planeta']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  new Planeta {$diferenca}ms";
+
 		$id_colonia = $wpdb->get_var("
 		SELECT id FROM colonization_imperio_colonias 
 		WHERE id_imperio={$_POST['id_imperio']} AND id_planeta={$planeta->id} 
 		AND turno={$_POST['turno']}
 		");
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  query {$diferenca}ms";		
+
 		$colonia = new colonia($id_colonia);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  new Colonia {$diferenca}ms";		
 		$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
 
 		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
 		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
-		$acoes->pega_balanco_recursos(); //Recalcula os balanços
+		$acoes->pega_balanco_recursos($_POST['id']); //Recalcula os balanços
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  acoes->pega_balanco_recursos {$diferenca}ms";
 		
 		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  acoes->mdo_planeta {$diferenca}ms";	
+	
 		$pop_planeta = $colonia->pop;
 		
 		$mdo_sistema = 0;
@@ -1208,6 +1233,10 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				$pop_sistema = $pop_sistema + $colonia->pop;
 			}
 		}
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  foreach Calcula MdO {$diferenca}ms";	
 		
 		$mdo_sistema = $mdo_sistema;
 		$mdo_planeta = $mdo_planeta;
@@ -1220,13 +1249,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
 			}
 		}
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$dados_salvos['debug']  .= "
-		Verificando MdO... {$diferenca}ms";
 
 		//Verifica se tem limite suficiente de Reservas Planetárias
-		$start_time = hrtime(true);
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
 			$recurso = new recurso($id_recurso_produz);
 			if ($recurso->extrativo == 1) {
@@ -1243,14 +1267,12 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				}
 			}
 		}
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$dados_salvos['debug']  .= "
-		Verificando Reservas Planetárias... {$diferenca}ms";
-
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  foreach Reservas Planetárias {$diferenca}ms";
 
 		//Verifica se o balanço de recursos mais o estoque do Império são suficientes
-		$start_time = hrtime(true);
 		foreach ($acoes->recursos_balanco as $id_recurso => $valor) {
 			$recurso = new recurso($id_recurso);
 			if ($recurso->acumulavel == 1) {
@@ -1265,16 +1287,22 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				$dados_salvos['balanco_acao'] .= "{$recurso->nome}, ";
 			}
 		}
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$dados_salvos['debug']  .= "
-		Verificando Balanço de Recursos... {$diferenca}ms";		
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  foreach Balanço de Recursos {$diferenca}ms";
 		
 		if ($dados_salvos['balanco_acao'] != "") {
 			$dados_salvos['balanco_acao'] = substr($dados_salvos['balanco_acao'],0,-2);
 		}
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+valida_acao():  Encerrou a função {$diferenca}ms";
+		
+		$acoes_imperio[$_POST['id_imperio']] = $acoes;//Salva as ações do Império específico como Objeto Global
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
