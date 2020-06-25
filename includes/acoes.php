@@ -273,6 +273,39 @@ class acoes
 		return $resposta;
 	}
 
+	/***********************
+	function defesa_sistema()
+	----------------------
+	Exibe a Defesa de Sistema Estelar de uma Estrela específica
+	***********************/	
+	function defesa_sistema($id_estrela) {
+		global $wpdb;
+		
+		$resultados = $wpdb->get_results("
+		SELECT cic.id AS id_colonia
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id=cic.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cic.id_imperio = {$this->id_imperio}
+		AND cic.turno = {$this->turno->turno}
+		AND cp.id_estrela={$id_estrela}
+		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		");
+
+		$defesa_sistema = 0;
+		if (empty($resultados)) {
+			return $defesa_sistema ;
+		}
+
+		foreach ($resultados as $resultado) {
+			$colonia = new colonia ($resultado->id_colonia);
+			$defesa_sistema = $defesa_sistema + $colonia->qtd_defesas;
+		}
+
+		return $defesa_sistema;
+	}
 
 	/***********************
 	function lista_dados()
@@ -301,12 +334,18 @@ class acoes
 			$user = wp_get_current_user();
 			$roles = "";
 			if (!empty($user->ID)) {
-				$roles = $user->roles[0];		
+				$roles = $user->roles[0];	
+				$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+				if ($banido === "banned") {
+					$banido = true;
+				} else {
+					$banido = false;
+				}
 			}
 
 			$this->disabled = "";
 			$turno_atual = new turno();
-			if (($this->turno->turno != $turno_atual->turno) || $this->turno->encerrado == 1) {
+			if (($this->turno->turno != $turno_atual->turno) || $this->turno->encerrado == 1 || $banido) {
 					$this->disabled = "disabled";
 			}
 

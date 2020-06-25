@@ -1323,10 +1323,24 @@ var id_imperio_atual = {$imperios[0]->id};
 			$turno = $turno->turno;
 		}
 
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false,$turno);
 		} else {
-			$imperio = new imperio(0,false,$turno);
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio,false,$turno);
+		}
+		
+		if ($imperio->id == 0) {
+			return;
 		}
 		
 		$imperio_acoes = new acoes($imperio->id,$turno);

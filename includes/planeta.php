@@ -25,6 +25,7 @@ class planeta
 	
 	//Defesas Planetárias oferecidas por Instalações
 	public $instalacoes_ataque = [];
+	public $html_instalacao_ataque = [];
 	//public $pdf_instalacoes = [];
 	
 	//Especiais provenientes de Construções e/ou Techs
@@ -130,6 +131,29 @@ class planeta
 				$index = count($this->instalacoes_ataque);
 				$this->instalacoes_ataque[$index] = $colonia_instalacao->id_instalacao;
 			}
+
+			$qtd_instalacao_ataque_id = [];
+			foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
+				$instalacao_ataque = new instalacao($id_instalacao);
+				$especiais = explode(";",$instalacao_ataque->especiais);
+				//Especiais: pdf_instalacoes=valor
+				$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'pdf_instalacoes') !== false;
+				}));				
+				
+				$pdf_instalacoes =  explode("=",$pdf_instalacoes[0]);
+				$pdf_instalacoes =  $pdf_instalacoes[1];
+				
+				if (!empty($qtd_instalacao_ataque_id[$id_instalacao])) {
+					$qtd_instalacao_ataque_id[$id_instalacao]++;
+					$qtd_instalacao="{$qtd_instalacao_ataque_id[$id_instalacao]} x";
+				} else {
+					$qtd_instalacao_ataque_id[$id_instalacao] = 1;
+					$qtd_instalacao = "";
+				}
+				
+				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao} <div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span></div> PdF Torpedo: {$pdf_instalacoes}<br>";
+			}			
 		}
 		
 		if ($this->max_slots != 0) {

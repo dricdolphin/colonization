@@ -26,6 +26,11 @@ class colonia
 	public $estrela;
 	public $instalacoes;
 	public $num_instalacoes;
+	public $pdf_planetario;
+	public $defesa_invasao = 0;
+	public $qtd_defesas = 0;
+	public $html_pop_colonia;
+	public $html_instalacao_ataque = [];
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -72,6 +77,19 @@ class colonia
 		$this->icone_vassalo = "";
 		if ($this->vassalo == 1) {
 			$this->icone_vassalo = "<div class='fas fa-pray tooltip' style='color: #4A4B14;'>&nbsp;<span class='tooltiptext'>Vassalo</span></div>";
+		}
+
+		$this->html_pop_colonia = "{$this->pop}";
+		if ($this->pop_robotica > 0) {
+			$this->html_pop_colonia .= "(<div class='fas fa-users-cog tooltip'>&nbsp;<span class='tooltiptext'>População Robótica</span></div>{$this->pop_robotica})";
+		}
+
+		$this->qtd_defesas = round(($this->pop/10),0,PHP_ROUND_HALF_DOWN);
+
+		if ($this->qtd_defesas > 0) {
+			$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
+			$this->pdf_planetario = round(($imperio->pdf_planetario*$this->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
+			$this->defesa_invasao = $imperio->defesa_invasao*$this->qtd_defesas;
 		}
 
 		//Atualiza os recursos da Colônia para o Turno atual, se necessário
