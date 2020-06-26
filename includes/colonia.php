@@ -86,11 +86,13 @@ class colonia
 
 		$this->qtd_defesas = round(($this->pop/10),0,PHP_ROUND_HALF_DOWN);
 
+		/***
 		if ($this->qtd_defesas > 0) {
 			$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
 			$this->pdf_planetario = round(($imperio->pdf_planetario*$this->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
 			$this->defesa_invasao = $imperio->defesa_invasao*$this->qtd_defesas;
 		}
+		//***/
 
 		//Atualiza os recursos da Colônia para o Turno atual, se necessário
 		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 

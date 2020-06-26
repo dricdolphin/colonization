@@ -557,6 +557,8 @@ class imperio
 			
 			$html_defesas = "";
 			if ($colonia->qtd_defesas > 0) {
+				$colonia->pdf_planetario = round(($this->pdf_planetario*$colonia->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
+				$colonia->defesa_invasao = $this->defesa_invasao*$colonia->qtd_defesas;
 
 				$html_defesas = "PdF Planetário: {$colonia->pdf_planetario}<br>Defesa Invasão: {$colonia->defesa_invasao}";
 				
