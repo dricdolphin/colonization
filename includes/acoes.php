@@ -40,7 +40,7 @@ class acoes
 	public $debug = "";
 	
 	
-	function __construct($id_imperio, $turno=0) {
+	function __construct($id_imperio, $turno=0, $sem_balanco=true) {
 		global $wpdb;
 		
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
@@ -164,11 +164,13 @@ class acoes
 		$this->debug .= "
  Objeto Ações: __construct {$diferenca}ms";
 		
-		$this->pega_balanco_recursos();
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		$this->debug .= "
+		if ($sem_balanco === false) {
+			$this->pega_balanco_recursos();
+				$end_time = hrtime(true);
+				$diferenca = round(($end_time - $start_time)/1000000,0);
+				$this->debug .= "
  Objeto Ações: this->pega_balanco_recursos {$diferenca}ms";
+		}
 		
 		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 	}

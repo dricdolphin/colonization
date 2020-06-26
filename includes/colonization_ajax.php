@@ -1076,7 +1076,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 
 
 		$dados_salvos['debug'] = "";
-		$acoes = new acoes($_POST['id_imperio'],$_POST['turno']);
+		$sem_balanco = true;
+		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco); //Como vamos alterar a ação, não calcula os balanços na criação da ação
 		
 		$dados_salvos = [];
 		$dados_salvos['balanco_acao'] = "";
