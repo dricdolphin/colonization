@@ -162,16 +162,13 @@ class acoes
 		$end_time = hrtime(true);
 		$diferenca = round(($end_time - $start_time)/1000000,0);
 		$this->debug .= "
-			Carregando dados das Acões... {$diferenca}ms";
+ Objeto Ações: __construct {$diferenca}ms";
 		
-		$start_time = hrtime(true);
 		$this->pega_balanco_recursos();
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$this->debug .= "
-			this->pega_balanco_recursos()... {$diferenca}ms
-			";		
-
+		$end_time = hrtime(true);
+		$diferenca = round(($end_time - $start_time)/1000000,0);
+		$this->debug .= "
+ Objeto Ações: this->pega_balanco_recursos {$diferenca}ms";
 		
 		$this->max_data_modifica = $wpdb->get_var("SELECT MAX(data_modifica) FROM colonization_acoes_turno WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 	}
@@ -188,11 +185,17 @@ class acoes
 		
 		$mdo = 0;
 
+		$chaves = array_keys($this->id_planeta, $id_planeta);
+		$mdo = array_intersect_key($this->pop, $chaves);
+		$mdo = array_sum($mdo);
+		
+		/***
 		for ($chave=0; $chave < count($this->id_planeta); $chave++) {
 			if ($this->id_planeta[$chave] == $id_planeta) {
 				$mdo = $mdo + $this->pop[$chave];
 			}
 		}
+		//***/
 
 		return $mdo;
 	}
@@ -448,12 +451,18 @@ class acoes
 	----------------------
 	Pega os Recursos produzidos, consumidos e seu balanço
 	***********************/
-	function pega_balanco_recursos() {
+	function pega_balanco_recursos($id_acao=0) {
 		global $wpdb;
 		
+		$start_time = hrtime(true);
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
 		$imperio = new imperio($this->id_imperio);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug .= "
+ pega_balanco_recursos(): new Império {$diferenca}ms";
+
 
 		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
 		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
@@ -543,6 +552,10 @@ class acoes
 				}
 			}
 		}
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug .= "
+ pega_balanco_recursos(): ForEach produção das Instalações {$diferenca}ms";
 		
 		//Calcula os recursos produzidos totais
 		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
@@ -641,6 +654,10 @@ class acoes
 
 			}
 		}
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug .= "
+ pega_balanco_recursos(): ForEach consumo das Instalações {$diferenca}ms";
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
@@ -649,7 +666,15 @@ class acoes
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id);
+				$end_time = hrtime(true);
+				$diferenca = round(($end_time - $start_time)/1000000,0);
+				$this->debug .= "
+ pega_balanco_recursos():  new Colônia({$id->id}) {$diferenca}ms";
 			$planeta = new planeta($id->id_planeta);
+				$end_time = hrtime(true);
+				$diferenca = round(($end_time - $start_time)/1000000,0);
+				$this->debug .= "
+ pega_balanco_recursos():  new Planeta({$id->id_planeta}) {$diferenca}ms";
 			
 			$recurso_alimento = new recurso($id_alimento);
 			$recurso_energia = new recurso($id_energia);
@@ -752,6 +777,10 @@ class acoes
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
 			}
 		}
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$this->debug .= "
+ pega_balanco_recursos(): ForEach Balanços das Colônias {$diferenca}ms";
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
