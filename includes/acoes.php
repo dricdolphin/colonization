@@ -40,7 +40,7 @@ class acoes
 	public $debug = "";
 	
 	
-	function __construct($id_imperio, $turno=0, $sem_balanco=true) {
+	function __construct($id_imperio, $turno=0, $sem_balanco=false) {
 		global $wpdb;
 		
 		//É necessário pegar o id_imperio à partir do objeto "Império", pois este contém a validação do jogador
@@ -187,17 +187,17 @@ class acoes
 		
 		$mdo = 0;
 
+		/***
 		$chaves = array_keys($this->id_planeta, $id_planeta);
 		$mdo = array_intersect_key($this->pop, $chaves);
 		$mdo = array_sum($mdo);
+		//***/
 		
-		/***
 		for ($chave=0; $chave < count($this->id_planeta); $chave++) {
 			if ($this->id_planeta[$chave] == $id_planeta) {
 				$mdo = $mdo + $this->pop[$chave];
 			}
 		}
-		//***/
 
 		return $mdo;
 	}

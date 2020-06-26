@@ -477,7 +477,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 	}
 	var endDate   = new Date();
 	var miliseconds = (endDate.getTime() - startDate.getTime());	
-	console.log("Buscando os Caminhos: "+miliseconds*1);
+	console.log("Buscando os Caminhos: "+miliseconds*1+"ms");
 	
 	//estrelas_destino.sort();
 	mapped_estrelas_origem = estrelas_destino.map(function(el, i) {

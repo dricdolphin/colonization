@@ -668,6 +668,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_acao&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
 
 	//Envia a chamada de AJAX para salvar o objeto
+
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
