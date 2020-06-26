@@ -563,7 +563,8 @@ dados -- dados do objeto
 ******************/	
 function valida_acao(dados) {
 	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
-	var retorno = true;
+	var retorno = {};
+	retorno.retorno = true;
 	
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();
@@ -574,6 +575,7 @@ function valida_acao(dados) {
 		if (this.readyState == 4 && this.status == 200) {
 			try {
 				var resposta = JSON.parse(this.responseText);
+				retorno.resposta = resposta;
 			} 
 			catch (err) {
 				console.log(this.responseText);

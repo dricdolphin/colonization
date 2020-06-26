@@ -868,12 +868,14 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$resposta['debug']  .= "
 		salva_acao(): Salvando o objeto... {$diferenca}ms";
 		
+		/***
 		$start_time = hrtime(true);
 		$resposta = array_merge($resposta, $this->produtos_acao());
 		$end_time = hrtime(true);
 		$diferenca = round(($end_time - $start_time)/1000000,0);
 		$resposta['debug']  .= "
 		salva_acao(): Pegando os produtos das Ações... {$diferenca}ms";
+		//***/
 		
 		$resposta['resposta_ajax'] = "SALVO!";
 		
@@ -1055,99 +1057,6 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		wp_die(); //Termina o script e envia a resposta		
 	}
 
-
-	
-	/***********************
-	function produtos_acao()
-	----------------------
-	Pega os resultados da ação
-	***********************/	
-	function produtos_acao() {
-		$dados_salvos = [];
-		
-		$dados_salvos['debug'] = "";
-		
-		$start_time = hrtime(true);
-		$imperio = new imperio($_POST['id_imperio']);
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Império... {$diferenca}ms";
-
-		$start_time = hrtime(true);		
-		$acoes = new acoes($imperio->id);
-		$dados_salvos['debug']  .= $acoes->debug;
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Ações... {$diferenca}ms";
-
-		$start_time = hrtime(true);		
-		$planeta = new planeta($_POST['id_planeta']);
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): Criando objeto Planeta... {$diferenca}ms";
-
-		$start_time = hrtime(true);				
-		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= $imperio->debug;
-			$dados_salvos['debug']  .= "
-			produtos_acao(): imperio->exibe_lista_colonias()... {$diferenca}ms";
-			
-
-		$start_time = hrtime(true);					
-		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_produzidos()... {$diferenca}ms";
-
-		$start_time = hrtime(true);					
-		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_consumidos()... {$diferenca}ms";
-
-		$start_time = hrtime(true);				
-		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_recursos_balanco()... {$diferenca}ms";
-
-		$start_time = hrtime(true);					
-		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_balanco_planeta... {$diferenca}ms";
-
-		$start_time = hrtime(true);					
-		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->exibe_pop_mdo_planeta... {$diferenca}ms";		
-
-		$start_time = hrtime(true);		
-		$pop_sistema = $acoes->pop_mdo_sistema($planeta->id_estrela);
-		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
-		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
-			$end_time = hrtime(true);
-			$diferenca = round(($end_time - $start_time)/1000000,0);
-			$dados_salvos['debug']  .= "
-			produtos_acao(): acoes->pop_mdo_sistema... {$diferenca}ms";			
-		
-		$dados_salvos['resposta_ajax'] = "OK!";
-		
-		return $dados_salvos; //Envia a resposta via echo, codificado como JSON
-		//wp_die(); //Termina o script e envia a resposta
-	}
-
 	/***********************
 	function valida_acao ()
 	----------------------
@@ -1274,11 +1183,109 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			$dados_salvos['balanco_acao'] = substr($dados_salvos['balanco_acao'],0,-2);
 		}
 		
+		if ($dados_salvos['balanco_acao'] == "") {//Validou as ações! Pega os dados modificados e passa para o Jogador
+			$imperio = new imperio($_POST['id_imperio']);
+			$imperio->acoes = $acoes;
+			$dados_salvos = array_merge($dados_salvos, $this->produtos_acao($imperio));
+		}
+		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
+	
+	/***********************
+	function produtos_acao()
+	----------------------
+	Pega os resultados da ação
+	***********************/	
+	function produtos_acao($imperio) {
+		$dados_salvos = [];
+		
+		$dados_salvos['debug'] = "";
+		
+		$start_time = hrtime(true);
+		//$imperio = new imperio($_POST['id_imperio']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): Criando objeto Império... {$diferenca}ms";
+
+		$start_time = hrtime(true);		
+		//$acoes = new acoes($imperio->id);
+		$acoes = $imperio->acoes;
+		$dados_salvos['debug']  .= $acoes->debug;
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): Criando objeto Ações... {$diferenca}ms";
+
+		$start_time = hrtime(true);		
+		$planeta = new planeta($_POST['id_planeta']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): Criando objeto Planeta... {$diferenca}ms";
+
+		$start_time = hrtime(true);				
+		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= $imperio->debug;
+			$dados_salvos['debug']  .= "
+			produtos_acao(): imperio->exibe_lista_colonias()... {$diferenca}ms";
+			
+
+		$start_time = hrtime(true);					
+		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->exibe_recursos_produzidos()... {$diferenca}ms";
+
+		$start_time = hrtime(true);					
+		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->exibe_recursos_consumidos()... {$diferenca}ms";
+
+		$start_time = hrtime(true);				
+		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->exibe_recursos_balanco()... {$diferenca}ms";
+
+		$start_time = hrtime(true);					
+		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->exibe_balanco_planeta... {$diferenca}ms";
+
+		$start_time = hrtime(true);					
+		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->exibe_pop_mdo_planeta... {$diferenca}ms";		
+
+		$start_time = hrtime(true);		
+		$pop_sistema = $acoes->pop_mdo_sistema($planeta->id_estrela);
+		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
+		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
+			$end_time = hrtime(true);
+			$diferenca = round(($end_time - $start_time)/1000000,0);
+			$dados_salvos['debug']  .= "
+			produtos_acao(): acoes->pop_mdo_sistema... {$diferenca}ms";			
+		
+		//$dados_salvos['resposta_ajax'] = "OK!";
+		
+		return $dados_salvos; //Envia a resposta via echo, codificado como JSON
+		//wp_die(); //Termina o script e envia a resposta
+	}	
 
 	/***********************
 	function roda_turno()

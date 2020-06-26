@@ -581,10 +581,10 @@ function efetua_acao (evento, objeto) {
 	
 	let valida = valida_acao(dados); //Valida os dados
 	
-	if (!valida) {
+	if (!valida.retorno) {
 		salva_acao(evento, objeto,true); //Se não liberou, falhou a validação, então cancela a ação.	
 	} else {
-		salva_acao(evento, objeto); //Pode salvar!
+		salva_acao(evento, objeto, false, valida.resposta); //Pode salvar!
 		
 	}
 	
@@ -599,7 +599,7 @@ Salva uma Ação sendo editada
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
-function salva_acao(evento, objeto, cancela = false) {
+function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	var linha = pega_ascendente(objeto,"TR");
 	var divs = linha.getElementsByTagName('DIV');
@@ -705,7 +705,7 @@ function salva_acao(evento, objeto, cancela = false) {
 					}
 				}
 				
-				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, resposta);
+				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, produtos_acao);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -733,7 +733,7 @@ id_imperio -- id do Império
 function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
 	
-	if (resposta.resposta_ajax == "SALVO!") {
+	//if (resposta.resposta_ajax == "SALVO!") {
 		id_colonias = "lista_colonias_imperio_"+id_imperio;
 		id_produz = "recursos_produzidos_imperio_"+id_imperio;
 		id_consome = "recursos_consumidos_imperio_"+id_imperio;
@@ -760,7 +760,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 		for (let index=0; index < div_mdo_sistema.length; index++) {
 			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
 		}
-	}
+	//}
 }
 
 /******************
