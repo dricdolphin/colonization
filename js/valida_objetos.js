@@ -1,3 +1,5 @@
+var reabastece_em_edicao = false;
+
 /******************
 function valida_generico(objeto)
 --------------------
@@ -157,6 +159,13 @@ function salva_reabastece(objeto, id_imperio, id_estrela)
 Salva o Reabastecimento
 ******************/	
 function salva_reabastece(evento, objeto, id_imperio, id_estrela, tabela='colonization_imperio_abastecimento') {
+	if (reabastece_em_edicao) {
+		//alert("Aguarde o processamento de outro item antes de prosseguir!");
+		objeto.checked = !objeto.checked;
+		return false;
+	}
+	//console.log(objeto.checked);
+	reabastece_em_edicao = true;
 	
 	var dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela+"&tabela="+tabela;
 	var retorno = false;
@@ -173,21 +182,24 @@ function salva_reabastece(evento, objeto, id_imperio, id_estrela, tabela='coloni
 			}
 			if (resposta.debug !== undefined) {
 				console.log(resposta.debug);
-			}		
+			}
+			
+			if (!retorno) {
+				if (objeto.checked) {
+					objeto.checked = false;
+				} else {
+					objeto.checked = true;
+				}
+			}
+		reabastece_em_edicao = false;
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 
-	if (!retorno) {
-		if (objeto.checked) {
-			objeto.checked = false;
-		} else {
-			objeto.checked = true;
-		}
-	}
-	return retorno;
+	evento.preventDefault();
+	return false;
 }
 
 
