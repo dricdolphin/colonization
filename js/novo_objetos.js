@@ -42,7 +42,6 @@ function novo_imperio(evento) {
 	pontuacao.innerHTML = "<div data-atributo='pontuacao' data-valor-original=''></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -88,7 +87,6 @@ function nova_estrela(evento) {
 	estrela_tipo.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tipo' data-ajax='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -123,7 +121,6 @@ function novo_reabastecimento(evento) {
 	imperio.innerHTML = "<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado=''>"+lista_imperios+"</div>";
 	estrela.innerHTML = "<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-funcao='lista_estrelas_html' data-id-selecionado=''>"+lista_estrelas+"</div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	event.preventDefault();
 	return false;
 }
@@ -186,7 +183,6 @@ function novo_planeta(evento, id_estrela = 0) {
 		estrela.innerHTML = "<input type='hidden' data-atributo='id_estrela' data-ajax='true' value='"+id_estrela+"'></input><div data-atributo='nome_estrela' data-valor-original='"+selects[0].options[selects[0].selectedIndex].innerHTML+"'>"+selects[0].options[selects[0].selectedIndex].innerHTML+"</div>";
 	}
 	
-	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();
 	return false;
 }
@@ -321,7 +317,6 @@ function novo_recurso(evento) {
 	extrativo.innerHTML = "<div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='extrativo' data-ajax='true' checked></input></div>";
 	local.innerHTML = "<div data-atributo='local' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='local' data-ajax='true' checked></input></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -373,7 +368,6 @@ function nova_tech(evento) {
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }
@@ -472,7 +466,6 @@ function nova_instalacao(evento) {
 	custos.innerHTML = "<div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='custos' data-ajax='true' data-branco='true'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();	
 	return false;	
 }
@@ -512,7 +505,6 @@ function novo_instalacao_recurso(evento, consome = 1) {
 	recurso.innerHTML = "<div data-atributo='nome_recurso' data-editavel='true' data-type='select' data-funcao='lista_recursos_html' data-id-selecionado = '0' data-valor-original=''>"+lista_recursos+"</div>";
 	qtd_por_nivel.innerHTML = "<div data-atributo='qtd_por_nivel' data-style='width: 50px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='qtd_por_nivel' data-ajax='true' style='width: 50px;'></input></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);		
 	evento.preventDefault();
 	return false;
 }
@@ -622,7 +614,6 @@ function novo_planeta_recurso(evento, id_planeta) {
 	disponivel.innerHTML = "<div data-atributo='disponivel' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='disponivel' data-ajax='true' style='width: 50px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);	
 	evento.preventDefault();
 	return false;
 }
@@ -670,7 +661,6 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }

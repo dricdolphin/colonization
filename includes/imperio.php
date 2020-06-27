@@ -490,8 +490,15 @@ class imperio
 		
 		$total_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		//Exibe os dados básicos do Império
-		$html = "<div>{$this->nome} - População: {$this->pop} - Pontuação: {$this->pontuacao}</div>
-		<div>Total de Colônias: {$total_colonias}</div>";
+		$html = "<div>
+		<h3>{$this->nome}</h3> 
+		<b>População:</b> {$this->pop} - <b>Total de Colônias:</b> {$total_colonias}<br>
+		<b>Pontuação:</b> {$this->pontuacao}<br>
+		Desenvolvimento: {$this->pontuacao_desenvolvimento}<br>			
+		Colônias: {$this->pontuacao_colonia}<br>
+		Techs: {$this->pontuacao_tech}<br>
+		Bélica: {$this->pontuacao_belica}<br>		
+		</div>";
 		return $html;
 	}
 
@@ -754,10 +761,10 @@ class imperio
 exibe_lista_colonias(): Queries {$diferenca}ms";
 
 		$html_lista = "<b>Lista de Colônias</b><br>";
-		$html_sistema = [];
-		$qtd_defesas_sistema = [];
 		$html_planeta = [];
 		$planeta_id_estrela = [];
+		$html_sistema = [];
+		$qtd_defesas_sistema = [];
 		$mdo_sistema = [];
 		$pop_sistema = [];
 

@@ -556,12 +556,28 @@ function mais_dados_imperio(objeto, cancela=false) {
 }
 
 /******************
-function valida_acao(dados)
+function valida_acao(evento, objeto)
 --------------------
 Pega os produtos da Ação
-dados -- dados do objeto
 ******************/	
-function valida_acao(dados) {
+function valida_acao(evento, objeto) {
+	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	var linha = pega_ascendente(objeto,"TR");
+	var divs = linha.getElementsByTagName('DIV');
+	var inputs = linha.getElementsByTagName('INPUT');
+	var labels = linha.getElementsByTagName('LABEL');
+	var dados = []; //Dados que serão enviados para a validação
+	
+	for (index=0;index<inputs.length;index++) {
+		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
+			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
+		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
+			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
+			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
+			dados['pop'] = inputs[index].value;
+		}
+	}
+
 	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
 	var retorno = {};
 	retorno.retorno = true;
@@ -596,12 +612,16 @@ function valida_acao(dados) {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+		
+			//Chama o call-back "efetua ação"
+			efetua_acao(evento, objeto, retorno);
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 
+	evento.preventDefault();
 	return retorno;
 }
 

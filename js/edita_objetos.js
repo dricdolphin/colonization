@@ -561,7 +561,7 @@ function efetua_acao(evento, objeto)
 --------------------
 Tenta atualizar os dados
 ******************/	
-function efetua_acao (evento, objeto) {
+function efetua_acao (evento, objeto, valida) {
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	var linha = pega_ascendente(objeto,"TR");
 	var divs = linha.getElementsByTagName('DIV');
@@ -577,9 +577,9 @@ function efetua_acao (evento, objeto) {
 			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
 			dados['pop'] = inputs[index].value;
 		}
-	}	
+	}
 	
-	let valida = valida_acao(dados); //Valida os dados
+	//let valida = valida_acao(dados); //Valida os dados
 	
 	if (!valida.retorno) {
 		salva_acao(evento, objeto,true); //Se não liberou, falhou a validação, então cancela a ação.	
@@ -657,13 +657,6 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 		}
 	}
 	
-	/***
-	if (!valida_acao(dados)) {
-		evento.preventDefault();
-		return false;
-	}
-	//***/
-
 	//Cria o string que será passado para o AJAX
 	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_acao&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
 
