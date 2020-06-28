@@ -174,6 +174,10 @@ class colonization {
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
 		}
 
 		if (isset($atts['id'])) {
@@ -542,6 +546,10 @@ class colonization {
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
 		}
 		
 		if ($roles != "administrator") {
@@ -593,6 +601,10 @@ class colonization {
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
 		}
 		
 		if ($roles != "administrator") {
@@ -629,6 +641,10 @@ class colonization {
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
 		}
 		
 		if (isset($atts['id'])) {
@@ -1792,6 +1808,10 @@ var id_imperio_atual = {$imperio->id};
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
 		}
 
 		$turno = new turno();

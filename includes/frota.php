@@ -263,7 +263,14 @@ class frota
 
 		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
 			$display_select = "";
-			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1) {
+			$user = wp_get_current_user();
+			$roles = "";
+			if (!empty($user->ID)) {
+				$roles = $user->roles[0];
+				$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			}
+
+			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1 && !$banido) {
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
