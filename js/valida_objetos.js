@@ -141,6 +141,10 @@ function valida_tech_imperio(objeto) {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+			
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}
 		}
 	};
 	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

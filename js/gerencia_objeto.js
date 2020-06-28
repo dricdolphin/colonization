@@ -210,6 +210,14 @@ function desbloquear_turno()
 Desbloqueia o Turno
 ******************/
 function desbloquear_turno(evento, objeto) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
 	var confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
 	
 	if (confirma) {
@@ -218,6 +226,9 @@ function desbloquear_turno(evento, objeto) {
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
 				var resposta = JSON.parse(this.responseText);
+				
+				objeto_em_salvamento = false;
+				
 				if (resposta.resposta_ajax == "OK!") {
 					retorno = true;
 					objeto.parentNode.style.visibility="hidden";
@@ -228,7 +239,7 @@ function desbloquear_turno(evento, objeto) {
 				}
 			}
 		};
-		xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send(dados_ajax);
 	}
@@ -276,8 +287,13 @@ function nave_visivel()
 Torna a nave visível
 ******************/
 function nave_visivel (objeto, evento, id_nave) {
-	//let linha = pega_ascendente(objeto,"TR");
-	//let divs = linha.getElementsByTagName("DIV");
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
 	
 	var dados_ajax = "post_type=POST&action=nave_visivel&id="+id_nave;
 	var xhttp = new XMLHttpRequest();
@@ -291,15 +307,22 @@ function nave_visivel (objeto, evento, id_nave) {
 				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
+			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 	
@@ -315,6 +338,14 @@ function envia_nave()
 Envia uma nave para algum lugar
 ******************/
 function envia_nave (objeto, evento, id_nave) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
 	let linha = pega_ascendente(objeto,"TR");
 	let divs = linha.getElementsByTagName("DIV");
 	
@@ -341,15 +372,23 @@ function envia_nave (objeto, evento, id_nave) {
 				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
+			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
+		
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 	
@@ -363,15 +402,20 @@ function alerta(texto) {
 	alert(texto);
 }
 
-
-//aceita_missao(event,{$id_imperio},{$this->id},false)
-
 /******************
 function aceita_missao()
 --------------------
 Aceita ou rejeita uma missão
 ******************/
 function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;	
+	
 	let div_notice = objeto;
 	
 	while (div_notice.getAttribute("data-atributo") != "gerenciar") {
@@ -390,6 +434,9 @@ function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
 				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
+			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 				if (aceita === true) {
@@ -407,7 +454,7 @@ function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
 			}
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 
@@ -418,9 +465,17 @@ function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
 /******************
 function processa_viagem_nave()
 --------------------
-Aceita ou rejeita o recebimento de uma Tech
+Processa a viagem de uma nave
 ******************/
 function processa_viagem_nave (objeto, evento, id_nave) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;	
+	
 	let div_notice = objeto;
 	
 	while (div_notice.getAttribute("class") != "notice") {
@@ -441,31 +496,35 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 			} 
 			catch (err) {
 				console.log(this.responseText);
-				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
+			
 			if (resposta.resposta_ajax == "SALVO!") {
-				retorno = true;
+				div_notice.remove();
+				if (div_notice_panel.childElementCount == 0) {
+					div_notice_panel.remove();
+				}
+					
+				let envia_tech = document.getElementById("envia_tech");
+				if (envia_tech !== undefined && envia_tech !== null) {
+					atualiza_lista_techs(envia_tech);
+				}
 			} else {
 				alert(resposta.resposta_ajax);
-				retorno = false;
 			}
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
+		
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 
-	div_notice.remove();
-	if (div_notice_panel.childElementCount == 0) {
-		div_notice_panel.remove();
-	}
-		
-	let envia_tech = document.getElementById("envia_tech");
-	if (envia_tech !== undefined && envia_tech !== null) {
-		atualiza_lista_techs(envia_tech);
-	}
-	
 	evento.preventDefault();
 	return false;
 }
@@ -476,6 +535,14 @@ function processa_recebimento_tech()
 Aceita ou rejeita o recebimento de uma Tech
 ******************/
 function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
 	let div_notice = objeto;
 	
 	while (div_notice.getAttribute("class") != "notice") {
@@ -506,15 +573,21 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 

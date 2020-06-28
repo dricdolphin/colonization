@@ -1156,7 +1156,7 @@ class menu_admin {
 		</thead>
 		<tbody>";
 
-		$lista_id = $wpdb->get_results("SELECT id FROM colonization_missao ORDER BY id_imperio, ativo DESC, turno");
+		$lista_id = $wpdb->get_results("SELECT id FROM colonization_missao ORDER BY ativo DESC, id_imperio, turno");
 		$html_lista = "";
 		
 		foreach ($lista_id as $id) {		

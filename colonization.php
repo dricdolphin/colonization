@@ -100,6 +100,11 @@ class colonization {
 		$id_lista_estrelas = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID do Tópico da Lista de Estrelas'");
 		$id_lista_estrelas = new configuracao($id_lista_estrelas);
 		
+		$id_calculadora_distancias = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID do Tópico da Calculadora de Distâncias'");
+		$id_calculadora_distancias = new configuracao($id_calculadora_distancias);
+
+		//$id_radar = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID do Tópico de Radar de Naves'");
+		//$id_radar = new configuracao($id_radar);		
 		
 		$user = wp_get_current_user();
 		$roles = "";
@@ -109,12 +114,32 @@ class colonization {
 		
 		//if ($roles == "administrator") {
 			if ($topic_id == $id_missao->id_post) {
-				echo "<div class='icone_topico'><i class='fad fa-route' style='font-size: 32px;'></i></div>";
+				echo "<div class='icone_topico'><i class='fas fa-trophy' style='font-size: 32px; color: #a2a2a2;'></i></div>";
 			}
 			
 			if ($topic_id == $id_lista_estrelas->id_post) {
-				echo "<div class='icone_topico'><i class='far fa-stars' style='font-size: 32px;'></i></div>";
+				echo "<div class='icone_topico'><i class='far fa-stars' style='font-size: 32px; color: #a2a2a2;'></i></div>";
 			}
+			
+			if ($topic_id == $id_calculadora_distancias->id_post) {
+				echo "<div class='icone_topico'><i class='fas fa-search-location' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
+		
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Radar de Naves") {
+				echo "<div class='icone_topico'><i class='fad fa-radar' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Autorização de Reabastecimento") {
+				echo "<div class='icone_topico'><i class='fas fa-gas-pump' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Dados do Império") {
+				echo "<div class='icone_topico'><i class='fad fa-analytics' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
+			
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Transferência de Techs") {
+				echo "<div class='icone_topico'><i class='fas fa-user-chart' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}						
 		//}
 	}
 	
@@ -166,7 +191,7 @@ class colonization {
 			$lista_id = $wpdb->get_results("
 			SELECT id 
 			FROM colonization_missao 
-			ORDER BY id_imperio, ativo DESC, turno");
+			ORDER BY ativo DESC, id_imperio, turno");
 
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);
@@ -182,7 +207,7 @@ class colonization {
 			FROM colonization_missao 
 			WHERE id_imperio={$imperio->id} 
 			OR id_imperio=0
-			ORDER BY id_imperio, ativo DESC, turno");
+			ORDER BY ativo DESC, id_imperio, turno");
 
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);

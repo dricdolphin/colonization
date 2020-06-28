@@ -305,11 +305,14 @@ class colonization_ajax {
 		global $wpdb; 
 		
 		//Verifica se o Império já tem essa Tech
+		$dados_salvos['debug'] = "";
 		if (empty($_POST['id'])) {
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}";
 		} else {
 			$tech_imperio = new imperio_techs($_POST['id']);
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}");
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}";
 		}
 		
 		$dados_salvos['confirma'] = "";

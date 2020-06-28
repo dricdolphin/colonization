@@ -1,5 +1,6 @@
 var objeto_em_edicao = false; //Define se está no modo de edição ou não
 var range_em_edicao = false; //Define se o "range" está em edição
+var objeto_em_salvamento = false; //Impede de salvar o mesmo objeto duas vezes
 
 /******************
 function pega_ascendente(objeto,tag)
@@ -293,6 +294,13 @@ objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
 function salva_objeto(evento, objeto, cancela = false) {
+	if (objeto_em_salvamento) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	if (typeof objeto_editado['funcao_pos_processamento_objeto'] != "") {
 		var pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
@@ -307,6 +315,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 		}
 		
 		objeto_em_edicao = false;
+		objeto_em_salvamento = false;
 		
 		evento.preventDefault();
 		return false;
@@ -343,6 +352,10 @@ function salva_objeto(evento, objeto, cancela = false) {
 				retorno = false;
 				return false;
 			}
+			
+			objeto_em_salvamento = false;
+			objeto_em_edicao = false; //Libera a edição de outros objetos
+			
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
@@ -350,10 +363,13 @@ function salva_objeto(evento, objeto, cancela = false) {
 				if (typeof pos_processamento !== "undefined") {
 					var processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
 				}
-				objeto_em_edicao = false; //Libera a edição de outros objetos
 			} else {
 				alert(resposta.resposta_ajax);
 			}
+
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}			
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
