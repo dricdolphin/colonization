@@ -274,6 +274,7 @@ function nova_missao(evento) {
 	turno_validade.innerHTML = "<div data-atributo='turno_validade' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno_validade' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	sucesso.innerHTML = "<div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='sucesso' data-ajax='true'></input></div>";
 	
+	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
 }

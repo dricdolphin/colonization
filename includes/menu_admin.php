@@ -1147,7 +1147,8 @@ class menu_admin {
 
 		$html = "<div><h2>COLONIZATION - Missões</h2></div>";
 		
-		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_missao'>
+		$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_missao(event);'>Adicionar nova Missão</a></div><br>
+		<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_missao'>
 		<thead>
 		<tr><th style='width: 80px;'>ID</th><th style='width: 140px;'>Descrição</th><th style='width: 140px;'>Vitória</th><th style='width: 140px;'>Derrota</th>
 		<th style='width: 60px;'>ID Império</th><th style='width: 120px;'>IDs Aceitam</th><th style='width: 120px;'>IDs Rejeitam</th>

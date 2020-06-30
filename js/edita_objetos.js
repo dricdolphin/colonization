@@ -332,6 +332,9 @@ function salva_objeto(evento, objeto, cancela = false) {
 	}
 
 	if (!valida_dados) {
+		
+		objeto_em_salvamento = false;
+		
 		evento.preventDefault();
 		return false;
 	}

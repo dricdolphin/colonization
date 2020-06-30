@@ -67,13 +67,8 @@ class imperio
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
 		}
-		
 
 		$this->id = $id;
-		if (empty($this->id)) {
-			$this->id = 0;
-			return;
-		}		
 		
 		//Somente cria um objeto com ID diferente se o usuário tiver perfil de administrador
 		if ($roles != "administrator" && $super == false) {

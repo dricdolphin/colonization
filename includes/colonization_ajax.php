@@ -45,7 +45,7 @@ class colonization_ajax {
 	function aceita_missao() {
 		global $wpdb;
 		
-		$imperio = new imperio($nave->id_imperio);
+		$imperio = new imperio();
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
