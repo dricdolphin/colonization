@@ -1408,6 +1408,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			}
 			
 			$html_estacao_orbital = "";
+			$html_danos = "";
 			if ($nave->nivel_estacao_orbital > 0) {
 				$html_estacao_orbital = "<div class='fas fa-drone tooltip'><span class='tooltiptext'>Estação Orbital</span></div>";	
 			}
@@ -1417,7 +1418,32 @@ var id_imperio_atual = {$imperios[0]->id};
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div></a>";
 			}
-			$html_frota .= "{$html_estacao_orbital}<b>{$nave->nome}</b> {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
+			
+			if ($nave->HP < $nave->HP_max) {
+				$nivel_dano = round((($nave->HP)/($nave->HP_max))*5,0);
+				switch ($nivel_dano) {
+					case 5:
+					$nivel_dano = "Danos Mínimos";
+					break;
+					case 4:
+					$nivel_dano = "Danos Moderados";
+					break;
+					case 3:
+					$nivel_dano = "Danos Elevados";
+					break;
+					case 2:
+					$nivel_dano = "Danos Críticos";
+					break;
+					case 1:
+					$nivel_dano = "Incapacitada!";
+					break;
+					default:
+					$nivel_dano = "DESTRUÍDA!!!";
+				}
+				
+				$html_danos = "<div class='fal fa-claw-marks tooltip'><span class='tooltiptext'>{$nivel_dano}</span></div>";
+			}
+			$html_frota .= "{$html_estacao_orbital}<b>{$nave->nome}</b> {$html_danos} {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
 			if ($naves_por_linha == 2) {
 				$html_frota .= "<br>";
 			}
