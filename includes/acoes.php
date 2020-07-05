@@ -29,6 +29,11 @@ class acoes
 	public $recursos_produzidos = [];
 	public $recursos_produzidos_planeta = [];
 	public $recursos_produzidos_nome = [];
+	
+	public $recursos_extraidos = [];
+	public $recursos_extraidos_planeta = [];
+	public $recursos_extraidos_nome = [];	
+	
 	public $recursos_consumidos = [];
 	public $recursos_consumidos_planeta = [];
 	public $recursos_consumidos_nome = [];
@@ -457,6 +462,10 @@ class acoes
 		$this->recursos_produzidos = [];
 		$this->recursos_produzidos_planeta = [];
 		$this->recursos_produzidos_nome = [];
+
+		$this->recursos_extraidos = [];
+		$this->recursos_extraidos_planeta = [];	
+		
 		$this->recursos_consumidos = [];
 		$this->recursos_consumidos_planeta = [];
 		$this->recursos_consumidos_nome = [];
@@ -479,12 +488,14 @@ class acoes
 					$recurso = new recurso($id_recurso);
 
 					$this->recursos_produzidos[$id_recurso] = 0;
+					$this->recursos_extraidos[$id_recurso] = 0;
 					$this->recursos_produzidos_nome[$id_recurso] = $recurso->nome;
 					$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
 				}
 				
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+					$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = 0;
 				}
 				
@@ -503,10 +514,16 @@ class acoes
 				if ($instalacao->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
+					if ($recurso->extrativo == 1 && $instalacao->nao_extrativo == false) {
+						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
+					}
 				}
 				
 				//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				if ($recurso->extrativo == 1 && $instalacao->nao_extrativo == false) {
+					$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				}
 				/***************************************************
 				--- MODIFICAÇÕES NA PRODUÇÃO DEVIDO À TECHS ---
 				***************************************************/

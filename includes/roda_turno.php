@@ -81,19 +81,19 @@ class roda_turno {
 				//Primeiro, CONSUME os Recursos dos Planetas
 				$html .= "CONSUMINDO Recursos Planetários do {$imperio->nome}:<br>";
 				foreach ($acoes->recursos_produzidos as $id_recurso => $qtd_produzido) {
-					foreach ($acoes->recursos_produzidos_planeta[$id_recurso] as $id_planeta => $qtd_produzido_planeta) {
+					foreach ($acoes->recursos_extraidos_planeta[$id_recurso] as $id_planeta => $qtd_extraidos_planeta) {
 						//$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
-						$qtd = $imperio_recursos->qtd[$id_recurso] + $qtd_produzido_planeta;
+						$qtd = $imperio_recursos->qtd[$id_recurso] + $qtd_extraidos_planeta;
 
 						$recursos_disponivel = $wpdb->get_var("SELECT disponivel FROM colonization_planeta_recursos WHERE id_planeta={$id_planeta} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
 						if ($recursos_disponivel > 0) {
-							$recursos_disponivel = $recursos_disponivel - $qtd_produzido_planeta;
+							$recursos_disponivel = $recursos_disponivel - $qtd_extraidos_planeta;
 							
 							if ($recursos_disponivel < 0) {
-								$acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] + $recursos_disponivel;
+								$acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $acoes->recursos_extraidos_planeta[$id_recurso][$id_planeta] + $recursos_disponivel;
 								$recursos_disponivel = 0;
-								if ($acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] < 0) {
-									$acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] = 0;
+								if ($acoes->recursos_extraidos_planeta[$id_recurso][$id_planeta] < 0) {
+									$acoes->recursos_extraidos_planeta[$id_recurso][$id_planeta] = 0;
 								}
 							}
 

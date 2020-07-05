@@ -1107,7 +1107,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		//Verifica se tem limite suficiente de Reservas Planetárias
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
 			$recurso = new recurso($id_recurso_produz);
-			if ($recurso->extrativo == 1) {
+			if ($recurso->extrativo == 1 && $instalacao->nao_extrativo == false) {
 				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
 				if (!empty($id_planeta_recurso)) {
 					$planeta_recursos = new planeta_recurso($id_planeta_recurso);	
@@ -1116,9 +1116,9 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso->nome}, ";
 				}
 	
-				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
-					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome}, ";
-				}
+				//if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
+				//	$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome}, ";
+				//}
 			}
 		}
 

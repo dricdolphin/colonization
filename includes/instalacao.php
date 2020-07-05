@@ -20,6 +20,7 @@ class instalacao
 	public $icone;
 	public $especiais;
 	public $limite = 0;
+	public $nao_extrativo = false;
 	public $custos;
 	public $id_tech_requisito;
 	public $recursos_produz = [];
@@ -74,6 +75,15 @@ class instalacao
 		if (!empty($limite)) {
 			$limite_valor = explode("=",$limite[0]);
 			$this->limite = $this->limite + $limite_valor[1];
+		}
+		
+		$nao_extrativo = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'nao_extrativo') !== false;
+		}));
+
+		if (!empty($nao_extrativo)) {
+			//$nao_extrativo_valor = explode("=",$limite[0]);
+			$this->nao_extrativo = true;
 		}
 	}
 

@@ -1429,7 +1429,7 @@ var id_imperio_atual = {$imperios[0]->id};
 					$nivel_dano = "Danos Moderados";
 					break;
 					case 3:
-					$nivel_dano = "Danos Elevados";
+					$nivel_dano = "Danos Severos";
 					break;
 					case 2:
 					$nivel_dano = "Danos Críticos";
@@ -1480,60 +1480,49 @@ var id_imperio_atual = {$imperios[0]->id};
 
 	function colonization_exibe_lista_imperios_pontuacao($atts = [], $content = null) {
 		global $wpdb;
+		$turno = new turno();
 		
-		$estrelas = $wpdb->get_results("SELECT nome, tipo, X, Y, Z, ROUND(X+Z*(SQRT(2)/2),2) AS X3D, ROUND(Y+Z*(SQRT(2)/2),2) AS Y3D FROM colonization_estrela");
-
 		$html_lista = "    <script type='text/javascript'>
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+		google.charts.load('current', {'packages':['corechart']});
+		google.charts.setOnLoadCallback(drawChart);
 
-      function drawChart() {
-        
-		var data = new google.visualization.DataTable();
-        data.addColumn('number', 'X');
-        data.addColumn('number', 'Y');
-		data.addColumn({type: 'string', role: 'tooltip'});
-		data.addColumn({type: 'string', role: 'style'});
-
-        data.addRows([";
+		function drawChart() {
+			var data = google.visualization.arrayToDataTable([";
 		
+		$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
 		
-		$html_estrela = "";
-	    
-		foreach ($estrelas as $estrela) {
-			//,'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})'
-			if (stripos($estrela->tipo,"amarela") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFFF00; }';
-			} elseif (stripos($estrela->tipo,"branca") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFFFFF; }';
-			} elseif (stripos($estrela->tipo,"vermelha") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FF0000; }';
-			} elseif (stripos($estrela->tipo,"azul") !== false) {
-				$estilo = 'point { size: 4; fill-color: #F0F0FF; }';
-			} elseif (stripos($estrela->tipo,"laranja") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFA500; }';				
-			} else {
-				$estilo = 'point { size: 4; fill-color: #DDDDDD; }';
-			}
-			
-			$html_estrela	.= "[{$estrela->X3D},{$estrela->Y3D},'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})','{$estilo}'],";
+		$html_lista .= "['Turno'";
+		foreach ($imperios as $id) {
+			$imperio = new imperio($id->id, true);
+			$html_lista .= ", '{$imperio->nome}'";
 		}
 		
-		$html_estrela = substr($html_estrela,0,-1);
-		
-		$html_lista .= $html_estrela;
-		
-		$html_lista	.= "]);
-        var options = {
-          title: 'Lista das Estrelas',
-		  chartArea: {backgroundColor: '#111111'},
-		  hAxis: {title: 'X', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
-          vAxis: {title: 'Y', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
-          legend: 'none'
-        };
+		$html_lista .= "],
+		";
 
-        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
-	    chart.draw(data, options);
+		//$html_linha_turno = [];
+		
+		for ($turno_linha = 1; $turno_linha <= $turno->turno; $turno_linha++) {
+			$html_lista .= "[{$turno_linha}";
+			foreach ($imperios as $id) {
+				$imperio = new imperio($id->id, true, $turno_linha);
+				$html_lista .= ", {$imperio->pontuacao}";
+			}
+			$html_lista .= "],
+			";
+		}
+		
+		$html_lista .= "
+		]);
+
+			var options = {
+				title: 'Pontuação',
+				hAxis: {title: 'Turno',  titleTextStyle: {color: '#333'}},
+				vAxis: {minValue: 0}
+			};
+		
+			var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
       }
     </script>
 	<div id='chart_div' style='width: 800px; height: 500px;'></div>";

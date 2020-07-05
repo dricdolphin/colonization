@@ -530,8 +530,11 @@ function lista_distancia() {
 		return 0;
 	});
 	
+	let estrela_atual = estrela_capital[id_imperio_atual];
 	mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
-		html_lista = html_lista + valor_destino.nome_estrela +" "+  valor_destino.posicao_estrela +"<br>";
+		//distancia_parsecs = calcula_distancia(false, estrela_atual, valor_destino.id_estrela);
+		distancia_parsecs = "";
+		html_lista = html_lista + valor_destino.nome_estrela +" "+  valor_destino.posicao_estrela +" "+ distancia_parsecs +"<br>";
 	});
 	
 	div_lista_distancia.innerHTML = html_lista;
