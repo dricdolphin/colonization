@@ -97,8 +97,8 @@ class roda_turno {
 								}
 							}
 
-							$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno};<br>";
-							$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso ={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
+							$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno};<br>";
+							$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 						}
 					}
 				}

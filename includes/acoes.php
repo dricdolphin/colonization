@@ -66,7 +66,7 @@ class acoes
 		ON ce.id = cp.id_estrela
 		WHERE cic.id_imperio = {$this->id_imperio} 
 		AND cic.turno = {$this->turno->turno}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z
 		");
 
 		$resultados = [];
@@ -98,7 +98,7 @@ class acoes
 				AND cic.turno = {$this->turno->turno}
 				AND cpi.turno <={$this->turno->turno}
 				AND ce.id = {$id_estrela->id}
-				ORDER BY cic.capital DESC, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
+				ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
 				");
 			
 			$resultados = array_merge($resultados, $resultados_temp);
@@ -241,7 +241,7 @@ class acoes
 		WHERE cic.id_imperio = {$this->id_imperio}
 		AND cic.turno = {$this->turno->turno}
 		AND cp.id_estrela={$id_estrela}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
 		");
 
 		if (empty($resultados)) {
@@ -293,7 +293,7 @@ class acoes
 		WHERE cic.id_imperio = {$this->id_imperio}
 		AND cic.turno = {$this->turno->turno}
 		AND cp.id_estrela={$id_estrela}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
+		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
 		");
 
 		$defesa_sistema = 0;

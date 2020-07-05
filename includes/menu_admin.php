@@ -916,7 +916,7 @@ class menu_admin {
 				ON ce.id = cp.id_estrela
 				WHERE cic.id_imperio = {$imperio->id} 
 				AND cic.turno = {$turno->turno}
-				ORDER BY cic.nome_npc, cic.capital DESC, ce.X, ce.Y, ce.Z
+				ORDER BY cic.nome_npc, cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z
 				");
 
 				$lista_id_colonias = [];
@@ -930,7 +930,7 @@ class menu_admin {
 					ON ce.id = cp.id_estrela
 					WHERE cic.id_imperio={$imperio->id} AND cic.turno={$turno->turno}
 					AND ce.id={$id_estrela->id}
-					ORDER BY cic.capital DESC, cp.posicao
+					ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao
 					");
 					
 					$lista_id_colonias = array_merge($lista_id_colonias,$resultados_temp);
