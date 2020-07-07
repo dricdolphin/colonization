@@ -529,13 +529,23 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 	
 	let div_notice = objeto;
 	
-	while (div_notice.getAttribute("class") != "notice") {
-		div_notice = div_notice.parentNode;
+	try {
+		while (div_notice.getAttribute("class") != "notice") {
+			div_notice = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice.remove = function () {return;};
 	}
 
 	let div_notice_panel = div_notice;
-	while (div_notice_panel.getAttribute("class") != "notices-panel") {
-		div_notice_panel = div_notice.parentNode;
+	try {
+		while (div_notice_panel.getAttribute("class") != "notices-panel") {
+			div_notice_panel = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice_panel.childElementCount = false;
 	}
 
 	if (autoriza) {
@@ -569,22 +579,23 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 			if (resposta.debug != undefined) {
 				console.log(resposta.debug);
 			}
+
+			div_notice.remove();
+			if (div_notice_panel.childElementCount == 0) {
+				div_notice_panel.remove();
+			}
+					
+			let envia_tech = document.getElementById("envia_tech");
+			if (envia_tech !== undefined && envia_tech !== null) {
+				atualiza_lista_techs(envia_tech);
+			}		
+
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);	
 
-	div_notice.remove();
-	if (div_notice_panel.childElementCount == 0) {
-		div_notice_panel.remove();
-	}
-		
-	let envia_tech = document.getElementById("envia_tech");
-	if (envia_tech !== undefined && envia_tech !== null) {
-		atualiza_lista_techs(envia_tech);
-	}
-	
 	evento.preventDefault();
 	return false;
 }

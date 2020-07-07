@@ -75,6 +75,10 @@ class transfere_tech
 				$processado = "<span style='color: #0E8836'>PROCESSADA!</span>";
 			} else {
 				$processado = "<span style='color: #E0BA44'>EM PROCESSAMENTO!</span>";
+				if ($roles == "administrator") {
+					//<a href='#'style='color: #628049 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},true);'>Aceitar</a>
+					$processado = "<a href='#'style='color: #E0BA44 !important;' onclick='return processa_recebimento_tech(this, event,{$transfere_tech->id},true);'>EM PROCESSAMENTO!</a>";
+				}
 			}
 			$tech = new tech($transfere_tech->id_tech);
 			$imperio_destino = new imperio($transfere_tech->id_imperio_destino, true);

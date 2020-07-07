@@ -681,7 +681,7 @@ class colonization_ajax {
 					AND cpi.turno <= {$turno->turno}
 					");
 					
-					if ($instalacao->limite <= $instalacoes_no_planeta) {
+					if ($instalacao->limite <= $instalacoes_no_planeta && empty($_POST['id'])) {
 							$texto_limite = "{$instalacao->limite} Instalações";
 						if ($instalacao->limite == 1) {
 							$texto_limite = "uma Instalação";
