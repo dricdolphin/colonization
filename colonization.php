@@ -190,6 +190,7 @@ class colonization {
 			$imperio = new imperio($id_imperio, false);
 		}		
 		
+		$missao_ativa = 1;
 		$html_lista = "<h3>Lista das Missões do Império</h3>";
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$lista_id = $wpdb->get_results("
@@ -197,8 +198,14 @@ class colonization {
 			FROM colonization_missao 
 			ORDER BY ativo DESC, id_imperio, turno");
 
+			
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);
+				
+				if ($missao_ativa == 1 && $missao->ativo == 0) {
+					$html_lista .= "<div><b>=== Missões Encerradas ===</b></div>";
+					$missao_ativa = 0;
+				}
 				
 				$html_dados = $missao->exibe_missao();
 				
@@ -215,6 +222,11 @@ class colonization {
 
 			foreach ($lista_id as $id) {
 				$missao = new missoes($id->id);
+
+				if ($missao_ativa == 1 && $missao->ativo == 0) {
+					$html_lista .= "<div><b>=== Missões Encerradas ===</b></div>";
+					$missao_ativa = 0;
+				}
 				
 				$html_dados = $missao->exibe_missao($imperio->id);
 				
@@ -1960,10 +1972,13 @@ var id_imperio_atual = {$imperio->id};
 		<label>Transporte de Tropas: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_tropas' value='0' min='0' style='width: 50px;'></input><br>
 		<label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombas' value='0' min='0' style='width: 50px;'></input><br>
 		<label>Slots Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_slots_extra' value='0' min='0' style='width: 50px;'></input><br>
+		<label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input><br>
 		</div>
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
-		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=1;0=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
+		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=1;0=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
 		";
+		//{"laser":{"qtd":0,"mk":1},"torpedo":{"qtd":0,"mk":1},"projetil":{"qtd":0,"mk":1},"blindagem":{"qtd":0,"mk":1},"escudos":{"qtd":0,"mk":1}}
+		//"0":{"0":1,"1":2,"2":3}
 		
 		return $html;
 	}

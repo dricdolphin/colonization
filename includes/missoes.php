@@ -96,9 +96,15 @@ class missoes
 	function exibe_missao($id_imperio=0) {
 		global $wpdb;
 		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
 		//Verifica se o player já aceitou ou se rejeitou essa Missão. Uma missão REJEITADA pode ser aceita posteriormente, mas uma missão ACEITA não pode mais ser editada
-		$id_imperios_aceitaram = explode(";",$this->id_imperios_aceitaram);
-		$id_imperios_rejeitaram = explode(";",$this->id_imperios_rejeitaram);
+		$id_imperios_aceitaram = array_filter(explode(";",$this->id_imperios_aceitaram));
+		$id_imperios_rejeitaram = array_filter(explode(";",$this->id_imperios_rejeitaram));
 		
 		$aceitou = array_search($id_imperio,$id_imperios_aceitaram);
 		$rejeitou = array_search($id_imperio,$id_imperios_rejeitaram);
@@ -120,6 +126,20 @@ class missoes
 			} else {
 				$html_aceitar = "<span style='color: #009922 !important;'><b>MISSÃO ACEITA!</b></span>";
 			}
+		} elseif ($roles == "administrator") {
+			$html_aceitar = "<span style='color: #009922 !important;'>ACEITARAM:</span> ";
+			
+			foreach ($id_imperios_aceitaram as $chave => $id_imperio_aceitou) {
+				$imperio_aceitou = new imperio($id_imperio_aceitou);
+				$html_aceitar .= "{$imperio_aceitou->nome}; ";
+			}
+			$html_aceitar .= "<br>
+<span style='color: #DD0022 !important;'>REJEITARAM:</span> ";
+			foreach ($id_imperios_rejeitaram as $chave => $id_imperio_rejeitou) {
+				$imperio_rejeitou = new imperio($id_imperio_rejeitou);
+				$html_aceitar .= "{$imperio_rejeitou->nome}; ";
+			}			
+			$html_aceitar .= "<br>";
 		}
 		
 		
@@ -147,7 +167,7 @@ class missoes
 		}
 		
 		$html = "<div>
-			<div {$estilo_sucesso}><b>MISSÃO:</b><span style='color: #000000 !important;'> {$this->descricao} {$html_imperio} {$html_sucesso}</span></div>
+			<div {$estilo_sucesso}><b>MISSÃO #{$this->id}:</b><span style='color: #000000 !important;'> {$this->descricao} {$html_imperio} {$html_sucesso}</span></div>
 			<div><b>SUCESSO:</b> {$this->texto_sucesso}</div>
 			{$html_fracasso}
 			<div>Missão deve ser concluída até o Turno {$this->turno_validade}</div>

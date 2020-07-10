@@ -207,6 +207,7 @@ function processa_string_admin (evento, objeto) {
 	let qtd_tropas = document.getElementById('qtd_tropas');
 	let qtd_bombas = document.getElementById('qtd_bombas');
 	let qtd_slots_extra = "";
+	let qtd_hp_extra = "";
 	
 	let mk_laser = "";
 	let mk_torpedo = "";
@@ -216,7 +217,7 @@ function processa_string_admin (evento, objeto) {
 	let mk_impulso = "";
 	let mk_dobra = "";
 
-	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra];
+	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra, qtd_hp_extra];
 	let mk = [mk_laser, mk_torpedo, mk_projetil, mk_blindagem, mk_escudos, mk_impulso, mk_dobra];
 
 	let partes_nave = input_string_construcao.split(";");
@@ -249,6 +250,7 @@ function processa_string_admin (evento, objeto) {
 	qtd_dobra = qtd[6];
 	qtd_combustivel = qtd[7];
 	qtd_slots_extra = qtd[12];
+	qtd_hp_extra = qtd[13]
 
 	mk_laser = mk[0];
 	mk_torpedo = mk[1];
@@ -286,7 +288,7 @@ function processa_string_admin (evento, objeto) {
 	+ qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
 	
 	velocidade = Math.floor((qtd_impulso*mk_impulso/chassi)*10);
-	hp = chassi*10;
+	hp = chassi*10+qtd_hp_extra*1;
 	
 	if (qtd_dobra*mk_dobra*10 < chassi) {
 		alcance = 0;
