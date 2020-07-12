@@ -1096,11 +1096,11 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		$pop_sistema = $pop_mdo_sistema['pop'];
 
 		if ($mdo_sistema > $pop_sistema) {//Verifica se tem MdO no sistema
-			$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
+			$dados_salvos['balanco_acao'] = "Mão-de-Obra no Sistema, ";
 		} 
 		if (!$instalacao->autonoma) {//Depois, se NÃO for instalação autônoma, verifica se tem MdO no planeta
 			if ($mdo_planeta > $pop_planeta) {
-				$dados_salvos['balanco_acao'] = "Mão-de-Obra, ";
+				$dados_salvos['balanco_acao'] = "Mão-de-Obra no Planeta, ";
 			}
 		}
 
