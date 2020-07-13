@@ -104,7 +104,12 @@ class frota
 		$imperio = new imperio($this->id_imperio);
 		$estrela_destino = new estrela($this->id_estrela_destino);
 		
-		$html = "<div>O {$imperio->nome} deseja enviar a nave '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
+		$html_qtd = "a nave";
+		if ($this->qtd > 1) {
+			$html_qtd = "{$this->qtd} naves";
+		}
+		
+		$html = "<div>O {$imperio->nome} deseja enviar {$html_qtd} '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
 		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
 
 		return $html;

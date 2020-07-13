@@ -128,7 +128,7 @@ class transfere_tech
 		//Faz a validação da Tech
 		//Verifica se o Império já tem essa Tech
 		$html = "";
-		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech}");
+		$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech={$this->id_tech} AND custo_pago=0");
 		
 		if (!empty($id_tech_imperio)) {
 			$imperio_tech = new imperio_techs($id_tech_imperio);
@@ -149,7 +149,7 @@ class transfere_tech
 		$tech = new tech($this->id_tech);
 		if (!empty($tech->id_tech_parent)) {
 			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
-			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech IN ({$id_tech_parent})");
+			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND id_tech IN ({$id_tech_parent}) AND custo_pago=0");
 			if ($tech_parent == 0) {
 				$id_tech_parent = explode(",",$id_tech_parent);
 				$id_tech_parent = $id_tech_parent[0];
