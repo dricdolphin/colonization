@@ -85,6 +85,8 @@ class instalacao
 			//$nao_extrativo_valor = explode("=",$limite[0]);
 			$this->nao_extrativo = true;
 		}
+		
+		//custo_instalacao=70;id_instalacao=(29,57)
 	}
 
 	/***********************

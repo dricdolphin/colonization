@@ -769,9 +769,11 @@ function nova_nave(evento, id_imperio) {
 	}
 
 	var turno = linha_nova.insertCell(-1);
+	var turno_destruido = linha_nova.insertCell(-1);
 	var gerenciar = linha_nova.insertCell(-1);	
 	
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
+	turno_destruido.innerHTML = "<div data-atributo='turno_destruido' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno_destruido' data-ajax='true' style='width: 50px;' value='0'></input></div>";
 	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
 
 

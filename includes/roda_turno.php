@@ -188,7 +188,7 @@ class roda_turno {
 				$html .= "<br>REGISTRANDO as Pesquisas das Naves...<br>";
 				
 				$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
-				WHERE id_imperio = {$imperio->id} AND pesquisa=1");
+				WHERE id_imperio = {$imperio->id} AND pesquisa=1 AND turno_destruido=0");
 				
 				foreach ($frota as $id) {
 					$nave = new frota($id->id);

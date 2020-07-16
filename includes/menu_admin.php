@@ -991,6 +991,7 @@ class menu_admin {
 		<th rowspan='2' style='width: 30px;'>Qtd</th>
 		<th colspan='3' style='width: 120px;'>Posição</th>
 		<th rowspan='2' style='width: 40px;'>Turno</th>
+		<th rowspan='2' style='width: 40px;'>Dest.</th>
 		<th rowspan='2' style='width: 80px;'>&nbsp;</th>
 		</tr>
 		<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th>
@@ -1044,6 +1045,7 @@ class menu_admin {
 			<th rowspan='2' style='width: 100px;'>Estação Orbital</th>
 			<th rowspan='2' style='width: 120px;'>Especiais</th>
 			<th rowspan='2' style='width: 40px;'>Turno</th>
+			<th rowspan='2' style='width: 40px;'>Dest.</th>
 			<th rowspan='2' style='width: 80px;'>&nbsp;</th>
 			</tr>
 			<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th><th class='th_linha_2' style='width: 60px;'>Laser</th><th class='th_linha_2' style='width: 60px;'>Torpedo</th><th class='th_linha_2' style='width: 60px;'>Projétil</th></tr>

@@ -204,6 +204,7 @@ class instala_db {
 		HP INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
 		turno INT(6) NOT NULL,
+		turno_destruido INT(6) DEFAULT 0,
 		id_estrela_destino INT(6) DEFAULT 0,
 		visivel BOOLEAN DEFAULT FALSE
 		)");

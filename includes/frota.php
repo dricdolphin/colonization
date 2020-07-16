@@ -37,6 +37,7 @@ class frota
 	public $HP_max;
 	public $qtd;
 	public $turno;
+	public $turno_destruido;
 	public $id_estrela_destino;
 	public $visivel;
 	
@@ -54,7 +55,7 @@ class frota
 		PDF_laser, PDF_projetil, PDF_torpedo,
 		blindagem, escudos, 
 		PDF_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
-		camuflagem, especiais, turno, id_estrela_destino, visivel
+		camuflagem, especiais, turno, turno_destruido, id_estrela_destino, visivel
 		FROM colonization_imperio_frota 
 		WHERE id={$this->id}");
 		
@@ -89,6 +90,7 @@ class frota
 		$this->HP = $resultado->HP;
 		$this->HP_max = $this->tamanho*10;
 		$this->turno = $resultado->turno;
+		$this->turno_destruido = $resultado->turno_destruido;
 		$this->id_estrela_destino = $resultado->id_estrela_destino;
 		$this->visivel = $resultado->visivel;
 	}
@@ -165,6 +167,7 @@ class frota
 				<td><div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='{$this->nivel_estacao_orbital}' data-style='width: 50px;' data-id='nivel_estacao_orbital'>{$this->nivel_estacao_orbital}</div></td>			
 				<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;'>{$this->especiais}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
+				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
 				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div>
 				</td>";
 		
@@ -187,6 +190,7 @@ class frota
 				<td><div data-atributo='Y' data-editavel='true' data-valor-original='{$this->Y}' data-style='width: 30px;'>{$this->Y}</div></td>
 				<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
+				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
 				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div></td>";			
 		}
 		
@@ -203,17 +207,6 @@ class frota
 		
 		$turno = new turno();
 		
-		//1 Estação Orbital "Orbit One" (1;8;9) - Tamanho 100; Velocidade 1; Alcance 0; PdF Laser 10/Torpedo 10; Blindagem 10; HP 1000; Especiais: (1) - Produz até 50 Equipamentos de Naves por turno
-		$html = "<td>
-		<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
-		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-		<input type='hidden' data-atributo='where_clause' value='id'></input>
-		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
-		<b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b>
-		</td>
-		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>
-		<td>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
-		
 		$html_armas = "";
 		if ($this->PDF_laser >0) {
 			$html_armas .= " PdF Laser: {$this->PDF_laser};";
@@ -227,18 +220,6 @@ class frota
 			$html_armas .= " PdF Projétil: {$this->PDF_projetil};";
 		}
 
-		$html .= $html_armas;
-		
-		$html .= " Blindagem: {$this->blindagem}; Escudos: {$this->escudos};";
-
-		$html .= " HP: {$this->HP}/{$this->HP_max};";
-		
-
-		if ($this->especiais != "") {
-		$html .= " Especiais: {$this->especiais};";
-		} 
-		$html .= "</td>";
-		
 		//$html .= "<td>&nbsp;</td>";
 		
 		
@@ -267,6 +248,9 @@ class frota
 		}
 
 		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
+			$imperio = new imperio($this->id_imperio);
+			$this->alcance = $this->alcance+$imperio->bonus_alcance;
+			
 			$display_select = "";
 			$user = wp_get_current_user();
 			$roles = "";
@@ -281,6 +265,28 @@ class frota
 				//$html .= $this->exibe_estrelas_destino();
 			}
 		}			
+
+		$html = "<td>
+		<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
+		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
+		<input type='hidden' data-atributo='where_clause' value='id'></input>
+		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
+		<b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b>
+		</td>
+		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>
+		<td>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
+
+		$html .= $html_armas;
+		
+		$html .= " Blindagem: {$this->blindagem}; Escudos: {$this->escudos};";
+
+		$html .= " HP: {$this->HP}/{$this->HP_max};";
+		
+
+		if ($this->especiais != "") {
+		$html .= " Especiais: {$this->especiais};";
+		} 
+		$html .= "</td>";
 
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>

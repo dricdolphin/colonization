@@ -28,6 +28,7 @@ class imperio
 	public $max_pop = 0;
 	public $limite_poluicao = 100;
 	public $alcance_logistica = 0;
+	public $bonus_alcance = 0;
 	public $bonus_recurso = [];
 	public $sinergia = [];
 	public $extrativo = [];
@@ -123,7 +124,7 @@ class imperio
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;
 		
-		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + pesquisa + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id} AND turno<={$this->turno->turno}");
+		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + pesquisa + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id} AND turno<={$this->turno->turno} AND turno_destruido<{$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_belica = $this->pontuacao_belica + $pontuacao;
 
@@ -213,6 +214,18 @@ class imperio
 					$this->alcance_logistica = $logistica_valor[1];
 				}
 			}
+			
+			//Especiais -- bonus_alcance
+			$bonus_alcance = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_alcance') !== false;
+			}));
+			
+			if (!empty($bonus_alcance)) {
+				$bonus_alcance_valor = explode("=",$bonus_alcance[0]);
+				if ($this->bonus_alcance < $bonus_alcance_valor[1]) {
+					$this->bonus_alcance = $bonus_alcance_valor[1];
+				}
+			}			
 			
 			//Especiais -- bonus_logistica
 			$bonus_logistica = array_values(array_filter($especiais, function($value) {
@@ -731,7 +744,7 @@ class imperio
 		ON ce.id = cp.id_estrela
 		WHERE cic.id_imperio = {$this->id} 
 		AND cic.turno = {$this->turno->turno}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z
+		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z
 		");
 
 		$resultados = [];
@@ -745,7 +758,7 @@ class imperio
 			ON ce.id = cp.id_estrela
 			WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno}
 			AND ce.id={$id_estrela->id}
-			ORDER BY cic.capital DESC, cp.posicao
+			ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao
 			");
 			
 			$resultados = array_merge($resultados,$resultados_temp);
