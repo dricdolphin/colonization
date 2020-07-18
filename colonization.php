@@ -490,16 +490,19 @@ class colonization {
 		
 		$html_final = "";
 		$chaves = implode(",",array_keys($html_estrela));
-		$ids_estrelas = $wpdb->get_results("
-		SELECT DISTINCT ce.id 
-		FROM colonization_estrela AS ce
-		LEFT JOIN colonization_planeta AS cp
-		ON cp.id_estrela = ce.id
-		LEFT JOIN colonization_imperio_colonias AS cic
-		ON cic.id_planeta = cp.id
-		WHERE ce.id IN ({$chaves})
-		ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
-		");
+		$ids_estrelas = [];
+		if (!empty($chaves)) {
+			$ids_estrelas = $wpdb->get_results("
+			SELECT DISTINCT ce.id 
+			FROM colonization_estrela AS ce
+			LEFT JOIN colonization_planeta AS cp
+			ON cp.id_estrela = ce.id
+			LEFT JOIN colonization_imperio_colonias AS cic
+			ON cic.id_planeta = cp.id
+			WHERE ce.id IN ({$chaves})
+			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+			");
+		}
 
 		$par_impar = "background-color: #DDD;";
 		foreach ($ids_estrelas as $chave) {

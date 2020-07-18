@@ -109,6 +109,7 @@ class missoes
 		$aceitou = array_search($id_imperio,$id_imperios_aceitaram);
 		$rejeitou = array_search($id_imperio,$id_imperios_rejeitaram);
 		
+		$html_fracasso = "";
 		if (!empty($this->texto_fracasso)) {
 			$html_fracasso = "<div><b>FRACASSO:</b> {$this->texto_fracasso}</div>";
 		}
