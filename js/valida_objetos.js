@@ -692,7 +692,6 @@ function valida_acao_admin(objeto) {
 	return retorno;
 }
 
-//altera_recursos_planeta
 /******************
 function altera_recursos_planeta(objeto) 
 --------------------
@@ -700,11 +699,7 @@ Atualiza os recursos do planeta nos Turnos anteriores, caso necessário
 ******************/	
 function altera_recursos_planeta(objeto) {
 	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
-	
-	
-	//console.log(dados['id_recurso']);
-	//console.log(dados['id_recurso'].parentNode);
-	//console.log(dados['id_recurso'].parentNode.childNodes[0]);
+
 	var linha = pega_ascendente(objeto,"TR");
 	var divs = linha.getElementsByTagName("DIV");
 	
@@ -735,7 +730,7 @@ function altera_recursos_planeta(objeto) {
 			}
 		}
 	};
-	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
 
