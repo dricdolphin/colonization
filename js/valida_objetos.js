@@ -388,6 +388,8 @@ function valida_planeta_recurso(objeto) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
+		
+		
 	}
 
 	var xhttp = new XMLHttpRequest();
@@ -395,6 +397,7 @@ function valida_planeta_recurso(objeto) {
 		if (this.readyState == 4 && this.status == 200) {
 			var resposta = JSON.parse(this.responseText);
 			if (resposta.resposta_ajax == "OK!") {
+				altera_recursos_planeta(objeto);
 				retorno = true;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -687,6 +690,56 @@ function valida_acao_admin(objeto) {
 	xhttp.send(dados_ajax);
 	
 	return retorno;
+}
+
+//altera_recursos_planeta
+/******************
+function altera_recursos_planeta(objeto) 
+--------------------
+Atualiza os recursos do planeta nos Turnos anteriores, caso necessário
+******************/	
+function altera_recursos_planeta(objeto) {
+	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	
+	
+	//console.log(dados['id_recurso']);
+	//console.log(dados['id_recurso'].parentNode);
+	//console.log(dados['id_recurso'].parentNode.childNodes[0]);
+	var linha = pega_ascendente(objeto,"TR");
+	var divs = linha.getElementsByTagName("DIV");
+	
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "nome_recurso") {
+			if (divs[index].getAttribute("data-id-selecionado") != divs[index].childNodes[1].value) {
+				console.log("MUDOU! De "+divs[index].getAttribute("data-id-selecionado")+" para "+divs[index].childNodes[1].value);
+				var dados_ajax = "post_type=POST&action=altera_recursos_planeta&id_planeta="+dados['id_planeta'].value+"&id_recurso_original="+divs[index].getAttribute("data-id-selecionado")+"&id_recurso="+divs[index].childNodes[1].value;				
+			}
+		}
+	}
+	
+	var retorno = true;
+	
+	//Envia a chamada de AJAX para salvar o objeto
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.status == 400) {
+			
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax != "OK!") {
+				retorno = false;
+			}
+			if (resposta.mensagem !== undefined) {
+				alert(resposta.mensagem);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, false); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	return retorno;	
 }
 
 /******************

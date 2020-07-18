@@ -17,6 +17,7 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_colonia', array ($this, 'valida_colonia'));
 		add_action('wp_ajax_valida_instalacao_recurso', array ($this, 'valida_instalacao_recurso'));
 		add_action('wp_ajax_valida_planeta_recurso', array ($this, 'valida_planeta_recurso'));
+		add_action('wp_ajax_altera_recursos_planeta', array ($this, 'altera_recursos_planeta'));//altera_recursos_planeta
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
@@ -595,6 +596,29 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 	
+	/***********************
+	function altera_recursos_planeta ()
+	----------------------
+	Atualiza os recursos de um planeta quando houve alteração do id_recurso
+	***********************/	
+	function altera_recursos_planeta() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		$query = "UPDATE colonization_planeta_recursos SET id_recurso={$_POST['id_recurso']} WHERE id_recurso={$_POST['id_recurso_original']} AND id_planeta={$_POST['id_planeta']}";
+		
+		$resposta = $wpdb->query($query);
+
+		if ($resposta === 0) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		} else {
+			$dados_salvos['resposta_ajax'] .= $query;
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
 	/***********************
 	function valida_planeta_recurso ()
 	----------------------

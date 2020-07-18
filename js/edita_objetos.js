@@ -30,6 +30,7 @@ dados -- dados atualizados
 function atualiza_objeto(objeto, dados) {
 	var linha = objeto;
 	var divs = "";
+	var divs = "";
 	var inputs = "";
 	var atributo = "";
 	var where_clause = ""
