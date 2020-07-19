@@ -288,7 +288,10 @@ class colonization {
 		
 		$lista_id_estrela = implode(",",$lista_id_estrela);
 		
-		$id_estrelas = $wpdb->get_results("SELECT id AS id_estrela FROM colonization_estrela WHERE id IN ({$lista_id_estrela}) ORDER BY nome");
+		$id_estrelas = [];
+		if (!empty($lista_id_estrela)) {
+			$id_estrelas = $wpdb->get_results("SELECT id AS id_estrela FROM colonization_estrela WHERE id IN ({$lista_id_estrela}) ORDER BY nome");
+		}
 		
 		$html = "";
 		$par_impar = "background-color: #DDD;";

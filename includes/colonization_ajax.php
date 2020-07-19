@@ -323,7 +323,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
-		//Verifica se o Império tem os pré-requisitos da Tech
+
 		$tech = new tech($_POST['id_tech']);
 		
 		$dados_salvos['custo_pago'] = $_POST['custo_pago'];
@@ -336,14 +336,15 @@ class colonization_ajax {
 			$dados_salvos['custo_pago'] = 0;
 		}
 
+		//Verifica se o Império tem os pré-requisitos da Tech
 		if (!empty($tech->id_tech_parent)) {
 			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
 			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0");
 			if ($tech_parent == 0) {
 				$id_tech_parent = explode(",",$id_tech_parent);
 				$id_tech_parent = $id_tech_parent[0];
-				$tech = new tech($id_tech_parent);
-				$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a Tech '{$tech->nome}'";
+				$tech_parent = new tech($id_tech_parent);
+				$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a Tech '{$tech_parent->nome}'";
 			}
 		}
 
@@ -356,8 +357,7 @@ class colonization_ajax {
 					if (empty($dados_salvos['resposta_ajax'])) {
 						$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
 					}
-					$tech = new tech($id_requisito);
-					$dados_salvos['resposta_ajax'] .= $tech->nome."; ";
+					$dados_salvos['resposta_ajax'] .= $tech_requisito->nome."; ";
 				}
 			}
 		}
@@ -384,8 +384,10 @@ class colonization_ajax {
 		
 		if ($pesquisas_imperio < $custo_a_pagar) {
 			$imperio = new imperio($_POST['id_imperio']);
-			$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s).";
-			$dados_salvos['custo_pago'] = $pesquisas_imperio;
+			if (empty($dados_salvos['resposta_ajax'])) {
+				$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s).";
+				$dados_salvos['custo_pago'] = $pesquisas_imperio;
+			}
 		} 
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
