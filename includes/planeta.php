@@ -212,6 +212,31 @@ class planeta
 		
 		return $html;
 	}
+
+	/***********************
+	function exibe_recursos_planeta()
+	----------------------
+	Exibe os recursos do planeta
+	***********************/	
+	function exibe_recursos_planeta () {
+		global $wpdb;
+		
+		$ids_recursos_planeta = $wpdb->get_results("SELECT cpr.id_recurso, cpr.disponivel 
+		FROM colonization_planeta_recursos AS cpr
+		JOIN colonization_recurso AS cr
+		ON cr.id = cpr.id_recurso
+		WHERE cpr.id_planeta={$this->id} AND cpr.turno={$this->turno->turno} 
+		ORDER BY cr.nivel, cpr.disponivel DESC, cr.nome");
+		
+		$html = "";
+		foreach ($ids_recursos_planeta as $recurso_planeta) {
+			$recurso = new recurso($recurso_planeta->id_recurso);
+			
+			$html .= "{$recurso->nome}: {$recurso_planeta->disponivel}; ";
+		}
+		
+		return $html;
+	}
 }
 
 ?>

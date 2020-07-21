@@ -327,11 +327,42 @@ class acoes
 		
 		$estilo = $estilo_impar;
 		foreach ($this->id AS $chave => $valor) {
-			$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
-			$estrela = new estrela($planeta->id_estrela);
 			$instalacao = new instalacao($this->id_instalacao[$chave]);
-			$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
 			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+
+			if ($instalacao->oculta != 0) {
+				continue; //Caso seja uma instalação oculta, deve pular
+			}
+			
+			if ($ultimo_planeta != $this->id_planeta[$chave]) {
+				$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
+				$html_recursos_planeta = $planeta->exibe_recursos_planeta();
+				$estrela = new estrela($planeta->id_estrela);
+				$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
+
+				$ultimo_planeta = $this->id_planeta[$chave];				
+				$slots = 0;
+				$balanco_planeta = "";
+				
+				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
+				
+				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
+				
+				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
+				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
+				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
+				<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
+				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
+				</td>";
+				if ($estilo == $estilo_par) {
+					$estilo = $estilo_impar;
+				} else {
+					$estilo = $estilo_par;
+				}					
+			} else {
+				$primeira_linha = "&nbsp;";
+			}
+	
 			
 			$user = wp_get_current_user();
 			$roles = "";
@@ -354,30 +385,6 @@ class acoes
 			if ($colonia->vassalo == 1 && $roles != "administrator") {
 				$this->disabled = "disabled";
 			}
-			
-			if ($ultimo_planeta != $planeta->id && $instalacao->oculta == 0) {
-				$slots = 0;
-				$balanco_planeta = "";
-				
-				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
-				
-				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
-				
-				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
-				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
-				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
-				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
-				</td>";
-				if ($estilo == $estilo_par) {
-					$estilo = $estilo_impar;
-				} else {
-					$estilo = $estilo_par;
-				}
-				$ultimo_planeta = $planeta->id;
-			} else {
-				$primeira_linha = "&nbsp;";
-			}				
-			
 			
 			switch($this->nivel_instalacao[$chave]) {
 			case 1:
@@ -831,7 +838,7 @@ class acoes
 	function exibe_recursos_balanco() {
 		global $wpdb;
 
-		$html = "<b>Balanço dos Recursos:</b> ";			
+		$html = "<span style='color: #2f4f4f ; font-weight: bold;'>Balanço dos Recursos:</span> ";			
 		asort($this->recursos_balanco,SORT_NUMERIC);
 		foreach ($this->recursos_balanco as $id_recurso => $qtd) {
 			if ($qtd > 0) {
@@ -846,7 +853,7 @@ class acoes
 
 	function exibe_balanco_planeta($id_planeta) {
 		$balanco_temp = [];
-		$balanco_planeta = "<b>Balanço dos Recursos:</b> ";
+		$balanco_planeta = "<span style='color: #2f4f4f ; font-weight: bold;'>Balanço dos Recursos:</span> ";
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 			if (!empty($this->recursos_balanco_planeta[$id_recurso][$id_planeta])) {
 				$balanco_temp[$id_recurso] = $this->recursos_balanco_planeta[$id_recurso][$id_planeta];

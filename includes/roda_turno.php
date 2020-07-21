@@ -159,6 +159,9 @@ class roda_turno {
 								//Caso o Império tenha uma Tech de Bônus Populacional...
 								if ($imperio->max_pop >0) {
 									$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
+									if ($planeta->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
+										$limite_pop_planeta	= 0; 
+									}									
 								}
 								
 								if ($colonia->pop <= $limite_pop_planeta) {//Tem espaço para crescer
