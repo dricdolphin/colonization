@@ -47,7 +47,8 @@ function atualiza_objeto(objeto, dados) {
 				divs[index].childNodes[0].style.visibility="visible";
 				//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
 			}
-			if (typeof dados[atributo] !== "undefined") {
+			
+			if (typeof(dados[atributo]) !== "undefined") {
 				//Só atualiza o innerHTML de divs que não contenham objetos
 				if (dados[atributo] !== null) {
 					if (divs[index].hasChildNodes()) {
@@ -71,7 +72,7 @@ function atualiza_objeto(objeto, dados) {
 		}		
 		if (inputs[index].getAttribute('data-valor-original') !== null) {
 			atributo = inputs[index].getAttribute('data-atributo');
-			if (typeof dados[atributo] !== "undefined" ) {
+			if (typeof(dados[atributo]) !== "undefined" ) {
 				if (dados[atributo] !== null) {
 					inputs[index].setAttribute('data-valor-original',dados[atributo]);
 					inputs[index].setAttribute('value',dados[atributo]);
@@ -199,7 +200,7 @@ objeto -- objeto sendo editado
 function chama_funcao_validacao(objeto, funcao, argumentos="") {
 	var fn = window[funcao];
 	
-	if (typeof fn === "function") {
+	if (typeof(fn) === "function") {
 		if (argumentos != "") {
 			var retorno = fn(objeto, argumentos);
 		} else {
@@ -303,7 +304,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 	objeto_em_salvamento = true;
 	
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	if (typeof objeto_editado['funcao_pos_processamento_objeto'] != "") {
+	if (typeof(objeto_editado['funcao_pos_processamento_objeto']) != "") {
 		var pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
 	}
 	
@@ -311,7 +312,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 		var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela);
 		
 		var processa = true;
-		if (typeof pos_processamento !== "undefined") {
+		if (typeof(pos_processamento) !== "undefined") {
 			processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento, true);
 		}
 		
@@ -364,7 +365,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-				if (typeof pos_processamento !== "undefined") {
+				if (typeof(pos_processamento) !== "undefined") {
 					var processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
 				}
 			} else {
@@ -403,7 +404,7 @@ function excluir_objeto(evento, objeto) {
 	var linha_imperio = pega_ascendente(objeto,"TR");
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	
-	if (typeof objeto_editado['mensagem_exclui_objeto'] === "undefined") {
+	if (typeof(objeto_editado['mensagem_exclui_objeto']) === "undefined") {
 		var texto_confirmacao = "Tem certeza que deseja deletar esse objeto?";
 	} else {
 		var texto_confirmacao = objeto_editado['mensagem_exclui_objeto'].value;

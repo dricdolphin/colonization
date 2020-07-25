@@ -65,7 +65,7 @@ function valida_imperio(objeto) {
 		return;
 	}
 
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_jogador = select_linha[0].value;
 		//Verifica se o jogador já tem um Império cadastrado. Cada jogador pode ter apenas um Império.
 		for (index = 0; index < inputs_tabela.length; index++) {
@@ -106,7 +106,7 @@ function valida_tech_imperio(objeto) {
 		}
 	}
 
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_tech = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_tech="+id_tech;
 	}
@@ -268,7 +268,7 @@ function valida_colonia(objeto) {
 	var dados_ajax = "post_type=POST&action=valida_colonia";
 	var retorno = false;
 
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_planeta = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_planeta="+id_planeta;
 	}
@@ -330,13 +330,13 @@ function valida_instalacao_recurso(objeto) {
 		return false;
 	}	
 	
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" || inputs_linha[index].getAttribute('data-atributo') == "consome" || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" || inputs_linha[index].getAttribute('data-atributo') == "consome" || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -379,13 +379,13 @@ function valida_planeta_recurso(objeto) {
 		return false;
 	}
 
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof id_recurso === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 		
@@ -431,13 +431,13 @@ function valida_colonia_instalacao(objeto) {
 		return false;
 	}
 
-	if (typeof select_linha[0] !== "undefined") {
+	if (typeof(select_linha[0]) !== "undefined") {
 		var id_instalacao = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_instalacao="+id_instalacao;
 	}
 
 	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof id_instalacao === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof(id_instalacao) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}

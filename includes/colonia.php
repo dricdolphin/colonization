@@ -31,6 +31,7 @@ class colonia
 	public $qtd_defesas = 0;
 	public $html_pop_colonia;
 	public $html_instalacao_ataque = [];
+	public $bonus_extrativo = false;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -170,7 +171,7 @@ class colonia
 		SELECT cpr.id
 		FROM colonization_planeta_recursos AS cpr
 		WHERE cpr.turno = {$this->turno->turno} AND
-		cpr.id_planeta={$this->planeta->id}
+		cpr.id_planeta={$this->id_planeta}
 		");
 		
 		$html = "";
@@ -190,6 +191,31 @@ class colonia
 		}
 		
 		return $html;
+	}
+	
+	/***********************
+	function bonus_extrativo()
+	----------------------
+	Popula e retorna se existe alguma instalação que produz um bônus nos extrativos
+	***********************/	
+	function bonus_extrativo() {
+		global $wpdb;
+		
+		if ($this->bonus_extrativo === false) {
+			$this->bonus_extrativo = 0;
+			
+			$instalacoes_colonia = $wpdb->get_results("SELECT cpi.id, cpi.id_instalacao
+			FROM colonization_planeta_instalacoes AS cpi
+			WHERE cpi.id_planeta={$this->planeta->id} AND cpi.turno={$this->turno->turno}
+			");
+		
+			foreach ($instalacoes_colonia as $id_instalacao) {
+				$instalacao = new instalacao($id_instalacao->id_instalacao);
+				$this->bonus_extrativo = $this->bonus_extrativo + $instalacao->bonus_extrativo;
+			}
+		}
+		
+		return $this->bonus_extrativo;
 	}
 }
 ?>

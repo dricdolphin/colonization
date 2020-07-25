@@ -782,7 +782,8 @@ exibe_lista_colonias(): Queries {$diferenca}ms";
 		if (!empty($resultados)) {
 			//$imperio = new imperio($this->id, false, $this->turno->turno);
 			if (empty($this->acoes)) {
-				$this->acoes = new acoes($this->id, $this->turno->turno);
+				$sem_balanco = true;
+				$this->acoes = new acoes($this->id, $this->turno->turno, $sem_balanco);
 			$end_time = hrtime(true);
 			$diferenca = round(($end_time - $start_time_global)/1000000,0);
 			$this->debug  .= "

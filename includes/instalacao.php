@@ -21,12 +21,15 @@ class instalacao
 	public $especiais;
 	public $limite = 0;
 	public $nao_extrativo = false;
+	public $bonus_extrativo = 0;
 	public $custos;
 	public $id_tech_requisito;
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
 	public $recursos_consome = [];
 	public $recursos_consome_qtd = [];
+	public $consumo_fixo = [];
+	public $consumo_fixo_qtd = [];
 	
 	function __construct($id) {
 		global $wpdb;
@@ -82,11 +85,33 @@ class instalacao
 		}));
 
 		if (!empty($nao_extrativo)) {
-			//$nao_extrativo_valor = explode("=",$limite[0]);
+			//$nao_extrativo_valor = explode("=",$nao_extrativo[0]);
 			$this->nao_extrativo = true;
 		}
 		
-		//custo_instalacao=70;id_instalacao=(29,57)
+		$bonus_extrativo = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'bonus_extrativo') !== false;
+		}));
+
+		if (!empty($bonus_extrativo)) {
+			$bonus_extrativo_valor = explode("=",$bonus_extrativo[0]);
+			$this->bonus_extrativo = $bonus_extrativo_valor[1];
+		}		
+
+		$consumo_fixo = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'consumo_fixo') !== false;
+		}));
+
+		if (!empty($consumo_fixo)) {
+			$consumo_fixo_valores = explode("=",$consumo_fixo[0]);
+			
+			
+			
+		}	
+		
+		//consumo_fixo=11,100
+		
+		//custo_instalacao=70;id_instalacao=29,57
 	}
 
 	/***********************

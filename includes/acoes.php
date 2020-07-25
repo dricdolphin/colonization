@@ -459,10 +459,23 @@ class acoes
 	***********************/
 	function pega_balanco_recursos($id_acao=0) {
 		global $wpdb;
-		
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];	
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				$banido = true;
+			} else {
+				$banido = false;
+			}
+		}
+
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
 		$imperio = new imperio($this->id_imperio);
+		$imperio->acoes = $this;
 
 		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
 		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
@@ -479,6 +492,7 @@ class acoes
 		$this->recursos_balanco = [];
 		$this->recursos_balanco_nome = [];
 		$this->recursos_balanco_planeta = [];
+		$colonia = [];
 		
 		
 		//Pega a produção das Instalações
@@ -560,6 +574,23 @@ class acoes
 						}
 					} else {//O bônus se aplica à qualquer tipo de recurso
 						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+					}
+				}
+				
+				//Algumas Instalações podem dar um bônus nos Extrativos das Colônias
+				if (empty($colonia[$this->id_colonia[$chave]])) {
+					$colonia[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave]);
+				}				
+
+				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo();
+				if ($recurso->extrativo == 1 && $bonus_extrativo > 0) {
+					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
+						$imperio->max_bonus_recurso[$id_recurso] == false;
+					}
+					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo;
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
+					if ($roles == "administrator") {
+						//echo "#{$this->id[$chave]} {$this->id_planeta[$chave]}/{$id_recurso}: {$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]]}<br>";
 					}
 				}
 			}
@@ -870,6 +901,10 @@ class acoes
 						$html_qtd = "<span style='color: #DD0000;'>{$qtd}</span>";
 					} else {
 						$html_qtd = $qtd;
+					}
+					
+					if (!empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
+						//$html_qtd .= "({$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]})";
 					}
 					$balanco_planeta .= "{$recurso->nome}: {$html_qtd}; ";
 				}

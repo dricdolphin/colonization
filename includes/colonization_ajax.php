@@ -927,6 +927,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		} elseif ($resposta === 1) {//Se existir, atualiza
 			$where[$_POST['where_clause']]=$_POST['where_value'];
 			$resposta = $wpdb->update($_POST['tabela'],$dados,$where);
+			$dados[$_POST['where_clause']] = $_POST['where_value'];
 		} else {
 			$dados_salvos['resposta_ajax']	= "ERRO!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -941,6 +942,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			}
 			$where = substr($where,5);
 			$dados_salvos = $wpdb->get_results("SELECT * FROM {$_POST['tabela']} WHERE {$where}");
+			$dados_salvos['debug'] = "SELECT * FROM {$_POST['tabela']} WHERE {$where}";
 			$dados_salvos['resposta_ajax'] = "SALVO!";
 		} else {
 			$dados_salvos['resposta_ajax'] = $wpdb->last_error;
