@@ -686,12 +686,22 @@ class acoes
 				}
 				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				
+				$id_consumo_fixo = array_search($id_recurso,$instalacao->consumo_fixo);
+				
+				if ($id_consumo_fixo !== false) {
+					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $instalacao->consumo_fixo_qtd[$id_consumo_fixo];
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + $instalacao->consumo_fixo_qtd[$id_consumo_fixo];
+				}
+				
 				/***************************************************
 				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
 				***************************************************/
 
 
 			}
+			
+			
 		}
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");

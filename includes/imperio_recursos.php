@@ -91,7 +91,7 @@ class imperio_recursos
 			$html .= "<tr><td>
 					<input type='hidden' data-atributo='id' data-valor-original='{$this->id[$chave]}' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
-					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}}' value='{$this->turno->turno}}'></input>
+					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}}'></input>
 					<input type='hidden' data-atributo='id_recurso' data-ajax='true' data-valor-original='{$this->id_recurso[$chave]}' value='{$this->id_recurso[$chave]}'></input>
 					<input type='hidden' data-atributo='where_clause' value='id'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>

@@ -102,14 +102,29 @@ class instalacao
 			return strpos($value, 'consumo_fixo') !== false;
 		}));
 
+		//consumo_fixo=11,100
 		if (!empty($consumo_fixo)) {
 			$consumo_fixo_valores = explode("=",$consumo_fixo[0]);
+			$consumo_fixo_valores = $consumo_fixo_valores[1];
 			
+			$consumo_fixo_valores = array_filter(explode(",",$consumo_fixo_valores));
 			
+			$chave_consumo_fixo = 0;
+			foreach ($consumo_fixo_valores as $chave => $id_recurso_qtd) {
+				//O consomo fixo tem o formato consumo_fixo=id_recurso_1,qtd_recurso_1,id_recurso_2,qtd_recurso_2
+				if ($chave % 2 == 1) {//Desse modo, pegamos apenas os arrays com chaves PARES
+					continue;
+				}
+				
+				$chave_id_recurso = $chave;
+				$chave_qtd = $chave+1;
+				
+				$this->consumo_fixo[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_id_recurso];
+				$this->consumo_fixo_qtd[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_qtd];
+				$chave_consumo_fixo++;
+			}
 			
 		}	
-		
-		//consumo_fixo=11,100
 		
 		//custo_instalacao=70;id_instalacao=29,57
 	}
