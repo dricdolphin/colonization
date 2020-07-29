@@ -1444,27 +1444,35 @@ var id_imperio_atual = {$imperios[0]->id};
 			
 			if ($nave->HP < $nave->HP_max) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*5,0);
+				$icone_dano = "fal fa-claw-marks";
 				switch ($nivel_dano) {
 					case 5:
+					$estilo_dano = "style='color: #124612;'";
 					$nivel_dano = "Danos Mínimos";
 					break;
 					case 4:
+					$estilo_dano = "style='color: #A47200;'";
 					$nivel_dano = "Danos Moderados";
 					break;
 					case 3:
+					$estilo_dano = "style='color: #FFBF00;'";
 					$nivel_dano = "Danos Severos";
 					break;
 					case 2:
+					$estilo_dano = "style='color: #D2222D;'";
 					$nivel_dano = "Danos Críticos";
 					break;
 					case 1:
+					$estilo_dano = "style='color: #4A0808;'";
 					$nivel_dano = "Incapacitada!";
 					break;
 					default:
+					$estilo_dano = "";
+					$icone_dano = "fas fa-skull-crossbones";
 					$nivel_dano = "DESTRUÍDA!!!";
 				}
 				
-				$html_danos = "<div class='fal fa-claw-marks tooltip'><span class='tooltiptext'>{$nivel_dano}</span></div>";
+				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
 			}
 			$html_frota .= "{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b> {$html_danos} {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z}); ";
 			if ($naves_por_linha == 2) {

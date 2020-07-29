@@ -26,6 +26,8 @@ class planeta
 	//Defesas Planetárias oferecidas por Instalações
 	public $instalacoes_ataque = [];
 	public $html_instalacao_ataque = [];
+	public $escudos;
+	
 	//public $pdf_instalacoes = [];
 	
 	//Especiais provenientes de Construções e/ou Techs
@@ -119,6 +121,17 @@ class planeta
 					$this->tamanho_alcance_local = 10*$colonia_instalacao->nivel;
 				}
 			}
+			
+			//Especiais: escudo=1
+			$escudos = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'escudos') !== false;
+			}));
+			
+			if (!empty($escudos)) {
+				$this->escudos = "<div class='{$instalacao->icone} tooltip'>&nbsp;</div> - <b>{$instalacao->nome}</b>";
+			}
+
+			
 			
 			//Especiais: pdf_instalacoes=valor
 			$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
