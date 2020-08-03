@@ -162,25 +162,25 @@ class transfere_tech
 				
 				return $html;
 			}
+		}
 			
-			if (!empty($tech->lista_requisitos)) {
-				foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-					$tech_requisito = new tech ($id_requisito);
+		if (!empty($tech->lista_requisitos)) {
+			foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
+				$tech_requisito = new tech ($id_requisito);
 
-					$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
-					if ($tech_requisito_query == 0) {
-						if (empty($html)) {
-							$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s):<br>";
-						}
-						$tech = new tech($id_requisito);
-						$html .= $tech->nome."; ";
+				$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio_destino} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
+				if ($tech_requisito_query == 0) {
+					if (empty($html)) {
+						$html = "<div>O {$imperio_origem->nome} lhe enviou a Tech '{$tech->nome}' porém você não tem os pré-requisitos necessários!<br> É necessário ter a(s) Tech(s):<br>";
 					}
+					$tech = new tech($id_requisito);
+					$html .= $tech->nome."; ";
 				}
-				if (!empty($html)) {
-					$html .= "<br>
-					Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
-					<div><a href='#' style='font-weight: bold !important; color: #887F41 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
-				}
+			}
+			if (!empty($html)) {
+				$html .= "<br><br>
+				Como compensação, você irá receber {$ressarce} Pesquisa(s).</div>
+				<div><a href='#' style='font-weight: bold !important; color: #887F41 !important;' onclick='return processa_recebimento_tech(this, event,{$this->id},null);'>OK, entendido!</a></div>";
 			}
 		}
 		
