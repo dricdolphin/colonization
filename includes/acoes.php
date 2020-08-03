@@ -253,7 +253,8 @@ class acoes
 		}
 
 		foreach ($resultados as $resultado) {
-			$colonia = new colonia ($resultado->id_colonia);
+			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
+			
 			$planeta = $colonia->planeta;
 			$estrela = $colonia->estrela;
 
@@ -302,7 +303,8 @@ class acoes
 		}
 
 		foreach ($resultados as $resultado) {
-			$colonia = new colonia ($resultado->id_colonia);
+			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
+			
 			$defesa_sistema = $defesa_sistema + $colonia->qtd_defesas;
 		}
 
@@ -474,7 +476,7 @@ class acoes
 
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
-		$imperio = new imperio($this->id_imperio);
+		$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
 		$imperio->acoes = $this;
 
 		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
@@ -579,13 +581,26 @@ class acoes
 				
 				//Algumas Instalações podem dar um bônus nos Extrativos das Colônias
 				if (empty($colonia[$this->id_colonia[$chave]])) {
-					$colonia[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave]);
+					$colonia[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave],$this->turno->turno);
 				}				
+
+				$bonus_recurso_colonia = $colonia[$this->id_colonia[$chave]]->bonus_recurso($id_recurso);
+				if ($bonus_recurso_colonia > 0) {
+					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
+						$imperio->max_bonus_recurso[$id_recurso] = false;
+					}
+					
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
+					if ($roles == "administrator") {
+						//echo "#{$this->id[$chave]} {$this->id_planeta[$chave]}/{$id_recurso}: {$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]]} || {$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]]}<br>";
+					}
+				}
+
 
 				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo();
 				if ($recurso->extrativo == 1 && $bonus_extrativo > 0) {
 					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
-						$imperio->max_bonus_recurso[$id_recurso] == false;
+						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
 					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo;
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
@@ -710,8 +725,8 @@ class acoes
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
 		foreach ($ids_colonia as $id) {
-			$colonia = new colonia($id->id);
-			$planeta = new planeta($id->id_planeta);
+			$colonia = new colonia($id->id, $this->turno->turno);
+			$planeta = new planeta($id->id_planeta, $this->turno->turno);
 			
 			$recurso_alimento = new recurso($id_alimento);
 			$recurso_energia = new recurso($id_energia);

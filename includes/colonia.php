@@ -25,6 +25,7 @@ class colonia
 	public $planeta;
 	public $estrela;
 	public $instalacoes;
+	public $instalacoes_planeta = [];
 	public $num_instalacoes;
 	public $pdf_planetario;
 	public $defesa_invasao = 0;
@@ -32,6 +33,7 @@ class colonia
 	public $html_pop_colonia;
 	public $html_instalacao_ataque = [];
 	public $bonus_extrativo = false;
+	public $bonus_recurso = [];
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -108,6 +110,23 @@ class colonia
 				$wpdb->query("INSERT INTO colonization_planeta_recursos SET turno={$this->turno->turno}, id_planeta={$this->id_planeta}, id_recurso={$max_turno->id_recurso}, disponivel={$planeta_recurso->qtd_disponivel}");
 			}
 		}
+			
+		$instalacoes_colonia = $wpdb->get_results("SELECT 
+		cpi.id, cpi.id_instalacao
+		FROM colonization_planeta_instalacoes AS cpi
+		WHERE cpi.id_planeta={$this->planeta->id} AND cpi.turno<={$this->turno->turno}
+		");
+		
+		foreach ($instalacoes_colonia as $id_instalacao) {
+			$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao->id} AND turno > {$this->turno->turno}");
+			if ($turno_upgrade > $this->turno->turno) {
+				$id_instalacao->id_instalacao = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao->id} AND turno = {$turno_upgrade}");
+			}				
+
+			$this->instalacoes_planeta[$id_instalacao->id] = $id_instalacao->id_instalacao;
+		}
+
+
 	}
 
 	/***********************
@@ -204,18 +223,29 @@ class colonia
 		if ($this->bonus_extrativo === false) {
 			$this->bonus_extrativo = 0;
 			
-			$instalacoes_colonia = $wpdb->get_results("SELECT cpi.id, cpi.id_instalacao
-			FROM colonization_planeta_instalacoes AS cpi
-			WHERE cpi.id_planeta={$this->planeta->id} AND cpi.turno={$this->turno->turno}
-			");
-		
-			foreach ($instalacoes_colonia as $id_instalacao) {
-				$instalacao = new instalacao($id_instalacao->id_instalacao);
+			foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {
+				
+				$instalacao = new instalacao($id_instalacao);
 				$this->bonus_extrativo = $this->bonus_extrativo + $instalacao->bonus_extrativo;
 			}
 		}
 		
 		return $this->bonus_extrativo;
+	}
+	
+	function bonus_recurso($id_recurso) {
+		global $wpdb;
+		
+		if (empty($this->bonus_recurso[$id_recurso])) {
+			$this->bonus_recurso[$id_recurso] = 0;
+			
+			foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {				
+				$instalacao = new instalacao($id_instalacao);
+				$this->bonus_recurso[$id_recurso] = $this->bonus_recurso[$id_recurso] + $instalacao->bonus_recurso($id_recurso);
+			}
+		}
+		
+		return $this->bonus_recurso[$id_recurso];		
 	}
 }
 ?>

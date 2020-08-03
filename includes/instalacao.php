@@ -22,6 +22,7 @@ class instalacao
 	public $limite = 0;
 	public $nao_extrativo = false;
 	public $bonus_extrativo = 0;
+	//public $bonus_recurso = false;
 	public $custos;
 	public $id_tech_requisito;
 	public $recursos_produz = [];
@@ -178,6 +179,40 @@ class instalacao
 			<td><div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original='{$this->custos}'>{$this->custos}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
+	}
+	
+	/***********************
+	function bonus_recurso($id_recurso)
+	----------------------
+	Retorna o valor de bonus de um recurso produzido no planeta onde a Instalação estiver (se houver)
+	$id_recurso - id do recurso
+	***********************/
+
+	function bonus_recurso($id_recurso) {
+		$especiais = explode(";",$this->especiais);
+
+		$id_recurso_especiais = array_values(array_filter($especiais, function($value) {
+			return strpos($value, "id_recurso") !== false;
+		}));
+		
+		if (empty($id_recurso_especiais)) {
+			return 0;
+		} else {
+			$id_recurso_especiais = explode("=",$id_recurso_especiais[0]);
+			
+			if ($id_recurso_especiais[1] != $id_recurso) {
+				return 0;
+			}
+		}
+		
+		$bonus_recurso = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'bonus_recurso') !== false;
+		}));
+
+		if (!empty($bonus_recurso)) {
+			$bonus_recurso_valor = explode("=",$bonus_recurso[0]);
+			return $bonus_recurso_valor[1];
+		}
 	}
 }
 

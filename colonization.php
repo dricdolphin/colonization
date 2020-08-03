@@ -1402,7 +1402,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			return;
 		}
 		
-		$imperio_acoes = new acoes($imperio->id,$turno);
+		$imperio_acoes = new acoes($imperio->id, $turno);
 		$imperio->acoes = $imperio_acoes;
 		
 		$lista_colonias = $imperio->exibe_lista_colonias();

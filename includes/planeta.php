@@ -68,6 +68,8 @@ class planeta
 		FROM colonization_planeta_instalacoes AS cpi
 		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno}");
 		
+		//Precisa verificar se não houve upgrade da instalação
+		
 		foreach ($id_instalacoes as $id) {
 			$instalacao = new instalacao($id->id_instalacao);
 			$colonia_instalacao = new colonia_instalacao($id->id);
