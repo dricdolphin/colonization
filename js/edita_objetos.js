@@ -648,7 +648,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 			if (inputs[index].getAttribute('data-atributo') == "pop") {
 				var index_range_pop = index;
 				inputs[index].value = inputs[index].getAttribute("data-valor-original");
-			}
+			} 
 		}
 
 		for (index=0;index<labels.length;index++) {
@@ -717,10 +717,12 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 						var id_planeta = inputs[index].value;
 					} else  if(inputs[index].getAttribute('data-atributo') == "id_estrela") {
 						var id_estrela = inputs[index].value;
+					} else if (inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
+						var id_planeta_instalacoes = inputs[index].value;
 					}
 				}
 				
-				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, produtos_acao);
+				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, id_planeta_instalacoes, produtos_acao);
 				range_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
@@ -745,7 +747,7 @@ function atualiza_produtos_acao(id_imperio)
 Pega os produtos da Ação
 id_imperio -- id do Império
 ******************/	
-function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
+function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_instalacoes,resposta) {
 	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
 	
 	//if (resposta.resposta_ajax == "SALVO!") {
@@ -764,6 +766,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 		div_balanco_planeta = document.getElementById(id_balanco_planeta);
 		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
 		div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
+		div_produz_consome = document.getElementById(id_planeta_instalacoes);
 		
 		div_colonias.innerHTML = resposta.lista_colonias
 		div_produz.innerHTML = resposta.recursos_produzidos;
@@ -771,6 +774,7 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,resposta) {
 		div_balanco.innerHTML = resposta.recursos_balanco;
 		div_balanco_planeta.innerHTML = resposta.balanco_planeta;
 		div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
+		div_produz_consome.innerHTML = resposta.id_planeta_instalacoes_produz_consome;
 		
 		for (let index=0; index < div_mdo_sistema.length; index++) {
 			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;

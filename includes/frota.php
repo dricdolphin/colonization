@@ -358,18 +358,13 @@ class frota
 		
 
 		//Agora, com todos os pontos onde a nave pode chegar, verifica à partir deles _TODAS_ as estrelas da Galáxia
-		$start_time = hrtime(true);
 		$id_estrelas = $wpdb->get_results("SELECT id FROM colonization_estrela");
 		$id_estrelas_temp =[];
 		foreach ($id_estrelas as $id) {
 			$id_estrelas_temp[$id->id] = $id->id;
 		}
 		$id_estrelas = $id_estrelas_temp;	
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		echo "Populando as Estrelas: {$diferenca}<br>";
 		
-		$start_time = hrtime(true);
 		do {
 			$novos_pontos_reabastece = false;
 			$options_temp = [];
@@ -408,9 +403,6 @@ class frota
 				}
 			}
 		} while ($novos_pontos_reabastece === true);
-		$end_time = hrtime(true);
-		$diferenca = round(($end_time - $start_time)/1000000,0);
-		echo "Buscando os Caminhos: {$diferenca}<br>";
 		
 		//Remove o ponto atual da lista de estrelas
 		$options_temp = [];

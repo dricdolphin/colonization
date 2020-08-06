@@ -224,7 +224,7 @@ class colonia
 	function bonus_extrativo()
 	----------------------
 	Popula e retorna se existe alguma instalação que produz um bônus nos extrativos
-	***********************/	
+	***********************/
 	function bonus_extrativo() {
 		global $wpdb;
 		
@@ -244,7 +244,12 @@ class colonia
 		
 		return $this->bonus_extrativo;
 	}
-	
+
+	/***********************
+	function bonus_recurso()
+	----------------------
+	Popula e retorna se existe alguma instalação que produz um bônus de um recurso específico
+	***********************/	
 	function bonus_recurso($id_recurso) {
 		global $wpdb;
 
