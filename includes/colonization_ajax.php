@@ -1227,6 +1227,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 
 		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$dados_salvos['debug'] .= $imperio->debug;
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->exibe_lista_colonias() {$diferenca}ms
 ";
 		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();

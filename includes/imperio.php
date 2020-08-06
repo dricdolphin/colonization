@@ -727,7 +727,7 @@ class imperio
 	Exibe as Colônias atuais Império
 	***********************/
 	function exibe_lista_colonias($id_colonia=0) {
-		global $wpdb;
+		global $wpdb, $start_time;
 		
 		if ($this->id == 0) {
 			return;
@@ -777,6 +777,9 @@ class imperio
 			if (empty($this->acoes)) {
 				$sem_balanco = true;
 				$this->acoes = new acoes($this->id, $this->turno->turno, $sem_balanco);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "exibe_lista_colonias -> new Ações {$diferenca}ms
+";
 			}
 		}
 
@@ -815,17 +818,21 @@ class imperio
 				
 				$icones_planeta = [];
 				$qtd_instalacao_icone = [];
+				$instalacao = [];
 				
 				foreach ($id_instalacoes as $id_instalacao) {
-					$instalacao = new instalacao($id_instalacao->id_instalacao);
+					if (empty($instalacao[$id_instalacao->id_instalacao])) {
+						$instalacao[$id_instalacao->id_instalacao] = new instalacao($id_instalacao->id_instalacao);	
+					}
 					
-					if (!empty($instalacao->icone)) {
-						if (empty($icones_planeta[$instalacao->id])) {
-							$qtd_instalacao_icone[$instalacao->id] = 1;
-							$icones_planeta[$instalacao->id] = " <div class='{$instalacao->icone} tooltip'><span class='tooltiptext'>{$instalacao->nome}</span></div>";
+					
+					if (!empty($instalacao[$id_instalacao->id_instalacao]->icone)) {
+						if (empty($icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id])) {
+							$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id] = 1;
+							$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'><span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>";
 						} else {
-							$qtd_instalacao_icone[$instalacao->id]++;
-							$icones_planeta[$instalacao->id] = " <div class='{$instalacao->icone} tooltip'>x{$qtd_instalacao_icone[$instalacao->id]}<span class='tooltiptext'>{$instalacao->nome}</span></div>";
+							$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]++;
+							$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'>x{$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]}<span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>";
 						}
 					}
 				}
@@ -852,6 +859,9 @@ class imperio
 
 				$html_planeta[$planeta->id] = "<div><span style='font-style: italic;'>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "exibe_lista_colonias -> foreach() Dados das Colônias {$diferenca}ms
+";
 
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
@@ -887,6 +897,9 @@ class imperio
 			}
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms
+";
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
 			$html_lista .= $html."</div>";

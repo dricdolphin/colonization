@@ -18,6 +18,7 @@ class acoes
 	public $id_instalacao = [];
 	public $id_planeta_instalacoes = [];
 	public $nivel_instalacao = [];
+	public $turno_destroi = [];
 	public $pop = [];
 	public $turno;
 	public $data_modifica = [];
@@ -116,7 +117,9 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
+				$this->turno_destroi[$chave] = "";
 				$this->data_modifica[$chave] = $this->turno->data_turno;
+				
 			} else {
 				$this->id[$chave] = $valor->id;
 				$this->id_planeta[$chave] = $valor->id_planeta;
@@ -125,6 +128,7 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = $valor->pop;
+				$this->turno_destroi[$chave] = $valor->turno_destroi;
 				$this->data_modifica[$chave] = $valor->data_modifica;
 				
 				$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno > {$this->turno->turno}");
@@ -330,11 +334,14 @@ class acoes
 		$primeira_linha = "&nbsp;";
 		
 		$estilo = $estilo_impar;
+		$instalacao = [];
 		foreach ($this->id AS $chave => $valor) {
-			$instalacao = new instalacao($this->id_instalacao[$chave]);
-			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			if (empty($instalacao[$this->id_instalacao[$chave]])) {
+				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
+			}
+			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 
-			if ($instalacao->oculta != 0) {
+			if ($instalacao[$this->id_instalacao[$chave]]->oculta != 0) {
 				continue; //Caso seja uma instalação oculta, deve pular
 			}
 			
@@ -419,17 +426,17 @@ class acoes
 				$nivel = "";
 			}
 			
-			if ($instalacao->desguarnecida == 0) {
+			if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 0) {
 				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
 			} else {
 				$exibe_acoes = "&nbsp";
 			}
 			
-			if (!empty($colonia_instalacao->turno_destroi)) {
+			if (!empty($this->turno_destroi[$chave])) {
 				$exibe_acoes = "<span style='color: #DD0000; font-weight: bold;'>DESTRUÍDA!</span>";
 			}
 			
-			if ($instalacao->oculta == 0) {
+			if ($instalacao[$this->id_instalacao[$chave]]->oculta == 0) {
 				$html_producao_consumo_instalacao = "";
 				
 				if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
@@ -460,7 +467,7 @@ class acoes
 					<input type='hidden' data-atributo='where_clause' value='id'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao->nome}'>{$instalacao->nome} {$nivel}</div>
+					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}'>{$instalacao[$this->id_instalacao[$chave]]->nome} {$nivel}</div>
 					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' style='font-size: x-small;'>{$html_producao_consumo_instalacao}</div>
 				</td>
 				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>";
@@ -517,17 +524,19 @@ class acoes
 		$this->recursos_balanco_planeta = [];
 		$colonia = [];
 		
-		
-		//Pega a produção das Instalações
+		$instalacao = [];
+		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		foreach ($this->id AS $chave => $valor) {
-			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
+			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			if (!empty($this->turno_destroi[$chave])) {//Se a Instalação está destruída, ela não produz nem consome nada
 				continue;
 			}
-
-			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
 			
-			foreach ($instalacao->recursos_produz as $chave_recursos => $id_recurso) {
+			if (empty($instalacao[$this->id_instalacao[$chave]])) {
+				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
+			}
+			
+			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_produz as $chave_recursos => $id_recurso) {
 				if (empty($this->recursos_produzidos[$id_recurso])) {
 					$recurso = new recurso($id_recurso);
 
@@ -560,19 +569,19 @@ class acoes
 					}
 				}
 				
-				if ($instalacao->desguarnecida == 1) {
+				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					if ($recurso->extrativo == 1 && $instalacao->nao_extrativo == false) {
-						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
+					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					if ($recurso->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
+						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
 					}
 				} else {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					if ($recurso->extrativo == 1 && $instalacao->nao_extrativo == false) {
-						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					if ($recurso->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
+						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					}
 				}
 				/***************************************************
@@ -589,11 +598,11 @@ class acoes
 					//Verifica as condições
 					if (!empty($imperio->extrativo['*'])) {//O bônus se aplica somente para recursos EXTRATIVOS
 						if ($imperio->extrativo['*'] === true && $recurso->extrativo == 1) {
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 						}
 					} else {//O bônus se aplica à qualquer tipo de recurso
-						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 						//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 					}
 				} 
@@ -602,11 +611,11 @@ class acoes
 					//Verifica as condições
 					if (!empty($imperio->extrativo[$id_recurso])) {//O bônus se aplica somente para recursos EXTRATIVOS
 						if ($imperio->extrativo[$id_recurso] === true && $recurso->extrativo == 1) {
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 						}
 					} else {//O bônus se aplica à qualquer tipo de recurso
-						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 						//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 					}
 				}
@@ -622,8 +631,8 @@ class acoes
 						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
 					
-					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
-					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
+					//$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
 					
 					if ($roles == "administrator") {
 						//echo "#{$this->id[$chave]} {$this->id_planeta[$chave]}/{$id_recurso}: {$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]]} || {$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]]}<br>";
@@ -637,16 +646,74 @@ class acoes
 						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
 					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo;
-					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
-					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
+					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
+					//$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
 					
 					if ($roles == "administrator") {
 						//echo "#{$this->id[$chave]} {$this->id_planeta[$chave]}/{$id_recurso}: {$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]]}<br>";
 					}
 				}
 			}
+		//}
+
+			//Pega o Consumo das Instalações
+			//foreach ($this->id AS $chave => $valor) {
+			//	$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
+			//	if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
+			//		continue;
+			//	}
+				
+			//	if (empty($instalacao[$colonia_instalacao->id_instalacao])) {
+			//		$instalacao[$colonia_instalacao->id_instalacao] = new instalacao($colonia_instalacao->id_instalacao);
+			//	}
+			
+			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_consome as $chave_recursos => $id_recurso) {
+				if (empty($this->recursos_consumidos[$id_recurso])) {
+					$recurso = new recurso($id_recurso);
+					
+					$this->recursos_consumidos[$id_recurso] = 0;
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
+					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
+
+					if (empty($this->recursos_balanco_nome[$id_recurso])) {
+						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
+					}
+				}
+				if (empty($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
+					
+				}
+				if (empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso])) {
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
+				}
+				
+				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
+					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+				} else {
+					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+				}
+				
+				$id_consumo_fixo = array_search($id_recurso,$instalacao[$this->id_instalacao[$chave]]->consumo_fixo);
+				
+				if ($id_consumo_fixo !== false) {
+					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+				}
+				
+				/***************************************************
+				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
+				***************************************************/
+
+
+			}
 		}
-		
+
 		//Calcula os recursos produzidos totais
 		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
 			foreach ($this->recursos_produzidos_planeta[$id_recurso] as $id_planeta => $qtd_produzida_planeta) {
@@ -705,63 +772,6 @@ class acoes
 			$this->recursos_produzidos[$id_pesquisa] = $pesquisa_naves;
 		} else {
 			$this->recursos_produzidos[$id_pesquisa] = $this->recursos_produzidos[$id_pesquisa] + $pesquisa_naves;
-		}
-
-		//Pega o Consumo das Instalações
-		foreach ($this->id AS $chave => $valor) {
-			$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
-				continue;
-			}
-			
-			$instalacao = new instalacao($colonia_instalacao->id_instalacao);
-			
-			foreach ($instalacao->recursos_consome as $chave_recursos => $id_recurso) {
-				if (empty($this->recursos_consumidos[$id_recurso])) {
-					$recurso = new recurso($id_recurso);
-					
-					$this->recursos_consumidos[$id_recurso] = 0;
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
-					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
-
-					if (empty($this->recursos_balanco_nome[$id_recurso])) {
-						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
-					}
-				}
-				if (empty($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
-					
-				}
-				if (empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso])) {
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
-				}
-				
-				if ($instalacao->desguarnecida == 1) {
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-				} else {
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-				}
-				
-				$id_consumo_fixo = array_search($id_recurso,$instalacao->consumo_fixo);
-				
-				if ($id_consumo_fixo !== false) {
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $instalacao->consumo_fixo_qtd[$id_consumo_fixo];
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + $instalacao->consumo_fixo_qtd[$id_consumo_fixo];
-				}
-				
-				/***************************************************
-				--- MODIFICAÇÕES ESPECIAIS NO BALANÇO DO TURNO ---
-				***************************************************/
-
-
-			}
-			
-			
 		}
 		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
@@ -861,7 +871,7 @@ class acoes
 				}
 			}
 			
-			//Faz o balanço de todos os recursos produzidos e/ou consumidos
+			//Faz o balanço de todos os recursos produzidos e/ou consumidos no planeta
 			foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta])) {
 					$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] = 0;
