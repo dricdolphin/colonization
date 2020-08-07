@@ -24,6 +24,7 @@ class colonia
 	public $turno;
 	public $planeta;
 	public $estrela;
+	public $id_estrela;
 	public $instalacoes;
 	public $instalacoes_planeta = [];
 	public $num_instalacoes;
@@ -69,9 +70,10 @@ class colonia
 		AND ci.oculta = false
 		");		
 		
-		$this->planeta = new planeta($this->id_planeta, $this->turno->turno);
-		$this->estrela = new estrela($this->planeta->id_estrela);
-
+		//$this->planeta = new planeta($this->id_planeta, $this->turno->turno);
+		//$this->estrela = new estrela($this->planeta->id_estrela);
+		$this->id_estrela = $wpdb->get_var("SELECT id_estrela FROM colonization_planeta WHERE id = {$this->id_planeta}");
+		
 		$this->icone_capital = "";
 		if ($this->capital == 1) {
 			$this->icone_capital = "<div class='fas fa-crown tooltip' style='color: #DAA520;'>&nbsp;<span class='tooltiptext'>Capital</span></div>";
@@ -98,10 +100,14 @@ class colonia
 		//***/
 
 		//Atualiza os recursos da Colônia para o Turno atual, se necessário
-		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 
-		FROM colonization_planeta_recursos AS cpr
-		WHERE cpr.id_planeta={$this->id_planeta} 
-		GROUP BY cpr.id_recurso, cpr.id_planeta");
+		$max_turnos = $wpdb->get_results("SELECT t1.id_recurso, t1.turno 
+		FROM (
+			SELECT cpr.id_recurso AS id_recurso, MAX(cpr.turno) as turno 
+			FROM colonization_planeta_recursos AS cpr
+			WHERE cpr.id_planeta={$this->id_planeta} 
+			GROUP BY cpr.id_recurso, cpr.id_planeta) AS t1
+		WHERE t1.turno < {$this->turno->turno}
+		");
 
 		foreach ($max_turnos as $max_turno) {
 			if ($max_turno->turno < $this->turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
@@ -136,6 +142,9 @@ class colonia
 			$imperios_npc = "";
 		}
 
+		$this->planeta = new planeta ($this->id_planeta);
+		$this->estrela = new estrela ($this->id_estrela);
+		
 		$html = "		
 			<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
@@ -207,7 +216,7 @@ class colonia
 		$instalacoes_colonia = $wpdb->get_results("SELECT 
 		cpi.id, cpi.id_instalacao
 		FROM colonization_planeta_instalacoes AS cpi
-		WHERE cpi.id_planeta={$this->planeta->id} AND cpi.turno<={$this->turno->turno}
+		WHERE cpi.id_planeta={$this->id_planeta} AND cpi.turno<={$this->turno->turno}
 		");
 		
 		foreach ($instalacoes_colonia as $id_instalacao) {

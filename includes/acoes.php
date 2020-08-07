@@ -261,10 +261,10 @@ class acoes
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
 			
-			$planeta = $colonia->planeta;
-			$estrela = $colonia->estrela;
+			//$planeta = $colonia->planeta;
+			//$estrela = $colonia->estrela;
 
-			$mdo = $this->mdo_planeta($planeta->id);
+			$mdo = $this->mdo_planeta($colonia->id_planeta);
 			
 			if (empty($mdo_sistema)) {
 				$mdo_sistema = $mdo;
@@ -486,7 +486,7 @@ class acoes
 	Pega os Recursos produzidos, consumidos e seu balanço
 	***********************/
 	function pega_balanco_recursos($id_acao=0) {
-		global $wpdb;
+		global $wpdb, $start_time;
 
 		$user = wp_get_current_user();
 		$roles = "";
@@ -504,6 +504,9 @@ class acoes
 		$instalacao_tech = 0;
 		$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
 		$imperio->acoes = $this;
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms
+";		
 
 		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
 		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
@@ -525,6 +528,7 @@ class acoes
 		$colonia = [];
 		
 		$instalacao = [];
+		$recurso = [];
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
@@ -534,16 +538,24 @@ class acoes
 			
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "acoes->pega_balanco_recursos() -> new Instalação({$this->id_instalacao[$chave]}) {$diferenca}ms
+";			
 			}
 			
 			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_produz as $chave_recursos => $id_recurso) {
 				if (empty($this->recursos_produzidos[$id_recurso])) {
-					$recurso = new recurso($id_recurso);
+					if (empty($recurso[$id_recurso])) {
+						$recurso[$id_recurso] = new recurso($id_recurso);
+							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+							$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms
+";	
+					}
 
 					$this->recursos_produzidos[$id_recurso] = 0;
 					$this->recursos_extraidos[$id_recurso] = 0;
-					$this->recursos_produzidos_nome[$id_recurso] = $recurso->nome;
-					$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
+					$this->recursos_produzidos_nome[$id_recurso] = $recurso[$id_recurso]->nome;
+					$this->recursos_balanco_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 				}
 				
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
@@ -573,14 +585,14 @@ class acoes
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-					if ($recurso->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
+					if ($recurso[$id_recurso]->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
 						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);					
 					}
 				} else {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-					if ($recurso->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
+					if ($recurso[$id_recurso]->extrativo == 1 && $instalacao[$this->id_instalacao[$chave]]->nao_extrativo == false) {
 						$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					}
 				}
@@ -597,7 +609,7 @@ class acoes
 				if (!empty($imperio->bonus_recurso['*'])) {//Tem bônus para TODOS os recursos
 					//Verifica as condições
 					if (!empty($imperio->extrativo['*'])) {//O bônus se aplica somente para recursos EXTRATIVOS
-						if ($imperio->extrativo['*'] === true && $recurso->extrativo == 1) {
+						if ($imperio->extrativo['*'] === true && $recurso[$id_recurso]->extrativo == 1) {
 							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 						}
@@ -610,7 +622,7 @@ class acoes
 				if (!empty($imperio->bonus_recurso[$id_recurso])) {//Tem bônus para o recurso ATUAL
 					//Verifica as condições
 					if (!empty($imperio->extrativo[$id_recurso])) {//O bônus se aplica somente para recursos EXTRATIVOS
-						if ($imperio->extrativo[$id_recurso] === true && $recurso->extrativo == 1) {
+						if ($imperio->extrativo[$id_recurso] === true && $recurso[$id_recurso]->extrativo == 1) {
 							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 						}
@@ -623,6 +635,9 @@ class acoes
 				//Algumas Instalações podem dar um bônus nos Extrativos das Colônias
 				if (empty($colonia[$this->id_colonia[$chave]])) {
 					$colonia[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave],$this->turno->turno);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						$this->debug .= "acoes->pega_balanco_recursos() -> new Colonia({$this->id_colonia[$chave]}) {$diferenca}ms
+";	
 				}				
 
 				$bonus_recurso_colonia = $colonia[$this->id_colonia[$chave]]->bonus_recurso($id_recurso);
@@ -641,7 +656,7 @@ class acoes
 
 
 				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo();
-				if ($recurso->extrativo == 1 && $bonus_extrativo > 0) {
+				if ($recurso[$id_recurso]->extrativo == 1 && $bonus_extrativo > 0) {
 					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
 						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
@@ -669,15 +684,20 @@ class acoes
 			
 			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_consome as $chave_recursos => $id_recurso) {
 				if (empty($this->recursos_consumidos[$id_recurso])) {
-					$recurso = new recurso($id_recurso);
+					if (empty($recurso[$id_recurso])) {
+						$recurso[$id_recurso] = new recurso($id_recurso);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms
+";							
+					}
 					
 					$this->recursos_consumidos[$id_recurso] = 0;
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
-					$this->recursos_consumidos_nome[$id_recurso] = $recurso->nome;
+					$this->recursos_consumidos_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 
 					if (empty($this->recursos_balanco_nome[$id_recurso])) {
-						$this->recursos_balanco_nome[$id_recurso] = $recurso->nome;
+						$this->recursos_balanco_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 					}
 				}
 				if (empty($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
@@ -713,6 +733,9 @@ class acoes
 
 			}
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção e Consumo {$diferenca}ms
+";
 
 		//Calcula os recursos produzidos totais
 		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
@@ -741,6 +764,9 @@ class acoes
 				$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta] + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 			}
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms
+";
 
 		//As naves podem produzir Pesquisa
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
@@ -778,14 +804,16 @@ class acoes
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
 		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
+
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
+		$recurso_alimento = new recurso($id_alimento);
+		$recurso_energia = new recurso($id_energia);
+		$recurso_poluicao = new recurso($id_poluicao);
+		
 		foreach ($ids_colonia as $id) {
 			$colonia = new colonia($id->id, $this->turno->turno);
 			$planeta = new planeta($id->id_planeta, $this->turno->turno);
-			
-			$recurso_alimento = new recurso($id_alimento);
-			$recurso_energia = new recurso($id_energia);
-			$recurso_poluicao = new recurso($id_poluicao);
+
 
 			if (empty($this->recursos_consumidos[$id_alimento])) {
 				$this->recursos_consumidos[$id_alimento] = 0;
@@ -884,10 +912,15 @@ class acoes
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
 			}
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Consumo Total {$diferenca}ms
+";		
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
-			$recurso = new recurso($id_recurso);
+			if (empty($recurso[$id_recurso])) {
+				$recurso[$id_recurso] = new recurso($id_recurso);
+			}
 			if (empty($this->recursos_produzidos[$id_recurso])) {
 				$this->recursos_produzidos[$id_recurso] = 0;
 			}
@@ -896,10 +929,14 @@ class acoes
 				$this->recursos_consumidos[$id_recurso] = 0;
 			}
 				
-			if ($recurso->local == 0) {
+			if ($recurso[$id_recurso]->local == 0) {
 				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 			}
 		}
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms
+";
+		
 	}
 
 

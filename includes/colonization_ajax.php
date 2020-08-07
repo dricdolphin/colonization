@@ -1117,6 +1117,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->pega_balanco_recursos(); //Recalcula os balanços
+			$debug .= $acoes->debug;
+			$acoes->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms
 ";

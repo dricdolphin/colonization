@@ -1294,6 +1294,8 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id, $turno->turno);
+			$colonia->planeta = new planeta($colonia->id_planeta);
+			$colonia->estrela = new estrela($colonia->id_estrela);
 			
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
