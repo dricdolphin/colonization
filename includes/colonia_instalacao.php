@@ -46,6 +46,8 @@ class colonia_instalacao
 	function lista_dados() {
 		global $wpdb;
 		
+		$this->instalacao = new instalacao($this->id_instalacao);
+		
 		if ($this->turno_destroi === null) {
 			$texto_destruir	= "Destruir Instalação";
 			$this->turno_destroi = "&nbsp;";
@@ -53,7 +55,6 @@ class colonia_instalacao
 			$texto_destruir	= "Reparar Instalação";
 		}
 		
-
 		//Exibe os dados da colônia
 		$html = "		<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
