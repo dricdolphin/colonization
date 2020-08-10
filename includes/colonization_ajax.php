@@ -1116,6 +1116,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		//Verifica se existe recurso suficiente no planeta para ser extraído (caso seja um recurso extrativo)
 		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
+		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
 		$acoes->pega_balanco_recursos(); //Recalcula os balanços
 			$debug .= $acoes->debug;
 			$acoes->debug = "";

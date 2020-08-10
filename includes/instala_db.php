@@ -60,6 +60,7 @@ class instala_db {
 		slots INT(6) DEFAULT 1,
 		autonoma BOOLEAN DEFAULT FALSE,
 		desguarnecida BOOLEAN DEFAULT FALSE,
+		sempre_ativa BOOLEAN DEFAULT TRUE,
 		oculta BOOLEAN DEFAULT FALSE,
 		icone VARCHAR(255) DEFAULT '',
 		especiais VARCHAR(255) DEFAULT '',
@@ -247,6 +248,7 @@ class instala_db {
 		id_instalacao INT(6) NOT NULL,
 		id_planeta_instalacoes INT(6) NOT NULL,
 		pop INT(6) NOT NULL,
+		desativado BOOLEAN DEFAULT FALSE,
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 		)");

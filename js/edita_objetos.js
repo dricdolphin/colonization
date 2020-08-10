@@ -52,7 +52,7 @@ function atualiza_objeto(objeto, dados) {
 				//Só atualiza o innerHTML de divs que não contenham objetos
 				if (dados[atributo] !== null) {
 					if (divs[index].hasChildNodes()) {
-						if (divs[index].childNodes[0].tagName != "INPUT" && divs[index].childNodes[0].tagName != "TEXTAREA") {
+						if (divs[index].childNodes[0].tagName != "INPUT" && divs[index].childNodes[0].tagName != "TEXTAREA" && divs[index].childNodes[0].tagName != "LABEL") {
 							divs[index].setAttribute('data-valor-original',dados[atributo]);
 							divs[index].innerHTML = dados[atributo];
 						}
@@ -597,13 +597,17 @@ function efetua_acao (evento, objeto, valida) {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
 			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
 			dados['pop'] = inputs[index].value;
+		} else if(inputs[index].getAttribute('data-atributo') == "desativado") {
+			console.log("Desativado: "+inputs[index].value);
+			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
+			inputs[index].checked = !inputs[index].checked;
 		}
 	}
 	
 	//let valida = valida_acao(dados); //Valida os dados
 	
 	if (!valida.retorno) {
-		salva_acao(evento, objeto,true); //Se não liberou, falhou a validação, então cancela a ação.	
+		salva_acao(evento, objeto, true); //Se não liberou, falhou a validação, então cancela a ação.	
 	} else {
 		salva_acao(evento, objeto, false, valida.resposta); //Pode salvar!
 		
@@ -627,13 +631,6 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
 	var dados = []; //Dados que serão enviados para a validação
-	//Pega a data atual
-	var data_atual = new Date();
-	var dia_atual = data_atual.getDate();
-	var mes_atual = data_atual.getMonth();
-	var ano_atual = data_atual.getFullYear();
-	var hora_atual = data_atual.getHours();
-	var minuto_atual = data_atual.getMinutes();
 	
 	if (cancela) {
 		//***
@@ -648,7 +645,10 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 			if (inputs[index].getAttribute('data-atributo') == "pop") {
 				var index_range_pop = index;
 				inputs[index].value = inputs[index].getAttribute("data-valor-original");
-			} 
+			} else if (inputs[index].getAttribute('data-atributo') == "desativado") {
+				inputs[index].value = inputs[index].getAttribute("data-valor-original");
+				inputs[index].checked = !inputs[index].checked;
+			}
 		}
 
 		for (index=0;index<labels.length;index++) {
@@ -669,7 +669,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	}
 
 	for (index=0;index<inputs.length;index++) {
-		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
+		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "desativado") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
@@ -679,6 +679,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	}
 	
 	//Cria o string que será passado para o AJAX
+	console.log("Dados Ajax: "+objeto_editado['dados_ajax']);
 	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_acao&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
 
 	//Envia a chamada de AJAX para salvar o objeto

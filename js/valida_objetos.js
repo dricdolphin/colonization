@@ -470,13 +470,91 @@ function valida_colonia_instalacao(objeto) {
 }
 
 /******************
+function desativar_instalacao(evento, objeto)
+--------------------
+Função para chamar o AJAX de desativar uma instalação
+objeto -- objeto sendo editado
+******************/
+function desativar_instalacao(evento, objeto, id_acao) {
+	if (evento.button === 3) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	if (range_em_edicao || range_em_edicao == objeto) {
+		alert('Já existe uma ação em edição!');
+		objeto.value = objeto.getAttribute('data-valor-original');
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	var linha=pega_ascendente(objeto,"TR");
+	var inputs=linha.getElementsByTagName("INPUT");
+	var divs=linha.getElementsByTagName("DIV");
+	//var dados_ajax = "post_type=POST&action=desativar_instalacao";
+
+	range_em_edicao = objeto;
+	
+	for (let index = 0; index < inputs.length; index++) {
+		if (inputs[index].getAttribute('data-atributo') == "desativado") {
+			if (inputs[index].value == 1) {
+				inputs[index].value = 0;
+			} else {
+				inputs[index].value = 1;
+			}
+		}
+	}
+
+	for (let index = 0; index < divs.length; index++) {
+		if(divs[index].getAttribute('data-atributo') == "gerenciar") {
+			divs[index].style.visibility = "visible";
+		}
+	}
+
+	//dados_ajax = dados_ajax + "&id=" + id_acao;
+	
+	/***
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			objeto_em_edicao = false;
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				if (resposta[0].turno_destroi != "") {
+					objeto.text = "Reparar Instalação";
+				} else {
+					objeto.text = "Destruir Instalação";
+					resposta[0].turno_destroi = "&nbsp;";
+				}
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+	//***/
+	
+	//objeto_em_edicao = true;
+	valida_acao(evento, objeto);
+	
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
 function destruir_instalacao(evento, objeto)
 --------------------
 Função para chamar o AJAX de destruir instalação
 objeto -- objeto sendo editado
 ******************/
 function destruir_instalacao(evento, objeto) {
-	var linha=pega_ascendente(objeto,"TR");;
+	var linha=pega_ascendente(objeto,"TR");
 	var inputs=linha.getElementsByTagName("INPUT");
 	var dados_ajax = "post_type=POST&action=destruir_instalacao";
 
@@ -586,9 +664,19 @@ function valida_acao(evento, objeto) {
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
 	var dados = []; //Dados que serão enviados para a validação
+	var desativar_objeto = false;
+	
+	if (evento.button === 3) {
+		evento.preventDefault();
+		return false;
+	}
 	
 	for (index=0;index<inputs.length;index++) {
-		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
+		if (inputs[index].getAttribute('data-atributo') == "desativado") {	
+			desativar_objeto = true;
+		}
+		
+		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "desativado") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
 			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
@@ -597,7 +685,7 @@ function valida_acao(evento, objeto) {
 		}
 	}
 
-	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
+	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
 	var retorno = {};
 	retorno.retorno = true;
 	
@@ -617,15 +705,15 @@ function valida_acao(evento, objeto) {
 				retorno = false;
 				return false;
 			}
-			
+
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}			
+
 			if (resposta.resposta_ajax == "OK!") {
 				if (resposta.balanco_acao != "") {
 					retorno = false;
 					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+resposta.balanco_acao);
-				}
-				
-				if (resposta.debug !== undefined) {
-					console.log(resposta.debug);
 				}
 			} else {
 				alert(resposta.resposta_ajax);

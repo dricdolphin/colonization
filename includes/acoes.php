@@ -20,6 +20,7 @@ class acoes
 	public $nivel_instalacao = [];
 	public $turno_destroi = [];
 	public $pop = [];
+	public $desativado = [];
 	public $turno;
 	public $data_modifica = [];
 	public $max_data_modifica;
@@ -78,12 +79,12 @@ class acoes
 			$resultados_temp = $wpdb->get_results("
 				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
-				cat.pop AS pop, cat.data_modifica AS data_modifica
+				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
 				FROM colonization_imperio_colonias AS cic 
 				JOIN colonization_planeta_instalacoes AS cpi
 				ON cpi.id_planeta = cic.id_planeta
 				LEFT JOIN 
-				(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, data_modifica
+				(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, desativado, data_modifica
 				 FROM colonization_acoes_turno
 				 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
 				) AS cat
@@ -117,6 +118,7 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
+				$this->desativado[$chave] = 0;
 				$this->turno_destroi[$chave] = "";
 				$this->data_modifica[$chave] = $this->turno->data_turno;
 				
@@ -128,6 +130,7 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = $valor->pop;
+				$this->desativado[$chave] = $valor->desativado;
 				$this->turno_destroi[$chave] = $valor->turno_destroi;
 				$this->data_modifica[$chave] = $valor->data_modifica;
 				
@@ -428,8 +431,18 @@ class acoes
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 0) {
 				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
+			} elseif ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
+				//Instalações Desguarnecidas podem ser desativadas
+				if ($this->desativado[$chave] == 0) {
+					$exibe_acoes = "<label class='switch'><input type='checkbox' data-ajax='true' data-atributo='desativado' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});' data-valor-original='{$this->desativado[$chave]}' value='{$this->desativado[$chave]}' {$this->disabled}><span class='slider round'></span></label>";
+					//$exibe_acoes = "<a href='#' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});'><i class='fas fa-toggle-off tooltip' style='color: #AA0000; font-size: x-large;'></i></a>";
+				} else {
+					$exibe_acoes = "<label class='switch'><input type='checkbox' data-atributo='desativado' data-ajax='true' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});' data-valor-original='{$this->desativado[$chave]}' value='{$this->desativado[$chave]}' checked {$this->disabled}><span class='slider round'></span></label>";
+					//$exibe_acoes = "<a href='#' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});'><i class='fas fa-toggle-on tooltip' style='color: #007700; font-size: x-large;'></i></a>";	
+				}
+				
 			} else {
-				$exibe_acoes = "&nbsp";
+				$exibe_acoes = "&nbsp;";
 			}
 			
 			if (!empty($this->turno_destroi[$chave])) {
@@ -532,7 +545,7 @@ class acoes
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			if (!empty($this->turno_destroi[$chave])) {//Se a Instalação está destruída, ela não produz nem consome nada
+			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
 				continue;
 			}
 			

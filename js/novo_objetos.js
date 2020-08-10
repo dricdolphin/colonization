@@ -442,6 +442,7 @@ function nova_instalacao(evento) {
 	var slots = linha_nova.insertCell(-1);
 	var autonoma = linha_nova.insertCell(-1);
 	var desguarnecida = linha_nova.insertCell(-1);
+	var sempre_ativa = linha_nova.insertCell(-1);
 	var oculta = linha_nova.insertCell(-1);
 	var especiais = linha_nova.insertCell(-1);
 	var icone = linha_nova.insertCell(-1);
@@ -461,6 +462,7 @@ function nova_instalacao(evento) {
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
+	sempre_ativa.innerHTML = "<div data-atributo='sempre_ativa' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='sempre_ativa' data-ajax='true' checked></input></div>";
 	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";

@@ -16,6 +16,7 @@ class instalacao
 	public $slots;
 	public $autonoma;
 	public $desguarnecida;
+	public $sempre_ativa;
 	public $oculta;
 	public $icone;
 	public $especiais;
@@ -37,7 +38,7 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, oculta, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, sempre_ativa, oculta, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -46,6 +47,7 @@ class instalacao
 		$this->slots = $resultado->slots;
 		$this->autonoma = $resultado->autonoma;
 		$this->desguarnecida = $resultado->desguarnecida;
+		$this->sempre_ativa = $resultado->sempre_ativa;
 		$this->icone = $resultado->icone;
 		$this->oculta = $resultado->oculta;
 		$this->especiais = $resultado->especiais;
@@ -149,6 +151,12 @@ class instalacao
 		} else {
 			$desguarnecida_checked = "";
 		}
+
+		if ($this->sempre_ativa == 1) {
+			$sempre_ativa_checked = "checked";
+		} else {
+			$sempre_ativa_checked = "";
+		}		
 		
 		if ($this->oculta == 1) {
 			$oculta_checked = "checked";
@@ -173,6 +181,7 @@ class instalacao
 			<td><div data-atributo='slots' data-editavel='true' data-valor-original='{$this->slots}' data-style='width: 30px;'>{$this->slots}</div></td>
 			<td><div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='{$this->autonoma}'><input type='checkbox' data-atributo='autonoma' data-ajax='true' {$autonoma_checked} disabled></input></div></td>
 			<td><div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='{$this->desguarnecida}'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true' {$desguarnecida_checked} disabled></input></div></td>
+			<td><div data-atributo='sempre_ativa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->sempre_ativa}'><input type='checkbox' data-atributo='sempre_ativa' data-ajax='true' {$sempre_ativa_checked} disabled></input></div></td>
 			<td><div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='{$this->oculta}'><input type='checkbox' data-atributo='oculta' data-ajax='true' {$oculta_checked} disabled></input></div></td>
 			<td><div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original='{$this->especiais}'>{$this->especiais}</div></td>
 			<td><div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
