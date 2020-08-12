@@ -326,6 +326,8 @@ class colonization {
 	function colonization_exibe_mapa_naves($atts = [], $content = null) {
 		global $asgarosforum, $wpdb;
 
+		$turno = new turno();
+		
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
@@ -351,6 +353,7 @@ class colonization {
 			ON cp.id = cic.id_planeta
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
+			WHERE cic.turno = {$turno->turno}
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
 		} else {
@@ -363,6 +366,7 @@ class colonization {
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
 			WHERE cic.id_imperio = {$imperio->id}
+			AND cic.turno = {$turno->turno}
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");			
 		}
@@ -384,6 +388,7 @@ class colonization {
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
 			WHERE cp.id_estrela = {$estrela->id}
+			AND cic.turno = {$turno->turno}
 			");
 			
 			$nomes_imperios = "";
@@ -444,6 +449,7 @@ class colonization {
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
 			WHERE cp.id_estrela = {$estrela->id}
+			AND cic.turno = {$turno->turno}
 			");
 			
 			$nomes_imperios = "";
@@ -502,6 +508,7 @@ class colonization {
 			ON cp.id_estrela = ce.id
 			LEFT JOIN colonization_imperio_colonias AS cic
 			ON cic.id_planeta = cp.id
+			AND cic.turno = {$turno->turno}
 			WHERE ce.id IN ({$chaves})
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
