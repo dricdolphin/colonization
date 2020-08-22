@@ -229,7 +229,8 @@ class instala_db {
 		$wpdb->query("CREATE TABLE colonization_estrelas_historico (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) NOT NULL,
-		id_estrela INT(6) NOT NULL
+		id_estrela INT(6) NOT NULL,
+		turno INT(6) NOT NULL
 		)");
 		
 

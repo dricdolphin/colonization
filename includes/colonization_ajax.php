@@ -141,6 +141,7 @@ class colonization_ajax {
 		}
 
 		$nave = new frota($_POST['id']);
+		$turno = new turno();
 		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
 			$estrela = new estrela($nave->id_estrela_destino);
 			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}");
@@ -148,7 +149,9 @@ class colonization_ajax {
 			//Verifica se a Estrela já foi visitada, e se não foi marca como visitada
 			$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
 			if (empty($estrela_visitada)) {
-				$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}");
+				$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}");
+			} else {
+				$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$turno->turno} WHERE id={$estrela_visitada}");
 			}
 		}
 		
@@ -1117,7 +1120,8 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
-		$acoes->pega_balanco_recursos(); //Recalcula os balanços
+		$ajax_valida = true;
+		$acoes->pega_balanco_recursos($ajax_valida); //Recalcula os balanços
 			$debug .= $acoes->debug;
 			$acoes->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

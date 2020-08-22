@@ -23,6 +23,8 @@ class planeta
 	public $instalacoes;
 	public $turno;
 	
+	public $recurso_planeta = [];
+	
 	//Defesas Planetárias oferecidas por Instalações
 	public $instalacoes_ataque = [];
 	public $html_instalacao_ataque = [];
@@ -246,7 +248,7 @@ class planeta
 		$html = "";
 		foreach ($ids_recursos_planeta as $recurso_planeta) {
 			$recurso = new recurso($recurso_planeta->id_recurso);
-			
+			$this->recurso_planeta[$recurso->id] = $recurso_planeta->disponivel;
 			$html .= "{$recurso->nome}: {$recurso_planeta->disponivel}; ";
 		}
 		

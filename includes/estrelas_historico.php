@@ -12,17 +12,19 @@ class estrelas_historico
 	public $id;
 	public $id_imperio;
 	public $id_estrela;
+	public $turno;
 	
 	function __construct($id) {
 		global $wpdb;
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id, id_imperio, id_estrela FROM colonization_estrelas_historico WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, id_imperio, id_estrela, turno FROM colonization_estrelas_historico WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
 		$this->id_imperio = $resultado->id_imperio;
 		$this->id_estrela = $resultado->id_estrela;
+		$this->turno = $resultado->turno;
 	}
 
 	/***********************

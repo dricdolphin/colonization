@@ -298,7 +298,11 @@ class colonization {
 		foreach ($id_estrelas as $id) {
 			$estrela = new estrela($id->id_estrela);
 			
-			$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$imperio->id} AND id_estrela={$estrela->id}");
+			$pesquisa_anterior = "";
+			if (!empty($estrela->id)) {
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$imperio->id} AND id_estrela={$estrela->id}");
+			}
+			
 			$html_pesquisa_nave = "";
 			if (empty($pesquisa_anterior)) {
 				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema ainda NÃO pesquisado</span></div>";	
@@ -544,7 +548,12 @@ class colonization {
 		}
 	
 		if ($roles == "administrator") {
-			$naves_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_estrela_destino != 0 AND turno_destruido=0 ORDER BY id_imperio");
+			$naves_pendentes = $wpdb->get_results("SELECT cif.id 
+			FROM colonization_imperio_frota AS cif 
+			LEFT JOIN colonization_estrela AS ce
+			ON ce.id=cif.id_estrela_destino
+			WHERE cif.id_estrela_destino != 0 AND cif.turno_destruido=0 
+			ORDER BY cif.id_imperio, ce.nome");
 			
 			foreach ($naves_pendentes as $id) {
 				$nave = new frota($id->id);
@@ -1431,7 +1440,11 @@ var id_imperio_atual = {$imperios[0]->id};
 				$html_qtd = "{$nave->qtd} ";
 			}
 			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
-			$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+			
+			$pesquisa_anterior = "";
+			if (!empty($id_estrela)) {
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+			}
 			
 			$html_pesquisa_nave = "";
 			if (empty($pesquisa_anterior) && $nave->pesquisa==1) {
