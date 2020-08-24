@@ -691,11 +691,11 @@ function mostra_div_transferencia (evento, objeto) {
 		if (div_mestre.childNodes[index].tagName == "DIV") {
 			if (div_mestre.childNodes[index].getAttribute('data-atributo') == "lista_planetas") {
 				if (div_mestre.childNodes[index].style.display == "block" ) {
-					div_mestre.childNodes[index].style.height = "0px";
+					div_mestre.childNodes[index].style.maxHeight = "0px";
 					div_mestre.childNodes[index].style.display = "none";
 				} else {
 					div_mestre.childNodes[index].style.display = "block";
-					div_mestre.childNodes[index].style.height = "36px";
+					div_mestre.childNodes[index].style.maxHeight = "36px";
 				}
 			}
 		}

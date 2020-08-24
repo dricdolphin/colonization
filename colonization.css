@@ -287,11 +287,11 @@ input:checked + .slider:before {
 }
 
 .div_lista_planetas {
-	height: 0px; 
+	max-height: 0px;
 	width: auto;
 	padding: 0px !important;
 	display: none;
-	transition: height 0.2s ease-out;
+	transition: max-height 0.2s ease-out;
 }
 
 .select_lista_planetas {

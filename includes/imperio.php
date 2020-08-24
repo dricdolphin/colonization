@@ -732,6 +732,13 @@ class imperio
 		if ($this->id == 0) {
 			return;
 		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
 		
 		$this->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -883,7 +890,7 @@ class imperio
 				}
 				$html_lista_planetas = "";
 				$lista_options_colonias = "";
-				if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1) {
+				if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$resultado->id]->vassalo == 0 || ($colonia[$resultado->id]->vassalo == 1 && $roles == "administrator"))) {
 					$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$resultado->id}");
 					foreach ($resultados as $id_colonia) {
 						if (empty($colonia[$id_colonia->id])) {
@@ -893,10 +900,8 @@ class imperio
 						if (empty($planeta[$colonia[$id_colonia->id]->id_planeta])) {
 							$planeta[$colonia[$id_colonia->id]->id_planeta] = new planeta($colonia[$id_colonia->id]->id_planeta);
 						}
-						if ($id_colonia->id != $resultado->id) {
-							if ($id_colonia->id != $resultado->id) {
+						if ($id_colonia->id != $resultado->id && ($colonia[$id_colonia->id]->vassalo == 0 || ($colonia[$id_colonia->id]->vassalo == 1 && $roles == "administrator"))) {
 								$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia->id}'>{$planeta[$colonia[$id_colonia->id]->id_planeta]->nome}</option> \n";
-							}
 						}
 					}
 
