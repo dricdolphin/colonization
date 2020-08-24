@@ -36,6 +36,7 @@ class colonization_ajax {
 		add_action('wp_ajax_envia_nave', array ($this, 'envia_nave'));//envia_nave
 		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//nave_visivel
 		add_action('wp_ajax_aceita_missao', array ($this, 'aceita_missao'));//aceita_missao
+		add_action('wp_ajax_transfere_pop', array ($this, 'transfere_pop'));//transfere_pop
 	}
 
 	/***********************
@@ -541,11 +542,48 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}
 		}
-		
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
+
+	/***********************
+	function transfere_pop ()
+	----------------------
+	Valida e realiza a transferência de Pop de uma colônia para outra
+	***********************/	
+	function transfere_pop() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+		
+		$dados_salvos['resposta_ajax'] = "SALVO!";
+		
+		$colonia_origem = new colonia($_POST['id_colonia_origem']);
+		$colonia_destino = new colonia($_POST['id_colonia_destino']);
+		$planeta = new planeta($colonia_destino->id_planeta);
+		$imperio = new imperio($_POST['id_imperio']);
+		
+		if ($planeta->inospito == 1 && $imperio->coloniza_inospito != 1) {
+			if (($colonia_destino->pop + $_POST['pop']) > $planeta->pop_inospito) {
+				$dados_salvos['resposta_ajax'] = "O planeta de destino é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
+			}
+		}
+
+		if ($dados_salvos['resposta_ajax'] == "SALVO!") {
+			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop-{$_POST['pop']} WHERE id={$colonia_origem->id}");
+			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
+			$sem_balanco = true;
+			$imperio->acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
+			$produtos_acao = $this->produtos_acao($imperio, 0);
+			$debug .= $produtos_acao['debug'];
+			$produtos_acao['debug'] = "";
+			$dados_salvos = array_merge($dados_salvos, $produtos_acao);
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
 
 	/***********************
 	function valida_estrela ()

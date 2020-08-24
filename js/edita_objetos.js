@@ -578,6 +578,18 @@ function altera_acao(evento, objeto) {
 }
 
 /******************
+function altera_pop_transfere(objeto) 
+--------------------
+Altera o valor do label
+******************/	
+function altera_pop_transfere(evento, objeto) {
+	let div_parente = objeto.parentNode;
+	let label = div_parente.getElementsByTagName("label");
+	
+	label[0].innerHTML = objeto.value;
+}
+
+/******************
 function efetua_acao(evento, objeto) 
 --------------------
 Tenta atualizar os dados
@@ -775,7 +787,9 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_inst
 		div_balanco.innerHTML = resposta.recursos_balanco;
 		div_balanco_planeta.innerHTML = resposta.balanco_planeta;
 		div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
-		div_produz_consome.innerHTML = resposta.id_planeta_instalacoes_produz_consome;
+		if (div_produz_consome !== null) {
+			div_produz_consome.innerHTML = resposta.id_planeta_instalacoes_produz_consome;
+		}
 		
 		for (let index=0; index < div_mdo_sistema.length; index++) {
 			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
@@ -796,6 +810,63 @@ function libera_npc(evento, objeto) {
 	} else {
 		nome_npc_div.style.display = 'none';
 		nome_npc_div.childNodes[0].value='';
+	}
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function transfere_pop
+--------------------
+Transfere a Pop de uma colônia para outra
+--------
+******************/
+function transfere_pop(evento,objeto,id_imperio,id_colonia_origem,id_planeta,id_estrela) {
+	if (!range_em_edicao || range_em_edicao == objeto) {
+		range_em_edicao = objeto;
+		
+		let div_parent = objeto.parentNode;
+		
+		let range_pop = div_parent.getElementsByTagName("input")[0];
+		let select_planeta_destino = div_parent.getElementsByTagName("select")[0];
+		
+		//console.log(range_pop.value);
+		//console.log(select_planeta_destino.options[select_planeta_destino.selectedIndex].value);
+		
+		dados_ajax = "post_type=POST&action=transfere_pop&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela+"&id_colonia_origem="+id_colonia_origem
+		+"&id_colonia_destino="+select_planeta_destino.options[select_planeta_destino.selectedIndex].value+"&pop="+range_pop.value;
+
+		//Envia a chamada de AJAX para salvar o objeto
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} 
+				catch (err) {
+					console.log(this.responseText);
+					retorno = false;
+					return false;
+				}
+				
+				if (resposta.resposta_ajax == "SALVO!") {
+					atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, 0, resposta);
+					range_em_edicao = false;
+				} else {
+					alert(resposta.resposta_ajax);
+					range_em_edicao = false;
+				}
+				if (resposta.debug !== undefined) {
+					console.log(resposta.debug);
+				}
+			}
+		};
+		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send(dados_ajax);
+	} else {
+		alert("Já existe uma Ação em edição!");
 	}
 
 	evento.preventDefault();

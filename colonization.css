@@ -196,6 +196,14 @@ content: "\f135";
   height: 0;
 }
 
+.slider:disabled {
+  opacity: 0.2;
+}
+
+.slider.round:disabled {
+  opacity: 0.2;
+}
+
 .slider {
   position: absolute;
   cursor: pointer;
@@ -238,6 +246,10 @@ input:hover + .slider {
 	opacity: 1;
 }
 
+input:disabled + .slider{
+  opacity: 0.2;
+}
+
 input:checked + .slider:before {
   -webkit-transform: translateX(-10px);
   -ms-transform: translateX(-10px);
@@ -272,6 +284,27 @@ input:checked + .slider:before {
 	overflow: hidden;
 	clear: both;
 	display: block;
+}
+
+.div_lista_planetas {
+	height: 0px; 
+	width: auto;
+	padding: 0px !important;
+	display: none;
+	transition: height 0.2s ease-out;
+}
+
+.select_lista_planetas {
+	height: 30px; 
+	width: 150px;
+	padding: 0px !important;
+	
+}
+
+.select_lista_planetas + select {
+	height: 30px; 
+	width: 150px;
+	padding: 0px !important;
 }
 
 #barra_recursos {

@@ -677,3 +677,30 @@ function roda_turno(evento) {
 	evento.preventDefault();
 	return false;
 }
+
+
+/******************
+function mostra_div_transferencia()
+--------------------
+Mostra o Div onde ficam os planetas para onde pode enviar a Pop
+******************/
+function mostra_div_transferencia (evento, objeto) {
+	let div_mestre = objeto.parentNode;
+	
+	for (let index=0; index < div_mestre.childNodes.length; index++) {
+		if (div_mestre.childNodes[index].tagName == "DIV") {
+			if (div_mestre.childNodes[index].getAttribute('data-atributo') == "lista_planetas") {
+				if (div_mestre.childNodes[index].style.display == "block" ) {
+					div_mestre.childNodes[index].style.height = "0px";
+					div_mestre.childNodes[index].style.display = "none";
+				} else {
+					div_mestre.childNodes[index].style.display = "block";
+					div_mestre.childNodes[index].style.height = "36px";
+				}
+			}
+		}
+	}
+	
+	evento.preventDefault()
+	return false;
+}
