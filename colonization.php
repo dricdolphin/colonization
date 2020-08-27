@@ -259,6 +259,8 @@ class colonization {
 	function colonization_exibe_dados_estrelas($atts = [], $content = null) {
 		global $asgarosforum, $wpdb;
 
+		$turno = new turno();
+		
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
@@ -307,9 +309,43 @@ class colonization {
 			if (empty($pesquisa_anterior)) {
 				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema ainda NÃO pesquisado</span></div>";	
 			}
+
+			if ($imperio->id == 0 && $roles == "administrator") {
+				$turno_visita = $turno->turno;
+				$html_pesquisa_nave = "";
+			} else {
+				$turno_visita = $wpdb->get_var("SELECT turno FROM colonization_estrelas_historico WHERE id_imperio={$imperio->id} AND id_estrela={$id->id_estrela}");
+			}
+
+			$ids_imperios = $wpdb->get_results("
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cp.id_estrela = {$estrela->id}
+			AND (cic.turno = {$turno_visita} OR (cic.id_imperio={$imperio->id} AND cic.turno={$turno->turno}))
+			");
 			
-			$descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
-			$html .= "<div style='margin-bottom: 5px; {$par_impar}'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$descricao_html}</div>";
+			$nomes_imperios = "";
+			foreach ($ids_imperios as $id_imperio) {
+				if ($id_imperio->id_imperio == 0) {
+					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
+				} else {
+					$imperio_estrela = new imperio($id_imperio->id_imperio);
+					$nomes_imperios .= "{$imperio_estrela->nome}; ";
+				}
+			}
+			if (!empty($nomes_imperios)) {
+				$nomes_imperios = substr($nomes_imperios,0,-2);
+				$nomes_imperios = "Colonizado por <span style='text-decoration: underline;'>{$nomes_imperios}</span>";
+			}
+			
+			//descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
+			$descricao_html = $estrela->descricao;
+			$html .= "<div style='margin-bottom: 5px; {$par_impar}'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$nomes_imperios}<br>
+			{$descricao_html}</div>";
 			
 			if ($par_impar == "background-color: #DDD;") {
 				$par_impar = "background-color: #EEE;";
@@ -1684,8 +1720,21 @@ var id_imperio_atual = {$imperios[0]->id};
 			$frota = new frota($id->id);
 			
 			$html_id_estrela_destino .= "
-			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};
+			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};";
+			
+			if ($frota->estrela->id == 0) {
+				$html_id_estrela_destino .= "
+			id_estrela_atual[{$index}] = 'nave_{$frota->id}';
+			lista_x_estrela['nave_{$frota->id}'] = {$frota->X};
+			lista_y_estrela['nave_{$frota->id}'] = {$frota->Y};
+			lista_z_estrela['nave_{$frota->id}'] = {$frota->Z};
+			";
+			} else {
+				$html_id_estrela_destino .= "
 			id_estrela_atual[{$index}] = {$frota->estrela->id};";
+			}
+			
+			
 			$index++;
 			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 		}
@@ -1992,10 +2041,10 @@ var id_imperio_atual = {$imperio->id};
 		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 0 | Duranium: 0</div><br>
 		<div id='chassi'>Chassi: 1 - Categoria: Corveta</div>
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
-		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
+		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto' value='1'></input></div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
-		<div id='blindagem'>Blindagem: <input type='number' id='qtd_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
+		<div id='blindagem'>Blindagem: <input type='number' id='qtd_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium' value='1'></input></div>
 		<div id='escudos'>Escudos: <input type='number' id='qtd_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
 		<div id='impulso'>Motor de Impulso: <input type='number' id='qtd_impulso' onchange='return calcula_custos(event, this);' value='1' min='1' style='width: 50px;'></input> Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
@@ -2011,7 +2060,7 @@ var id_imperio_atual = {$imperio->id};
 		<label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input><br>
 		</div>
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
-		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=1;0=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
+		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=1;0=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
 		";
 		//{"laser":{"qtd":0,"mk":1},"torpedo":{"qtd":0,"mk":1},"projetil":{"qtd":0,"mk":1},"blindagem":{"qtd":0,"mk":1},"escudos":{"qtd":0,"mk":1}}
 		//"0":{"0":1,"1":2,"2":3}

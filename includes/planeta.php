@@ -37,6 +37,7 @@ class planeta
 	public $max_slots = 0;
 	public $alcance_local = 0;
 	public $tamanho_alcance_local = 0;
+	public $terraforma = 0;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -100,6 +101,8 @@ class planeta
 				}
 			}
 			
+
+			
 			//Especiais: pop_inospito=qtd
 			$pop_inospito = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'pop_inospito') !== false;
@@ -108,6 +111,16 @@ class planeta
 			if (!empty($pop_inospito)) {
 				$pop_inospito_valor = explode("=",$pop_inospito[0]);
 				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
+			}
+			
+			//habitavel=1
+			$habitavel = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'habitavel') !== false;
+			}));
+			
+			if (!empty($habitavel)) {
+				$habitavel_valor = explode("=",$habitavel[0]);
+				$this->terraforma = $habitavel_valor[1];
 			}
 
 			//Especiais: alcance_local=qtd
@@ -183,6 +196,9 @@ class planeta
 		
 		if ($this->inospito == 1) {
 			$this->icone_habitavel = "<div class='fas fa-globe tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
+			if ($this->terraforma == 1) {
+				$this->icone_habitavel = "<div class='fas fa-globe-europe tooltip' style='color: #AEB213;'>&nbsp;<span class='tooltiptext'>Terraformado</span></div>";
+			}
 		} else {
 			$this->icone_habitavel = "<div class='fas fa-globe-americas tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
 		}

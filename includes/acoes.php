@@ -916,7 +916,7 @@ class acoes
 			
 			//Existem algumas Techs que aumentam o consumo de alimentos
 			$consumo_extra_inospito = 0;
-			if ($planeta[$id->id_planeta]->inospito == 1) {
+			if ($planeta[$id->id_planeta]->inospito == 1 && $planeta[$id->id_planeta]->terraforma == 0) {
 				if ($colonia[$id->id]->pop > $planeta[$id->id_planeta]->pop_inospito) {
 					$pop_inospito = $colonia[$id->id]->pop - $planeta[$id->id_planeta]->pop_inospito;
 					$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
@@ -948,7 +948,7 @@ class acoes
 			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
 			
 			//A base de consumo de poluição de planetas habitáveis é de 25 unidades
-			if ($planeta[$id->id_planeta]->inospito == 0) {
+			if ($planeta[$id->id_planeta]->inospito == 0 || $planeta[$id->id_planeta]->terraforma == 1) {
 				if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
 					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25;
 				} else {

@@ -208,6 +208,9 @@ function processa_string_admin (evento, objeto) {
 	let qtd_bombas = document.getElementById('qtd_bombas');
 	let qtd_slots_extra = "";
 	let qtd_hp_extra = "";
+	let blindagem_tritanium = "";
+	let blindagem_neutronium = "";
+	let torpedo_tricobalto = "";
 	
 	let mk_laser = "";
 	let mk_torpedo = "";
@@ -217,7 +220,7 @@ function processa_string_admin (evento, objeto) {
 	let mk_impulso = "";
 	let mk_dobra = "";
 
-	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra, qtd_hp_extra];
+	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra, qtd_hp_extra, blindagem_tritanium, blindagem_neutronium, torpedo_tricobalto];
 	let mk = [mk_laser, mk_torpedo, mk_projetil, mk_blindagem, mk_escudos, mk_impulso, mk_dobra];
 
 	let partes_nave = input_string_construcao.split(";");
@@ -250,7 +253,10 @@ function processa_string_admin (evento, objeto) {
 	qtd_dobra = qtd[6];
 	qtd_combustivel = qtd[7];
 	qtd_slots_extra = qtd[12];
-	qtd_hp_extra = qtd[13]
+	qtd_hp_extra = qtd[13];
+	blindagem_tritanium = qtd[14];
+	blindagem_neutronium = qtd[15];
+	torpedo_tricobalto = qtd[16];
 
 	mk_laser = mk[0];
 	mk_torpedo = mk[1];
@@ -313,7 +319,23 @@ function processa_string_admin (evento, objeto) {
 	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
 	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
 	
+	if (torpedo_tricobalto == 1) {
+		pdf_torpedo = pdf_torpedo*3;
+	}
+	
 	blindagem = qtd_blindagem*(mk_blindagem*2-1);
+	if (blindagem_tritanium == 1) {
+		blindagem = blindagem*3;
+	}
+	
+	if (blindagem_neutronium == 1) {
+		if (blindagem_tritanium == 1) {
+			blindagem = blindagem*5;
+		} else {
+			blindagem = blindagem*10;
+		}
+	}
+	
 	escudos = qtd_escudos*(mk_escudos*2-1);
 	
 	if (chassi <= 10) {

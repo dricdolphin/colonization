@@ -537,7 +537,7 @@ class colonization_ajax {
 		$planeta = new planeta($_POST['id_planeta']);
 		$imperio = new imperio($_POST['id_imperio']);
 		
-		if ($planeta->inospito == 1 && $imperio->coloniza_inospito != 1) {
+		if (($planeta->inospito == 1 && $planeta->terraforma == 0) && $imperio->coloniza_inospito != 1) {
 			if ($_POST['pop'] > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}
@@ -563,7 +563,7 @@ class colonization_ajax {
 		$planeta = new planeta($colonia_destino->id_planeta);
 		$imperio = new imperio($_POST['id_imperio']);
 		
-		if ($planeta->inospito == 1 && $imperio->coloniza_inospito != 1) {
+		if (($planeta->inospito == 1 && $planeta->terraforma == 0) && $imperio->coloniza_inospito != 1) {
 			if (($colonia_destino->pop + $_POST['pop']) > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "O planeta de destino é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}
@@ -728,13 +728,20 @@ class colonization_ajax {
 			
 			if ($_POST['nivel'] != $colonia_instalacao->nivel || $_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) {//É uma atualização! Pode ser um upgrade ou um downgrade
 				$turno_upgrade = $wpdb->get_var("SELECT MAX(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = {$_POST['id']}");
-				if ($turno->turno == $turno_upgrade) {
+				if ($turno->turno != $turno_upgrade) {
 					//Já salvou um upgrade, mantém o valor antigo pois qualquer alteração nova será feita para o Turno ATUAL
 					//$wpdb->query("UPDATE colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_instalacao_anterior={$colonia_instalacao->id_instalacao} WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
-				} else {
 					$wpdb->query("INSERT INTO colonization_planeta_instalacoes_upgrade SET nivel_anterior={$colonia_instalacao->nivel}, id_instalacao_anterior={$colonia_instalacao->id_instalacao}, id_planeta_instalacoes={$_POST['id']}, turno={$turno->turno}");
 				}
 				
+				$aumento_de_slot = 0;
+				if ($_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) { //É uma ATUALIZAÇÃO da Instalação. Precisa verificar se tem espaço
+					$instalacao_antiga = new instalacao($colonia_instalacao->id_instalacao);
+					$instalacao_nova = new instalacao($_POST['id_instalacao']);
+					if ($instalacao_nova->slots > $instalacao_antiga->slots) {
+						$aumento_de_slot = $instalacao_nova->slots - $instalacao_antiga->slots;
+					}
+				}
 				
 				if ($instalacao->limite > 0) {
 					$instalacoes_no_planeta = $wpdb->get_var("
@@ -749,6 +756,8 @@ class colonization_ajax {
 					AND cpi.turno <= {$turno->turno}
 					");
 					
+					$instalacoes_no_planeta = $instalacoes_no_planeta + $aumento_de_slot;
+					
 					if ($instalacao->limite <= $instalacoes_no_planeta && empty($_POST['id'])) {
 							$texto_limite = "{$instalacao->limite} Instalações";
 						if ($instalacao->limite == 1) {
@@ -756,14 +765,13 @@ class colonization_ajax {
 						}
 						$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite é de {$texto_limite}.";
 					}
-				}			
-			
+				}
 			}
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
-			$dados_salvos['debug'] = "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}";
+			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
 		}
 		
 		$nivel = 1;
@@ -775,13 +783,11 @@ class colonization_ajax {
 			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
 			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'");
 			
-			$dados_salvos['debug'] .= "
-SELECT id FROM colonization_tech 
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_tech 
 WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
 OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
 OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
-OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
-			";
+OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			
 			$nivel++;
 			if (!empty($id_tech_child)) {
@@ -798,8 +804,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'
 			if (!empty($tech_requisito[$_POST['nivel']])) {
 				for ($nivel_tech = 1; $nivel_tech <= $_POST['nivel']; $nivel_tech++) {
 					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$tech_requisito[$nivel_tech]->id_tech_alternativa}) AND custo_pago=0");
-					$dados_salvos['debug'] = "
-SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$tech_requisito[$nivel_tech]->id_tech_alternativa}) AND custo_pago=0";
+					$dados_salvos['debug'] = "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito[$nivel_tech]->id} OR id_tech={$tech_requisito[$nivel_tech]->id_tech_alternativa}) AND custo_pago=0 \n";
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech '{$tech_requisito[$nivel_tech]->nome}'.";
 						break;
@@ -825,16 +830,14 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 					$tech_requisito = new tech ($id_tech_requisito);
 					
 					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
-					$dados_salvos['debug'] .= "
-SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0
-";
+					$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0 \n";
 					if (empty($id_tech_imperio)) {
 						$dados_salvos['resposta_ajax'] = "O {$imperio->nome} NÃO tem a Tech Requisito '{$tech_requisito->nome}'.";
 					}
 				}
 			}
 
-			if ($instalacao->autonoma == 0 && $planeta->inospito == 1) {
+			if ($instalacao->autonoma == 0 && ($planeta->inospito == 1 && $planeta->terraforma == 0)) {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em planetas habitáveis!";
 			}
 
@@ -855,8 +858,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 				AND cpi.turno <= {$turno->turno}
 				");
 				
-				$dados_salvos['debug'] .= "
-				SELECT COUNT(cpi.id)
+				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
 				FROM colonization_planeta_instalacoes AS cpi
 				JOIN colonization_imperio_colonias AS cic
 				ON cic.id_planeta = cpi.id_planeta
@@ -878,14 +880,34 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 
 			//Verifica se o Império tem os Recursos para construir ou realizar o upgrade
 			$niveis = $_POST['nivel'] - $nivel_original;
-			$dados_salvos['debug'] .= "
-{$niveis} = {$_POST['nivel']} - {$nivel_original};
-			";
+			$dados_salvos['debug'] .= "{$niveis} = {$_POST['nivel']} - {$nivel_original}; \n";
+			
+			//Se substituiu uma Instalação, DEVOLVE os recursos da Instalação antiga
+			if (!empty($instalacao_antiga)) {
+				$niveis = $_POST['nivel'];//Ajusta para cobrar o valor TOTAL da nova Instalação
+				
+				//Devolve os recursos
+				$chave = 0;
+				if ($instalacao_antiga->custos != "") {
+					$custos = explode(";",$instalacao_antiga->custos);
+					
+					foreach ($custos as $chave_recurso => $recurso) {
+						$recursos = explode("=",$recurso);
+						$id_recurso = $recursos[0];
+						$qtd = $recursos[1];
+					
+						$custo_recursos = $qtd*$nivel_original;
+						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+						$chave++;
+					}
+				}				
+			}
+
 			if ($niveis > 0) {
 				if ($instalacao->custos != "") {
 					$custos = explode(";",$instalacao->custos);
 					
-					foreach ($custos as $chave => $recurso) {
+					foreach ($custos as $chave_recurso => $recurso) {
 						$recursos = explode("=",$recurso);
 						$id_recurso = $recursos[0];
 						$qtd = $recursos[1];
@@ -893,14 +915,13 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 						$qtd_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
 						$custo_recursos = $qtd*$niveis;
 						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+						$chave++;
 						if ($qtd_imperio < $custo_recursos) {
 							$dados_salvos['resposta_ajax'] = "O Império não tem Recursos suficientes para concluir essa operação.";	
 						}
 					}
 				}
-			}
-
-
+			} 
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
@@ -909,9 +930,7 @@ SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (i
 			//Se chegou até aqui pode atualizar os Recursos do Império
 			if ($imperio->id != 0) {
 				foreach ($query_update_recursos as $chave => $query) {
-					$dados_salvos['debug'] .= "
-{$query}
-					";
+					$dados_salvos['debug'] .= "{$query} \n";
 					$update_recursos = $wpdb->query($query);
 				}
 			}
