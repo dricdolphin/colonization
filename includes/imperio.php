@@ -32,6 +32,7 @@ class imperio
 	public $bonus_recurso = [];
 	public $sinergia = [];
 	public $extrativo = [];
+	public $bonus_todos_recursos = 0;
 	public $max_bonus_recurso = [];
 	public $bonus_pesquisa_naves = 0;
 	public $crescimento_pop = 1;
@@ -328,6 +329,11 @@ class imperio
 					}
 					$this->sinergia[$valor] = $sinergia;
 					$this->extrativo[$valor] = $extrativo;
+					
+					if ($valor == "*" && !$extrativo) {
+						$this->bonus_todos_recursos = 1;
+					}
+					
 					if (empty($this->max_bonus_recurso[$valor])) {
 						$this->max_bonus_recurso[$valor] = 0;
 					}

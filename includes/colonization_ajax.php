@@ -891,6 +891,8 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 				if ($instalacao_antiga->custos != "") {
 					$custos = explode(";",$instalacao_antiga->custos);
 					
+					$recursos_devolve = [];
+					
 					foreach ($custos as $chave_recurso => $recurso) {
 						$recursos = explode("=",$recurso);
 						$id_recurso = $recursos[0];
@@ -898,6 +900,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 					
 						$custo_recursos = $qtd*$nivel_original;
 						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+						$recursos_devolve[$id_recurso] = $custo_recursos;
 						$chave++;
 					}
 				}				
@@ -913,6 +916,10 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 						$qtd = $recursos[1];
 					
 						$qtd_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+						if (empty($recursos_devolve[$id_recurso])) {
+							$recursos_devolve[$id_recurso] = 0;
+						}
+						$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
 						$custo_recursos = $qtd*$niveis;
 						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
 						$chave++;

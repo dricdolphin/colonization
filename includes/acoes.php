@@ -540,6 +540,12 @@ class acoes
 		$this->recursos_balanco_planeta = [];
 		$colonia = [];
 		$planeta = [];
+
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
+		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+
 		
 		$instalacao = [];
 		$recurso = [];
@@ -661,9 +667,9 @@ class acoes
 				//public $extrativo = [];
 				//public $max_bonus_recurso = [];
 
-				if (!empty($imperio->bonus_recurso['*'])) {//Tem bônus para TODOS os recursos
+				if (!empty($imperio->bonus_recurso['*']) && $id_recurso !== $id_poluicao) {//Tem bônus para TODOS os recursos
 					//Verifica as condições
-					if (!empty($imperio->extrativo['*'])) {//O bônus se aplica somente para recursos EXTRATIVOS
+					if (!empty($imperio->extrativo['*']) && $imperio->bonus_todos_recursos == 0) {//O bônus se aplica somente para recursos EXTRATIVOS
 						if ($imperio->extrativo['*'] === true && $recurso[$id_recurso]->extrativo == 1) {
 							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
@@ -819,8 +825,6 @@ class acoes
 ";
 
 		//As naves podem produzir Pesquisa
-		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-		
 		$pesquisa_naves = 0;
 
 		/***
@@ -851,9 +855,6 @@ class acoes
 			$this->recursos_produzidos[$id_pesquisa] = $this->recursos_produzidos[$id_pesquisa] + $pesquisa_naves;
 		}
 		
-		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
-		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
-		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 
 		//Adiciona o consumo de alimentos (e energia para os Robôs) para cada colônia e faz o Balanço da Produção e do Consumo de cada planeta
