@@ -17,7 +17,7 @@ function valida_generico(objeto) {
 	var select_linha = linha.getElementsByTagName("SELECT");
 
 	let inputs_linha_temp = [];
-	for (var index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	
@@ -33,7 +33,7 @@ function valida_generico(objeto) {
 	inputs_linha = inputs_linha_temp;
 	
 	//Verifica se o todos os dados estão preenchidos
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].type == "text" && inputs_linha[index].value == "") {
 			if (inputs_linha[index].parentNode.getAttribute("data-branco") != "true") {//Caso o div tenha o atributo "data-branco", então pode deixar em branco
 				alert('Nenhum dado pode ser deixado em branco!');
@@ -68,7 +68,7 @@ function valida_imperio(objeto) {
 	if (typeof(select_linha[0]) !== "undefined") {
 		var id_jogador = select_linha[0].value;
 		//Verifica se o jogador já tem um Império cadastrado. Cada jogador pode ter apenas um Império.
-		for (index = 0; index < inputs_tabela.length; index++) {
+		for (let index = 0; index < inputs_tabela.length; index++) {
 			if (inputs_tabela[index].getAttribute('data-atributo') == "id_jogador" && inputs_tabela[index].getAttribute('value') == id_jogador) {
 				alert('O jogador selecionado já tem um Império cadastrado! Por favor, escolha outro jogador!');
 				return false;
@@ -95,7 +95,7 @@ function valida_tech_imperio(objeto) {
 	var retorno = false;
 	var custo_pago = "";
 
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
@@ -227,7 +227,7 @@ function valida_estrela(objeto) {
 	}
 	
 	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "X" || inputs_linha[index].getAttribute('data-atributo') == "Y" || inputs_linha[index].getAttribute('data-atributo') == "Z" || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
@@ -268,9 +268,10 @@ function valida_colonia(objeto) {
 	var dados_ajax = "post_type=POST&action=valida_colonia";
 	var retorno = false;
 
-	if (typeof(select_linha[0]) !== "undefined") {
-		var id_planeta = select_linha[0].value;
-		dados_ajax = dados_ajax +"&id_planeta="+id_planeta;
+	for (let index = 0; index < select_linha.length; index++) {
+		if (typeof(select_linha[0]) !== "undefined") {
+			dados_ajax = dados_ajax + "&" + select_linha[index].getAttribute('data-atributo') + "="+ select_linha[index].value;
+		}
 	}
 
 	if (!valida_generico(objeto)) {
@@ -278,8 +279,8 @@ function valida_colonia(objeto) {
 	}
 	
 	//Verifica se o nome do Império está preenchido
-	for (index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" || inputs_linha[index].getAttribute('data-atributo') == "id_imperio" || inputs_linha[index].getAttribute('data-atributo') == "nome_npc" || inputs_linha[index].getAttribute('data-atributo') == "pop") {
+	for (let index = 0; index < inputs_linha.length; index++) {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" || inputs_linha[index].getAttribute('data-atributo') == "nome_npc" || inputs_linha[index].getAttribute('data-atributo') == "pop") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 		if (inputs_linha[index].type == 'checkbox') {
@@ -335,7 +336,7 @@ function valida_instalacao_recurso(objeto) {
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" || inputs_linha[index].getAttribute('data-atributo') == "consome" || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
@@ -384,7 +385,7 @@ function valida_planeta_recurso(objeto) {
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
@@ -436,7 +437,7 @@ function valida_colonia_instalacao(objeto) {
 		dados_ajax = dados_ajax +"&id_instalacao="+id_instalacao;
 	}
 
-	for (index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof(id_instalacao) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
@@ -559,7 +560,7 @@ function destruir_instalacao(evento, objeto) {
 	var dados_ajax = "post_type=POST&action=destruir_instalacao";
 
 	
-	for (var index = 0; index < inputs.length; index++) {
+	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
 			var id_objeto = inputs[index].value;
 		}
@@ -624,7 +625,7 @@ function mais_dados_imperio(objeto, cancela=false) {
 	var dados_ajax = "post_type=POST&action=dados_imperio";
 
 	
-	for (var index = 0; index < inputs.length; index++) {
+	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
 			var id_objeto = inputs[index].value;
 		}
@@ -653,6 +654,54 @@ function mais_dados_imperio(objeto, cancela=false) {
 }
 
 /******************
+function altera_imperio_colonia(objeto) 
+--------------------
+Altera a colônia para outro Império
+objeto -- objeto sendo editado
+******************/	
+function altera_imperio_colonia(objeto, cancela=false) {
+	var linha = pega_ascendente(objeto,"TR");
+	var tabela = pega_ascendente(objeto,"TABLE");
+	var inputs = linha.getElementsByTagName("INPUT");
+	var selects = linha.getElementsByTagName("SELECT");
+	var divs = linha.getElementsByTagName("DIV");
+
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == "nome_imperio") {
+			if (divs[index].getAttribute('data-id-selecionado') != tabela.getAttribute('data-id-imperio')) { //Mudou de Império!
+				let id_novo_imperio = divs[index].getAttribute('data-id-selecionado');
+				let id_antigo_imperio = tabela.getAttribute('data-id-imperio');
+				let tabela_novo_imperio = document.getElementsByTagName('TABLE');
+			
+				//Determina qual tabela (ou seja, qual Império) está sendo editado
+				for (let index_tabelas = 0; index_tabelas < tabela_novo_imperio.length; index_tabelas++) {
+					if (tabela_novo_imperio[index_tabelas].getAttribute('data-id-imperio') == id_novo_imperio) {
+						tabela_novo_imperio = tabela_novo_imperio[index_tabelas];
+						break;
+					}
+				}
+				
+				//Primeiro verifica se está indo de um NPC para um PC. Nese caso tem que alterar a estrutura da linha
+				if (id_novo_imperio == 0) {
+					linha.insertCell(1);
+				} else if (id_antigo_imperio == 0) {
+					linha.deleteCell(1);
+				}
+				
+				//Copia a linha para a tabela do novo Império
+				let linha_nova = tabela_novo_imperio.insertRow(-1);
+				linha_nova.innerHTML = linha.innerHTML;
+				
+				//E remove da tabela antiga
+				linha.parentNode.removeChild(linha);
+			}
+		}
+	}
+	
+}
+
+
+/******************
 function valida_acao(evento, objeto)
 --------------------
 Pega os produtos da Ação
@@ -671,7 +720,7 @@ function valida_acao(evento, objeto) {
 		return false;
 	}
 	
-	for (index=0;index<inputs.length;index++) {
+	for (let index=0;index<inputs.length;index++) {
 		if (inputs[index].getAttribute('data-atributo') == "desativado") {	
 			desativar_objeto = true;
 		}

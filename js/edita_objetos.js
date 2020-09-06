@@ -174,7 +174,11 @@ function edita_objeto(evento, objeto) {
 							inputs[0].id = divs[index_div].getAttribute('data-id');
 						}
 					} else if (divs[index_div].getAttribute('data-type') == "select") {
-						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'));
+						let argumentos = "";
+						if (divs[index_div].getAttribute('data-argumentos') != null) {
+							argumentos = divs[index_div].getAttribute('data-argumentos');
+						}
+						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'),argumentos);
 						divs[index_div].innerHTML = lista;
 					} else if (divs[index_div].getAttribute('data-type') == "textarea") {
 						divs[index_div].innerHTML = "<textarea data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" "+data_estilo+">"+valor_atributo+"</textarea>";

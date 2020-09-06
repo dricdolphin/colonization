@@ -154,9 +154,10 @@ class lista_imperios
 		global $wpdb;
 		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio ORDER BY nome");
 
-		$lista_valores = "";
-		$lista_options = "";
-		$index = 0;
+		$lista_options = "			lista[0]=\"<option value='0'\"+selecionado[0]+\">Império NPC</option>\";\n";
+		$lista_valores = "			lista_valores[0]=0;\n";		
+		$index = 1;
+
 		foreach ($resultados as $resultado) {
 			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}</option>\";\n";
 			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
@@ -165,13 +166,25 @@ class lista_imperios
 
 		$this->html_lista = 
 "		/******************
-		function lista_imperios_html(id=0,id_remove=0)
+		function lista_imperios_html(id=0,args={id_remove:0, npcs:1})
 		--------------------
 		Cria a lista de Impérios
 		id -- qual ID está selecionado
 		id_remove -- qual ID será removido da lista
+		npcs -- se é para mostrar Império NPC na lista (1 não mostra, 0 mostra)
 		******************/
-		function lista_imperios_html(id=0,id_remove=0) {
+		function lista_imperios_html(id=0,args={id_remove:0, npcs:1}) {
+			
+			if (typeof(args) == 'string') {
+				args = JSON.parse(args);
+			
+				if (typeof(args.id_remove) == 'undefined') {
+					args.id_remove = 0;
+				}
+				if (typeof(args.npcs) == 'undefined') {
+					args.npc = 1;
+				}				
+			}
 			
 			var lista=[];
 			var lista_valores=[];
@@ -179,19 +192,19 @@ class lista_imperios
 {$lista_valores}
 			
 			var html = \"			<select data-atributo='id_imperio' style='width: 100%'>\";
-			for (var index = 0; index < lista_valores.length; index++) {
+			for (let index = args.npcs; index < lista_valores.length; index++) {
 				if (lista_valores[index] == id) {
 					selecionado[index] = 'selected';
 				} else {
 					selecionado[index] = '';
 				}
-				if (lista_valores[index] == id_remove) {
+				if (lista_valores[index] == args.id_remove && args.npcs != 0) {
 					lista[index] = '';
 				}
 			}
 			
 {$lista_options}
-			for (index = 0; index < lista.length; index++) {
+			for (let index = args.npcs; index < lista.length; index++) {
 				html = html+lista[index];
 			}
 			html = html +\"			</select>\";

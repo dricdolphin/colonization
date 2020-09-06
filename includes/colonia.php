@@ -11,7 +11,7 @@ class colonia
 {
 	public $id;
 	public $id_imperio;
-	public $nome_npc;
+	public $nome_npc = "";
 	public $id_planeta;
 	public $capital;
 	public $vassalo;
@@ -47,7 +47,9 @@ class colonia
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
-		$this->nome_npc = $resultado->nome_npc;
+		if ($this->id_imperio == 0) {
+			$this->nome_npc = $resultado->nome_npc;
+		}
 		$this->id_planeta = $resultado->id_planeta;
 		$this->capital = $resultado->capital;
 		$this->vassalo = $resultado->vassalo;
@@ -137,24 +139,27 @@ class colonia
 		}
 
 		if ($this->id_imperio == 0) {
-			$imperios_npc = "<td><div data-atributo='nome_npc' data-editavel='true' data-valor-original='{$this->nome_npc}' data-style='width: 120px;'>{$this->nome_npc}</div></td>";
+			$imperios_npc = "<td><div data-atributo='nome_npc' data-editavel='true' data-valor-original='{$this->nome_npc}' data-branco='true' data-style='width: 120px;'>{$this->nome_npc}</div></td>";
 		} else {
 			$imperios_npc = "";
 		}
 
 		$this->planeta = new planeta ($this->id_planeta);
 		$this->estrela = new estrela ($this->id_estrela);
+		$imperio = new imperio($this->id_imperio);
 		
+		$string_argumentos = '{"id_remove":"0", "npcs":"0"}';
 		$html = "		
 			<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
-				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 				<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='{$this->id_planeta}' value='{$this->id_planeta}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
 				<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>
 				<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir este planeta e todas suas ligações (recursos, instalações etc)?'></input>
+				<input type='hidden' data-atributo='funcao_pos_processamento' value='altera_imperio_colonia'></input>
 				<div data-atributo='id' data-ajax='true'>{$this->id}</div>
+				<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-argumentos='{$string_argumentos}' data-id-selecionado='{$this->id_imperio}' data-valor-original='{$imperio->nome}'>{$imperio->nome}</div>
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
 			{$imperios_npc}

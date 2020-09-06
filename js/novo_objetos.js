@@ -542,7 +542,7 @@ function nova_colonia(evento, id_imperio) {
 	var id = linha_nova.insertCell(-1);
 	if (id_imperio == 0) {
 		var nome_npc = linha_nova.insertCell(-1);
-		nome_npc.innerHTML = "<div data-atributo='nome_npc' data-editavel='true' data-style='width: 120px;'><input type='text' data-atributo='nome_npc' data-ajax='true' style='width: 120px;'></input></div>";
+		nome_npc.innerHTML = "<div data-atributo='nome_npc' data-editavel='true' data-branco='true' data-style='width: 120px;'><input type='text' data-atributo='nome_npc' data-ajax='true' style='width: 120px;'></input></div>";
 	}
 	
 	var nome_planeta = linha_nova.insertCell(-1);
