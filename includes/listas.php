@@ -154,7 +154,7 @@ class lista_imperios
 		global $wpdb;
 		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio ORDER BY nome");
 
-		$lista_options = "			lista[0]=\"<option value='0'\"+selecionado[0]+\">Império NPC</option>\";\n";
+		$lista_options = "			lista[0]=\"<option value='0'\"+selecionado[0]+\">Impérios NPCs</option>\";\n";
 		$lista_valores = "			lista_valores[0]=0;\n";		
 		$index = 1;
 

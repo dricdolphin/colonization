@@ -534,6 +534,7 @@ function nova_colonia(evento, id_imperio) {
 	for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
 		if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
 			tabela = tabela[index_tabelas];
+			nome_imperio = tabela.getAttribute('data-nome-imperio')
 			break;
 		}
 	}
@@ -555,15 +556,18 @@ function nova_colonia(evento, id_imperio) {
 	var gerencia = linha_nova.insertCell(-1);
 	
 	var lista_planetas = lista_planetas_html();
+	var lista_imperios = "<select data-atributo='id_imperio' style='width: 100%'>\n"
+	+"<option value='"+id_imperio+"' selected>"+nome_imperio+"</option>\n"
+	+"</select>";
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
-	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 	+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja remover esta colônia?'></input>"
 	+"<div data-atributo='id' data-valor-original=''>#</div>"
+	+"<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='"+id_imperio+"' data-argumentos='\"id_remove\":\"0\", \"npcs\":\"0\"}' data-valor-original='"+nome_imperio+"'>"+lista_imperios+"</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
 	capital.innerHTML = "<div data-atributo='capital' data-type='checkbox' data-editavel='true' data-valor-original=''><input type='checkbox' data-atributo='capital' data-ajax='true' value='1'></input></div>";
