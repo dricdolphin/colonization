@@ -34,6 +34,7 @@ class instala_db {
 		Y INT(6) NOT NULL,
 		Z INT(6) NOT NULL,
 		tipo VARCHAR(255) NOT NULL,
+		ids_estrelas_destino TEXT DEFAULT '',
 		UNIQUE KEY (X, Y, Z)
 		)");
 

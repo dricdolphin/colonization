@@ -17,7 +17,7 @@ function valida_generico(objeto) {
 	var select_linha = linha.getElementsByTagName("SELECT");
 
 	let inputs_linha_temp = [];
-	for (let index = 0; index < inputs_linha.length; index++) {
+	for (var index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	

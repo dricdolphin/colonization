@@ -1701,7 +1701,17 @@ var id_imperio_atual = {$imperios[0]->id};
 		} else {
 			$imperio = new imperio();
 		}
-		
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}		
+
 		$turno = new turno();
 		
 		$html = "
@@ -1716,8 +1726,11 @@ var id_imperio_atual = {$imperios[0]->id};
 		
 		$index = 0;
 		$html_id_estrela_destino = "";
+		$html_buracos_de_minhoca = "";
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
+
+			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 			
 			$html_id_estrela_destino .= "
 			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};";
@@ -1727,16 +1740,21 @@ var id_imperio_atual = {$imperios[0]->id};
 			id_estrela_atual[{$index}] = 'nave_{$frota->id}';
 			lista_x_estrela['nave_{$frota->id}'] = {$frota->X};
 			lista_y_estrela['nave_{$frota->id}'] = {$frota->Y};
-			lista_z_estrela['nave_{$frota->id}'] = {$frota->Z};
-			";
+			lista_z_estrela['nave_{$frota->id}'] = {$frota->Z}; \n";
 			} else {
-				$html_id_estrela_destino .= "
-			id_estrela_atual[{$index}] = {$frota->estrela->id};";
+				$html_id_estrela_destino .= "			id_estrela_atual[{$index}] = {$frota->estrela->id}; \n";
+				
+				$html_buracos_de_minhoca .= "			buracos_de_minhoca[{$index}] = []; \n";
+
+				if (!empty($frota->destinos_buracos_minhoca)) {
+					foreach ($frota->destinos_buracos_minhoca as $chave_destinos_buracos_minhoca => $id_estrela_destino_buraco_minhoca) {
+						$html_buracos_de_minhoca .= "buracos_de_minhoca[{$index}][{$chave_destinos_buracos_minhoca}] = {$id_estrela_destino_buraco_minhoca};";
+					}
+				}
 			}
 			
 			
 			$index++;
-			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 		}
 		$html .= "</table>
 		</div>";
@@ -1778,6 +1796,8 @@ var id_imperio_atual = {$imperio->id};
 		<script>
 		{$html_javascript}
 		var id_estrela_destino = [];
+		var buracos_de_minhoca = [];
+		{$html_buracos_de_minhoca}
 		{$html_id_estrela_destino}
 		var html_lista_estrelas = lista_estrelas_html();
 		
@@ -1805,6 +1825,15 @@ var id_imperio_atual = {$imperio->id};
 					function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
 						estrelas_destino[id_estrela_origem] = true;
 					});						
+
+					mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[index].map(function(el, i) {
+						return { index: i, value: el };
+					});
+
+					mapped_estrelas_buraco_de_minhoca.forEach(
+					function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+						estrelas_destino[valor_estrelas_imperio.value] = true;
+					});	
 					
 					var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
 						return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };

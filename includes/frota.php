@@ -40,6 +40,7 @@ class frota
 	public $turno_destruido;
 	public $id_estrela_destino;
 	public $visivel;
+	public $destinos_buracos_minhoca;
 	
 	function __construct($id=0) {
 		global $wpdb;
@@ -220,6 +221,17 @@ class frota
 			$html_armas .= " PdF Projétil: {$this->PDF_projetil};";
 		}
 
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}
+
+
 		//$html .= "<td>&nbsp;</td>";
 		
 		
@@ -244,6 +256,10 @@ class frota
 
 			if ($planeta_estrela->tamanho_alcance_local > $tamanho_alcance_local) {
 				$tamanho_alcance_local = $planeta_estrela->tamanho_alcance_local;
+			}
+		
+			if ($planeta_estrela->buraco_de_minhoca == 1) {
+				$this->destinos_buracos_minhoca = $this->estrela->destinos_buracos_minhoca;
 			}
 		}
 

@@ -17,6 +17,8 @@ class estrela
 	public $Z;
 	public $tipo;
 	public $colonias;
+	public $ids_estrelas_destino;
+	public $destinos_buracos_minhoca = [];
 	
 	/***********************
 	function __construct($id_estrela)
@@ -38,7 +40,7 @@ class estrela
 		}
 		$this->id = $id_estrela;
 
-		$resultados = $wpdb->get_results("SELECT id, nome, descricao, X, Y, Z, tipo FROM colonization_estrela WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, nome, descricao, X, Y, Z, tipo, ids_estrelas_destino FROM colonization_estrela WHERE id=".$this->id);
 		if (empty($resultados)) {
 			$this->id = 0;
 			$this->X = -1;
@@ -55,6 +57,9 @@ class estrela
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
 		$this->tipo = $resultado->tipo;
+		$this->ids_estrelas_destino = $resultado->ids_estrelas_destino;
+		$this->destinos_buracos_minhoca = explode(";",$this->ids_estrelas_destino);
+		
 		$this->colonias = $wpdb->get_var("
 		SELECT COUNT(ce.id) FROM 
 		colonization_planeta AS cp
@@ -93,6 +98,7 @@ class estrela
 			<td><div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Y}'>{$this->Y}</div></td>
 			<td><div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Z}' >{$this->Z}</div></td>
 			<td><div data-atributo='tipo' data-valor-original='{$this->tipo}' data-editavel='true'>{$this->tipo}</div></td>
+			<td><div data-atributo='ids_estrelas_destino' data-valor-original='{$this->ids_estrelas_destino}' data-editavel='true'>{$this->ids_estrelas_destino}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;
 	}
@@ -110,6 +116,5 @@ class estrela
 		
 		return $distancia;
 	}
-	
 }
 ?>

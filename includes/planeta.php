@@ -36,6 +36,7 @@ class planeta
 	public $slots_extra = 0;
 	public $max_slots = 0;
 	public $alcance_local = 0;
+	public $buraco_de_minhoca = 0;
 	public $tamanho_alcance_local = 0;
 	public $terraforma = 0;
 	
@@ -72,7 +73,6 @@ class planeta
 		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno}");
 		
 		//Precisa verificar se não houve upgrade da instalação
-		
 		foreach ($id_instalacoes as $id) {
 			$instalacao = new instalacao($id->id_instalacao);
 			$colonia_instalacao = new colonia_instalacao($id->id);
@@ -101,8 +101,6 @@ class planeta
 				}
 			}
 			
-
-			
 			//Especiais: pop_inospito=qtd
 			$pop_inospito = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'pop_inospito') !== false;
@@ -130,13 +128,23 @@ class planeta
 			
 			if (!empty($alcance_local)) {
 				$alcance_local_valor = explode("=",$alcance_local[0]);
-				if ($alcance_local_valor > $this->alcance_local) {
+				if ($alcance_local_valor[1] > $this->alcance_local) {
 					$this->alcance_local = $alcance_local_valor[1];
 				}
 				
 				if (10*$colonia_instalacao->nivel > $this->tamanho_alcance_local) {
 					$this->tamanho_alcance_local = 10*$colonia_instalacao->nivel;
 				}
+			}
+
+			//Especiais: buraco_de_minhoca=1
+			$buraco_de_minhoca = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'buraco_de_minhoca') !== false;
+			}));
+			
+			if (!empty($buraco_de_minhoca)) {
+				$buraco_de_minhoca_valor = explode("=",$buraco_de_minhoca[0]);
+				$this->buraco_de_minhoca = $buraco_de_minhoca_valor[1];
 			}
 			
 			//Especiais: escudo=1
