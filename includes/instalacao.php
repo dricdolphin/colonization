@@ -190,13 +190,42 @@ class instalacao
 		return $html;
 	}
 	
+
+
+	/***********************
+	function tech_requisito_upgrade()
+	----------------------
+	Verifica qual Tech é requisito para o Upgrade (se houver)
+	***********************/
+	function tech_requisito_upgrade($nivel_upgrade) {
+		global $wpdb;
+		
+		$nivel = 1;
+		$tech_requisito[$nivel] = new tech($this->id_tech); //Pega todos os níveis de Tech
+		while ($tech_requisito[$nivel]->id != 0) {
+			$id_tech_child = $wpdb->get_var("SELECT id FROM colonization_tech 
+			WHERE id_tech_parent={$tech_requisito[$nivel]->id} 
+			OR id_tech_parent LIKE '{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id};%'
+			OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}'");
+			
+			$nivel++;
+			if (!empty($id_tech_child)) {
+				$tech_requisito[$nivel] = new tech($id_tech_child);
+			} else {
+				$tech_requisito[$nivel] = new tech(0);
+			}
+		}
+	
+		return $tech_requisito[$nivel_upgrade]->id;
+	}
+
 	/***********************
 	function bonus_recurso($id_recurso)
 	----------------------
 	Retorna o valor de bonus de um recurso produzido no planeta onde a Instalação estiver (se houver)
 	$id_recurso - id do recurso
 	***********************/
-
 	function bonus_recurso($id_recurso) {
 		$especiais = explode(";",$this->especiais);
 

@@ -338,6 +338,21 @@ class acoes
 		
 		$estilo = $estilo_impar;
 		$instalacao = [];
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];	
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				$banido = true;
+			} else {
+				$banido = false;
+			}
+		}
+
+
+		
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
@@ -348,6 +363,9 @@ class acoes
 				continue; //Caso seja uma instalação oculta, deve pular
 			}
 			
+			
+			$html_upgrade = "";
+
 			if ($ultimo_planeta != $this->id_planeta[$chave]) {
 				$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
 				$html_recursos_planeta = $planeta->exibe_recursos_planeta();
@@ -377,19 +395,6 @@ class acoes
 				$primeira_linha = "&nbsp;";
 			}
 	
-			
-			$user = wp_get_current_user();
-			$roles = "";
-			if (!empty($user->ID)) {
-				$roles = $user->roles[0];	
-				$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
-				if ($banido === "banned") {
-					$banido = true;
-				} else {
-					$banido = false;
-				}
-			}
-
 			$this->disabled = "";
 			$turno_atual = new turno();
 			if (($this->turno->turno != $turno_atual->turno) || $this->turno->encerrado == 1 || $banido) {
@@ -398,6 +403,17 @@ class acoes
 
 			if ($colonia->vassalo == 1 && $roles != "administrator") {
 				$this->disabled = "disabled";
+			}
+
+			if ($this->disabled != "disabled" && empty($this->turno_destroi[$chave])) {
+				//Verifica se há uma Tech para Upgrade e se o Império tem essa Tech
+				$nivel_upgrade = $this->nivel_instalacao[$chave] + 1;
+				$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
+				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade}"))) {
+					$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'></i></a>";
+					$nivel_upgrade++;
+					$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
+				}
 			}
 			
 			switch($this->nivel_instalacao[$chave]) {
@@ -425,6 +441,12 @@ class acoes
 			case 8:
 				$nivel = "Mk VIII";
 				break;
+			case 9:
+				$nivel = "Mk IX";
+				break;
+			case 10:
+				$nivel = "Mk X";
+				break;				
 			default:
 				$nivel = "";
 			}
@@ -478,9 +500,10 @@ class acoes
 					<input type='hidden' data-atributo='id_planeta_instalacoes' data-ajax='true' data-valor-original='{$this->id_planeta_instalacoes[$chave]}' value='{$this->id_planeta_instalacoes[$chave]}'></input>
 					<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$this->turno->turno}' value='{$this->turno->turno}'></input>
 					<input type='hidden' data-atributo='where_clause' value='id'></input>
+					<input type='hidden' data-atributo='nivel' value='{$this->nivel_instalacao[$chave]}'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}'>{$instalacao[$this->id_instalacao[$chave]]->nome} {$nivel}</div>
+					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}'>{$instalacao[$this->id_instalacao[$chave]]->nome} <label data-atributo='nivel'>{$nivel}</label>{$html_upgrade}</div>
 					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' style='font-size: x-small;'>{$html_producao_consumo_instalacao}</div>
 				</td>
 				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>";

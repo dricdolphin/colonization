@@ -697,7 +697,6 @@ function altera_imperio_colonia(objeto, cancela=false) {
 			}
 		}
 	}
-	
 }
 
 

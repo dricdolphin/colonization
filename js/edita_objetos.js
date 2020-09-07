@@ -555,7 +555,7 @@ function altera_acao(evento, objeto) {
 		var linha = pega_ascendente(objeto,"TR");
 		var inputs = linha.getElementsByTagName("INPUT");
 		var selects = linha.getElementsByTagName("SELECT");
-		var label = linha.getElementsByTagName("LABEL");
+		var labels = linha.getElementsByTagName("LABEL");
 		var tds = linha.getElementsByTagName("TD");
 		
 		//***
@@ -571,7 +571,12 @@ function altera_acao(evento, objeto) {
 		}
 		//***/
 		
-		label[0].innerText = objeto.value;
+		for (let index=0; index<labels.length; index++) {
+			if (labels[index].getAttribute('data-atributo') == 'pop') {
+				labels[index].innerText = objeto.value;
+			}
+		}
+		
 	} else {
 		alert('Já existe uma ação em edição!');
 		objeto.value = objeto.getAttribute('data-valor-original');
@@ -650,14 +655,14 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	
 	if (cancela) {
 		//***
-		for (var index=0;index<divs.length;index++) {
+		for (let index=0;index<divs.length;index++) {
 			if (divs[index].getAttribute('data-atributo') == "gerenciar") {
 				divs[index].style.visibility = "hidden";
 			}
 		}
 		//***/
 		
-		for (index=0;index<inputs.length;index++) {
+		for (let index=0;index<inputs.length;index++) {
 			if (inputs[index].getAttribute('data-atributo') == "pop") {
 				var index_range_pop = index;
 				inputs[index].value = inputs[index].getAttribute("data-valor-original");
@@ -667,7 +672,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 			}
 		}
 
-		for (index=0;index<labels.length;index++) {
+		for (let index=0; index<labels.length; index++) {
 			if (labels[index].getAttribute('data-atributo') == "pop") {
 				labels[index].innerText = inputs[index_range_pop].value;
 			}

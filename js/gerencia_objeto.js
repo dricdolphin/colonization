@@ -114,7 +114,7 @@ redireciona -- Se é para redirecionar para outra página
 ******************/
 function gerenciar_objeto(evento, objeto, redireciona = "") {
 	//alert(typeof objeto);
-	var linha=pega_ascendente(objeto,"TR");;
+	var linha=pega_ascendente(objeto,"TR");
 	var inputs=linha.getElementsByTagName("INPUT");
 	
 	for (var index = 0; index < inputs.length; index++) {
@@ -153,7 +153,7 @@ function copiar_objeto(evento, objeto, id_imperio) {
 		}
 	}
 	
-	var linha = pega_ascendente(objeto,"TR");;
+	var linha = pega_ascendente(objeto,"TR");
 	var celulas = linha.getElementsByTagName("TD");
 	var inputs = [];
 	
@@ -380,6 +380,145 @@ function envia_nave (objeto, evento, id_nave) {
 
 	evento.preventDefault();
 	return false;
+}
+
+/******************
+function upgrade_instalacao()
+--------------------
+Faz o upgrade de uma Instalação
+******************/
+function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
+	if (objeto_em_salvamento) {
+		
+		alert('Já existe um objeto em edição!');
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let labels = linha.getElementsByTagName("LABEL");
+
+	let label_mk = objeto.parentNode;
+
+	let input_nivel = {};
+	label_mk = label_mk.getElementsByTagName("LABEL")[0];
+	
+	var dados = [];
+	
+	
+	for (let index=0; index<inputs.length; index++) {
+		if (inputs[index].getAttribute("data-atributo") == "id_imperio" || inputs[index].getAttribute("data-atributo") == "id_planeta" || inputs[index].getAttribute("data-atributo") == "id_instalacao" || inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
+		} else if (inputs[index].getAttribute("data-atributo") == "nivel") {
+			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
+			input_nivel = inputs[index];
+		} else if (inputs[index].getAttribute("data-atributo") == "pop" ) {
+			var input_pop = inputs[index];
+		}
+	}
+
+	for (let index=0; index<labels.length; index++) {
+		if (labels[index].getAttribute("data-atributo") == "pop") {
+			var label_pop = labels[index];
+		}
+	}
+	
+	var nivel_upgrade = dados['nivel']*1 + 1;
+	
+	var dados_ajax = "post_type=POST&action=valida_colonia_instalacao&upgrade_acao=true&id="+dados['id_planeta_instalacoes']+"&nivel="+nivel_upgrade+"&tabela=colonization_planeta_instalacoes"
+	+"&where_clause=id&where_value="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&id_instalacao="+dados['id_instalacao']+"&id_imperio="+dados['id_imperio'];
+
+	//***
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			
+			objeto_em_salvamento = false;
+			
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+				//Remove o objeto e ATUALIZA a Instalação
+				switch(nivel_upgrade) {
+					case 1:
+						html_nivel = "Mk I";
+						break;
+					case 2:
+						html_nivel = "Mk II";
+						break;
+					case 3:
+						html_nivel = "Mk III";
+						break;
+					case 4:
+						html_nivel = "Mk IV";
+						break;
+					case 5:
+						html_nivel = "Mk V";
+						break;
+					case 6:
+						html_nivel = "Mk VI";
+						break;
+					case 7:
+						html_nivel = "Mk VII";
+						break;
+					case 8:
+						html_nivel = "Mk VIII";
+						break;
+					case 9:
+						html_nivel = "Mk IX";
+						break;
+					case 10:
+						html_nivel = "Mk X";
+						break;
+					default:
+						html_nivel = "";
+					}
+				
+				label_mk.innerHTML = html_nivel;
+				input_nivel.value = nivel_upgrade;
+				
+				let fator =  ((nivel_upgrade-1)/(nivel_upgrade));
+				
+				if (input_pop != "undefined") {
+					input_pop.value = Math.floor(input_pop.value*fator);
+					label_pop.innerHTML = input_pop.value;
+				}
+
+				if (nivel_upgrade >= nivel_maximo) {
+					objeto.style.display='none';
+				}
+				
+				objeto_em_salvamento = false;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			
+			objeto_em_salvamento = false;
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
+		
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+	//***/
+	
+	evento.preventDefault();
+	return false;	
 }
 
 function alerta(texto) {
