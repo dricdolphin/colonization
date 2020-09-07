@@ -952,7 +952,11 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			if (!empty($_POST['upgrade_acao'])) {
 				unset($_POST['upgrade_acao']);
 				unset($_POST['id_imperio']);
-				$resposta = $this->salva_objeto(); //Define que NÃO é pra responder com wp_die
+				
+				$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
+				
+				$dados_salvos['recursos_atuais'] = $imperio->exibe_recursos_atuais();
+				$dados_salvos['resposta_ajax'] = "SALVO!";
 			}
 		}
 
@@ -1196,7 +1200,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
 		$ajax_valida = true;
-		$acoes->pega_balanco_recursos($ajax_valida); //Recalcula os balanços
+		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes']); //Recalcula os balanços
 			$debug .= $acoes->debug;
 			$acoes->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

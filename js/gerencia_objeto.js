@@ -486,6 +486,9 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				
 				label_mk.innerHTML = html_nivel;
 				input_nivel.value = nivel_upgrade;
+				let id_recursos_atuais = "recursos_atuais_imperio_"+dados['id_imperio'];
+				let div_recursos_atuais = document.getElementById(id_recursos_atuais);
+				div_recursos_atuais.innerHTML = resposta.recursos_atuais;
 				
 				let fator =  ((nivel_upgrade-1)/(nivel_upgrade));
 				
