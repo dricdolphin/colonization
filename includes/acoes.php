@@ -805,27 +805,38 @@ class acoes
 			
 			//Pega o consumo fixo das instalações
 			if ($this->desativado[$chave] == 0) {
-				foreach ($instalacao[$this->id_instalacao[$chave]]->consumo_fixo as $id_consumo_fixo => $id_recurso) {
-					if (empty($this->recursos_consumidos[$id_recurso])) {
-						if (empty($recurso[$id_recurso])) {
-							$recurso[$id_recurso] = new recurso($id_recurso);
+				foreach ($instalacao[$this->id_instalacao[$chave]]->consumo_fixo as $id_consumo_fixo => $id_recurso_fixo) {
+					if (empty($this->recursos_consumidos[$id_recurso_fixo])) {
+						if (empty($recurso[$id_recurso_fixo])) {
+							$recurso[$id_recurso_fixo] = new recurso($id_recurso_fixo);
 							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-							$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms \n";
+							$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso_fixo}) {$diferenca}ms \n";
 						}
 						
-						$this->recursos_consumidos[$id_recurso] = 0;
-						$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
-						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
-						$this->recursos_consumidos_nome[$id_recurso] = $recurso[$id_recurso]->nome;
+						$this->recursos_consumidos[$id_recurso_fixo] = 0;
+						$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = 0;
+						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = 0;
+						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;
 
-						if (empty($this->recursos_balanco_nome[$id_recurso])) {
-							$this->recursos_balanco_nome[$id_recurso] = $recurso[$id_recurso]->nome;
+						if (empty($this->recursos_balanco_nome[$id_recurso_fixo])) {
+							$this->recursos_balanco_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;
 						}
 					}
 					
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					if (empty($this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]])) {
+						$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = 0;
+						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = 0;
+						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;
+					}
+					
+					if (empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo])) {
+						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = 0;
+						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;						
+					}
+					
+					$this->recursos_consumidos[$id_recurso_fixo] = $this->recursos_consumidos[$id_recurso_fixo] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
 				}
 			}
 		}
