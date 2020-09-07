@@ -651,12 +651,14 @@ class acoes
 						ON cr.id = cpr.id_recurso
 						WHERE cpr.id_planeta={$this->id_planeta[$chave]} AND cpr.turno={$this->turno->turno} 
 						AND cpr.id_recurso={$id_recurso}");
-						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta && !$ajax_valida) {
+						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta) {
 							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-							$this->pop[$chave] = 0;
-							$this->desativado[$chave] = 1;
+							if (!$ajax_valida) {
+								$this->pop[$chave] = 0;
+								$this->desativado[$chave] = 1;
+							}
 						}
 					}
 				} else {
@@ -676,7 +678,10 @@ class acoes
 							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-							$this->pop[$chave] = 0;
+							if (!$ajax_valida) {
+								$this->pop[$chave] = 0;
+								$this->desativado[$chave] = 1;
+							}
 						}
 					}					
 				}
@@ -766,8 +771,7 @@ class acoes
 					if (empty($recurso[$id_recurso])) {
 						$recurso[$id_recurso] = new recurso($id_recurso);
 						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-						$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms
-";							
+						$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms \n";
 					}
 					
 					$this->recursos_consumidos[$id_recurso] = 0;
@@ -813,8 +817,7 @@ class acoes
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção e Consumo {$diferenca}ms
-";
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção e Consumo {$diferenca}ms \n";
 
 		//Calcula os recursos produzidos totais
 		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
@@ -844,8 +847,7 @@ class acoes
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms
-";
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms \n";
 
 		//As naves podem produzir Pesquisa
 		$pesquisa_naves = 0;
@@ -994,8 +996,7 @@ class acoes
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Consumo Total {$diferenca}ms
-";		
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Consumo Total {$diferenca}ms \n";		
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
@@ -1015,8 +1016,7 @@ class acoes
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms
-";
+			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms \n";
 		
 	}
 

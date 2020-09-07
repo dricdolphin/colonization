@@ -1178,7 +1178,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		$sem_balanco = true;
 		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco); //Como vamos alterar a ação, não calcula os balanços na criação da ação
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$debug .= "valida_acao() -> new Ações {$diferenca}ms /n";
+			$debug .= "valida_acao() -> new Ações {$diferenca}ms \n";
 		
 		//Verifica se existe MdO suficiente na Colônia (ou no Sistema, para o caso de unidades Autônomas)
 		$instalacao = new instalacao($_POST['id_instalacao']);
@@ -1200,7 +1200,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			$debug .= $acoes->debug;
 			$acoes->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms /n";
+			$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms \n";
 		
 		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
 		$pop_planeta = $colonia->pop;
@@ -1238,7 +1238,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$debug .= "valida_acao() -> Verifica Reservas Planetárias {$diferenca}ms /n";
+			$debug .= "valida_acao() -> Verifica Reservas Planetárias {$diferenca}ms \n";
 
 		//Verifica se o balanço de recursos mais o estoque do Império são suficientes
 		foreach ($acoes->recursos_balanco as $id_recurso => $valor) {
@@ -1256,7 +1256,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$debug .= "valida_acao() -> Verifica Estoque Império {$diferenca}ms /n";
+			$debug .= "valida_acao() -> Verifica Estoque Império {$diferenca}ms \n";
 
 		if ($dados_salvos['balanco_acao'] != "") {
 			$dados_salvos['balanco_acao'] = substr($dados_salvos['balanco_acao'],0,-2);
@@ -1276,7 +1276,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			$produtos_acao['debug'] = "";
 			$dados_salvos = array_merge($dados_salvos, $produtos_acao);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$debug .= "valida_acao() -> \$this->produtos_acao {$diferenca}ms /n";			
+				$debug .= "valida_acao() -> \$this->produtos_acao {$diferenca}ms \n";			
 		}
 		
 		$dados_salvos['debug'] .= $debug;
