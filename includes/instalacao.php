@@ -217,6 +217,9 @@ class instalacao
 			}
 		}
 	
+		if (empty($tech_requisito[$nivel_upgrade])) {
+			$tech_requisito[$nivel_upgrade] = new tech(0);
+		}
 		return $tech_requisito[$nivel_upgrade]->id;
 	}
 

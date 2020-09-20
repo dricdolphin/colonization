@@ -492,7 +492,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				
 				let fator =  ((nivel_upgrade-1)/(nivel_upgrade));
 				
-				if (input_pop != "undefined") {
+				if (input_pop != undefined) {
 					input_pop.value = Math.floor(input_pop.value*fator);
 					label_pop.innerHTML = input_pop.value;
 				}

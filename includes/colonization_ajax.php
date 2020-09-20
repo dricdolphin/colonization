@@ -712,10 +712,15 @@ class colonization_ajax {
 			$imperio = new imperio($id_imperio, true);
 		}
 
-
-		
 		if ($roles != "administrator" && ($id_imperio != $_POST['id_imperio'])) {
 			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação! {$id_imperio} {$_POST['id_imperio']}";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+		
+		if ($turno->encerrado == 1 && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "O Turno {$turno->turno} foi ENCERRADO e não pode mais receber alterações!";
+		
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		}
@@ -1170,8 +1175,18 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		$debug = "";
 		$dados_salvos['balanco_acao'] = "";		
 		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio, true);
+		}
 		$turno = new turno($_POST['turno']);
-		if ($turno->encerrado == 1) {
+		if ($roles != "administrator" && $turno->encerrado == 1 ) {
 			$dados_salvos['resposta_ajax'] = "O Turno {$turno->turno} foi ENCERRADO e não pode mais receber alterações!";
 		
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -1237,7 +1252,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 				}
 	
 				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
-					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome}, ";
+					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome} (Extrai {$acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id]}, Reservas {$planeta_recursos->qtd_disponivel}), ";
 				}
 			}
 		}

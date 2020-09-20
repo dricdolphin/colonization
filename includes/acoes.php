@@ -397,7 +397,7 @@ class acoes
 	
 			$this->disabled = "";
 			$turno_atual = new turno();
-			if (($this->turno->turno != $turno_atual->turno) || $this->turno->encerrado == 1 || $banido) {
+			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
 					$this->disabled = "disabled";
 			}
 
@@ -651,15 +651,20 @@ class acoes
 						ON cr.id = cpr.id_recurso
 						WHERE cpr.id_planeta={$this->id_planeta[$chave]} AND cpr.turno={$this->turno->turno} 
 						AND cpr.id_recurso={$id_recurso}");
-						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta && ($id_planeta_instalacoes != $this->id_planeta_instalacoes[$chave])) {
-							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
-							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+						$desativa_instalacao_atual = 1;
+						if ($qtd_recurso_planeta > 0) { 
+							$desativa_instalacao_atual = 0;
+						}
+						//if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta && ($id_planeta_instalacoes != $this->id_planeta_instalacoes[$chave])) {
+						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta) {
+							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10) + $qtd_recurso_planeta;
+							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10) + $qtd_recurso_planeta;
+							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10) + $qtd_recurso_planeta;
 
-							$this->debug .= "ID_PLANETA_INSTALACOES: {$id_planeta_instalacoes} : {$this->id_planeta_instalacoes[$chave]} \n";
-							$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id={$this->id[$chave]}");
+							$this->debug .= "ID_PLANETA_INSTALACOES: {$id_planeta_instalacoes} : {$this->id_planeta_instalacoes[$chave]} => produz {$qtd_recurso_planeta}\n";
+							$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado={$desativa_instalacao_atual} WHERE id={$this->id[$chave]}");
 							$this->pop[$chave] = 0;
-							$this->desativado[$chave] = 1;
+							$this->desativado[$chave] = $desativa_instalacao_atual;
 						}
 					}
 				} else {
@@ -675,14 +680,21 @@ class acoes
 						ON cr.id = cpr.id_recurso
 						WHERE cpr.id_planeta={$this->id_planeta[$chave]} AND cpr.turno={$this->turno->turno} 
 						AND cpr.id_recurso={$id_recurso}");
-						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta && ($id_planeta_instalacoes != $this->id_planeta_instalacoes[$chave])) {
-							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
-							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+						$desativa_instalacao_atual = 0;
+						$extrai_recursos_totais = 0;
+						if ($qtd_recurso_planeta > 0 && $this->pop[$chave] == 1) { 
+							$desativa_instalacao_atual = 1;
+							$extrai_recursos_totais = $qtd_recurso_planeta;
+						}						
+						
+						if ($this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] > $qtd_recurso_planeta && (($id_planeta_instalacoes != $this->id_planeta_instalacoes[$chave]) || ($this->pop[$chave] == 1 && $id_planeta_instalacoes == $this->id_planeta_instalacoes[$chave]))) {
+							$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10) + $extrai_recursos_totais;
+							$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10) + $extrai_recursos_totais;
+							$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] - floor($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10) + $extrai_recursos_totais;
 
 							$this->debug .= "ID_PLANETA_INSTALACOES: {$id_planeta_instalacoes} : {$this->id_planeta_instalacoes[$chave]} \n";
-							$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id={$this->id[$chave]}");
-							$this->pop[$chave] = 0;
+							$wpdb->query("UPDATE colonization_acoes_turno SET pop={$desativa_instalacao_atual} WHERE id={$this->id[$chave]}");
+							$this->pop[$chave] = $desativa_instalacao_atual;
 						}
 					}					
 				}
