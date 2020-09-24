@@ -171,13 +171,13 @@ function calcula_custos(evento, objeto) {
 
 	let tritanium_blindagem = 0;
 	if (tritanium.checked) {
-		tritanium_blindagem = 1;
+		tritanium_blindagem = 1*qtd_blindagem;
 		blindagem = blindagem*3;
 	}
 
 	let neutronium_blindagem = 0;
 	if (neutronium.checked) {
-		neutronium_blindagem = 1;
+		neutronium_blindagem = 1*qtd_blindagem;
 		if (tritanium_blindagem) {
 			blindagem = blindagem*5;
 		} else {
@@ -187,7 +187,7 @@ function calcula_custos(evento, objeto) {
 	
 	let tricobalto_torpedo = 0;
 	if (tricobalto.checked) {
-		tricobalto_torpedo = 1;
+		tricobalto_torpedo = 1*qtd_torpedo;
 		pdf_torpedo = pdf_torpedo*3;
 	}
 

@@ -1741,6 +1741,8 @@ var id_imperio_atual = {$imperios[0]->id};
 			lista_x_estrela['nave_{$frota->id}'] = {$frota->X};
 			lista_y_estrela['nave_{$frota->id}'] = {$frota->Y};
 			lista_z_estrela['nave_{$frota->id}'] = {$frota->Z}; \n";
+
+			$html_buracos_de_minhoca .= "			buracos_de_minhoca[{$index}] = []; \n";
 			} else {
 				$html_id_estrela_destino .= "			id_estrela_atual[{$index}] = {$frota->estrela->id}; \n";
 				
@@ -1826,6 +1828,7 @@ var id_imperio_atual = {$imperio->id};
 						estrelas_destino[id_estrela_origem] = true;
 					});						
 
+					
 					mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[index].map(function(el, i) {
 						return { index: i, value: el };
 					});
