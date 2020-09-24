@@ -1722,7 +1722,12 @@ var id_imperio_atual = {$imperios[0]->id};
 		</thead>
 		";
 		
-		$lista_frota_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id} AND turno_destruido=0");
+		$lista_frota_imperio = $wpdb->get_results("SELECT DISTINCT cif.id 
+		FROM colonization_imperio_frota AS cif 
+		LEFT JOIN colonization_estrela AS ce
+		ON ce.X=cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
+		WHERE cif.id_imperio={$imperio->id} AND cif.turno_destruido=0
+		ORDER BY (cif.nivel_estacao_orbital>0) DESC, ce.nome");
 		
 		$index = 0;
 		$html_id_estrela_destino = "";
