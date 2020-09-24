@@ -78,7 +78,8 @@ function calcula_custos(evento, objeto) {
 		
 		qtd_dobra = document.getElementById('qtd_dobra').value;
 		
-		custo_estacao_orbital = 20*qtd_estacao_orbital;
+		//custo_estacao_orbital = 20*qtd_estacao_orbital;
+		custo_estacao_orbital=Math.floor(-0.1008*Math.pow(qtd_estacao_orbital,2)+21.055*qtd_estacao_orbital-0.7732);
 		
 		if (especiais == 0) {
 			texto_especiais_div.innerHTML = "Especiais: (1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
@@ -156,6 +157,7 @@ function calcula_custos(evento, objeto) {
 	let custo_blindagem = Math.ceil(chassi/5)*qtd_blindagem*mk_blindagem;
 	let custo_escudos = Math.ceil(chassi/5)*qtd_escudos*mk_escudos;
 
+
 	let duranium_blindagem = Math.ceil(chassi/15)*qtd_blindagem;
 	if (duranium_blindagem < qtd_blindagem) {
 		duranium_blindagem = qtd_blindagem;
@@ -194,11 +196,6 @@ function calcula_custos(evento, objeto) {
 		energium_escudos = qtd_escudos;
 	}
 	
-	industrializaveis = qtd_bombas*10 + custo_estacao_orbital*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_impulso*mk_impulso + qtd_dobra*mk_dobra + qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + qtd_pesquisa*1 + chassi*1;
-	energium = Math.ceil(custo_estacao_orbital/4) + qtd_tropas*1 + qtd_bombas*5 + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1;
-	dillithium = qtd_dobra*mk_dobra;
-	duranium = duranium_blindagem*1 + qtd_projetil*1;
-	
 	let texto_nor_duranium = "";
 	if (nor_duranium_blindagem > 0) {
 		texto_nor_duranium = " | Nor-Duranium: "+nor_duranium_blindagem;
@@ -229,14 +226,24 @@ function calcula_custos(evento, objeto) {
 		categoria = "Cruzador";
 	} else if (chassi > 100 && chassi <= 200) {
 		categoria = "Nave de Guerra";
+		custo_blindagem = Math.ceil(Math.pow(chassi,(1.1-0.001*chassi))/5)*qtd_blindagem*mk_blindagem;
+		custo_escudos = Math.ceil(Math.pow(chassi,(1.1-0.001*chassi))/5)*qtd_escudos*mk_escudos;		
 	} else if (chassi > 200 && chassi <= 300) {
 		categoria = "Nave de Batalha";
+		custo_blindagem = Math.ceil(Math.pow(chassi,(1-0.0005*chassi))/5)*qtd_blindagem*mk_blindagem;
+		custo_escudos = Math.ceil(Math.pow(chassi,(1-0.0005*chassi))/5)*qtd_escudos*mk_escudos;		
 	} else if (chassi > 300 && chassi <= 500) {
 		categoria = "Couraçado";
+		custo_blindagem = Math.ceil(Math.pow(chassi,(1.075-0.00075*chassi))/5)*qtd_blindagem*mk_blindagem;
+		custo_escudos = Math.ceil(Math.pow(chassi,(1.075-0.00075*chassi))/5)*qtd_escudos*mk_escudos;		
 	} else if (chassi > 500 && chassi <= 1000) {
 		categoria = "Dreadnought";
+		custo_blindagem = Math.ceil(Math.pow(chassi,(0.72-0.00004*chassi))/5)*qtd_blindagem*mk_blindagem;
+		custo_escudos = Math.ceil(Math.pow(chassi,(0.72-0.00004*chassi))/5)*qtd_escudos*mk_escudos;		
 	} else if (chassi > 1000 && chassi <= 5000) {
 		categoria = "Nave-Mãe";
+		custo_blindagem = Math.ceil(Math.pow(chassi,0.68)/5)*qtd_blindagem*mk_blindagem;
+		custo_escudos = Math.ceil(Math.pow(chassi,0.68)/5)*qtd_escudos*mk_escudos;		
 	} else {
 		categoria = "????????";
 	}
@@ -244,6 +251,12 @@ function calcula_custos(evento, objeto) {
 	if (qtd_estacao_orbital != 0) {
 		categoria = "Estação Orbital";
 	}
+
+
+	industrializaveis = qtd_bombas*10 + custo_estacao_orbital*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_impulso*mk_impulso + qtd_dobra*mk_dobra + qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + qtd_pesquisa*1 + chassi*1;
+	energium = Math.ceil(custo_estacao_orbital/4) + qtd_tropas*1 + qtd_bombas*5 + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1;
+	dillithium = qtd_dobra*mk_dobra;
+	duranium = duranium_blindagem*1 + qtd_projetil*1;
 	
 	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
 	+"PdF Laser: "+pdf_laser+"/ PdF Torpedo: "+pdf_torpedo+"/ PdF Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
