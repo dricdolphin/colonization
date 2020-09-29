@@ -1282,7 +1282,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		}
 
 
-		if ($_POST['desativado'] == 1 || (!$instalacao->autonoma && $_POST['pop'] == 0)) {//Se for para DESATIVAR uma Instalação, não precisa fazer os balanços
+		if ($_POST['desativado'] == 1 || (!$instalacao->desguarnecida && $_POST['pop'] == 0)) {//Se for para DESATIVAR uma Instalação, não precisa fazer os balanços
 			$dados_salvos['balanco_acao'] = "";
 		}
 		

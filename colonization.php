@@ -333,7 +333,7 @@ class colonization {
 				if ($id_imperio->id_imperio == 0) {
 					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
 				} else {
-					$imperio_estrela = new imperio($id_imperio->id_imperio);
+					$imperio_estrela = new imperio($id_imperio->id_imperio,true);
 					$nomes_imperios .= "{$imperio_estrela->nome}; ";
 				}
 			}

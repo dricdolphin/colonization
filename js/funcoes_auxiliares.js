@@ -319,17 +319,17 @@ function processa_string_admin (evento, objeto) {
 	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
 	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
 	
-	if (torpedo_tricobalto == 1) {
+	if (torpedo_tricobalto > 0) {
 		pdf_torpedo = pdf_torpedo*3;
 	}
 	
 	blindagem = qtd_blindagem*(mk_blindagem*2-1);
-	if (blindagem_tritanium == 1) {
+	if (blindagem_tritanium > 0) {
 		blindagem = blindagem*3;
 	}
 	
-	if (blindagem_neutronium == 1) {
-		if (blindagem_tritanium == 1) {
+	if (blindagem_neutronium > 0) {
+		if (blindagem_tritanium > 0) {
 			blindagem = blindagem*5;
 		} else {
 			blindagem = blindagem*10;
