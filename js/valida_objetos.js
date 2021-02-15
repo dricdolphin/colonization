@@ -701,86 +701,6 @@ function altera_imperio_colonia(objeto, cancela=false) {
 
 
 /******************
-function valida_acao(evento, objeto)
---------------------
-Pega os produtos da Ação
-******************/	
-function valida_acao(evento, objeto) {
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var linha = pega_ascendente(objeto,"TR");
-	var divs = linha.getElementsByTagName('DIV');
-	var inputs = linha.getElementsByTagName('INPUT');
-	var labels = linha.getElementsByTagName('LABEL');
-	var dados = []; //Dados que serão enviados para a validação
-	var desativar_objeto = false;
-	
-	if (evento.button === 3) {
-		evento.preventDefault();
-		return false;
-	}
-	
-	for (let index=0;index<inputs.length;index++) {
-		if (inputs[index].getAttribute('data-atributo') == "desativado") {	
-			desativar_objeto = true;
-		}
-		
-		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "desativado") {
-			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
-		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
-			//No caso do atributo "pop", precisamos validar a DIFERENÇA entre o valor já salvo (data-valor-original) e o valor novo, para verificar se estamos ou não ultrapassando algum limite de consumo
-			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
-			dados['pop'] = inputs[index].value;
-		}
-	}
-
-	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
-	var retorno = {};
-	retorno.retorno = true;
-	
-	//Envia a chamada de AJAX para salvar o objeto
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.status == 400) {
-			
-		}
-		if (this.readyState == 4 && this.status == 200) {
-			try {
-				var resposta = JSON.parse(this.responseText);
-				retorno.resposta = resposta;
-			} 
-			catch (err) {
-				console.log(this.responseText);
-				retorno = false;
-				return false;
-			}
-
-			if (resposta.debug !== undefined) {
-				console.log(resposta.debug);
-			}			
-
-			if (resposta.resposta_ajax == "OK!") {
-				if (resposta.balanco_acao != "") {
-					retorno = false;
-					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+resposta.balanco_acao);
-				}
-			} else {
-				alert(resposta.resposta_ajax);
-				retorno = false;
-			}
-		
-			//Chama o call-back "efetua ação"
-			efetua_acao(evento, objeto, retorno);
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-
-	evento.preventDefault();
-	return retorno;
-}
-
-/******************
 function valida_acao_admin(dados)
 --------------------
 Valida as ações do Admin e as executa
@@ -921,7 +841,11 @@ function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
 }
 
 
-
+/******************
+function valida_transfere_tech(objeto) 
+--------------------
+Valida uma transferência de tecnologia
+******************/	
 function valida_transfere_tech(objeto){
 	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
 	var dados_ajax = "post_type=POST&action=valida_transfere_tech&turno="+dados['turno'].value+"&id_imperio_origem="+dados['id_imperio_origem'].value+"&id_imperio_destino="+dados['id_imperio_destino'].value+"&id_tech="+dados['id_tech'].value;

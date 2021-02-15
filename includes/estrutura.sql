@@ -238,8 +238,15 @@ turno INT(6) NOT NULL,
 data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 )
 
+--Tabela com os balanços do turno
+CREATE TABLE colonization_balancos_turno (
+id_imperio INT(6) NOT NULL,
+json_balancos TEXT NOT NULL,
+turno INT(6) NOT NULL
+)
+
 --Tabela com as ações do Admin
-CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
+CREATE TABLE IF NOT EXISTS colonization_b_admin (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 lista_recurso VARCHAR(255) NOT NULL,

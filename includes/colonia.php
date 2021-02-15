@@ -282,5 +282,37 @@ class colonia
 		
 		return $this->bonus_recurso[$id_recurso];		
 	}
+
+
+	/***********************
+	function pega_alimentos_consumidos_planeta()
+	----------------------
+	Calcula o consumo de Alimentos de um planeta por sua Pop
+	***********************/		
+	function pega_alimentos_consumidos_planeta ($imperio_alimento_inospito) {
+
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta ($this->id_planeta);
+		}
+		
+		//Existem algumas Techs que aumentam o consumo de alimentos
+		$consumo_extra_inospito = 0;
+		if ($this->planeta->inospito == 1 && $this->planeta->terraforma == 0) {
+			if ($this->pop > $this->planeta->pop_inospito) {
+				$pop_inospito = $this->pop - $this->planeta->pop_inospito;
+				$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
+			}
+		}
+			
+		//População acima do limite de Slots do planeta consome o DOBRO de alimento
+		$consumo_extra_pop = 0;
+		if ($this->pop > $this->planeta->tamanho*10) {
+			$consumo_extra_pop = ($this->pop - $this->planeta->tamanho*10);
+		}
+	
+		return $this->pop + $consumo_extra_inospito + $consumo_extra_pop;
+	}
+	
+	
 }
 ?>

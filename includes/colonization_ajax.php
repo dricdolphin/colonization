@@ -1330,42 +1330,42 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			$dados_salvos['debug'] .= $imperio->debug;
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->exibe_lista_colonias() {$diferenca}ms
 ";
-		$dados_salvos['recursos_produzidos'] = $acoes->exibe_recursos_produzidos();
+		$dados_salvos['recursos_produzidos'] = $imperio->acoes->exibe_recursos_produzidos();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->exibe_recursos_produzidos() {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_produzidos() {$diferenca}ms
 ";		
-		$dados_salvos['recursos_consumidos'] = $acoes->exibe_recursos_consumidos();
+		$dados_salvos['recursos_consumidos'] = $imperio->acoes->exibe_recursos_consumidos();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->exibe_recursos_consumidos() {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_consumidos() {$diferenca}ms
 ";
-		$dados_salvos['recursos_balanco'] = $acoes->exibe_recursos_balanco();
+		$dados_salvos['recursos_balanco'] = $imperio->acoes->exibe_recursos_balanco();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->exibe_recursos_balanco(); {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_balanco(); {$diferenca}ms
 ";		
-		$dados_salvos['balanco_planeta'] = $acoes->exibe_balanco_planeta($_POST['id_planeta']);
+		$dados_salvos['balanco_planeta'] = $imperio->acoes->exibe_balanco_planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->exibe_balanco_planeta() {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_balanco_planeta() {$diferenca}ms
 ";		
-		$dados_salvos['pop_mdo_planeta'] = $acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
+		$dados_salvos['pop_mdo_planeta'] = $imperio->acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->exibe_pop_mdo_planeta() {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_pop_mdo_planeta() {$diferenca}ms
 ";		
-		$pop_sistema = $acoes->pop_mdo_sistema($planeta->id_estrela);
+		$pop_sistema = $imperio->acoes->pop_mdo_sistema($planeta->id_estrela);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$acoes->pop_mdo_sistema() {$diferenca}ms
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->pop_mdo_sistema() {$diferenca}ms
 ";		
 		
 		//$id_planeta_instalacoes
 		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "";
-		if (!empty($acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
-			foreach ($acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
+		if (!empty($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
+			foreach ($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
 				$recurso = new recurso($id_recurso);
 				$dados_salvos['id_planeta_instalacoes_produz_consome'] .= "{$recurso->nome}: {$qtd}; ";
 			}
 		}
 		
-		if (!empty($acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
-			foreach ($acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
+		if (!empty($imperio->acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
+			foreach ($imperio->acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
 				$recurso = new recurso($id_recurso);
 				$dados_salvos['id_planeta_instalacoes_produz_consome'] .= "{$recurso->nome}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
 			}

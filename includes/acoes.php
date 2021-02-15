@@ -544,6 +544,25 @@ class acoes
 			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms
 ";		
 
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
+		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+
+		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
+		//** TODO **//
+		/***
+			Verifica se os dados existem no DB
+			Se exisir, carrega todas as variáveis abaixo e sai do balanço
+			
+			Existe a possibilidade de estarmos processando apenas uma ALTERAÇÃO de uma das ações (i.e. $id_planeta_instalacoes != 0)
+			
+			Nesse caso, precisamos processar SOMENTE o $id_planeta_instalacoes
+		
+		***/
+		
+		
+		
 		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
 		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
 		$this->recursos_produzidos = [];
@@ -561,15 +580,9 @@ class acoes
 		$this->recursos_balanco = [];
 		$this->recursos_balanco_nome = [];
 		$this->recursos_balanco_planeta = [];
+
 		$colonia = [];
 		$planeta = [];
-
-		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
-		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
-		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
-		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-
-		
 		$instalacao = [];
 		$recurso = [];
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
@@ -887,12 +900,6 @@ class acoes
 
 		//As naves podem produzir Pesquisa
 		$pesquisa_naves = 0;
-
-		/***
-		$naves = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_frota
-		WHERE id_imperio = {$this->id_imperio} AND pesquisa = 1");
-		//***/
-		
 		$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
 		WHERE id_imperio = {$this->id_imperio} AND pesquisa = 1 AND turno_destruido=0");
 		
@@ -908,7 +915,6 @@ class acoes
 				}
 			}
 		}
-		
 		
 		if (empty($this->recursos_produzidos[$id_pesquisa])) {
 			$this->recursos_produzidos[$id_pesquisa] = $pesquisa_naves;
@@ -969,13 +975,15 @@ class acoes
 			
 			//Para calcular o consumo de alimento direito, primeiro ZERA o consumo de alimento relativo às Instalações
 			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] - $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
+			
 			//Depois calcula o consumo relativo à Pop
 			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pop;
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
 			} else {
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pop;
+				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
 			}
 			
+			/***
 			//Existem algumas Techs que aumentam o consumo de alimentos
 			$consumo_extra_inospito = 0;
 			if ($planeta[$id->id_planeta]->inospito == 1 && $planeta[$id->id_planeta]->terraforma == 0) {
@@ -993,6 +1001,8 @@ class acoes
 			
 			//Agora recalcula o consumo do planeta de acordo com condições especiais
 			$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $consumo_extra_pop + $consumo_extra_inospito;
+			***/
+
 			//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais
 			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
 			
@@ -1054,6 +1064,31 @@ class acoes
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms \n";
 		
+		
+		//Salva todas as variáveis globais de balanço e produção no Banco de Dados
+		
+		/***
+		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
+		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
+		$this->recursos_produzidos = [];
+		$this->recursos_produzidos_planeta = [];
+		$this->recursos_produzidos_id_planeta_instalacoes = [];
+		$this->recursos_produzidos_nome = [];
+
+		$this->recursos_extraidos = [];
+		$this->recursos_extraidos_planeta = [];	
+		
+		$this->recursos_consumidos = [];
+		$this->recursos_consumidos_planeta = [];
+		$this->recursos_consumidos_id_planeta_instalacoes = [];
+		$this->recursos_consumidos_nome = [];
+		$this->recursos_balanco = [];
+		$this->recursos_balanco_nome = [];
+		$this->recursos_balanco_planeta = [];		
+		
+		***/
+	
+	
 	}
 
 

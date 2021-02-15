@@ -1456,14 +1456,13 @@ var id_imperio_atual = {$imperios[0]->id};
 			return;
 		}
 		
-		$imperio_acoes = new acoes($imperio->id, $turno);
-		$imperio->acoes = $imperio_acoes;
+		$imperio->acoes = new acoes($imperio->id, $turno);;
 		
 		$lista_colonias = $imperio->exibe_lista_colonias();
 		$recursos_atuais = $imperio->exibe_recursos_atuais();
-		$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
-		$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
-		$balanco_recursos = $imperio_acoes->exibe_recursos_balanco();
+		$recursos_produzidos = $imperio->acoes->exibe_recursos_produzidos();
+		$recursos_consumidos = $imperio->acoes->exibe_recursos_consumidos();
+		$balanco_recursos = $imperio->acoes->exibe_recursos_balanco();
 		$html_frota = "";
 	
 		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0 ORDER BY nivel_estacao_orbital DESC");
@@ -1495,7 +1494,7 @@ var id_imperio_atual = {$imperios[0]->id};
 			
 			$link_visivel = "";
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
-				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Sistema sendo pesquisado</span></div></a>";
+				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Desativar Camuflagem</span></div></a>";
 			}
 			
 			if ($nave->HP < $nave->HP_max) {
@@ -1554,7 +1553,7 @@ var id_imperio_atual = {$imperios[0]->id};
 		</thead>
 		<tbody>";
 		
-		$html_lista .= $imperio_acoes->lista_dados(false); //Mostra somente o Turno atual
+		$html_lista .= $imperio->acoes->lista_dados(false); //Mostra somente o Turno atual
 		
 		$html_lista .= "</tbody>
 		</table>";		

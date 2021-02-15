@@ -254,6 +254,13 @@ class instala_db {
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 		)");
+
+		//Tabela com os balanços do turno
+		$wpdb->query("CREATE TABLE colonization_balancos_turno (
+		id_imperio INT(6) NOT NULL,
+		json_balancos TEXT NOT NULL,
+		turno INT(6) NOT NULL
+		)");
 		
 		//Tabela com as ações do Admin
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
