@@ -981,7 +981,12 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		$resposta['debug'] = "";
 		
 		$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
-	
+		//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
+		$sem_balanco = true;
+		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
+		$acoes->pega_balanco_recursos();
+		
+		$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
 		$resposta['resposta_ajax'] = "SALVO!";
 		
 		echo json_encode($resposta);
@@ -1240,15 +1245,18 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		}
 
 		//Verifica se tem limite suficiente de Reservas Planetárias
+		$recurso = [];
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
-			$recurso = new recurso($id_recurso_produz);
-			if ($recurso->extrativo == 1 && $instalacao->nao_extrativo != true) {
+			if (empty($recurso[$id_recurso])) {
+				$recurso[$id_recurso] = new recurso($id_recurso);
+			}
+			if ($recurso[$id_recurso]->extrativo == 1 && $instalacao->nao_extrativo != true) {
 				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
 				if (!empty($id_planeta_recurso)) {
 					$planeta_recursos = new planeta_recurso($id_planeta_recurso);	
 				} else {//Caso o planeta não tenha o recurso...
 					$planeta_recursos = new recurso($id_recurso_produz);
-					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso->nome}, ";
+					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso[$id_recurso]->nome}, ";
 				}
 	
 				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
@@ -1260,18 +1268,29 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			$debug .= "valida_acao() -> Verifica Reservas Planetárias {$diferenca}ms \n";
 
 		//Verifica se o balanço de recursos mais o estoque do Império são suficientes
+		$imperio_recursos = new imperio_recursos($_POST['id_imperio'],$_POST['turno']);
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$debug .= "valida_acao() -> new Imperio_Recursos {$diferenca}ms \n";
+		
 		foreach ($acoes->recursos_balanco as $id_recurso => $valor) {
-			$recurso = new recurso($id_recurso);
-			if ($recurso->acumulavel == 1) {
-				$imperio_recursos = new imperio_recursos($_POST['id_imperio'],$_POST['turno']);
+			if (empty($recurso[$id_recurso])) {
+				$recurso[$id_recurso] = new recurso($id_recurso);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$debug .= "valida_acao() -> Verifica Estoque Império: new Recurso {$diferenca}ms \n";
+			}
+			
+			if ($recurso[$id_recurso]->acumulavel == 1) {
+
 				$chave_id_recurso = array_search($id_recurso,$imperio_recursos->id_recurso);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$debug .= "valida_acao() -> Verifica Estoque Império: array_search {$diferenca}ms \n";
 				$balanco = $imperio_recursos->qtd[$chave_id_recurso] + $valor;
 			} else {
 				$balanco = $valor;
 			}
 			
-			if ($balanco < 0 && $recurso->nome != "Poluição") {//A poluição pode ser negativa pois isso significa redução na poluição do planeta
-				$dados_salvos['balanco_acao'] .= "{$recurso->nome} ({$balanco}), ";
+			if ($balanco < 0 && $recurso[$id_recurso]->nome != "Poluição") {//A poluição pode ser negativa pois isso significa redução na poluição do planeta
+				$dados_salvos['balanco_acao'] .= "{$recurso[$id_recurso]->nome} ({$balanco}), ";
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1320,40 +1339,30 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			//$start_time = hrtime(true);
 		$planeta = new planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> new Planeta {$diferenca}ms
-";
-
-
+			$dados_salvos['debug'] .= "produtos_acao() -> new Planeta {$diferenca}ms \n";
 
 		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= $imperio->debug;
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->exibe_lista_colonias() {$diferenca}ms
-";
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->exibe_lista_colonias() {$diferenca}ms \n";
 		$dados_salvos['recursos_produzidos'] = $imperio->acoes->exibe_recursos_produzidos();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_produzidos() {$diferenca}ms
-";		
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_produzidos() {$diferenca}ms \n";		
 		$dados_salvos['recursos_consumidos'] = $imperio->acoes->exibe_recursos_consumidos();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_consumidos() {$diferenca}ms
-";
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_consumidos() {$diferenca}ms \n";
 		$dados_salvos['recursos_balanco'] = $imperio->acoes->exibe_recursos_balanco();
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_balanco(); {$diferenca}ms
-";		
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_recursos_balanco(); {$diferenca}ms \n";		
 		$dados_salvos['balanco_planeta'] = $imperio->acoes->exibe_balanco_planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_balanco_planeta() {$diferenca}ms
-";		
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_balanco_planeta() {$diferenca}ms \n";		
 		$dados_salvos['pop_mdo_planeta'] = $imperio->acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_pop_mdo_planeta() {$diferenca}ms
-";		
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_pop_mdo_planeta() {$diferenca}ms \n";		
 		$pop_sistema = $imperio->acoes->pop_mdo_sistema($planeta->id_estrela);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->pop_mdo_sistema() {$diferenca}ms
-";		
+			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->pop_mdo_sistema() {$diferenca}ms \n";		
 		
 		//$id_planeta_instalacoes
 		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "";

@@ -33,9 +33,7 @@ class acoes
 	public $recursos_produzidos_id_planeta_instalacoes = [];
 	public $recursos_produzidos_nome = [];
 	
-	public $recursos_extraidos = [];
 	public $recursos_extraidos_planeta = [];
-	public $recursos_extraidos_nome = [];	
 	
 	public $recursos_consumidos = [];
 	public $recursos_consumidos_planeta = [];
@@ -517,11 +515,14 @@ class acoes
 	}
 
 	/***********************
-	function pega_balanco_recursos()
+	function pega_balanco_recursos($id_planeta_instalacoes=0, $salva_balanco=false)
 	----------------------
 	Pega os Recursos produzidos, consumidos e seu balanço
+	
+	$id_planeta_instalacoes -- id da instalação do planeta quando estamos alterando apenas um dado (default 0, ou seja, calcula tudo)
+	$salva_balanco -- salva os balanços após ter processado
 	***********************/
-	function pega_balanco_recursos($id_planeta_instalacoes = 0) {
+	function pega_balanco_recursos($id_planeta_instalacoes=0, $salva_balanco=false) {
 		global $wpdb, $start_time;
 
 		$user = wp_get_current_user();
@@ -541,8 +542,7 @@ class acoes
 		$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
 		$imperio->acoes = $this;
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms
-";		
+			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms \n";		
 
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
@@ -550,41 +550,57 @@ class acoes
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
-		//** TODO **//
-		/***
-			Verifica se os dados existem no DB
-			Se exisir, carrega todas as variáveis abaixo e sai do balanço
+		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
+		$balancos_db = $wpdb->get_var("SELECT json_balancos FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
+	
+		$flag_novo_balanco = true;
+		if (empty($balancos_db)) {
+			$this->recursos_produzidos_planeta_instalacao = [];
+			$this->recursos_produzidos_planeta_bonus = [];
+			$this->recursos_produzidos_planeta = [];
+			$this->recursos_produzidos_id_planeta_instalacoes = [];
 			
-			Existe a possibilidade de estarmos processando apenas uma ALTERAÇÃO de uma das ações (i.e. $id_planeta_instalacoes != 0)
-			
-			Nesse caso, precisamos processar SOMENTE o $id_planeta_instalacoes
-		
-		***/
-		
-		
-		
-		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
-		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
-		$this->recursos_produzidos = [];
-		$this->recursos_produzidos_planeta = [];
-		$this->recursos_produzidos_id_planeta_instalacoes = [];
-		$this->recursos_produzidos_nome = [];
+			$this->recursos_extraidos_planeta = [];
 
-		$this->recursos_extraidos = [];
-		$this->recursos_extraidos_planeta = [];	
-		
-		$this->recursos_consumidos = [];
-		$this->recursos_consumidos_planeta = [];
-		$this->recursos_consumidos_id_planeta_instalacoes = [];
-		$this->recursos_consumidos_nome = [];
+			$this->recursos_produzidos_nome = [];
+			$this->recursos_consumidos_nome = [];
+			$this->recursos_balanco_nome = [];
+			$this->recursos_consumidos_planeta = [];
+			$this->recursos_consumidos_id_planeta_instalacoes = [];
+		} else {
+			$balancos_db = json_decode($balancos_db, false, 512, JSON_UNESCAPED_UNICODE);
+			$flag_novo_balanco = false;
+			$this->recursos_produzidos_planeta_instalacao = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_instalacao),true); //Número de Instalações, por planeta, que geram um determinado recurso
+			$this->recursos_produzidos_planeta_bonus = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_bonus),true); //Bônus de recursos, por planeta
+			$this->recursos_produzidos_planeta = json_decode(json_encode($balancos_db->recursos_produzidos_planeta),true);
+			$this->recursos_produzidos_id_planeta_instalacoes = json_decode(json_encode($balancos_db->recursos_produzidos_id_planeta_instalacoes),true);
+
+			$this->recursos_extraidos_planeta = json_decode(json_encode($balancos_db->recursos_extraidos_planeta),true);	
+			
+			$this->recursos_consumidos_planeta = json_decode(json_encode($balancos_db->recursos_consumidos_planeta),true);
+			$this->recursos_consumidos_id_planeta_instalacoes = json_decode(json_encode($balancos_db->recursos_consumidos_id_planeta_instalacoes),true);
+
+			$this->recursos_produzidos_nome = json_decode(json_encode($balancos_db->recursos_produzidos_nome),true);
+			$this->recursos_consumidos_nome = json_decode(json_encode($balancos_db->recursos_consumidos_nome),true);
+			$this->recursos_balanco_nome = json_decode(json_encode($balancos_db->recursos_balanco_nome),true);
+			
+			//$this->recursos_produzidos = (array) $balancos_db->recursos_produzidos;
+			//$this->recursos_consumidos = (array) $balancos_db->recursos_consumidos;
+			//$this->recursos_balanco = (array) $balancos_db->recursos_balanco;
+			//$this->recursos_balanco_planeta = (array) $balancos_db->recursos_balanco_planeta;
+		}
+
+		$this->recursos_produzidos = [];
+		$this->recursos_consumidos = [];			
+
 		$this->recursos_balanco = [];
-		$this->recursos_balanco_nome = [];
 		$this->recursos_balanco_planeta = [];
 
 		$colonia = [];
 		$planeta = [];
 		$instalacao = [];
 		$recurso = [];
+
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
@@ -592,45 +608,58 @@ class acoes
 				continue;
 			}
 
+			//Se a instalação já foi processada, não precisa ser processada novamente, EXCETO se for uma instalação que está sendo ALTERADA ($id_planeta_instalacoes != 0)
+			if (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] != $id_planeta_instalacoes) {
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> pulando a ação({$this->id[$chave]}) {$diferenca}ms \n";	
+				continue;
+			} elseif (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] == $id_planeta_instalacoes) {
+				//Remove a produção e consumo dessa Instalação das variáveis planetárias e zera a produção e o consumo dessa instalação
+				foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso_instalacao_planeta => $qtd_produzida_instalacao) {
+					$this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_produzida_instalacao;
+					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
+				}
+				
+				foreach ($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso_instalacao_planeta => $qtd_consumida_instalacao) {
+					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_produzida_instalacao;
+					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
+				}
+			}
+			
 			if (empty($colonia[$this->id_colonia[$chave]])) {
 				$colonia[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave],$this->turno->turno);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					$this->debug .= "acoes->pega_balanco_recursos() -> new Colonia({$this->id_colonia[$chave]}) {$diferenca}ms
-";	
+					$this->debug .= "acoes->pega_balanco_recursos() -> new Colonia({$this->id_colonia[$chave]}) {$diferenca}ms \n";	
 			}
 				
 			if (empty($planeta[$this->id_planeta[$chave]])) {
 				$planeta[$this->id_planeta[$chave]] = new planeta($this->id_planeta[$chave],$this->turno->turno);
-					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					$this->debug .= "acoes->pega_balanco_recursos() -> new Planeta({$this->id_planeta[$chave]}) {$diferenca}ms
-";	
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> new Planeta({$this->id_planeta[$chave]}) {$diferenca}ms \n";	
 			}			
 			
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					$this->debug .= "acoes->pega_balanco_recursos() -> new Instalação({$this->id_instalacao[$chave]}) {$diferenca}ms
-";			
+					$this->debug .= "acoes->pega_balanco_recursos() -> new Instalação({$this->id_instalacao[$chave]}) {$diferenca}ms \n";			
 			}
 			
+			//*** Pega a Produção das Instalações ***//
 			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_produz as $chave_recursos => $id_recurso) {
 				if (empty($this->recursos_produzidos[$id_recurso])) {
 					if (empty($recurso[$id_recurso])) {
 						$recurso[$id_recurso] = new recurso($id_recurso);
 							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-							$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms
-";	
+							$this->debug .= "acoes->pega_balanco_recursos() -> new Recurso({$id_recurso}) {$diferenca}ms \n";	
 					}
 
 					$this->recursos_produzidos[$id_recurso] = 0;
-					$this->recursos_extraidos[$id_recurso] = 0;
 					$this->recursos_produzidos_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 					$this->recursos_balanco_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 				}
 				
 				if (empty($this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
-					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
 					$this->recursos_extraidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = 0;
 				}
@@ -711,15 +740,6 @@ class acoes
 						}
 					}					
 				}
-				/***************************************************
-				--- MODIFICAÇÕES NA PRODUÇÃO DEVIDO À TECHS ---
-				***************************************************/
-				//ESPECIAIS -- Bônus de produção
-				
-				//public $bonus_recurso = [];
-				//public $sinergia = [];
-				//public $extrativo = [];
-				//public $max_bonus_recurso = [];
 
 				if (!empty($imperio->bonus_recurso['*']) && $id_recurso !== $id_poluicao) {//Tem bônus para TODOS os recursos
 					//Verifica as condições
@@ -776,23 +796,9 @@ class acoes
 					}
 				}
 			}
-		//}
 
-			//Pega o Consumo das Instalações
-			//foreach ($this->id AS $chave => $valor) {
-			//	$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			//	if (!empty($colonia_instalacao->turno_destroi)) {//Se a Instalação está destruída, ela não produz nem consome nada
-			//		continue;
-			//	}
-				
-			//	if (empty($instalacao[$colonia_instalacao->id_instalacao])) {
-			//		$instalacao[$colonia_instalacao->id_instalacao] = new instalacao($colonia_instalacao->id_instalacao);
-			//	}
-			
+			//*** Pega o Consumo das Instalações ***//
 			foreach ($instalacao[$this->id_instalacao[$chave]]->recursos_consome as $chave_recursos => $id_recurso) {
-				if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
-					continue;
-				}				
 				if (empty($this->recursos_consumidos[$id_recurso])) {
 					if (empty($recurso[$id_recurso])) {
 						$recurso[$id_recurso] = new recurso($id_recurso);
@@ -801,28 +807,28 @@ class acoes
 					}
 					
 					$this->recursos_consumidos[$id_recurso] = 0;
-					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
-					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
 					$this->recursos_consumidos_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 
 					if (empty($this->recursos_balanco_nome[$id_recurso])) {
 						$this->recursos_balanco_nome[$id_recurso] = $recurso[$id_recurso]->nome;
 					}
 				}
+
 				if (empty($this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]])) {
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = 0;
 					
 				}
+
 				if (empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso])) {
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
 				}
 				
 				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
+					//$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 				} else {
-					$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
+					//$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10);
 				}
@@ -839,8 +845,6 @@ class acoes
 						}
 						
 						$this->recursos_consumidos[$id_recurso_fixo] = 0;
-						$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = 0;
-						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = 0;
 						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;
 
 						if (empty($this->recursos_balanco_nome[$id_recurso_fixo])) {
@@ -850,7 +854,6 @@ class acoes
 					
 					if (empty($this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]])) {
 						$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = 0;
-						$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = 0;
 						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;
 					}
 					
@@ -865,11 +868,16 @@ class acoes
 				}
 			}
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção e Consumo {$diferenca}ms \n";
+		
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção e Consumo das Instalações {$diferenca}ms \n";
 
 		//Calcula os recursos produzidos totais
-		foreach ($this->recursos_produzidos as $id_recurso => $valor) {
+		foreach ($this->recursos_produzidos_nome as $id_recurso => $valor) {
+			if (empty($this->recursos_produzidos[$id_recurso])) {
+				$this->recursos_produzidos[$id_recurso]	= 0;
+			}
+			
 			foreach ($this->recursos_produzidos_planeta[$id_recurso] as $id_planeta => $qtd_produzida_planeta) {
 				if (empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
@@ -883,20 +891,21 @@ class acoes
 					}
 				}
 				
+				/*** Não vamos mais verificar a questão de SINERGIA
 				if (!empty($imperio->sinergia[$id_recurso])) {
 					if ($imperio->sinergia[$id_recurso] === true) {
 						if ($this->recursos_produzidos_planeta_instalacao[$id_recurso][$id_planeta] < 2) {//Para ter o bônus de sinergia, precisa de DUAS instalações
 							$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
 						}
 					}
-				}
+				} ***/
 				
 				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + $qtd_produzida_planeta + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
-				$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta] + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
+				//$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta]; //+ $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 			}
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms \n";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms \n";
 
 		//As naves podem produzir Pesquisa
 		$pesquisa_naves = 0;
@@ -930,101 +939,75 @@ class acoes
 		$recurso_poluicao = new recurso($id_poluicao);
 		
 		foreach ($ids_colonia as $id) {
-			if (empty($colonia[$id->id])) {
-				$colonia[$id->id] = new colonia($id->id,$this->turno->turno);
+			if ($flag_novo_balanco) { //Somente calcula o consumo de Alimentos, Energia e Poluição das colônias se for um NOVO balanço
+				if (empty($colonia[$id->id])) {
+					$colonia[$id->id] = new colonia($id->id,$this->turno->turno);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			}	
-			
-			if (empty($planeta[$id->id_planeta])) {
-				$planeta[$id->id_planeta] = new planeta($id->id_planeta,$this->turno->turno);
-			}
-			
-
-			if (empty($this->recursos_consumidos[$id_alimento])) {
-				$this->recursos_consumidos[$id_alimento] = 0;
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
-				$this->recursos_consumidos_nome[$id_alimento] = $recurso_alimento->nome;
-				$this->recursos_balanco_nome[$id_alimento] = $recurso_alimento->nome;
-			}
-			
-			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
-			}
-			
-			if (empty($this->recursos_consumidos[$id_energia])) {
-				$this->recursos_consumidos[$id_energia] = 0;
-				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
-				$this->recursos_consumidos_nome[$id_energia] = $recurso_energia->nome;
-				$this->recursos_balanco_nome[$id_energia] = $recurso_energia->nome;
-			}
-
-			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
-			}			
-
-			if (empty($this->recursos_consumidos[$id_poluicao])) {
-				$this->recursos_consumidos[$id_poluicao] = 0;
-				$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
-				$this->recursos_consumidos_nome[$id_poluicao] = $recurso_poluicao->nome;
-				$this->recursos_balanco_nome[$id_poluicao] = $recurso_poluicao->nome;
-			}			
-
-			if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
-			}						
-			
-			//Para calcular o consumo de alimento direito, primeiro ZERA o consumo de alimento relativo às Instalações
-			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] - $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
-			
-			//Depois calcula o consumo relativo à Pop
-			if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
-			} else {
-				$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
-			}
-			
-			/***
-			//Existem algumas Techs que aumentam o consumo de alimentos
-			$consumo_extra_inospito = 0;
-			if ($planeta[$id->id_planeta]->inospito == 1 && $planeta[$id->id_planeta]->terraforma == 0) {
-				if ($colonia[$id->id]->pop > $planeta[$id->id_planeta]->pop_inospito) {
-					$pop_inospito = $colonia[$id->id]->pop - $planeta[$id->id_planeta]->pop_inospito;
-					$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
+				}	
+				
+				if (empty($planeta[$id->id_planeta])) {
+					$planeta[$id->id_planeta] = new planeta($id->id_planeta,$this->turno->turno);
 				}
-			}
-			
-			//População acima do limite de Slots do planeta consome o DOBRO de alimento
-			$consumo_extra_pop = 0;
-			if ($colonia[$id->id]->pop > $planeta[$id->id_planeta]->tamanho*10) {
-				$consumo_extra_pop = ($colonia[$id->id]->pop - $planeta[$id->id_planeta]->tamanho*10);
-			}
-			
-			//Agora recalcula o consumo do planeta de acordo com condições especiais
-			$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $consumo_extra_pop + $consumo_extra_inospito;
-			***/
 
-			//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais
-			$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
-			
-			//Pop Robótica consome ENERGIA!
-			//Primeiro desconsidera o consumo de energia pelas unidades do planeta
-			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] - $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
-			//Depois recalcula o consumo de energia do planeta considerando o consumo da Pop Robótica
-			if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
-				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia[$id->id]->pop_robotica;
-			} else {
-				$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] + $colonia[$id->id]->pop_robotica;
-			}
-			
-			//E por fim acerta o consumo global levando em consideração o consumo das unidades E da Pop Robótica
-			$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
-			
-			//A base de consumo de poluição de planetas habitáveis é de 25 unidades
-			if ($planeta[$id->id_planeta]->inospito == 0 || $planeta[$id->id_planeta]->terraforma == 1) {
+				if (empty($this->recursos_consumidos[$id_alimento])) {
+					$this->recursos_consumidos[$id_alimento] = 0;
+					$this->recursos_consumidos_nome[$id_alimento] = $recurso_alimento->nome;
+					$this->recursos_balanco_nome[$id_alimento] = $recurso_alimento->nome;
+				}
+				
+				if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = 0;
+				}
+				
+				if (empty($this->recursos_consumidos[$id_energia])) {
+					$this->recursos_consumidos[$id_energia] = 0;
+					$this->recursos_consumidos_nome[$id_energia] = $recurso_energia->nome;
+					$this->recursos_balanco_nome[$id_energia] = $recurso_energia->nome;
+				}
+
+				if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = 0;
+				}			
+
+				if (empty($this->recursos_consumidos[$id_poluicao])) {
+					$this->recursos_consumidos[$id_poluicao] = 0;
+					$this->recursos_consumidos_nome[$id_poluicao] = $recurso_poluicao->nome;
+					$this->recursos_balanco_nome[$id_poluicao] = $recurso_poluicao->nome;
+				}			
+
 				if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
-					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25;
+					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = 0;
+				}						
+				
+				if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
 				} else {
-					$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] + 25;
+					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
+				}
+				
+				//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais
+				$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
+				
+				//Pop Robótica consome ENERGIA!
+				//Primeiro desconsidera o consumo de energia pelas unidades do planeta
+				$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] - $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
+				//Depois recalcula o consumo de energia do planeta considerando o consumo da Pop Robótica
+				if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
+					$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia[$id->id]->pop_robotica;
+				} else {
+					$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] + $colonia[$id->id]->pop_robotica;
+				}
+				
+				//E por fim acerta o consumo global levando em consideração o consumo das unidades E da Pop Robótica
+				$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
+				
+				//A base de consumo de poluição de planetas habitáveis é de 25 unidades
+				if ($planeta[$id->id_planeta]->inospito == 0 || $planeta[$id->id_planeta]->terraforma == 1) {
+					if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
+						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25;
+					} else {
+						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] + 25;
+					}
 				}
 			}
 			
@@ -1041,8 +1024,19 @@ class acoes
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
 			}
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Consumo Total {$diferenca}ms \n";		
+		
+		//Calcula os recursos consumidos totais
+		foreach ($this->recursos_consumidos_nome as $id_recurso => $valor) {
+			if (empty($this->recursos_consumidos[$id_recurso])) {
+				$this->recursos_consumidos[$id_recurso]	= 0;
+			}
+			
+			foreach ($this->recursos_consumidos_planeta[$id_recurso] as $id_planeta => $qtd_consumida_planeta) {
+				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $qtd_consumida_planeta;
+			}
+		}		
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço Colônias {$diferenca}ms \n";		
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
@@ -1061,34 +1055,35 @@ class acoes
 				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 			}
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms \n";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms \n";
 		
 		
 		//Salva todas as variáveis globais de balanço e produção no Banco de Dados
-		
-		/***
-		$this->recursos_produzidos_planeta_instalacao = []; //Número de Instalações, por planeta, que geram um determinado recurso
-		$this->recursos_produzidos_planeta_bonus = []; //Bônus de recursos, por planeta
-		$this->recursos_produzidos = [];
-		$this->recursos_produzidos_planeta = [];
-		$this->recursos_produzidos_id_planeta_instalacoes = [];
-		$this->recursos_produzidos_nome = [];
+		if ($flag_novo_balanco || $salva_balanco) {
+			$balancos_db['recursos_produzidos_planeta_instalacao'] = $this->recursos_produzidos_planeta_instalacao;
+			$balancos_db['recursos_produzidos_planeta_bonus'] = $this->recursos_produzidos_planeta_bonus;
+			$balancos_db['recursos_produzidos_planeta'] = $this->recursos_produzidos_planeta;
+			$balancos_db['recursos_produzidos_id_planeta_instalacoes'] = $this->recursos_produzidos_id_planeta_instalacoes;
 
-		$this->recursos_extraidos = [];
-		$this->recursos_extraidos_planeta = [];	
-		
-		$this->recursos_consumidos = [];
-		$this->recursos_consumidos_planeta = [];
-		$this->recursos_consumidos_id_planeta_instalacoes = [];
-		$this->recursos_consumidos_nome = [];
-		$this->recursos_balanco = [];
-		$this->recursos_balanco_nome = [];
-		$this->recursos_balanco_planeta = [];		
-		
-		***/
-	
-	
+			$balancos_db['recursos_extraidos_planeta'] = $this->recursos_extraidos_planeta;	
+
+			$balancos_db['recursos_consumidos_planeta'] = $this->recursos_consumidos_planeta;
+			$balancos_db['recursos_consumidos_id_planeta_instalacoes'] = $this->recursos_consumidos_id_planeta_instalacoes;
+
+			$balancos_db['recursos_produzidos_nome'] = $this->recursos_produzidos_nome;
+			$balancos_db['recursos_consumidos_nome'] = $this->recursos_consumidos_nome;
+			$balancos_db['recursos_balanco_nome'] = $this->recursos_balanco_nome;
+			
+			//$balancos_db['recursos_produzidos'] = $this->recursos_produzidos;
+			//$balancos_db['recursos_consumidos'] = $this->recursos_consumidos;
+			//$balancos_db['recursos_balanco'] = $this->recursos_balanco;
+			//$balancos_db['recursos_balanco_planeta'] = $this->recursos_balanco_planeta;		
+			
+			$balancos_db = json_encode($balancos_db, JSON_UNESCAPED_UNICODE);
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
+			$wpdb->query("INSERT INTO colonization_balancos_turno SET json_balancos = '{$balancos_db}', id_imperio = {$this->id_imperio}, turno = {$this->turno->turno}");
+		}
 	}
 
 
@@ -1151,6 +1146,13 @@ class acoes
 		return $html;
 	}
 
+	/***********************
+	function exibe_balanco_planeta()
+	----------------------
+	Exibe o balanço dos recursos de um planeta
+	
+	$id_planeta - id do planeta a exibir
+	***********************/
 	function exibe_balanco_planeta($id_planeta) {
 		$balanco_temp = [];
 		$balanco_planeta = "<span style='color: #2f4f4f ; font-weight: bold;'>Balanço dos Recursos:</span> ";
@@ -1172,9 +1174,10 @@ class acoes
 						$html_qtd = $qtd;
 					}
 					
-					if (!empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
-						//$html_qtd .= "({$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]})";
+					if(empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
 					}
+					//$html_qtd = "<span style='color: #23A455;'>{$this->recursos_produzidos_planeta[$id_recurso][$id_planeta]} + {$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]}</span> <span style='color: #DD0000;'>-{$this->recursos_consumidos_planeta[$id_recurso][$id_planeta]}</span>";
 					$balanco_planeta .= "{$recurso->nome}: {$html_qtd}; ";
 				}
 			}

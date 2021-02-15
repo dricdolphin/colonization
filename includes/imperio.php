@@ -748,8 +748,7 @@ class imperio
 		
 		$this->debug = "";
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias:  {$diferenca}ms
-";
+			$this->debug .= "imperio->exibe_lista_colonias:  {$diferenca}ms \n";
 		$id_estrelas_imperio = $wpdb->get_results("
 		SELECT DISTINCT ce.id
 		FROM colonization_imperio_colonias AS cic
@@ -762,8 +761,7 @@ class imperio
 		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z
 		");
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> Query {$diferenca}ms
-";
+			$this->debug .= "imperio->exibe_lista_colonias -> Query {$diferenca}ms \n";
 
 		$resultados = [];
 		foreach ($id_estrelas_imperio as $id_estrela) {
@@ -782,8 +780,7 @@ class imperio
 			$resultados = array_merge($resultados,$resultados_temp);
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> foreach ordena estrelas {$diferenca}ms
-";	
+			$this->debug .= "imperio->exibe_lista_colonias -> foreach ordena estrelas {$diferenca}ms \n";	
 
 		$html_lista = "<b>Lista de Colônias</b><br>";
 		$html_planeta = [];
@@ -799,8 +796,7 @@ class imperio
 				$sem_balanco = true;
 				$this->acoes = new acoes($this->id, $this->turno->turno, $sem_balanco);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					$this->debug .= "imperio->exibe_lista_colonias -> new Ações {$diferenca}ms
-";
+					$this->debug .= "imperio->exibe_lista_colonias -> new Ações {$diferenca}ms \n";
 			}
 		}
 
@@ -809,16 +805,23 @@ class imperio
 		$estrela = [];
 		$planeta = [];
 		$colonia = [];
+		$instalacao = [];
 		foreach ($resultados as $resultado) {
 			if (empty($colonia[$resultado->id])) {
 				$colonia[$resultado->id] = new colonia($resultado->id);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
 			}
 			
 			if (empty($planeta[$colonia[$resultado->id]->id_planeta])) {
 				$planeta[$colonia[$resultado->id]->id_planeta] = new planeta($colonia[$resultado->id]->id_planeta);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";				
 			}
 			if (empty($estrela[$colonia[$resultado->id]->id_estrela])) {
 				$estrela[$colonia[$resultado->id]->id_estrela] = new estrela($colonia[$resultado->id]->id_estrela);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Estrela {$diferenca}ms \n";				
 			}
 			$planeta_id_estrela[$colonia[$resultado->id]->id_planeta] = $colonia[$resultado->id]->id_estrela;
 			
@@ -849,11 +852,11 @@ class imperio
 				
 				$icones_planeta = [];
 				$qtd_instalacao_icone = [];
-				$instalacao = [];
-				
 				foreach ($id_instalacoes as $id_instalacao) {
 					if (empty($instalacao[$id_instalacao->id_instalacao])) {
-						$instalacao[$id_instalacao->id_instalacao] = new instalacao($id_instalacao->id_instalacao);	
+						$instalacao[$id_instalacao->id_instalacao] = new instalacao($id_instalacao->id_instalacao);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Instalacao {$diferenca}ms \n";
 					}
 					
 					
@@ -901,10 +904,14 @@ class imperio
 					foreach ($resultados as $id_colonia) {
 						if (empty($colonia[$id_colonia->id])) {
 							$colonia[$id_colonia->id] = new colonia($id_colonia->id);
+							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
 						}
 						
 						if (empty($planeta[$colonia[$id_colonia->id]->id_planeta])) {
 							$planeta[$colonia[$id_colonia->id]->id_planeta] = new planeta($colonia[$id_colonia->id]->id_planeta);
+							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
 						}
 						if ($id_colonia->id != $resultado->id && ($colonia[$id_colonia->id]->vassalo == 0 || ($colonia[$id_colonia->id]->vassalo == 1 && $roles == "administrator"))) {
 								$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia->id}'>{$planeta[$colonia[$id_colonia->id]->id_planeta]->nome}</option> \n";
@@ -924,9 +931,8 @@ class imperio
 				
 				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia[$resultado->id]->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta} {$html_transfere_pop}</div>";
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> foreach() Dados das Colônias {$diferenca}ms
-";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Dados das Colônias {$diferenca}ms \n";
 
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
@@ -965,8 +971,7 @@ class imperio
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms
-";
+			$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms \n";
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
 			$html_lista .= $html."</div>";
