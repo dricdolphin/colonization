@@ -604,9 +604,6 @@ class acoes
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
-				continue;
-			}
 
 			//Se a instalação já foi processada, não precisa ser processada novamente, EXCETO se for uma instalação que está sendo ALTERADA ($id_planeta_instalacoes != 0)
 			if (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] != $id_planeta_instalacoes) {
@@ -624,6 +621,10 @@ class acoes
 					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_consumida_instalacao;
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
 				}
+			}
+
+			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
+				continue;
 			}
 			
 			if (empty($colonia[$this->id_colonia[$chave]])) {
@@ -862,7 +863,7 @@ class acoes
 						$this->recursos_consumidos_nome[$id_recurso_fixo] = $recurso[$id_recurso_fixo]->nome;						
 					}
 					
-					$this->recursos_consumidos[$id_recurso_fixo] = $this->recursos_consumidos[$id_recurso_fixo] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
+					//$this->recursos_consumidos[$id_recurso_fixo] = $this->recursos_consumidos[$id_recurso_fixo] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
 					$this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_fixo][$this->id_planeta[$chave]] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_fixo] + $instalacao[$this->id_instalacao[$chave]]->consumo_fixo_qtd[$id_consumo_fixo];
 				}
@@ -883,23 +884,8 @@ class acoes
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
 				}
 				
-				if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
-					if ($imperio->max_bonus_recurso[$id_recurso] !== false) {//Tem um limite de bônus
-						if ($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] > $imperio->max_bonus_recurso[$id_recurso]) {
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = $imperio->max_bonus_recurso[$id_recurso];
-						}
-					}
-				}
-				
-				/*** Não vamos mais verificar a questão de SINERGIA
-				if (!empty($imperio->sinergia[$id_recurso])) {
-					if ($imperio->sinergia[$id_recurso] === true) {
-						if ($this->recursos_produzidos_planeta_instalacao[$id_recurso][$id_planeta] < 2) {//Para ter o bônus de sinergia, precisa de DUAS instalações
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
-						}
-					}
-				} ***/
-				
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Produzidos #{$id_recurso}:{$this->recursos_produzidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_produzida_planeta} + {$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]} \n";
 				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + $qtd_produzida_planeta + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 				//$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta]; //+ $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 			}
@@ -1020,8 +1006,10 @@ class acoes
 				if (empty($this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta])) {
 					$this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta] = 0;
 				}
-
+				
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recursos #{$id_recurso}: Planeta({$id->id_planeta})=>{$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta]}={$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta]} - {$this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta]} \n";
 			}
 		}
 		
@@ -1033,7 +1021,7 @@ class acoes
 			
 			foreach ($this->recursos_consumidos_planeta[$id_recurso] as $id_planeta => $qtd_consumida_planeta) {
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> #{$id_recurso}:{$this->recursos_consumidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_consumida_planeta} \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Consumidos #{$id_recurso}:{$this->recursos_consumidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_consumida_planeta} \n";
 				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $qtd_consumida_planeta;
 			}
 		}		
@@ -1056,7 +1044,7 @@ class acoes
 			if ($recurso[$id_recurso]->local == 0) {
 				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> #{$id_recurso}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso #{$id_recurso}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
 			}
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

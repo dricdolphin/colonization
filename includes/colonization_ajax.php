@@ -988,9 +988,9 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
 		$sem_balanco = true;
 		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
- 		//$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
-		//$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
-		//$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
+ 		$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
+		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
+		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
 		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes'], true); //Recalcula os balanços
 		$resposta['debug'] = $resposta['debug'] + "Salvando os Balanços... \n";
 		//$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
