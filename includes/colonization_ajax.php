@@ -1253,6 +1253,11 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 
 		//Verifica se tem limite suficiente de Reservas Planetárias
 		$recurso = [];
+		
+		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+		$recurso_energia = new recurso($id_energia);
+		$recurso[$id_energia] = $recurso_energia;
+		
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
 			if (empty($recurso[$id_recurso])) {
 				$recurso[$id_recurso] = new recurso($id_recurso);
@@ -1309,7 +1314,13 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 
 
 		if ($_POST['desativado'] == 1 || (!$instalacao->desguarnecida && $_POST['pop'] == 0)) {//Se for para DESATIVAR uma Instalação, não precisa fazer os balanços
-			$dados_salvos['balanco_acao'] = "";
+			//EXCETO se estiver desativando uma produtora de Energia. Nesse caso, o Jogador é informado que só pode desativar a geradora se o balanço de energia for maior ou igual à zero.
+			$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
+			if ($chave_recurso !== false && $dados_salvos['balanco_acao'] != "") {
+				$dados_salvos['balanco_acao'] .= ". \n\nUma geradora de Energia só pode ser desativada se o balanço de Energia estiver zerado ou positivo!";
+			} else {
+				$dados_salvos['balanco_acao'] = "";
+			}
 		}
 		
 		if ($dados_salvos['balanco_acao'] == "") {//Validou as ações! Pega os dados modificados e passa para o Jogador
