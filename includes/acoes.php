@@ -621,7 +621,7 @@ class acoes
 				}
 				
 				foreach ($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso_instalacao_planeta => $qtd_consumida_instalacao) {
-					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_produzida_instalacao;
+					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_consumida_instalacao;
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
 				}
 			}
@@ -986,11 +986,11 @@ class acoes
 				}
 				
 				//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais
-				$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
+				//$this->recursos_consumidos[$id_alimento] = $this->recursos_consumidos[$id_alimento] + $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta];
 				
 				//Pop Robótica consome ENERGIA!
 				//Primeiro desconsidera o consumo de energia pelas unidades do planeta
-				$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] - $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
+				//$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] - $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
 				//Depois recalcula o consumo de energia do planeta considerando o consumo da Pop Robótica
 				if (empty($this->recursos_consumidos_planeta[$id_energia][$id->id_planeta])) {
 					$this->recursos_consumidos_planeta[$id_energia][$id->id_planeta] = $colonia[$id->id]->pop_robotica;
@@ -999,7 +999,7 @@ class acoes
 				}
 				
 				//E por fim acerta o consumo global levando em consideração o consumo das unidades E da Pop Robótica
-				$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
+				//$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
 				
 				//A base de consumo de poluição de planetas habitáveis é de 25 unidades
 				if ($planeta[$id->id_planeta]->inospito == 0 || $planeta[$id->id_planeta]->terraforma == 1) {
@@ -1032,11 +1032,13 @@ class acoes
 			}
 			
 			foreach ($this->recursos_consumidos_planeta[$id_recurso] as $id_planeta => $qtd_consumida_planeta) {
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> #{$id_recurso}:{$this->recursos_consumidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_consumida_planeta} \n";
 				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $qtd_consumida_planeta;
 			}
 		}		
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço Colônias {$diferenca}ms \n";		
+		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço Colônias {$diferenca}ms \n";
 		
 		//Faz o Balanço da Produção e do Consumo
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
@@ -1053,6 +1055,8 @@ class acoes
 				
 			if ($recurso[$id_recurso]->local == 0) {
 				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> #{$id_recurso}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
 			}
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1060,7 +1064,8 @@ class acoes
 		
 		
 		//Salva todas as variáveis globais de balanço e produção no Banco de Dados
-		if ($flag_novo_balanco || $salva_balanco) {
+		if ($flag_novo_balanco || $salva_balanco === true) {
+			$balancos_db = [];//Zera a variável para salvar
 			$balancos_db['recursos_produzidos_planeta_instalacao'] = $this->recursos_produzidos_planeta_instalacao;
 			$balancos_db['recursos_produzidos_planeta_bonus'] = $this->recursos_produzidos_planeta_bonus;
 			$balancos_db['recursos_produzidos_planeta'] = $this->recursos_produzidos_planeta;

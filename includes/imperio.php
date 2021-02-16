@@ -731,8 +731,11 @@ class imperio
 	function exibe_lista_colonias()
 	----------------------
 	Exibe as Colônias atuais Império
+	
+	$id_colonia -- se diferente de zero, processa uma colônia específica que tenha sido modificada
+	$salva_lista -- salva os dados da lista (após um reprocessamento)
 	***********************/
-	function exibe_lista_colonias($id_colonia=0) {
+	function exibe_lista_colonias($id_colonia=array(0,0), $salva_lista=false) {
 		global $wpdb, $start_time;
 		
 		if ($this->id == 0) {
@@ -801,12 +804,45 @@ class imperio
 		}
 
 		
+		
+		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
+		//$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
+		$lista_colonias_db = $wpdb->get_var("SELECT json_balancos FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
+	
+		$flag_nova_lista = true;
+		if (empty($lista_colonias_db)) {
+			$html_planeta = [];
+			$planeta_id_estrela = [];
+			$mdo_sistema = [];
+			$pop_sistema = [];
+			$qtd_defesas_sistema = [];
+		} else {
+			$flag_nova_lista = false;
+			$lista_colonias_db = json_decode($lista_colonias_db, true, 512, JSON_UNESCAPED_UNICODE);
+			$html_planeta_temp = $lista_colonias_db['html_planeta'];
+			$planeta_id_estrela = $lista_colonias_db['planeta_id_estrela'];
+			$mdo_sistema = $lista_colonias_db['mdo_sistema'];
+			$pop_sistema = $lista_colonias_db['pop_sistema'];
+			$qtd_defesas_sistema = $lista_colonias_db['qtd_defesas_sistema'];
+			
+			foreach ($html_planeta_temp as $chave => $html_do_planeta) {
+				$html_planeta[$chave] = html_entity_decode($html_do_planeta, ENT_QUOTES);
+			}
+		}
+		
 		$mdo = 0;
 		$estrela = [];
 		$planeta = [];
 		$colonia = [];
 		$instalacao = [];
+
 		foreach ($resultados as $resultado) {
+			if (!$flag_nova_lista && $id_colonia[0] != $resultado->id && $id_colonia[1] != $resultado->id) { //Só processa se houve alguma alteração
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "imperio->exibe_lista_colonias -> foreach() pulando Colônia({$resultado->id}) {$diferenca}ms \n";
+				continue;
+			}
+			
 			if (empty($colonia[$resultado->id])) {
 				$colonia[$resultado->id] = new colonia($resultado->id);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -901,20 +937,20 @@ class imperio
 				$lista_options_colonias = "";
 				if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$resultado->id]->vassalo == 0 || ($colonia[$resultado->id]->vassalo == 1 && $roles == "administrator"))) {
 					$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$resultado->id}");
-					foreach ($resultados as $id_colonia) {
-						if (empty($colonia[$id_colonia->id])) {
-							$colonia[$id_colonia->id] = new colonia($id_colonia->id);
+					foreach ($resultados as $id_colonia_imperio) {
+						if (empty($colonia[$id_colonia_imperio->id])) {
+							$colonia[$id_colonia_imperio->id] = new colonia($id_colonia_imperio->id);
 							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
 						}
 						
-						if (empty($planeta[$colonia[$id_colonia->id]->id_planeta])) {
-							$planeta[$colonia[$id_colonia->id]->id_planeta] = new planeta($colonia[$id_colonia->id]->id_planeta);
+						if (empty($planeta[$colonia[$id_colonia_imperio->id]->id_planeta])) {
+							$planeta[$colonia[$id_colonia_imperio->id]->id_planeta] = new planeta($colonia[$id_colonia_imperio->id]->id_planeta);
 							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
 						}
-						if ($id_colonia->id != $resultado->id && ($colonia[$id_colonia->id]->vassalo == 0 || ($colonia[$id_colonia->id]->vassalo == 1 && $roles == "administrator"))) {
-								$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia->id}'>{$planeta[$colonia[$id_colonia->id]->id_planeta]->nome}</option> \n";
+						if ($id_colonia_imperio->id != $resultado->id && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
+								$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
 						}
 					}
 
@@ -933,6 +969,25 @@ class imperio
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Dados das Colônias {$diferenca}ms \n";
+
+		//Salva todas as variáveis globais de balanço e produção no Banco de Dados
+		
+		if ($flag_nova_lista || $id_colonia[0] != 0) {
+			$html_planeta_temp = [];		
+			foreach ($html_planeta as $chave => $html_do_planeta) {
+				$html_planeta_temp[$chave] = htmlentities($html_do_planeta, ENT_QUOTES);
+			}
+			$dados_html_para_salvar = [];
+			$dados_html_para_salvar['html_planeta'] = $html_planeta_temp;
+			$dados_html_para_salvar['planeta_id_estrela'] = $planeta_id_estrela;
+			$dados_html_para_salvar['mdo_sistema'] = $mdo_sistema;
+			$dados_html_para_salvar['pop_sistema'] = $pop_sistema;
+			$dados_html_para_salvar['qtd_defesas_sistema'] = $qtd_defesas_sistema;
+
+			$json_lista_colonias = json_encode($dados_html_para_salvar, JSON_UNESCAPED_UNICODE);
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
+			$wpdb->query("INSERT INTO colonization_lista_colonias_turno SET json_balancos = '{$json_lista_colonias}', id_imperio = {$this->id}, turno = {$this->turno->turno}");
+		}
 
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
@@ -970,8 +1025,8 @@ class imperio
 			}
 			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms \n";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms \n";
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
 			$html_lista .= $html."</div>";

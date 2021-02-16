@@ -261,6 +261,13 @@ class instala_db {
 		json_balancos TEXT NOT NULL,
 		turno INT(6) NOT NULL
 		)");
+
+		//Tabela com as listas de colônias
+		$wpdb->query("CREATE TABLE colonization_lista_colonias_turno (
+		id_imperio INT(6) NOT NULL,
+		json_balancos TEXT NOT NULL,
+		turno INT(6) NOT NULL
+		)");		
 		
 		//Tabela com as ações do Admin
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_acoes_admin (

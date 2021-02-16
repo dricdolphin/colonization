@@ -574,7 +574,11 @@ class colonization_ajax {
 			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
 			$sem_balanco = true;
 			$imperio->acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
-			$produtos_acao = $this->produtos_acao($imperio, 0);
+			
+			$colonias = [];
+			$colonias[0] = $colonia_origem->id;
+			$colonias[1] = $colonia_destino->id;
+			$produtos_acao = $this->produtos_acao($imperio, 0, $colonias);
 			$debug .= $produtos_acao['debug'];
 			$produtos_acao['debug'] = "";
 			$dados_salvos = array_merge($dados_salvos, $produtos_acao);
@@ -978,15 +982,18 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		$resposta['debug'] = "";
+		//$resposta['debug'] = "";
 		
 		$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
 		//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
 		$sem_balanco = true;
 		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
-		$acoes->pega_balanco_recursos();
-		
-		$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
+ 		//$chave_id_planeta_instalacoes = array_search($_POST['id_planeta_instalacoes'], $acoes->id_planeta_instalacoes);
+		//$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
+		//$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
+		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes'], true); //Recalcula os balanços
+		$resposta['debug'] = $resposta['debug'] + "Salvando os Balanços... \n";
+		//$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
 		$resposta['resposta_ajax'] = "SALVO!";
 		
 		echo json_encode($resposta);
@@ -1309,7 +1316,10 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 			$imperio = new imperio($_POST['id_imperio']);
 			$imperio->acoes = $acoes;
 			
-			$produtos_acao = $this->produtos_acao($imperio, $_POST['id_planeta_instalacoes']);
+			$colonias = [];
+			$colonias[0] = $id_colonia;
+			$colonias[1] = 0;
+			$produtos_acao = $this->produtos_acao($imperio, $_POST['id_planeta_instalacoes'], $colonias);
 			$debug .= $produtos_acao['debug'];
 			$produtos_acao['debug'] = "";
 			$dados_salvos = array_merge($dados_salvos, $produtos_acao);
@@ -1329,7 +1339,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 	----------------------
 	Pega os resultados da ação
 	***********************/	
-	function produtos_acao($imperio, $id_planeta_instalacoes) {
+	function produtos_acao($imperio, $id_planeta_instalacoes, $colonias) {
 		global $start_time;
 		$dados_salvos = [];
 		
@@ -1340,8 +1350,8 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		$planeta = new planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= "produtos_acao() -> new Planeta {$diferenca}ms \n";
-
-		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias();
+		
+		$dados_salvos['lista_colonias'] = $imperio->exibe_lista_colonias($colonias);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= $imperio->debug;
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->exibe_lista_colonias() {$diferenca}ms \n";
