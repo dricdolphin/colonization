@@ -33,9 +33,13 @@ class turno
 		}
 		$resultado = $resultados[0];
 		
-		$this->turno = $resultado->id;
-		$this->data_turno = $resultado->data_turno;
-		$this->bloqueado = $resultado->bloqueado;
-		$this->encerrado = $resultado->encerrado;
+		if (!empty($resultado)) {
+			$this->turno = $resultado->id;
+			$this->data_turno = $resultado->data_turno;
+			$this->bloqueado = $resultado->bloqueado;
+			$this->encerrado = $resultado->encerrado;
+		} else {
+			$turno->turno = 0;
+		}
 	}
 }

@@ -246,7 +246,17 @@ class colonization {
 	function colonization_turno_atual() {
 		$turno = new turno(); //Pega o turno atual
 
+		if (empty($turno->turno)) {
+			return "O jogo ainda não começou! Aguarde!";
+		}
+		
 		$html = "O Turno {$turno->turno} já começou!";
+		if (!$turno->encerrado && $turno->bloqueado) {
+			$date = new DateTime($turno->data_turno);
+			//echo $date->format('Y-m-d H:i:s');
+			$date = $date->format('d/m/Y');
+			$html = "O Turno {$turno->turno} irá começar dia {$date}!<br><br>Fique atento!";
+		}
 		
 		return $html;
 	}
@@ -1001,6 +1011,7 @@ class colonization {
 	******************/	
 	function colonization_exibe_distancia_estrelas() {
 		global $wpdb;
+		$wpdb->hide_errors();
 		
 		$user = wp_get_current_user();
 		$id_estrela_capital = "";
@@ -1014,10 +1025,14 @@ class colonization {
 		if ($roles != "administrator") {
 			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
 			$imperios[0] = new imperio($id_imperio, true);
-			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
-			$colonia = new colonia($colonias[0]->id);
-			$planeta = new planeta($colonia->id_planeta);
-			$id_estrela_capital = $planeta->id_estrela;
+			if (!empty($imperios[0])) {
+				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+			}
+			if (!empty($colonias)) {
+				$colonia = new colonia($colonias[0]->id);
+				$planeta = new planeta($colonia->id_planeta);
+				$id_estrela_capital = $planeta->id_estrela;
+			}
 		} else {
 			$id_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio ORDER BY nome");
 			$imperios = [];
@@ -1027,10 +1042,14 @@ class colonization {
 			foreach ($id_imperios as $chave => $id) {
 				$imperios[$chave] = new imperio ($id->id);
 			}
-			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
-			$colonia = new colonia($colonias[0]->id);
-			$planeta = new planeta($colonia->id_planeta);
-			$id_estrela_capital = $planeta->id_estrela;
+			if (!empty($imperios[0])) {
+				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
+			}
+			if (!empty($colonias)) {
+				$colonia = new colonia($colonias[0]->id);
+				$planeta = new planeta($colonia->id_planeta);
+				$id_estrela_capital = $planeta->id_estrela;
+			}
 		}
 
 		
@@ -1038,9 +1057,10 @@ class colonization {
 		$html_javascript = "
 var lista_estrelas_colonia=[];
 var lista_estrelas_reabastece=[];
-var estrela_capital=[];
-var id_imperio_atual = {$imperios[0]->id};
-				";
+var estrela_capital=[]; \n";
+if (!empty($imperios[0])) {
+	$html_javascript .= "var id_imperio_atual = {$imperios[0]->id}; \n";
+}
 				
 		foreach ($imperios as $imperio) {
 			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");

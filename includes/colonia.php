@@ -300,7 +300,7 @@ class colonia
 		if ($this->planeta->inospito == 1 && $this->planeta->terraforma == 0) {
 			if ($this->pop > $this->planeta->pop_inospito) {
 				$pop_inospito = $this->pop - $this->planeta->pop_inospito;
-				$consumo_extra_inospito = $pop_inospito * $imperio->alimento_inospito;
+				$consumo_extra_inospito = $pop_inospito * $imperio_alimento_inospito;
 			}
 		}
 			
