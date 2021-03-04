@@ -317,10 +317,16 @@ class instala_db {
 		ON colonization_imperio FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_imperio_recursos WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_transfere_techs WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_colonias WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_historico_pesquisa WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
+		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
+		DELETE FROM colonization_balancos_turno WHERE id_imperio = old.id;
+		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
-		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
 		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
 		END$$
@@ -333,6 +339,7 @@ class instala_db {
 		BEGIN
 		DELETE FROM colonization_planeta_recursos WHERE id_planeta = old.id;
 		DELETE FROM colonization_planeta_instalacoes WHERE id_planeta = old.id;
+		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta = old.id;
 		DELETE FROM colonization_imperio_colonias WHERE id_planeta = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_planeta = old.id;
 		END$$
@@ -344,6 +351,9 @@ class instala_db {
 		ON colonization_estrela FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_planeta WHERE id_estrela = old.id;
+		DELETE FROM colonization_imperio_historico_pesquisa WHERE id_estrela = old.id;
+		DELETE FROM colonization_imperio_abastecimento WHERE id_estrela = old.id;
+		DELETE FROM colonization_estrelas_historico WHERE id_estrela = old.id;
 		END$$
 		DELIMITER ;");
 		
@@ -358,18 +368,19 @@ class instala_db {
 		END$$
 		DELIMITER ;");
 		
-		$wpdb->query("		DELIMITER $$
+		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_instalacao
 		AFTER DELETE
 		ON colonization_instalacao FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_instalacao_recursos WHERE id_instalacao = old.id;
 		DELETE FROM colonization_planeta_instalacoes WHERE id_instalacao = old.id;
+		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE id_instalacao = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$
 		DELIMITER ;");
 
-		$wpdb->query("		DELIMITER $$
+		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_planeta_instalacao
 		AFTER DELETE
 		ON colonization_planeta_instalacoes FOR EACH ROW
@@ -378,7 +389,7 @@ class instala_db {
 		END$$
 		DELIMITER ;");		
 
-		$wpdb->query("		DELIMITER $$
+		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_tech
 		AFTER DELETE
 		ON colonization_tech FOR EACH ROW
@@ -387,7 +398,7 @@ class instala_db {
 		END$$
 		DELIMITER ;");
 		
-		$wpdb->query("		DELIMITER $$
+		$wpdb->query("DELIMITER $$
 		CREATE TRIGGER deleta_turno
 		AFTER DELETE
 		ON colonization_turno_atual FOR EACH ROW
@@ -401,8 +412,12 @@ class instala_db {
 		DELETE FROM colonization_imperio_colonias WHERE turno = old.id;
 		DELETE FROM colonization_imperio_frota WHERE turno = old.id;
 		DELETE FROM colonization_imperio_historico_pesquisa WHERE turno = old.id;
+		DELETE FROM colonization_estrelas_historico WHERE turno = old.id;
 		DELETE FROM colonization_acoes_turno WHERE turno = old.id;
+		DELETE FROM colonization_balancos_turno WHERE turno = old.id;
+		DELETE FROM colonization_lista_colonias_turno WHERE turno = old.id;
 		DELETE FROM colonization_acoes_admin WHERE turno = old.id;
+		DELETE FROM colonization_missao WHERE turno = old.id;
 		END$$
 		DELIMITER ;");
 		

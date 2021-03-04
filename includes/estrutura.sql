@@ -253,7 +253,7 @@ turno INT(6) NOT NULL
 )
 
 --Tabela com as ações do Admin
-CREATE TABLE IF NOT EXISTS colonization_b_admin (
+CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 lista_recurso VARCHAR(255) NOT NULL,
