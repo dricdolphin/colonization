@@ -522,9 +522,9 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 		} else {
 			div.setAttribute('data-id-selecionado',selects[index].value);
 			div.setAttribute('data-valor-original',selects[index].options[selects[index].selectedIndex].innerHTML);
-			if (div.getAttribute('data-editavel') == 'true') {
+			//if (div.getAttribute('data-editavel') == 'true') {
 				div.innerHTML = selects[index].options[selects[index].selectedIndex].innerHTML;
-			}
+			//}
 		}
 	}
 	
