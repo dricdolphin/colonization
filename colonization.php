@@ -1269,15 +1269,20 @@ if (!empty($imperios[0])) {
 		$user_roles="";
 		if (!empty($user_meta->roles[0])) {
 			$user_roles=$user_meta->roles[0];
+			$banido = get_user_meta($user_meta->ID, 'asgarosforum_role', true);
 		}
 		
-			
 		if ($user_roles == "administrator") {
 			$prestigio = "&infin;";
+		} elseif ($banido === "banned") {
+			$prestigio = "<span style='color: #DD0000; font-weight: bold;'>BANIDO!</span>";
 		} else {
 			$prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id_jogador={$author_id}");
+			if (empty($prestigio)) {
+				$prestigio = 0;
+			}
 		}
-			
+		
 		echo "<div>Prestígio: {$prestigio}</div>";
 	}
 	
