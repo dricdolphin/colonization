@@ -15,6 +15,7 @@ class imperio_techs
 	public $id_tech;
 	public $custo_pago;
 	public $turno;
+	public $tech_inicial;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -22,7 +23,7 @@ class imperio_techs
 		$this->id = $id;
 
 		$resultado = $wpdb->get_results("
-		SELECT cit.id AS id, cit.id_tech, cit.custo_pago, cit.turno, cit.id_imperio
+		SELECT cit.id AS id, cit.id_tech, cit.custo_pago, cit.turno, cit.id_imperio, cit.tech_inicial
 		FROM colonization_imperio_techs AS cit
 		WHERE cit.id = {$this->id}
 		");
@@ -31,6 +32,7 @@ class imperio_techs
 		$this->id_tech = $resultado[0]->id_tech;
 		$this->custo_pago = $resultado[0]->custo_pago;
 		$this->turno = $resultado[0]->turno;
+		$this->tech_inicial = $resultado[0]->tech_inicial;
 
 	}
 
@@ -41,6 +43,12 @@ class imperio_techs
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+
+		if ($this->tech_inicial == 1) {
+			$tech_inicial_checked = "checked";
+		} else {
+			$tech_inicial_checked = "";
+		}
 		
 		$html = "";
 
@@ -58,6 +66,7 @@ class imperio_techs
 			</td>
 			<td><div data-atributo='custo_pago' data-editavel='true' data-valor-original='{$this->custo_pago}' data-style='width: 30px;'>{$this->custo_pago}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
+			<td><div data-atributo='tech_inicial' data-type='checkbox' data-editavel='true' data-valor-original='{$this->tech_inicial}'><input type='checkbox' data-atributo='tech_inicial' data-ajax='true' {$tech_inicial_checked} disabled></input></div></td>
 			</tr>";
 
 		return $html;

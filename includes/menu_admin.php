@@ -188,7 +188,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 			<thead>
-			<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Pesquisas Gastas<br>(0 = completado)</th><th style='width: 40px;'>Turno</th></tr>
+			<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Pesquisas Gastas<br>(0 = completado)</th><th style='width: 40px;'>Turno</th><th style='width: 150px;'>Tech Inicial</th></tr>
 			</thead>
 			<tbody>";
 

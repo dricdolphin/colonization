@@ -397,6 +397,7 @@ function nova_tech_imperio(evento, id_imperio) {
 	var nome_tech = linha_nova.insertCell(-1);
 	var custo_pago = linha_nova.insertCell(-1);
 	var turno = linha_nova.insertCell(-1);
+	var tech_inicial = linha_nova.insertCell(-1);
 
 	nome_tech.innerHTML = "<td style='width: 300px;'>"
 	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
@@ -409,6 +410,7 @@ function nova_tech_imperio(evento, id_imperio) {
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	custo_pago.innerHTML = "<div data-atributo='custo_pago' data-editavel='true' data-valor-original='0' data-style='width: 30px;'><input type='text' data-atributo='custo_pago' data-ajax='true' style='width: 30px;' value='0'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
+	tech_inicial.innerHTML = "<td><div data-atributo='tech_inicial' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='tech_inicial' data-ajax='true' value='1'></input></div></td>";
 
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();

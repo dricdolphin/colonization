@@ -148,7 +148,8 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		id_tech INT(6) NOT NULL,
 		custo_pago INT(6) DEFAULT 0,
-		turno INT(6) NOT NULL
+		turno INT(6) NOT NULL,
+		tech_inicial BOOLEAN DEFAULT FALSE
 		)");
 
 		//Tabela com as Techs transferidas

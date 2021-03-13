@@ -104,6 +104,14 @@ function valida_tech_imperio(objeto) {
 			custo_pago = inputs_linha[index];
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
+		
+		if (inputs_linha[index].type == 'checkbox') {
+			if (inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
+			} else {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
+			}			
+		}			
 	}
 
 	if (typeof(select_linha[0]) !== "undefined") {
