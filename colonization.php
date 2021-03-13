@@ -1278,9 +1278,11 @@ if (!empty($imperios[0])) {
 			$prestigio = "<span style='color: #DD0000; font-weight: bold;'>BANIDO!</span>";
 		} else {
 			$prestigio = $wpdb->get_var("SELECT prestigio FROM colonization_imperio WHERE id_jogador={$author_id}");
+			$prestigio_up = $wpdb->get_var("SELECT COUNT(*) FROM wp_forum_reactions WHERE author_id={$author_id} AND reaction='up'");
 			if (empty($prestigio)) {
 				$prestigio = 0;
 			}
+			$prestigio = $prestigio + $prestigio_up;
 		}
 		
 		echo "<div>Prestígio: {$prestigio}</div>";
