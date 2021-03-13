@@ -396,8 +396,11 @@ class colonization_ajax {
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
 			$dados_salvos['resposta_ajax'] = "OK!";
-			//Pode cobrar o custo da Tech!
-			$consome_pesquisa = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
+			
+			//Pode cobrar o custo da Tech, caso não seja uma Tech Inicial
+			if ($_POST['tech_inicial'] != 1) {
+				$consome_pesquisa = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
+			}
 		} 
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
