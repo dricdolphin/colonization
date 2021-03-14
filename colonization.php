@@ -1655,60 +1655,41 @@ if (!empty($imperios[0])) {
 		
 		$estrelas = $wpdb->get_results("SELECT nome, tipo, X, Y, Z, ROUND(X+Z*(SQRT(2)/2),2) AS X3D, ROUND(Y+Z*(SQRT(2)/2),2) AS Y3D FROM colonization_estrela");
 
-		$html_lista = "    <script type='text/javascript'>
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+		
+		$html_lista = "
+	<script type='text/javascript'>
+    var data_externa = [];
+	google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(pega_estrelas_ajax);
+	
+	function desenha_mapa_estelar() {
+		let data_array = [
+			['', '', {role: 'annotation'}, {role: 'style'}, {role: 'tooltip'}]
+		];
 
-      function drawChart() {
-        
-		var data = new google.visualization.DataTable();
-        data.addColumn('number', 'X');
-        data.addColumn('number', 'Y');
-		data.addColumn({type: 'string', role: 'tooltip'});
-		data.addColumn({type: 'string', role: 'style'});
+		data_externa.forEach(element => {
+			data_array.push(element);
+		});
 
-        data.addRows([";
+		
+		var data = google.visualization.arrayToDataTable(data_array);
 		
 		
-		$html_estrela = "";
-	    
-		foreach ($estrelas as $estrela) {
-			//,'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})'
-			if (stripos($estrela->tipo,"amarela") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFFF00; }';
-			} elseif (stripos($estrela->tipo,"branca") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFFFFF; }';
-			} elseif (stripos($estrela->tipo,"vermelha") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FF0000; }';
-			} elseif (stripos($estrela->tipo,"azul") !== false) {
-				$estilo = 'point { size: 4; fill-color: #F0F0FF; }';
-			} elseif (stripos($estrela->tipo,"laranja") !== false) {
-				$estilo = 'point { size: 4; fill-color: #FFA500; }';				
-			} else {
-				$estilo = 'point { size: 4; fill-color: #DDDDDD; }';
-			}
-			
-			$html_estrela	.= "[{$estrela->X3D},{$estrela->Y3D},'{$estrela->nome} ({$estrela->X},{$estrela->Y},{$estrela->Z})','{$estilo}'],";
-		}
-		
-		$html_estrela = substr($html_estrela,0,-1);
-		
-		$html_lista .= $html_estrela;
-		
-		$html_lista	.= "]);
-        var options = {
-          title: 'Lista das Estrelas',
-		  chartArea: {backgroundColor: '#111111'},
-		  hAxis: {title: 'X', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
-          vAxis: {title: 'Y', minValue: 0, maxValue: 35, minorGridlines: {count: 0}},
-          legend: 'none'
-        };
+		var options = {
+			title: 'Posição das estrelas',
+			titleTextStyle: { color: '#DDD' },
+			hAxis: {minValue: 0, maxValue: 100, textStyle:{color: '#DDD'}, titleTextStyle:{color: '#DDD'}},
+			vAxis: {direction: -1, minValue: 0, maxValue: 100, textStyle:{color: '#DDD'}, titleTextStyle:{color: '#DDD'}},
+			chartArea: {'width': '90%', 'height': '90%'},
+			backgroundColor: '#000',
+			explorer: { actions: ['dragToZoom', 'rightClickToReset'] }
+		};
 
-        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
-	    chart.draw(data, options);
-      }
+		var chart = new google.visualization.ScatterChart(document.getElementById('div_mapa_estelar'));
+			chart.draw(data, options);
+	}
     </script>
-	<div id='chart_div' style='width: 800px; height: 500px;'></div>";
+	<div id='div_mapa_estelar' style='width: 900px; height: 900px;'></div>";
 	
 		return $html_lista;
 	}

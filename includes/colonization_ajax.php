@@ -37,7 +37,42 @@ class colonization_ajax {
 		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//nave_visivel
 		add_action('wp_ajax_aceita_missao', array ($this, 'aceita_missao'));//aceita_missao
 		add_action('wp_ajax_transfere_pop', array ($this, 'transfere_pop'));//transfere_pop
+		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formado JSON
 	}
+
+	/***********************
+	function lista_estrelas ()
+	----------------------
+	Retorna com todas as estrelas disponíveis em formado JSON
+	***********************/	
+	function lista_estrelas() {
+		global $wpdb;
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$dados_estrela = [];
+		if (!empty($roles)) {
+			$query = $wpdb->get_results("SELECT id, nome, descricao, X, Y, Z, tipo, ids_estrelas_destino FROM colonization_estrela");
+		
+			foreach ($query as $chave => $resultado) {
+				$dados_estrela[$chave]['nome'] = $resultado->nome;
+				$dados_estrela[$chave]['tipo'] = $resultado->tipo;
+				$dados_estrela[$chave]['X'] = $resultado->X;
+				$dados_estrela[$chave]['Y'] = $resultado->Y;
+				$dados_estrela[$chave]['Z'] = $resultado->Z;
+			}
+		} else {
+			$dados_estrela[0]['roles'] = $roles;
+		}
+		
+		echo json_encode($dados_estrela); //Envia a resposta via echo, codificado como JSON
+		wp_die();		
+	}
+
 
 	/***********************
 	function aceita_missao ()
