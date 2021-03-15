@@ -333,7 +333,7 @@ input:checked + .slider:before {
 	overflow: visible;
 }
 
-th {
+tr.th_linha_1 th {
   background-color: #FDFDFD;
   position: sticky;
   top: 30px;

@@ -207,7 +207,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
 			<thead>
-			<tr><th>ID</th><th>Usuário</th><th>Nome do Império</th><th>Prestígio</th><th>População</th><th>Pontuação</th><th>&nbsp;</th></tr>
+			<tr class='th_linha_1'><th>ID</th><th>Usuário</th><th>Nome do Império</th><th>Prestígio</th><th>População</th><th>Pontuação</th><th>&nbsp;</th></tr>
 			</thead>
 			<tbody>";
 			
@@ -287,7 +287,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
 			<thead>
-			<tr><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'  style='width: 150px;'>Nome da estrela</th><th rowspan='2' style='width: 200px;'>Descrição</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>IDs Buracos de Minhoca</th><th rowspan='2'>&nbsp;</th></tr>
+			<tr class='th_linha_1'><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'  style='width: 150px;'>Nome da estrela</th><th rowspan='2' style='width: 200px;'>Descrição</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>IDs Buracos de Minhoca</th><th rowspan='2'>&nbsp;</th></tr>
 			<tr><th class='th_linha_2' style='width: 30px;'>X</th><th class='th_linha_2' style='width: 30px;'>Y</th><th class='th_linha_2' style='width: 30px;'>Z</th></tr>
 			</thead>
 			<tbody>";
@@ -430,7 +430,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
-			<tr><th style='width: 120px;'>ID</th><th>Nome</th><th>Orbita a Estrela (X;Y;Z)</th><th style='width: 60px;'>Posição</th><th>Classe</th><th>Subclasse</th><th style='width: 70px;'>Tamanho</th><th style='width: 90px;'>Inóspito</th><th>&nbsp;</th>
+			<tr class='th_linha_1'><th style='width: 120px;'>ID</th><th>Nome</th><th>Orbita a Estrela (X;Y;Z)</th><th style='width: 60px;'>Posição</th><th>Classe</th><th>Subclasse</th><th style='width: 70px;'>Tamanho</th><th style='width: 90px;'>Inóspito</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -573,7 +573,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
+		<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
 		</tr>
 		</thead>
 		<tbody>";
@@ -616,7 +616,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_tech'>
 		<thead>
-		<tr>
+		<tr class='th_linha_1'>
 		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th style='width: 200px;'>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 120px;'>Lista Requisitos</th><th style='width: 80px;'>Bélica</th><th style='width: 80px;'>Pública</th><th style='width: 200px;'>Especiais</th><th style='width: 200px;'>Ícone</th>
 		</tr>
 		</thead>
@@ -736,7 +736,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
-			<tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th style='width: 80px;'><th>Autônoma</th><th style='width: 120px;'>Desguarnecida</th><th style='width: 120px;'>Pode desativar</th><th style='width: 60px;'>Oculta</th><th>Especiais</th><th>Ícone</th><th>Custos</th><th>&nbsp;</th>
+			<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th style='width: 80px;'><th>Autônoma</th><th style='width: 120px;'>Desguarnecida</th><th style='width: 120px;'>Pode desativar</th><th style='width: 60px;'>Oculta</th><th>Especiais</th><th>Ícone</th><th>Custos</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -1219,7 +1219,7 @@ class menu_admin {
 		
 		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>
 		<thead>
-		<tr><th style='width: 120px;'>Nome do Império</th><th style='width: 240px;'>Recursos Consumidos &nbsp; || &nbsp; Qtd</th><th style='width: 200px;'>Descrição</th><th style='width: 50px;'>Turno</th></tr>
+		<tr class='th_linha_1'><th style='width: 120px;'>Nome do Império</th><th style='width: 240px;'>Recursos Consumidos &nbsp; || &nbsp; Qtd</th><th style='width: 200px;'>Descrição</th><th style='width: 50px;'>Turno</th></tr>
 		</thead>
 		<tbody>";
 
