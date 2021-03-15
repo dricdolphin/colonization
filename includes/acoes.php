@@ -551,7 +551,7 @@ class acoes
 
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
-		$balancos_db = $wpdb->get_var("SELECT json_balancos FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
+		$balancos_db = stripslashes(str_replace(array("\\n", "\\r", "\\t"), "", $wpdb->get_var("SELECT json_balancos FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}")));
 	
 		$flag_novo_balanco = true;
 		if (empty($balancos_db)) {

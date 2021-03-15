@@ -807,7 +807,12 @@ class imperio
 		
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
-		$lista_colonias_db = $wpdb->get_var("SELECT json_balancos FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
+		$lista_colonias_db = stripslashes(str_replace(array("\\n", "\\r", "\\t"), "", $wpdb->get_var("SELECT json_balancos FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}")));
+
+			if ($roles == "administrator") {
+				//TODO -- Debug
+			}
+
 	
 		$flag_nova_lista = true;
 		if (empty($lista_colonias_db)) {
@@ -819,6 +824,7 @@ class imperio
 		} else {
 			$flag_nova_lista = false;
 			$lista_colonias_db = json_decode($lista_colonias_db, true, 512, JSON_UNESCAPED_UNICODE);
+			
 			$html_planeta_temp = $lista_colonias_db['html_planeta'];
 			$planeta_id_estrela = $lista_colonias_db['planeta_id_estrela'];
 			$mdo_sistema = $lista_colonias_db['mdo_sistema'];
@@ -984,9 +990,13 @@ class imperio
 			$dados_html_para_salvar['pop_sistema'] = $pop_sistema;
 			$dados_html_para_salvar['qtd_defesas_sistema'] = $qtd_defesas_sistema;
 
-			$json_lista_colonias = json_encode($dados_html_para_salvar, JSON_UNESCAPED_UNICODE);
+			$json_lista_colonias = addslashes(json_encode($dados_html_para_salvar, JSON_UNESCAPED_UNICODE));
 			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
 			$wpdb->query("INSERT INTO colonization_lista_colonias_turno SET json_balancos = '{$json_lista_colonias}', id_imperio = {$this->id}, turno = {$this->turno->turno}");
+
+			if ($roles == "administrator") {
+				//TODO -- Debug
+			}
 		}
 
 		foreach ($html_planeta AS $id_planeta => $html) {
