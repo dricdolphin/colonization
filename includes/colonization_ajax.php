@@ -973,12 +973,14 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 						if (empty($recursos_devolve[$id_recurso])) {
 							$recursos_devolve[$id_recurso] = 0;
 						}
-						$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
-						$custo_recursos = $qtd*$niveis;
-						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
-						$chave++;
-						if ($qtd_imperio < $custo_recursos) {
-							$dados_salvos['resposta_ajax'] = "O Império não tem Recursos suficientes para concluir essa operação.";	
+						if ($_POST['id'] != "" && $_POST['instalacao_inicial'] != 1) {//Uma instalação inicial é gratuita, desde que esteja sendo criada.
+							$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
+							$custo_recursos = $qtd*$niveis;
+							$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+							$chave++;
+							if ($qtd_imperio < $custo_recursos) {
+								$dados_salvos['resposta_ajax'] = "O Império não tem Recursos suficientes para concluir essa operação.";	
+							}
 						}
 					}
 				}

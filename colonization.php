@@ -51,6 +51,7 @@ class colonization {
 		
 		//Adiciona os "shortcodes" que serão utilizados para exibir os dados do Império
 		add_shortcode('colonization_exibe_imperio',array($this,'colonization_exibe_imperio')); //Exibe os dados do Império	
+		add_shortcode('colonization_nome_imperio',array($this,'colonization_nome_imperio')); //Exibe o nome de um Império
 		add_shortcode('colonization_exibe_colonias_imperio',array($this,'colonization_exibe_colonias_imperio')); //Exibe os dados do Império	
 		add_shortcode('colonization_exibe_lista_imperios',array($this,'colonization_exibe_lista_imperios')); //Exibe a lista dos Impérios e suas pontuações
 		add_shortcode('colonization_exibe_lista_imperios_pontuacao',array($this,'colonization_exibe_lista_imperios_pontuacao')); //Exibe a Pontuação dos Impérios
@@ -1306,7 +1307,28 @@ if (!empty($imperios[0])) {
 	function colonization_deactivate() {
 		//TODO - Rotinas de desativação
 	}
-	
+
+	/***********************
+	function colonization_nome_imperio($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_imperio]
+	$atts = [] - lista de atributos dentro do shortcode 
+	(por exemplo, o shortcode [colonization_exibe_imperio id_imperio="1"] poderia exibir
+	os dados do Império com id="1"
+	***********************/	
+	function colonization_nome_imperio($atts = [], $content = null) {
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+		
+		if (!empty($imperio->id)) {
+			return "Império '{$imperio->nome}'";
+		}
+	}
+
+
 	/***********************
 	function colonization_exibe_imperio($atts = [], $content = null)
 	----------------------

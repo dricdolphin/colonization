@@ -16,6 +16,7 @@ class colonia_instalacao
 	public $nivel;
 	public $turno;
 	public $turno_destroi;
+	public $instalacao_inicial;
 	public $instalacao;
 	public $planeta;
 	public $imperio;
@@ -25,13 +26,14 @@ class colonia_instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, turno_destroi FROM colonization_planeta_instalacoes WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, instalacao_inicial, turno_destroi FROM colonization_planeta_instalacoes WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_planeta = $resultado->id_planeta;
 		$this->id_instalacao = $resultado->id_instalacao;
 		$this->nivel = $resultado->nivel;
 		$this->turno = $resultado->turno;
+		$this->instalacao_inicial = $resultado->instalacao_inicial;
 		$this->turno_destroi = $resultado->turno_destroi;
 		
 		//$this->planeta = new planeta($this->id_planeta);
@@ -45,6 +47,12 @@ class colonia_instalacao
 	***********************/
 	function lista_dados() {
 		global $wpdb;
+
+		if ($this->instalacao_inicial == 1) {
+			$instalacao_inicial_checked = "checked";
+		} else {
+			$instalacao_inicial_checked = "";
+		}
 		
 		$this->instalacao = new instalacao($this->id_instalacao);
 		
@@ -70,6 +78,7 @@ class colonia_instalacao
 			<td><div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='{$this->id_instalacao}' data-valor-original='{$this->instalacao->nome}'>{$this->instalacao->nome}</div></td>
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
+			<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='{$this->instalacao_inicial}'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' {$instalacao_inicial_checked} disabled></input></div></td>			
 			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return destruir_instalacao(event, this);'>{$texto_destruir}</a></div></td>";
 		
