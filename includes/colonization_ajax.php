@@ -825,6 +825,7 @@ class colonization_ajax {
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
 		}
 		
@@ -1003,6 +1004,9 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 				unset($_POST['id_imperio']);
 				
 				$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
+				//Reseta os dados do JSON
+				$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
+				$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
 				
 				$dados_salvos['recursos_atuais'] = $imperio->exibe_recursos_atuais();
 				$dados_salvos['resposta_ajax'] = "SALVO!";
@@ -1306,13 +1310,12 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
 				if (!empty($id_planeta_recurso)) {
 					$planeta_recursos = new planeta_recurso($id_planeta_recurso);	
+					if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
+						$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome} (Extrai {$acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id]}, Reservas {$planeta_recursos->qtd_disponivel}), ";
+					}
 				} else {//Caso o planeta não tenha o recurso...
 					$planeta_recursos = new recurso($id_recurso_produz);
 					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso[$id_recurso]->nome}, ";
-				}
-	
-				if ($acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id] > $planeta_recursos->qtd_disponivel) {
-					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$planeta_recursos->recurso->nome} (Extrai {$acoes->recursos_produzidos_planeta[$id_recurso_produz][$planeta->id]}, Reservas {$planeta_recursos->qtd_disponivel}), ";
 				}
 			}
 		}

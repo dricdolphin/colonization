@@ -353,10 +353,32 @@ class colonization {
 				$nomes_imperios = "Colonizado por <span style='text-decoration: underline;'>{$nomes_imperios}</span>";
 			}
 			
+			
+			//Pega os planetas que orbitam a estrela
+			$ids_planetas_estrela = $wpdb->get_results("
+			SELECT id FROM colonization_planeta AS cp
+			WHERE cp.id_estrela = {$estrela->id}
+			ORDER BY cp.posicao, cp.id
+			");
+			
+			$planetas_html = "";
+			foreach ($ids_planetas_estrela as $id_planeta) {
+				$planeta = new planeta($id_planeta->id);
+				
+				if ($planeta->classe == "Lua") {
+					$planeta->icone_habitavel = "<div class='fas fa-moon tooltip' style='color: #912611; font-size: x-small;'>&nbsp;<span class='tooltiptext'>Lua</span></div>";;
+				} elseif ($planeta->classe == "Gigante Gasoso") {
+					$planeta->icone_habitavel = "<div class='fas fa-planet-ringed tooltip' style='color: #912611; font-size: x-small;'>&nbsp;<span class='tooltiptext'>Gigante Gasoso</span></div>";;
+				}
+				$planetas_html .= "{$planeta->posicao}-{$planeta->icone_habitavel}{$planeta->nome} ({$planeta->subclasse} - Tam: {$planeta->tamanho}); ";
+			}
+			
 			//descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
 			$descricao_html = $estrela->descricao;
 			$html .= "<div style='margin-bottom: 5px; {$par_impar}'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$nomes_imperios}<br>
-			{$descricao_html}</div>";
+			{$descricao_html}
+			<div class='lista_planetas'>{$planetas_html}</div>
+			</div>";
 			
 			if ($par_impar == "background-color: #DDD;") {
 				$par_impar = "background-color: #EEE;";
