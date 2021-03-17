@@ -340,6 +340,30 @@ tr.th_linha_1 th {
   z-index: 99;
 }
 
+.verde_escuro {
+	color: #006400;
+}
+
+.vermelho {
+	color: #660000;
+}
+
+.azul_escuro {
+	color: #00008B;
+}
+
+.amarelo_escuro {
+	color: #E6A80E;
+}
+
+.marrom {
+	color: #8B4513;
+}
+
+.crystal {
+	background: url('/wp-content/plugins/colonization/crystal.png');
+}
+
 .th_linha_2 {
   background-color: #FDFDFD;
   position: sticky;
@@ -359,6 +383,29 @@ tr.th_linha_1 th {
 	top: 20px;
 	background-color: #F1F8FF; 
 	padding-left: 15px;
+}
+
+.par_impar:nth-of-type(odd) {
+    background: #DFDFDF;
+}
+
+.par_impar:nth-of-type(even) {
+    background: #F5F5F5;
+}
+
+.nome_estrela {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.lista_planetas {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+.recursos_planeta {
+	background-color: rgba(0, 0, 0, 0.1);
+	margin-left: 3px;
+	display: inline-block;
+	font-size: 0.75em;
 }
 
 @media only screen and (max-width: 1209px) {

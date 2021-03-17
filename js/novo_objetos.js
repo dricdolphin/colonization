@@ -300,6 +300,7 @@ function novo_recurso(evento) {
 	var id = linha_nova.insertCell(-1);
 	var nome = linha_nova.insertCell(-1);
 	var descricao = linha_nova.insertCell(-1);
+	var icone = linha_nova.insertCell(-1);
 	var nivel = linha_nova.insertCell(-1);
 	var acumulavel = linha_nova.insertCell(-1);
 	var extrativo = linha_nova.insertCell(-1);
@@ -313,6 +314,7 @@ function novo_recurso(evento) {
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original=''><input type='text' data-atributo='descricao' data-ajax='true'></input></div>";
+	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 	nivel.innerHTML = "<div data-atributo='nivel' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nivel' data-ajax='true' value='1'></input></div>";
 	acumulavel.innerHTML = "<div data-atributo='acumulavel' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='acumulavel' data-ajax='true' checked></input></div>";
 	extrativo.innerHTML = "<div data-atributo='extrativo' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='extrativo' data-ajax='true' checked></input></div>";
@@ -584,15 +586,51 @@ function nova_colonia(evento, id_imperio) {
 	return false;
 }
 
+
+/******************
+function popular_recursos_planeta
+--------------------
+Adiciona todos os recursos extrativos num planeta
+--------
+id_planeta -- id do Planeta que receberá o recurso
+objeto -- Usado para remover o link após clicar
+diversos -- Permite adicionar mais de um recurso por vez
+******************/
+function popular_recursos_planeta(evento, objeto, id_planeta) {
+	var dados_ajax = "post_type=POST&action=ids_recursos_extrativos";
+	var retorno = false;
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+				resposta.forEach(element => {
+					novo_planeta_recurso(evento, id_planeta, true, element);
+					console.log(element);
+				});
+			} catch (err) {
+				console.log(resposta);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+	
+	objeto.parentNode.removeChild(objeto);
+}
+
 /******************
 function novo_planeta_recurso
 --------------------
 Insere um novo recurso numa colônia
 --------
 id_planeta -- id do Planeta que receberá o recurso
+diversos -- Permite adicionar mais de um recurso por vez
 ******************/
-function novo_planeta_recurso(evento, id_planeta) {
-	if (objeto_em_edicao) {
+function novo_planeta_recurso(evento, id_planeta, diversos=false, id_recurso=0) {
+	if (objeto_em_edicao && !diversos) {
 		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
@@ -608,7 +646,7 @@ function novo_planeta_recurso(evento, id_planeta) {
 	var disponivel = linha_nova.insertCell(-1);
 	var turno = linha_nova.insertCell(-1);
 	
-	var lista_recursos = lista_recursos_html();
+	var lista_recursos = lista_recursos_html(id_recurso);
 	
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"

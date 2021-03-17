@@ -93,7 +93,9 @@ function cancela_edicao(evento, objeto) {
 	objeto_em_edicao = false;
 	
 	var tabela_objetos = pega_ascendente(objeto,"TABLE");
-	tabela_objetos.deleteRow(-1);
+	var linha = pega_ascendente(objeto,"TR");
+	//tabela_objetos.deleteRow(-1);
+	linha.parentNode.removeChild(linha);
 	
 	evento.preventDefault();
 	return false;

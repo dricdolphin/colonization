@@ -259,7 +259,7 @@ class planeta
 	----------------------
 	Exibe os recursos do planeta
 	***********************/	
-	function exibe_recursos_planeta () {
+	function exibe_recursos_planeta ($exibe_icones = false) {
 		global $wpdb;
 		
 		$ids_recursos_planeta = $wpdb->get_results("SELECT cpr.id_recurso, cpr.disponivel 
@@ -273,7 +273,18 @@ class planeta
 		foreach ($ids_recursos_planeta as $recurso_planeta) {
 			$recurso = new recurso($recurso_planeta->id_recurso);
 			$this->recurso_planeta[$recurso->id] = $recurso_planeta->disponivel;
-			$html .= "{$recurso->nome}: {$recurso_planeta->disponivel}; ";
+			
+			$nome_recurso = $recurso->nome;
+			$nome_tooltip = "";
+			if ($exibe_icones) {
+				if ($recurso->icone != "") {
+					$nome_recurso = "<div class='{$recurso->icone}'></div>";
+					$nome_tooltip = "{$recurso->nome}: ";
+				}
+			}
+			$html .= "<div class='tooltip' style='display: inline-block;'>{$nome_recurso} - {$recurso_planeta->disponivel}; &nbsp;
+						<span class='tooltiptext'>{$nome_tooltip}{$recurso->descricao}</span>
+					</div>";
 		}
 		
 		return $html;

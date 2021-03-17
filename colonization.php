@@ -3,7 +3,7 @@
  * Plugin Name: Colonization
  * Plugin URI: https://github.com/dricdolphin/colonization
  * Description: Plugin de WordPress com o sistema de jogo de Colonization.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: dricdolphin
  * Author URI: https://dricdolphin.com
  */
@@ -140,7 +140,11 @@ class colonization {
 			
 			if ($asgarosforum->content->get_topic_title($topic_id) == "Transferência de Techs") {
 				echo "<div class='icone_topico'><i class='fas fa-user-chart' style='font-size: 32px; color: #a2a2a2;'></i></div>";
-			}						
+			}
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Mapa de Recursos") {
+				echo "<div class='icone_topico'><i class='fas fa-clipboard-list-check' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}			
 		//}
 	}
 	
@@ -307,7 +311,6 @@ class colonization {
 		}
 		
 		$html = "";
-		$par_impar = "background-color: #DDD;";
 		foreach ($id_estrelas as $id) {
 			$estrela = new estrela($id->id_estrela);
 			
@@ -353,38 +356,14 @@ class colonization {
 				$nomes_imperios = "Colonizado por <span style='text-decoration: underline;'>{$nomes_imperios}</span>";
 			}
 			
-			
-			//Pega os planetas que orbitam a estrela
-			$ids_planetas_estrela = $wpdb->get_results("
-			SELECT id FROM colonization_planeta AS cp
-			WHERE cp.id_estrela = {$estrela->id}
-			ORDER BY cp.posicao, cp.id
-			");
-			
-			$planetas_html = "";
-			foreach ($ids_planetas_estrela as $id_planeta) {
-				$planeta = new planeta($id_planeta->id);
-				
-				if ($planeta->classe == "Lua") {
-					$planeta->icone_habitavel = "<div class='fas fa-moon tooltip' style='color: #912611; font-size: x-small;'>&nbsp;<span class='tooltiptext'>Lua</span></div>";;
-				} elseif ($planeta->classe == "Gigante Gasoso") {
-					$planeta->icone_habitavel = "<div class='fas fa-planet-ringed tooltip' style='color: #912611; font-size: x-small;'>&nbsp;<span class='tooltiptext'>Gigante Gasoso</span></div>";;
-				}
-				$planetas_html .= "{$planeta->posicao}-{$planeta->icone_habitavel}{$planeta->nome} ({$planeta->subclasse} - Tam: {$planeta->tamanho}); ";
-			}
-			
 			//descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
 			$descricao_html = $estrela->descricao;
-			$html .= "<div style='margin-bottom: 5px; {$par_impar}'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$nomes_imperios}<br>
-			{$descricao_html}
+			$planetas_html = $estrela->pega_html_planetas_estrela();
+			$html .= "<div class='par_impar' style='margin-bottom: 5px;'>
+			<div class='nome_estrela'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$nomes_imperios}</div>
+			<div class='descricao_estrela'>{$descricao_html}</div>
 			<div class='lista_planetas'>{$planetas_html}</div>
 			</div>";
-			
-			if ($par_impar == "background-color: #DDD;") {
-				$par_impar = "background-color: #EEE;";
-			} else {
-				$par_impar = "background-color: #DDD;";
-			}
 		}
 		
 		return $html;
@@ -416,6 +395,12 @@ class colonization {
 			}
 			$imperio = new imperio($id_imperio, true);
 		}		
+
+		$apenas_recursos = false;
+		$somente_pesquisa = "";
+		if (isset($atts['apenas_recursos'])) {
+			$apenas_recursos = true;
+		}
 		
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE turno_destruido=0 ORDER BY id_imperio");
@@ -430,7 +415,10 @@ class colonization {
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
 		} else {
-			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0");
+			if ($apenas_recursos) {//Somente naves de pesquisa conseguem ver os recursos dos planetas onde estão
+				$somente_pesquisa = " AND pesquisa=1";
+			}
+			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0{$somente_pesquisa}");
 			$ids_estrelas = $wpdb->get_results("
 			SELECT DISTINCT ce.id
 			FROM colonization_imperio_colonias AS cic
@@ -447,8 +435,10 @@ class colonization {
 		if (isset($atts['apenas_naves'])) {
 			$ids_estrelas = [];
 		}
-		
+
 		$html_estrela = [];
+		$html_naves = [];
+		$html_planetas_na_estrela = [];
 		$exibiu_nave = [];
 		foreach ($ids_estrelas as $id_estrela) {
 			$estrela = new estrela($id_estrela->id);
@@ -479,7 +469,9 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br>";
+				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br></div>";
+				$html_naves[$estrela->id] = "<div class='naves_no_local'>";
+				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0");
@@ -492,15 +484,15 @@ class colonization {
 				
 				if ($roles != "administrator") {
 					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
-						$html_estrela[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$html_naves[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
 					if ($nave->camuflagem > 0 && $nave->visivel == 0) {
-						$html_estrela[$estrela->id] .= "<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+						$html_naves[$estrela->id] .= "<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
 						$exibiu_nave[$nave->id] = true;
 					} else {
-						$html_estrela[$estrela->id] .= "{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$html_naves[$estrela->id] .= "{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
@@ -540,7 +532,9 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br>";
+				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br></div>";
+				$html_naves[$estrela->id] = "<div class='naves_no_local'>";
+				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0 ORDER BY id_imperio");
@@ -554,15 +548,15 @@ class colonization {
 				if (empty($exibiu_nave[$nave_na_estrela->id]) || $exibiu_nave[$nave_na_estrela->id] == false) {
 					if ($roles != "administrator") {
 						if (($imperio->sensores > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
-							$html_estrela[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$html_naves[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
-							$html_estrela[$estrela->id] .= "<i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
+							$html_naves[$estrela->id] .= "<i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
-							$html_estrela[$estrela->id] .= "{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$html_naves[$estrela->id] .= "{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}
@@ -587,20 +581,19 @@ class colonization {
 			");
 		}
 
-		$par_impar = "background-color: #DDD;";
 		foreach ($ids_estrelas as $chave) {
-			if ($par_impar == "background-color: #DDD;") {
-				$par_impar = "background-color: #EEE;";
-			} else {
-				$par_impar = "background-color: #DDD;";
+			$html_naves[$chave->id] .= "</div>";
+			if ($apenas_recursos) {
+				$html_naves[$chave->id] = "";
 			}
-			$html_final .= "<div style='margin-bottom: 5px;{$par_impar}'>".$html_estrela[$chave->id]."</div>";
+			$html_final .= "<div class='par_impar' style='margin-bottom: 5px;'>{$html_estrela[$chave->id]}{$html_naves[$chave->id]}
+			{$html_planetas_na_estrela[$chave->id]}
+			</div>";
 		}
 		
 		//$html_final = "Império {$imperio->id} // {$roles}";
 		return $html_final;
 	}
-	
 	
 	/******************
 	function colonization_exibe_viagem_frota()
@@ -1260,7 +1253,7 @@ if (!empty($imperios[0])) {
 				$html_recursos .= "<b>{$imperio->nome}{$imperio->icones_html}</b> - ";
 			}
 			
-			$recursos_atuais = $imperio->exibe_recursos_atuais();
+			$recursos_atuais = $imperio->exibe_recursos_atuais(true);
 			$recursos_atuais = substr($recursos_atuais,19); //Remove o cabeçalho
 			$html_recursos .= $recursos_atuais."<br>";
 		}

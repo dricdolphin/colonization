@@ -372,12 +372,17 @@ class menu_admin {
 				{$html_dados}
 				</tr>";
 			}
-
+			
+			$link_auto_popular_recursos = "";
+			if (empty($lista_planeta_recursos)) {
+				$link_auto_popular_recursos = "&nbsp; <a href='#' class='page-title-action colonization_admin_botao' onclick='return popular_recursos_planeta(event, this, {$planeta->id})'>Popular lista de Recursos</a>";
+			}
+			
 			$html.= $html_lista;
 
 			$html .= "\n</tbody>
 			</table></div>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return novo_planeta_recurso(event, {$planeta->id});'>Adicionar novo Recurso</a>{$link_auto_popular_recursos}</div>";
 
 			/*************************************/
 			$lista_colonia_instalacoes = $wpdb->get_results("SELECT id, id_instalacao FROM colonization_planeta_instalacoes WHERE id_planeta={$planeta->id}");
@@ -573,7 +578,7 @@ class menu_admin {
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
-		<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
+		<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Ícone</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
 		</tr>
 		</thead>
 		<tbody>";

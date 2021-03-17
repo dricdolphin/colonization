@@ -116,5 +116,44 @@ class estrela
 		
 		return $distancia;
 	}
+	
+	/******************
+	function html_planetas_na_estrela($id_estrela)
+	-----------
+	Retorna o HTML de todos os planetas que estão em uma estrela
+	******************/	
+	function pega_html_planetas_estrela($detalhes_planetas = true, $exibe_recursos_planetas=false) {
+		global $wpdb;
+		
+		//Pega os planetas que orbitam a estrela
+		$ids_planetas_estrela = $wpdb->get_results("
+		SELECT id FROM colonization_planeta AS cp
+		WHERE cp.id_estrela = {$this->id}
+		ORDER BY cp.posicao, cp.id
+		");
+
+		$html_planetas = "<div class='lista_planetas'>";
+		foreach ($ids_planetas_estrela as $id_planeta) {
+			$planeta = new planeta($id_planeta->id);
+			
+			if ($planeta->classe == "Lua") {
+				$planeta->icone_habitavel = "<div class='fas fa-moon tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Lua</span></div>";;
+			} elseif ($planeta->classe == "Gigante Gasoso") {
+				$planeta->icone_habitavel = "<div class='fas fa-planet-ringed tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Gigante Gasoso</span></div>";
+			}
+			$html_planetas .= "{$planeta->posicao}-{$planeta->icone_habitavel}{$planeta->nome}"; 
+			if ($detalhes_planetas) {
+				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho})";
+			}
+			
+			if ($exibe_recursos_planetas) {
+				$html_recursos_planeta = $planeta->exibe_recursos_planeta(true);
+				$html_planetas .= "<div class='recursos_planeta'>{$html_recursos_planeta}</div>";
+			}
+			$html_planetas .= "; ";
+		}
+	
+	return $html_planetas."</div>";
+	}
 }
 ?>

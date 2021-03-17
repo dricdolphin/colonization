@@ -37,7 +37,8 @@ class colonization_ajax {
 		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//nave_visivel
 		add_action('wp_ajax_aceita_missao', array ($this, 'aceita_missao'));//aceita_missao
 		add_action('wp_ajax_transfere_pop', array ($this, 'transfere_pop'));//transfere_pop
-		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formado JSON
+		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formato JSON
+		add_action('wp_ajax_ids_recursos_extrativos', array ($this, 'ids_recursos_extrativos'));//Retorna com todos os recursos extrativos formatados em JSON
 	}
 
 	/***********************
@@ -73,6 +74,31 @@ class colonization_ajax {
 		wp_die();		
 	}
 
+	/***********************
+	function ids_recursos_extrativos ()
+	----------------------
+	Retorna com todos os ids dos recursos extrativos em formado JSON
+	***********************/	
+	function ids_recursos_extrativos() {
+		global $wpdb;
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$ids_recursos = [];
+		if (!empty($roles)) {
+			$query = $wpdb->get_results("SELECT id FROM colonization_recurso WHERE extrativo = 1");
+			foreach ($query as $chave => $ids) {
+				$ids_recursos[$chave] = $ids->id;
+			}
+		}
+		
+		echo json_encode($ids_recursos); //Envia a resposta via echo, codificado como JSON
+		wp_die();		
+	}
 
 	/***********************
 	function aceita_missao ()
@@ -145,11 +171,14 @@ class colonization_ajax {
 			$roles = $user->roles[0];
 		}
 		
+		//TODO -- verificar se tem Combustível suficiente para mandar a nave.
+		
 		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode despachar sua nave!";
 		if ($imperio->id == $nave->id_imperio || $roles == "administrator") {
 			if ($nave->id_estrela_destino == 0) {
 				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
 				$dados_salvos['resposta_ajax'] = "SALVO!";
+				//TODO -- consome o combustível e despacha a nave
 			} else {
 				$estrela = new estrela($nave->id_estrela_destino);
 				$dados_salvos['resposta_ajax'] = "Essa nave já foi despachada para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})!";
@@ -189,6 +218,17 @@ class colonization_ajax {
 			} else {
 				$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$turno->turno} WHERE id={$estrela_visitada}");
 			}
+			
+			//Verifica se já pesquisou essa estrela. Se ainda não pesquisou, então fornece 5 pontos de pesquisa automaticamente
+			if ($nave->pesquisa == 1) {
+				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
+					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$turno->turno}");
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND id_turno={$turno->turno}");
+				}
+			}
+			
 		}
 		
 		$dados_salvos['resposta_ajax'] = "SALVO!";

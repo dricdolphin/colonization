@@ -636,7 +636,7 @@ class imperio
 	----------------------
 	Exibe os recursos atuais Império
 	***********************/
-	function exibe_recursos_atuais() {
+	function exibe_recursos_atuais($icones = false) {
 		global $wpdb;
 
 		if ($this->id == 0) {
@@ -644,20 +644,28 @@ class imperio
 		}
 		
 		$resultados = $wpdb->get_results("
-		SELECT cir.qtd, cr.nome, cr.descricao
+		SELECT cir.qtd, cr.nome, cr.descricao, cr.icone
 		FROM colonization_imperio_recursos AS cir
 		JOIN colonization_recurso AS cr
 		ON cr.id=cir.id_recurso
 		WHERE cir.id_imperio = {$this->id} AND turno={$this->turno->turno}
 		AND cr.acumulavel = true
 		AND cir.disponivel = true
-		ORDER BY cr.nivel, cr.nome
+		ORDER BY cr.nivel, cr.extrativo, cr.nome
 		");
 		
 		$html = "<b>Recursos atuais:</b> ";
 		foreach ($resultados as $resultado) {
-			$html .= "<div class='tooltip' style='display: inline-block;'>{$resultado->nome} - {$resultado->qtd}; &nbsp;
-						<span class='tooltiptext'>{$resultado->descricao}</span>
+			$nome_recurso = $resultado->nome;
+			$nome_tooltip = "";
+			if ($icones) {
+				if ($resultado->icone != "") {
+					$nome_recurso = "<div class='{$resultado->icone}'></div>";
+					$nome_tooltip = "{$resultado->nome}: ";
+				}
+			}
+			$html .= "<div class='tooltip' style='display: inline-block;'>{$nome_recurso} - {$resultado->qtd}; &nbsp;
+						<span class='tooltiptext'>{$nome_tooltip}{$resultado->descricao}</span>
 					</div>";
 
 			//$html .= "{$resultado->nome} - {$resultado->qtd}; ";
