@@ -401,6 +401,11 @@ class colonization {
 		if (isset($atts['apenas_recursos'])) {
 			$apenas_recursos = true;
 		}
+
+		$query_estrela = "";
+		if (isset($atts['id_estrela'])) {//Caso seja para mostrar os dados de uma estrela específica
+			$query_estrela = " AND ce.id={$atts['id_estrela']}";
+		}		
 		
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE turno_destruido=0 ORDER BY id_imperio");
@@ -411,7 +416,7 @@ class colonization {
 			ON cp.id = cic.id_planeta
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
-			WHERE cic.turno = {$turno->turno}
+			WHERE cic.turno = {$turno->turno}{$query_estrela}
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
 		} else {
@@ -426,7 +431,7 @@ class colonization {
 			ON cp.id = cic.id_planeta
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
-			WHERE cic.id_imperio = {$imperio->id}
+			WHERE cic.id_imperio = {$imperio->id}{$query_estrela}
 			AND cic.turno = {$turno->turno}
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");			
@@ -2116,20 +2121,20 @@ var id_imperio_atual = {$imperio->id};
 		
 		$html = "<h3>Construção de Naves</h3>
 		<div id='string_construcao' {$estilo}><label>String da Nave: </label><input type='text' value='' id='input_string_construcao' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return processa_string(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Processa a String</a></div>
-		<div id='dados'>Tamanho: 1; Velocidade: 5; Alcance: 0; <br>
-		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 0</div>
+		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
+		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
 		<h4>Custos</h4>
-		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 0 | Duranium: 0</div><br>
+		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 1 | Duranium: 0</div><br>
 		<div id='chassi'>Chassi: 1 - Categoria: Corveta</div>
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto' value='1'></input></div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
-		<div id='blindagem'>Blindagem: <input type='number' id='qtd_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium' value='1'></input></div>
-		<div id='escudos'>Escudos: <input type='number' id='qtd_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
+		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium' value='1'></input></div>
+		<div id='escudos'>Escudos: Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
-		<div id='impulso'>Motor de Impulso: <input type='number' id='qtd_impulso' onchange='return calcula_custos(event, this);' value='1' min='1' style='width: 50px;'></input> Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
-		<div id='dobra'>Motor de Dobra: <input type='number' id='qtd_dobra' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input> Mk: <input type='number' id='mk_dobra' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
+		<div id='impulso'>Motor de Impulso: Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
+		<div id='dobra'>Motor de Dobra: Mk: <input type='number' id='mk_dobra' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
 		<div id='combustivel'>Células de Combustível: <input type='number' id='qtd_combustivel' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
 		<div id='especiais'>

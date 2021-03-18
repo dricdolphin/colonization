@@ -810,18 +810,20 @@ class imperio
 					$this->debug .= "imperio->exibe_lista_colonias -> new Ações {$diferenca}ms \n";
 			}
 		}
-
-		
 		
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
 		$lista_colonias_db = stripslashes(str_replace(array("\\n", "\\r", "\\t"), "", $wpdb->get_var("SELECT json_balancos FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}")));
-
 			if ($roles == "administrator") {
 				//TODO -- Debug
 			}
-
 	
+		$mdo = 0;
+		$estrela = [];
+		$planeta = [];
+		$colonia = [];
+		$instalacao = [];
+
 		$flag_nova_lista = true;
 		if (empty($lista_colonias_db)) {
 			$html_planeta = [];
@@ -839,16 +841,26 @@ class imperio
 			$pop_sistema = $lista_colonias_db['pop_sistema'];
 			$qtd_defesas_sistema = $lista_colonias_db['qtd_defesas_sistema'];
 			
+			if (!empty($id_colonia)) {
+				if (!empty($id_colonia[0])) {
+					$colonia[$id_colonia[0]] = new colonia($id_colonia[0]);
+					$estrela[$colonia[$id_colonia[0]]->id_estrela] = new estrela($colonia[$id_colonia[0]]->id_estrela);
+					$mdo_sistema[$colonia[$id_colonia[0]]->id_estrela] = "";
+				}
+				
+				if (!empty($id_colonia[1])) {
+					$colonia[$id_colonia[1]] = new colonia($id_colonia[1]);
+					$estrela[$colonia[$id_colonia[1]]->id_estrela] = new estrela($colonia[$id_colonia[1]]->id_estrela);
+					$mdo_sistema[$colonia[$id_colonia[1]]->id_estrela] = "";
+				}				
+			}
+			
 			foreach ($html_planeta_temp as $chave => $html_do_planeta) {
 				$html_planeta[$chave] = html_entity_decode($html_do_planeta, ENT_QUOTES);
 			}
 		}
 		
-		$mdo = 0;
-		$estrela = [];
-		$planeta = [];
-		$colonia = [];
-		$instalacao = [];
+
 
 		foreach ($resultados as $resultado) {
 			if (!$flag_nova_lista && $id_colonia[0] != $resultado->id && $id_colonia[1] != $resultado->id) { //Só processa se houve alguma alteração
