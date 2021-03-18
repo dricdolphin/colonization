@@ -734,6 +734,19 @@ class imperio
 	}
 	//***********************/	
 
+	/***********************
+	function pega_qtd_recurso_imperio($id_recurso)
+	----------------------
+	Pega a quantidade de um determinado recurso do Império
+	
+	$id_recurso - qual recurso está sendo verificado
+	************************/
+	function pega_qtd_recurso_imperio($id_recurso) {
+		global $wpdb;
+		
+		return $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND turno={$this->turno->turno} AND id_imperio={$this->imperio}");
+	}
+	
 	
 	/***********************
 	function exibe_lista_colonias()

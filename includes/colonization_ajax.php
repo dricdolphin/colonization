@@ -172,11 +172,24 @@ class colonization_ajax {
 		}
 		
 		//TODO -- verificar se tem Combustível suficiente para mandar a nave.
+		$id_plasma_dobra = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Plasma de Dobra'");
+		$estrela_origem = $nave->estrela->id_estrela;
+		$distancia_origem_destino = $estrela_origem->distancia_estrela($_POST['id_estrela']);
+		$plasma_disponivel = $imperio->pega_qtd_recurso_imperio($id_plasma_dobra);
+		if ($plasma_disponivel < $distancia_origem_destino) {
+			$dados_salvos['resposta_ajax'] = "Não é possível despachar a nave até o destino desejado. \n
+			É necessário {$distancia_origem_destino} lotes de Plasma de Dobra, porém você tem apenas {$plasma_disponivel}.";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die();
+		}
 		
 		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode despachar sua nave!";
 		if ($imperio->id == $nave->id_imperio || $roles == "administrator") {
 			if ($nave->id_estrela_destino == 0) {
 				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
+				$resposta = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$distancia_origem_destino} WHERE id_recurso={$id_plasma_dobra} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+				
 				$dados_salvos['resposta_ajax'] = "SALVO!";
 				//TODO -- consome o combustível e despacha a nave
 			} else {
