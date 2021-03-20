@@ -13,10 +13,7 @@ var blindagem = 0;
 var escudos = 0;
 var alcance = 0;
 var velocidade = 0;
-
 var tamanho = 0;
-var velocidade = 0;
-var alcance = 0;
 var hp = 0;
 
 /******************
@@ -72,19 +69,6 @@ function calcula_custos(evento, objeto) {
 		texto_especiais_div.innerHTML = "Especiais: &nbsp;";
 	}
 	
-	if (qtd_estacao_orbital != 0) {
-		custo_estacao_orbital = 20*qtd_estacao_orbital;
-		//custo_estacao_orbital=Math.floor(-0.1008*Math.pow(qtd_estacao_orbital,2)+21.055*qtd_estacao_orbital-0.7732);
-		
-		if (especiais == 0) {
-			texto_especiais_div.innerHTML = "Especiais: (1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
-			especiais++;
-		} else {
-			especiais++;
-			texto_especiais_div.innerHTML = texto_especiais_div.innerHTML + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
-		}
-	}
-	
 	if (qtd_tropas != 0) {
 		if (especiais == 0) {
 			texto_especiais_div.innerHTML = "Especiais: (1) - Carrega Tropas de Invasão";
@@ -125,26 +109,42 @@ function calcula_custos(evento, objeto) {
 
 	alcance = Math.ceil(10 + fator_a*Math.pow(qtd_combustivel,2) + fator_b*qtd_combustivel);
 	
-	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + qtd_combustivel*1;
-	hp = chassi*10+qtd_hp_extra*1;
+	if (qtd_estacao_orbital != 0) {
+		custo_estacao_orbital = 20*qtd_estacao_orbital;
+		alcance = 0;
+		velocidade = 0;
+		qtd_dobra = 0;
+		qtd_impulso = 0;
+		qtd_combustivel = 0;
+		document.getElementById('qtd_combustivel').value = 0;
+		
+		if (especiais == 0) {
+			texto_especiais_div.innerHTML = "Especiais: (1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+			especiais++;
+		} else {
+			especiais++;
+			texto_especiais_div.innerHTML = texto_especiais_div.innerHTML + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+		}
+	}
 	
-	//alcance = Math.floor(((qtd_dobra*(mk_dobra*2-1)*10)/(chassi+mk_dobra*1-1))) + Math.ceil(((qtd_combustivel*(mk_dobra*0.5 + 0.5)*15)/(chassi+(mk_dobra*2-2))));
+	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + qtd_combustivel*1 + qtd_estacao_orbital*20;
+	hp = chassi*10+qtd_hp_extra*1;
 	
 	pdf_laser = qtd_laser*(mk_laser*2-1);
 	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
 	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
 	
-	let custo_blindagem = Math.trunc(chassi/5,0)*mk_blindagem;
-	let custo_escudos = Math.trunc(chassi/5,0)*mk_escudos;
+	let custo_blindagem = (Math.trunc(chassi/10,0)+1)*mk_blindagem;
+	let custo_escudos = (Math.trunc(chassi/5,0)+1)*mk_escudos;
 
 	let qtd_blindagem = custo_blindagem;
 	let qtd_escudos = custo_escudos;	
 	
-	blindagem = (mk_blindagem*2-1);
-	escudos = (mk_escudos*2-1);
+	blindagem = Math.ceil(Math.pow(mk_blindagem*2-1,1.5));
+	escudos = Math.ceil(Math.pow(mk_escudos*2-1,1.5));
 	
-	if (blindagem < 0) {blindagem = 0;}
-	if (escudos < 0) {escudos = 0;}
+	if (blindagem < 0 || isNaN(blindagem)) {blindagem = 0;}
+	if (escudos < 0 || isNaN(escudos)) {escudos = 0;}
 	
 	let duranium_blindagem = qtd_blindagem*1;
 	if (duranium_blindagem < qtd_blindagem) {
@@ -152,9 +152,15 @@ function calcula_custos(evento, objeto) {
 	}
 	
 	let nor_duranium_blindagem = 0;
-	if (mk_blindagem > 2) {
+	if (mk_blindagem*1 > 2) {
 		nor_duranium_blindagem = duranium_blindagem;
 		duranium_blindagem = 0;
+	}
+
+	let corasita_escudos = 0;
+	if (mk_escudos*1 > 2) {
+		corasita_escudos = energium_escudos;
+		energium_escudos = 0;
 	}
 
 	let tritanium_blindagem = 0;
@@ -188,6 +194,12 @@ function calcula_custos(evento, objeto) {
 	if (nor_duranium_blindagem > 0) {
 		texto_nor_duranium = " | Nor-Duranium: "+nor_duranium_blindagem;
 	}
+
+	let texto_corasita = "";
+	if (corasita_escudos > 0) {
+		texto_corasita = " | Corasita: "+corasita_escudos;
+	}
+
 
 	let texto_tritanium= "";
 	if (tritanium_blindagem > 0) {
@@ -238,6 +250,7 @@ function calcula_custos(evento, objeto) {
 
 	if (qtd_estacao_orbital != 0) {
 		categoria = "Estação Orbital";
+		velocidade = 0;
 	}
 
 

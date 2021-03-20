@@ -288,33 +288,26 @@ function processa_string_admin (evento, objeto) {
 		qtd_pesquisa = 0
 	}
 
-	chassi = qtd_bombas.value*10 + qtd_tropas.value*5 + qtd_slots_extra*1 + Math.ceil(custo_estacao_orbital/1.5) 
+	chassi = qtd_bombas.value*10 + qtd_tropas.value*5 + qtd_slots_extra*1 + custo_estacao_orbital*20 
 	+ qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil 
 	+ qtd_dobra*1 + qtd_impulso*1 
-	+ qtd_blindagem*1 + qtd_escudos*1 + qtd_combustivel*1 + qtd_pesquisa*1;
+	+ qtd_combustivel*1 + qtd_pesquisa*1;
 	
-	velocidade = Math.floor((qtd_impulso*mk_impulso/chassi)*10);
 	hp = chassi*10+qtd_hp_extra*1;
+
+	let capacidade_dobra = mk_dobra*5;
+	let capacidade_impulso = mk_impulso*5;
 	
-	if (qtd_dobra*mk_dobra*10 < chassi) {
-		alcance = 0;
-	} else {
-		alcance = Math.floor(((qtd_dobra*(mk_dobra*2-1)*10)/(chassi+mk_dobra*1-1))) + Math.ceil(((qtd_combustivel*(mk_dobra*0.5 + 0.5)*15)/(chassi+(mk_dobra*2-2))));
-	}
+	let fator_a = -0.4504*Math.pow(capacidade_dobra,-0.949);
+	let fator_b = (6.303-qtd_dobra);
 	
-	if (isNaN(velocidade)) {
-		velocidade = 0;
-		alcance = 0;
+	let qtd_combustivel_maximo = Math.floor(-fator_b/(2*fator_a));
+	if (qtd_combustivel > qtd_combustivel_maximo) {
+		qtd_combustivel = Math.floor(qtd_combustivel_maximo);
 	}
 
-	if (velocidade > 5) {
-		velocidade = 5;
-	}	
-
-	if (velocidade == 0) {
-		velocidade = 1;
-	}
-
+	alcance = Math.ceil(10 + fator_a*Math.pow(qtd_combustivel,2) + fator_b*qtd_combustivel);
+	
 	pdf_laser = qtd_laser*(mk_laser*2-1);
 	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
 	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
@@ -323,7 +316,12 @@ function processa_string_admin (evento, objeto) {
 		pdf_torpedo = pdf_torpedo*3;
 	}
 	
-	blindagem = qtd_blindagem*(mk_blindagem*2-1);
+	blindagem = Math.ceil(Math.pow(mk_blindagem*2-1,1.5));
+	escudos = Math.ceil(Math.pow(mk_escudos*2-1,1.5));
+	
+	if (blindagem < 0 || isNaN(blindagem)) {blindagem = 0;}
+	if (escudos < 0 || isNaN(escudos)) {escudos = 0;}
+	
 	if (blindagem_tritanium > 0) {
 		blindagem = blindagem*3;
 	}
@@ -336,32 +334,41 @@ function processa_string_admin (evento, objeto) {
 		}
 	}
 	
-	escudos = qtd_escudos*(mk_escudos*2-1);
-	
 	if (chassi <= 10) {
 		categoria = "Corveta";
+		velocidade = 4 + mk_impulso*1;
 	} else if (chassi > 10 && chassi <= 20) {
 		categoria = "Fragata";
+		velocidade = 3 + mk_impulso*1;
 	} else if (chassi > 20 && chassi <= 50) {
 		categoria = "Destroier";
+		velocidade = 2 + mk_impulso*1;
 	} else if (chassi > 50 && chassi <= 100) {
 		categoria = "Cruzador";
+		velocidade = 1 + mk_impulso*1;
 	} else if (chassi > 100 && chassi <= 200) {
 		categoria = "Nave de Guerra";
+		velocidade = 1;
 	} else if (chassi > 200 && chassi <= 300) {
 		categoria = "Nave de Batalha";
+		velocidade = 1;
 	} else if (chassi > 300 && chassi <= 500) {
 		categoria = "Couraçado";
+		velocidade = 1;
 	} else if (chassi > 500 && chassi <= 1000) {
 		categoria = "Dreadnought";
+		velocidade = 1;
 	} else if (chassi > 1000 && chassi <= 5000) {
 		categoria = "Nave-Mãe";
 	} else {
 		categoria = "????????";
+		velocidade = 1;
 	}
 
 	if (qtd_estacao_orbital.value != 0) {
 		categoria = "Estação Orbital";
+		velocidade = 0;
+		alcance = 0;
 	}
 
 	let chassi_input = document.getElementById('tamanho');
