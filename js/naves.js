@@ -258,6 +258,7 @@ function calcula_custos(evento, objeto) {
 	energium = Math.ceil(custo_estacao_orbital/4) + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*mk_dobra;
 	
+	texto_trillithium = "";
 	if (mk_dobra*1 > 2) {
 		trillithium = dillithium;
 		texto_trillithium = " | Trillithium: "+ trillithium;

@@ -429,6 +429,46 @@ tr.th_linha_1 th {
 	font-size: 0.75em;
 }
 
+.lista_transferencia_techs {
+	
+}
+
+.lista_transferencia_techs thead tr th {
+	color: #EEEEEE;
+	background-color: #256DB3;
+	border-bottom: 1px solid #054d98;
+}
+
+.lista_recursos_colonias {
+	
+}
+
+.lista_recursos_colonias thead tr th {
+	color: #EEEEEE;
+	background-color: #256DB3;
+	border-bottom: 1px solid #054d98;
+}
+
+.lista_colonias_imperio {
+	
+}
+
+.lista_colonias_imperio thead tr th {
+	color: #EEEEEE;
+	background-color: #256DB3;
+	border-bottom: 1px solid #054d98;
+}
+
+.lista_frota_imperio {
+	
+}
+
+.lista_frota_imperio thead tr th {
+	color: #EEEEEE;
+	background-color: #256DB3;
+	border-bottom: 1px solid #054d98;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

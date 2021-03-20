@@ -801,7 +801,7 @@ class colonization {
 
 		$html = "
 		<h4>Transferência de Techs</h4>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_transfere_techs' style='width: 700px;'>
+		<table class='lista_transferencia_techs' data-tabela='colonization_imperio_transfere_techs' style='width: 700px;'>
 		<thead>
 		<tr><th style='width: 150px;'>Império Origem</th><th style='width: 200px;'>Império Destino</th><th>Tech à ser transferida</th><th style='width: 90px;'>&nbsp;</th></tr>
 		</thead>
@@ -1407,7 +1407,7 @@ if (!empty($imperios[0])) {
 		$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
 		
 		$html = "
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
+		<table class='lista_recursos_colonias' data-tabela='colonization_acoes_turno'>
 		<thead>
 		<tr><th style='width: 30%;'>Planeta (X;Y;Z)</th><th>Recursos</th></tr>
 		</thead>
@@ -1446,7 +1446,7 @@ if (!empty($imperios[0])) {
 		$html_lista_imperios = "";
 		
 		$html = "
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno' style='width: 500px;'>
+		<table class='lista_imperios' data-tabela='colonization_acoes_turno' style='width: 500px;'>
 		<thead>
 		<tr><td style='width: 300px;'><b>Império</b></td><td><b>Pontuação</b></td></tr>
 		</thead>
@@ -1765,7 +1765,7 @@ if (!empty($imperios[0])) {
 		
 		$html = "
 		<div style='width: auto; height: auto;'>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_frota'>
+		<table class='lista_frota_imperio' data-tabela='colonization_imperio_frota'>
 		<thead>
 		<tr><th style='width: 30%;'>Nome</th><th style='width: 22%;'>Posição</th><th style='width: 30%;'>Atributos</th><th style='width: 18%;'>Despachar Nave</th></tr>
 		</thead>

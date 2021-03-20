@@ -556,7 +556,7 @@ class imperio
 		
 		$html = $this->html_header;
 		
-		$html .= "<table class='wp-list-table widefat fixed striped users'>
+		$html .= "<table class='lista_colonias_imperio'>
 		<thead>
 		<tr><th style='width: 22%;'>Estrela (X;Y;Z;P)</th><th style='width: 23%;'>Planeta</th><th style='width: 30%;'>Defesas</th><th style='width: 10%;'>Pop.</th><th style='width: 15%;'>Poluição</th></tr>
 		</thead>
