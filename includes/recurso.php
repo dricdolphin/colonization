@@ -79,6 +79,34 @@ class recurso
 
 		return $html;
 	}
+	
+	/***********************
+	function html_icone()
+	----------------------
+	Exibe o nome do ícone do Recurso
+	
+	$exibe_descricao -- define se é para exibir também a descrição do recurso
+	***********************/	
+	function html_icone($exibe_descricao = false) {
+		$nome_recurso = $this->nome;
+		$nome_tooltip = "";
+		
+		if ($this->icone != "") {
+				$nome_recurso = "<div class='{$this->icone}'></div>";
+				$nome_tooltip = $this->nome;
+		}
+		
+		$descricao = "";
+		if ($exibe_descricao) {
+			$descricao = ": {$this->descricao}";
+		}
+		
+		$html = "<div class='tooltip' style='display: inline-block;'>{$nome_recurso}{$descricao}<span class='tooltiptext'>{$nome_tooltip}</span></div>";		
+		
+		return $html;
+	}
+	
+
 }
 
 ?>

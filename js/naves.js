@@ -257,12 +257,18 @@ function calcula_custos(evento, objeto) {
 	industrializaveis = qtd_bombas*10 + custo_estacao_orbital*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_impulso*mk_impulso + qtd_dobra*mk_dobra + qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + qtd_pesquisa*1 + qtd_slots_extra*1;
 	energium = Math.ceil(custo_estacao_orbital/4) + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*mk_dobra;
+	
+	if (mk_dobra*1 > 2) {
+		trillithium = dillithium;
+		texto_trillithium = " | Trillithium: "+ trillithium;
+	}
+	
 	duranium = duranium_blindagem*1 + qtd_projetil*1;
 	
 	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
 	+"PdF Laser: "+pdf_laser+"/ PdF Torpedo: "+pdf_torpedo+"/ PdF Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
 	chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
-	custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium 
+	custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium + texto_trillithium 
 	+ texto_tritanium + texto_neutronium + texto_tricobalto;
 	
 	texto_partes_nave_div.innerHTML = qtd_laser+"="+mk_laser+";"+qtd_torpedo+"="+mk_torpedo+";"+qtd_projetil+"="+mk_projetil+";"

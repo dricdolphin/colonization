@@ -1,10 +1,23 @@
 .colonization_admin_botao {
-padding: 4px 8px; 
-text-decoration: none; 
-background: #f3f5f6; 
-border: 1px solid #0071a1; 
-position: relative; 
-top: 10px;
+	padding: 4px 8px; 
+	text-decoration: none; 
+	background: #f3f5f6; 
+	border: 1px solid #0071a1; 
+	position: relative; 
+	top: 10px;
+}
+
+.custo_instalacao {
+	font-size: 0.75em;
+}
+
+.balanco_instalacao {
+	font-size: 0.75em;
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+div.balanco_instalacao label {
+	font-weight: bold;
 }
 
 input[type=checkbox]
@@ -14,7 +27,7 @@ input[type=checkbox]
 
 input[type=text]
 {
-    font-size: 12px;
+	font-size: 12px;
 	width: 100%;
 	display: block;
 	padding: 1px;
@@ -22,34 +35,34 @@ input[type=text]
 }
 
 input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 10px;
+	background: #d3d3d3;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
 }
 
 input[type=range]:hover {
-  opacity: 1;
+	opacity: 1;
 }
 
 input[type=range]:disabled {
-  opacity: 0.2;
+	opacity: 0.2;
 }
 
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  border: none;
-  box-shadow: none;
-  border-radius: 7px;
-  background: #0000DD !important;
-  cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+	width: 15px;
+	height: 15px;
+	border: none;
+	box-shadow: none;
+	border-radius: 7px;
+	background: #0000DD !important;
+	cursor: pointer;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -59,14 +72,14 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 input[type=range]::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
-  border: none;
-  box-shadow: none;
-  border-radius: 7px;
-  background: #0000DD !important;
-  cursor: pointer;
-  border: none;
+	width: 15px;
+	height: 15px;
+	border: none;
+	box-shadow: none;
+	border-radius: 7px;
+	background: #0000DD !important;
+	cursor: pointer;
+	border: none;
 }
 
 input[type=range]::-moz-range-track {
@@ -82,57 +95,61 @@ input[type=range]::-moz-range-track {
 
 #toplevel_page_colonization_admin_menu .wp-menu-image::before
 {
-font-family: "Font Awesome 5 Free";
-font-weight: 900;
-font-size: 20px;
-content: "\f135";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	font-size: 20px;
+	content: "\f135";
 }
 
 #toplevel_page_colonization_admin_menu .dashicons-before::before
 {
-font-family: "Font Awesome 5 Free";
-font-weight: 900;
-font-size: 20px;
-content: "\f135";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	font-size: 20px;
+	content: "\f135";
 }
 
 .tooltip {
-  position: relative;
-  display: inline-block;
+	position: relative;
+	display: inline-block;
 }
 
 .tooltip .tooltiptext {
-  visibility: hidden;
-  width: 150px;
-  color: #555;
-  background-color: #DDD;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  top: 150%;
-  left: 50%;
-  margin-left: -60px;
-  font-weight: bold;
+	visibility: hidden;
+	width: 150px;
+	color: #555;
+	background-color: #DDD;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	position: absolute;
+	z-index: 1;
+	top: 150%;
+	left: 50%;
+	margin-left: -60px;
+	font-weight: bold;
 }
 
 .tooltip .tooltiptext::after {
-  content: " ";
-  position: absolute;
-  bottom: 100%;  /* At the top of the tooltip */
-  left: 50%;
-  z-index:999;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent #DDD transparent;
-  font-weight: bold;
+	content: " ";
+	position: absolute;
+	bottom: 100%;/* At the top of the tooltip */
+	left: 50%;
+	z-index:999;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: transparent transparent #DDD transparent;
+	font-weight: bold;
 }
 .tooltip:hover .tooltiptext {
-  visibility: visible;
-  overflow: visible;
-  padding: 2px;
+	visibility: visible;
+	overflow: visible;
+	padding: 2px;
+}
+
+.nome_instalacao .tooltiptext {
+	font-size: 0.8em;
 }
 
 .wrapper_principal {
@@ -184,62 +201,62 @@ content: "\f135";
 }
 
 .switch {
-  position: relative;
-  display: inline-block;
-  width: 30px;
-  height: 18px;
+	position: relative;
+	display: inline-block;
+	width: 30px;
+	height: 18px;
 }
 
 .switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .slider:disabled {
-  opacity: 0.2;
+	opacity: 0.2;
 }
 
 .slider.round:disabled {
-  opacity: 0.2;
+	opacity: 0.2;
 }
 
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #0000DD;
-  opacity: 0.7;
-  -webkit-transition: .4s;
-  transition: .4s;
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #0000DD;
+	opacity: 0.7;
+	-webkit-transition: .4s;
+	transition: .4s;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 12px;
-  width: 12px;
-  left: 16px;
-  bottom: 3px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+	position: absolute;
+	content: "";
+	height: 12px;
+	width: 12px;
+	left: 16px;
+	bottom: 3px;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
 }
 
 input:checked + .slider {
-  background-color: #ccc;
+	background-color: #ccc;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #ccc;
+	box-shadow: 0 0 1px #ccc;
 }
 
 input:hover + .slider {
-  box-shadow: 0 0 1px #ccc;
-  opacity: 1;
+	box-shadow: 0 0 1px #ccc;
+	opacity: 1;
 }
 
 .slider:hover {
@@ -247,40 +264,40 @@ input:hover + .slider {
 }
 
 input:disabled + .slider{
-  opacity: 0.2;
+	opacity: 0.2;
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(-10px);
-  -ms-transform: translateX(-10px);
-  transform: translateX(-10px);
+	-webkit-transform: translateX(-10px);
+	-ms-transform: translateX(-10px);
+	transform: translateX(-10px);
 }
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 12px;
+	border-radius: 12px;
 }
 
 .slider.round:before {
-  border-radius: 50%;
+	border-radius: 50%;
 }
 
 
 .barra_recursos_pad {
 	color: #333;
 	background: #EEE;
-    position: static;
-    top: 32px;
-    left: 0;
-    padding-left: 3px;
+	position: static;
+	top: 32px;
+	left: 0;
+	padding-left: 3px;
 	font-size: 12px;
-    font-weight: 400;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-    line-height: 1.65;
-    width: 100%;
-    min-width: 600px;
-    z-index: 1;
-    max-height: 20px;
+	font-weight: 400;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	line-height: 1.65;
+	width: 100%;
+	min-width: 600px;
+	z-index: 1;
+	max-height: 20px;
 	overflow: hidden;
 	clear: both;
 	display: block;
@@ -310,18 +327,18 @@ input:checked + .slider:before {
 #barra_recursos {
 	color: #333;
 	background: #EEE;
-    position: fixed;
-    top: 32px;
-    left: 0;
-    padding-left: 3px;
+	position: fixed;
+	top: 32px;
+	left: 0;
+	padding-left: 3px;
 	font-size: 12px;
-    font-weight: 400;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-    line-height: 1.65;
-    width: 100%;
-    min-width: 600px;
-    z-index: 100;
-    max-height: 20px;
+	font-weight: 400;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	line-height: 1.65;
+	width: 100%;
+	min-width: 600px;
+	z-index: 100;
+	max-height: 20px;
 	overflow: hidden;
 	transition: max-height 0.2s ease-out;
 	clear: both;
@@ -334,10 +351,10 @@ input:checked + .slider:before {
 }
 
 tr.th_linha_1 th {
-  background-color: #FDFDFD;
-  position: sticky;
-  top: 30px;
-  z-index: 99;
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 30px;
+	z-index: 99;
 }
 
 .verde_escuro {
@@ -350,6 +367,10 @@ tr.th_linha_1 th {
 
 .azul_escuro {
 	color: #00008B;
+}
+
+.azul_claro {
+	color: #517EA0;
 }
 
 .amarelo_escuro {
@@ -365,10 +386,10 @@ tr.th_linha_1 th {
 }
 
 .th_linha_2 {
-  background-color: #FDFDFD;
-  position: sticky;
-  top: 66px;
-  z-index: 99;	
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 66px;
+	z-index: 99;	
 }
 
 .topic {
@@ -386,11 +407,11 @@ tr.th_linha_1 th {
 }
 
 .par_impar:nth-of-type(odd) {
-    background: #DFDFDF;
+	background: #DFDFDF;
 }
 
 .par_impar:nth-of-type(even) {
-    background: #F5F5F5;
+	background: #F5F5F5;
 }
 
 .nome_estrela {

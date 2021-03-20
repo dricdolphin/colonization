@@ -255,6 +255,34 @@ class instalacao
 			return $bonus_recurso_valor[1];
 		}
 	}
+	
+	/***********************
+	function html_custo()
+	----------------------
+	Retorna o HTML com o custo da Instalação
+	
+	***********************/	
+	function html_custo() {
+		$custos = explode(";",$this->custos);
+		
+		$html = "";
+		foreach ($custos as $custo) {
+			$dados_custo = explode("=",$custo);
+			$recurso = new recurso($dados_custo[0]);
+			
+			$nome_recurso = $recurso->nome;
+			$nome_tooltip = "";			
+			if ($recurso->icone != "") {
+				$nome_recurso = "<div class='{$recurso->icone}'></div>";
+				$nome_tooltip = "{$recurso->nome}: ";
+			}			
+			$html .= "<div class='tooltip' style='display: inline-block;'>{$nome_recurso}: {$dados_custo[1]}; &nbsp;
+			<span class='tooltiptext'>{$nome_tooltip}</span>
+			</div>";
+		}
+		
+		return $html;
+	}
 }
 
 ?>

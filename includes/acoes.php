@@ -475,17 +475,18 @@ class acoes
 				if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
 					foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
 						$recurso = new recurso($id_recurso);
-						$html_producao_consumo_instalacao .= "{$recurso->nome}: {$qtd}; ";
+						$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: {$qtd}; ";
 					}
 				}
 
 				if (!empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
 					foreach ($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
 						$recurso = new recurso($id_recurso);
-						$html_producao_consumo_instalacao .= "{$recurso->nome}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
+						$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
 					}				
 				}
 				
+				$html_custo_instalacao = $instalacao[$this->id_instalacao[$chave]]->html_custo();
 				$html .= "		
 				<tr {$estilo}>
 					{$primeira_linha}
@@ -501,8 +502,9 @@ class acoes
 					<input type='hidden' data-atributo='nivel' value='{$this->nivel_instalacao[$chave]}'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}'>{$instalacao[$this->id_instalacao[$chave]]->nome} <label data-atributo='nivel'>{$nivel}</label>{$html_upgrade}</div>
-					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' style='font-size: x-small;'>{$html_producao_consumo_instalacao}</div>
+					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}' class='nome_instalacao tooltip'>{$instalacao[$this->id_instalacao[$chave]]->nome}<span class='tooltiptext'>{$instalacao[$this->id_instalacao[$chave]]->descricao}</span><label data-atributo='nivel'> {$nivel}</label>{$html_upgrade}</div>
+					<div data-atributo='custo_instalacao' data-valor-original='' class='custo_instalacao'><label>Custo por nível:</label> {$html_custo_instalacao}</div>
+					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' class='balanco_instalacao'><label>Balanço da produção:</label> {$html_producao_consumo_instalacao}</div>
 				</td>
 				<td><div data-atributo='pop' data-valor-original='{$this->pop[$chave]}' data-ajax='true' style='display: flex; align-items: center; justify-content:center;'>{$exibe_acoes}</div></td>";
 				//<td><div data-atributo='gerenciar' style='visibility: hidden;'><a href='#' onclick='return salva_acao(event, this);'>Salvar</a> | <a href='#' onclick='return salva_acao(event, this,true);'>Cancelar</a></div></td>

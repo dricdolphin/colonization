@@ -332,13 +332,15 @@ function envia_nave (objeto, evento, id_nave) {
 	
 	let linha = pega_ascendente(objeto,"TR");
 	let divs = linha.getElementsByTagName("DIV");
+	let destinos_select = "";
 	
 	for (let index=0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "nome_estrela") {
 			for (let index_child=0; index_child<divs[index].childNodes.length; index_child++) {
 				if (divs[index].childNodes[index_child].tagName == "SELECT") {
 					var id_estrela = divs[index].childNodes[index_child].value;
-					divs[index].childNodes[index_child].disabled = true;
+					destinos_select = divs[index].childNodes[index_child];
+					destinos_select.disabled = true;
 				}
 			}
 		}
@@ -363,6 +365,9 @@ function envia_nave (objeto, evento, id_nave) {
 				retorno = true;
 			} else {
 				alert(resposta.resposta_ajax);
+				
+				destinos_select.disabled = false;
+				objeto.style.display='inline';
 				retorno = false;
 			}
 			
@@ -636,6 +641,9 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 				let envia_tech = document.getElementById("envia_tech");
 				if (envia_tech !== undefined && envia_tech !== null) {
 					atualiza_lista_techs(envia_tech);
+				}
+				if (resposta.alerta != undefined) {
+					alert("O Império descobriu os seguintes recursos novos: \n" + resposta.alerta);
 				}
 			} else {
 				alert(resposta.resposta_ajax);

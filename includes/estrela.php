@@ -112,7 +112,11 @@ class estrela
 		global $wpdb;
 		
 		$estrela_destino = new estrela($id_estrela);
-		$distancia = floor((($this->x - $estrela_destino->x)^2 + ($this->y - $estrela_destino->y)^2 + ($this->z - $estrela_destino->z)^2)^0.5);
+		$distancia = ceil((($this->X - $estrela_destino->X)**2 + ($this->Y - $estrela_destino->Y)**2 + ($this->Z - $estrela_destino->Z)**2)**0.5);
+		$dx = ($this->X - $estrela_destino->X)**2;
+		$dy = ($this->Y - $estrela_destino->Y)**2;
+		$dz = ($this->Z - $estrela_destino->Z)**2;
+		
 		
 		return $distancia;
 	}

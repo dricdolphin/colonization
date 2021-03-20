@@ -171,11 +171,13 @@ class colonization_ajax {
 			$roles = $user->roles[0];
 		}
 		
-		//TODO -- verificar se tem Combustível suficiente para mandar a nave.
+		//Verificar se tem Combustível suficiente para mandar a nave.
 		$id_plasma_dobra = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Plasma de Dobra'");
-		$estrela_origem = $nave->estrela->id_estrela;
+		$estrela_origem = $nave->estrela;
+		
 		$distancia_origem_destino = $estrela_origem->distancia_estrela($_POST['id_estrela']);
 		$plasma_disponivel = $imperio->pega_qtd_recurso_imperio($id_plasma_dobra);
+
 		if ($plasma_disponivel < $distancia_origem_destino) {
 			$dados_salvos['resposta_ajax'] = "Não é possível despachar a nave até o destino desejado. \n
 			É necessário {$distancia_origem_destino} lotes de Plasma de Dobra, porém você tem apenas {$plasma_disponivel}.";
@@ -191,7 +193,6 @@ class colonization_ajax {
 				$resposta = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$distancia_origem_destino} WHERE id_recurso={$id_plasma_dobra} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 				
 				$dados_salvos['resposta_ajax'] = "SALVO!";
-				//TODO -- consome o combustível e despacha a nave
 			} else {
 				$estrela = new estrela($nave->id_estrela_destino);
 				$dados_salvos['resposta_ajax'] = "Essa nave já foi despachada para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})!";
@@ -235,10 +236,31 @@ class colonization_ajax {
 			//Verifica se já pesquisou essa estrela. Se ainda não pesquisou, então fornece 5 pontos de pesquisa automaticamente
 			if ($nave->pesquisa == 1) {
 				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				
+				//Pega os recursos desconhecidos
+				$id_recursos_desconhecidos = $wpdb->get_results("
+				SELECT cir.id_recurso FROM colonization_imperio_recursos AS cir
+				JOIN colonization_planeta AS cp
+				ON cp.id_estrela={$estrela->id}
+				JOIN colonization_planeta_recursos AS cpr
+				ON cpr.id_planeta = cp.id
+				AND cir.id_recurso = cpr.id_recurso
+				WHERE cir.disponivel=0 AND cir.id_imperio={$nave->id_imperio} AND cir.turno={$turno->turno}
+				");
+				
+				if (!empty($id_recursos_desconhecidos)) {
+					$dados_salvos['alerta'] = "";
+				}
+				foreach ($id_recursos_desconhecidos as $id_recurso_novo) {
+					$wpdb->query("UPDATE colonization_imperio_recursos AS cir SET cir.disponivel=1 WHERE cir.id_recurso={$id_recurso_novo->id_recurso} AND cir.disponivel=0 AND cir.id_imperio={$nave->id_imperio} AND cir.turno={$turno->turno}");
+					$recurso = new recurso($id_recurso_novo->id_recurso);
+					$dados_salvos['alerta'] .= "{$recurso->nome} \n";
+				}
+				
 				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
-					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$turno->turno}");
-					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND id_turno={$turno->turno}");
+					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}");
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
 				}
 			}
 			

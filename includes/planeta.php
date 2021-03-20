@@ -282,8 +282,8 @@ class planeta
 					$nome_tooltip = "{$recurso->nome}: ";
 				}
 			}
-			$html .= "<div class='tooltip' style='display: inline-block;'>{$nome_recurso} - {$recurso_planeta->disponivel}; &nbsp;
-						<span class='tooltiptext'>{$nome_tooltip}{$recurso->descricao}</span>
+			$html .= "<div class='tooltip' style='display: inline-block;'>{$nome_recurso}<span class='tooltiptext'>{$nome_tooltip}{$recurso->descricao}</span> - {$recurso_planeta->disponivel}; &nbsp;
+						
 					</div>";
 		}
 		
