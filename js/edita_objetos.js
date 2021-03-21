@@ -543,50 +543,6 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	return linha;
 }
 
-/******************
-function altera_acao(objeto) 
---------------------
-Desabilita o modo de edição e atualiza os dados
-objeto -- objeto sendo desabilitado
-cancela = false -- define se pega os dados originais ou os novos
-******************/	
-function altera_acao(evento, objeto) {
-	if (!range_em_edicao || range_em_edicao == objeto) {
-		range_em_edicao = objeto;
-		
-		var linha = pega_ascendente(objeto,"TR");
-		var inputs = linha.getElementsByTagName("INPUT");
-		var selects = linha.getElementsByTagName("SELECT");
-		var labels = linha.getElementsByTagName("LABEL");
-		var tds = linha.getElementsByTagName("TD");
-		
-		//***
-		for(let index=0; index<tds.length; index++) {
-			//data-atributo='gerenciar'			
-			if (typeof(tds[index].childNodes[0].getAttribute) === "function") {
-				if (tds[index].childNodes[0].getAttribute("data-atributo") == 'gerenciar') {
-					if (tds[index].childNodes[0].style.visibility == "hidden") {	
-						tds[index].childNodes[0].style.visibility = "visible";
-					}
-				}
-			}
-		}
-		//***/
-		
-		for (let index=0; index<labels.length; index++) {
-			if (labels[index].getAttribute('data-atributo') == 'pop') {
-				labels[index].innerText = objeto.value;
-			}
-		}
-		
-	} else {
-		alert('Já existe uma ação em edição!');
-		objeto.value = objeto.getAttribute('data-valor-original');
-		
-		evento.preventDefault();
-		return false;
-	}
-}
 
 /******************
 function altera_pop_transfere(objeto) 
@@ -600,49 +556,6 @@ function altera_pop_transfere(evento, objeto) {
 	label[0].innerHTML = objeto.value;
 }
 
-
-/******************
-function atualiza_produtos_acao(id_imperio)
---------------------
-Pega os produtos da Ação
-id_imperio -- id do Império
-******************/	
-function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_instalacoes,resposta) {
-	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
-	
-	//if (resposta.resposta_ajax == "SALVO!") {
-		id_colonias = "lista_colonias_imperio_"+id_imperio;
-		id_produz = "recursos_produzidos_imperio_"+id_imperio;
-		id_consome = "recursos_consumidos_imperio_"+id_imperio;
-		id_balanco = "recursos_balanco_imperio_"+id_imperio;
-		id_balanco_planeta = "balanco_planeta_"+id_planeta;
-		id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
-		nome_mdo_sistema = "mdo_sistema_"+id_estrela;
-		
-		div_colonias = document.getElementById(id_colonias);
-		div_produz = document.getElementById(id_produz);
-		div_consome = document.getElementById(id_consome);
-		div_balanco = document.getElementById(id_balanco);
-		div_balanco_planeta = document.getElementById(id_balanco_planeta);
-		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
-		div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
-		div_produz_consome = document.getElementById(id_planeta_instalacoes);
-		
-		div_colonias.innerHTML = resposta.lista_colonias
-		div_produz.innerHTML = resposta.recursos_produzidos;
-		div_consome.innerHTML = resposta.recursos_consumidos;
-		div_balanco.innerHTML = resposta.recursos_balanco;
-		div_balanco_planeta.innerHTML = resposta.balanco_planeta;
-		div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
-		if (div_produz_consome !== null) {
-			div_produz_consome.innerHTML = resposta.id_planeta_instalacoes_produz_consome;
-		}
-		
-		for (let index=0; index < div_mdo_sistema.length; index++) {
-			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
-		}
-	//}
-}
 
 /******************
 function libera_npc(evento, objeto)

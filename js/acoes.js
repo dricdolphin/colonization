@@ -1,4 +1,50 @@
 /******************
+function altera_acao(objeto) 
+--------------------
+Desabilita o modo de edição e atualiza os dados
+objeto -- objeto sendo desabilitado
+cancela = false -- define se pega os dados originais ou os novos
+******************/	
+function altera_acao(evento, objeto) {
+	if (!range_em_edicao || range_em_edicao == objeto) {
+		range_em_edicao = objeto;
+		
+		var linha = pega_ascendente(objeto,"TR");
+		var inputs = linha.getElementsByTagName("INPUT");
+		var selects = linha.getElementsByTagName("SELECT");
+		var labels = linha.getElementsByTagName("LABEL");
+		var tds = linha.getElementsByTagName("TD");
+		
+		//***
+		for(let index=0; index<tds.length; index++) {
+			//data-atributo='gerenciar'			
+			if (typeof(tds[index].childNodes[0].getAttribute) === "function") {
+				if (tds[index].childNodes[0].getAttribute("data-atributo") == 'gerenciar') {
+					if (tds[index].childNodes[0].style.visibility == "hidden") {	
+						tds[index].childNodes[0].style.visibility = "visible";
+					}
+				}
+			}
+		}
+		//***/
+		
+		for (let index=0; index<labels.length; index++) {
+			if (labels[index].getAttribute('data-atributo') == 'pop') {
+				labels[index].innerText = objeto.value;
+			}
+		}
+		
+	} else {
+		alert('Já existe uma ação em edição!');
+		objeto.value = objeto.getAttribute('data-valor-original');
+		
+		evento.preventDefault();
+		return false;
+	}
+}
+
+
+/******************
 function valida_acao(evento, objeto)
 --------------------
 Pega os produtos da Ação
@@ -10,18 +56,13 @@ function valida_acao(evento, objeto) {
 	var inputs = linha.getElementsByTagName('INPUT');
 	var labels = linha.getElementsByTagName('LABEL');
 	var dados = []; //Dados que serão enviados para a validação
-	var desativar_objeto = false;
 	
-	if (evento.button === 3) {
+	if (evento.button !== 0 && evento.type !== "touchend" ) {
 		evento.preventDefault();
 		return false;
 	}
 	
 	for (let index=0;index<inputs.length;index++) {
-		if (inputs[index].getAttribute('data-atributo') == "desativado") {	
-			desativar_objeto = true;
-		}
-		
 		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "desativado") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
@@ -29,6 +70,11 @@ function valida_acao(evento, objeto) {
 			dados['pop_original'] = inputs[index].getAttribute('data-valor-original');
 			dados['pop'] = inputs[index].value;
 		}
+	}
+	
+	if (dados['pop_original'] == dados['pop']) {
+		evento.preventDefault();
+		return false;
 	}
 
 	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
@@ -78,6 +124,82 @@ function valida_acao(evento, objeto) {
 	return retorno;
 }
 
+/******************
+function desativar_instalacao(evento, objeto)
+--------------------
+Função para chamar o AJAX de desativar uma instalação
+objeto -- objeto sendo editado
+******************/
+function desativar_instalacao(evento, objeto, id_acao) {
+	if (evento.button !== 0) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	if (range_em_edicao || range_em_edicao == objeto) {
+		alert('Já existe uma ação em edição!');
+		objeto.value = objeto.getAttribute('data-valor-original');
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	var linha=pega_ascendente(objeto,"TR");
+	var inputs=linha.getElementsByTagName("INPUT");
+	var divs=linha.getElementsByTagName("DIV");
+	//var dados_ajax = "post_type=POST&action=desativar_instalacao";
+
+	range_em_edicao = objeto;
+	
+	for (let index = 0; index < inputs.length; index++) {
+		if (inputs[index].getAttribute('data-atributo') == "desativado") {
+			if (inputs[index].value == 1) {
+				inputs[index].value = 0;
+			} else {
+				inputs[index].value = 1;
+			}
+		}
+	}
+
+	for (let index = 0; index < divs.length; index++) {
+		if(divs[index].getAttribute('data-atributo') == "gerenciar") {
+			divs[index].style.visibility = "visible";
+		}
+	}
+
+	//dados_ajax = dados_ajax + "&id=" + id_acao;
+	
+	/***
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			objeto_em_edicao = false;
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				if (resposta[0].turno_destroi != "") {
+					objeto.text = "Reparar Instalação";
+				} else {
+					objeto.text = "Destruir Instalação";
+					resposta[0].turno_destroi = "&nbsp;";
+				}
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+	//***/
+	
+	//objeto_em_edicao = true;
+	valida_acao(evento, objeto);
+	
+	evento.preventDefault();
+	return false;
+}
 
 
 /******************
@@ -182,7 +304,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	}
 	
 	//Cria o string que será passado para o AJAX
-	console.log("Dados Ajax: "+objeto_editado['dados_ajax']);
+	//console.log("Dados Ajax: "+objeto_editado['dados_ajax']);
 	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_acao&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];	
 
 	//Envia a chamada de AJAX para salvar o objeto
@@ -246,4 +368,47 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
 	return false;
+}
+
+/******************
+function atualiza_produtos_acao(id_imperio)
+--------------------
+Pega os produtos da Ação
+id_imperio -- id do Império
+******************/	
+function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_instalacoes,resposta) {
+	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
+	
+	//if (resposta.resposta_ajax == "SALVO!") {
+		id_colonias = "lista_colonias_imperio_"+id_imperio;
+		id_produz = "recursos_produzidos_imperio_"+id_imperio;
+		id_consome = "recursos_consumidos_imperio_"+id_imperio;
+		id_balanco = "recursos_balanco_imperio_"+id_imperio;
+		id_balanco_planeta = "balanco_planeta_"+id_planeta;
+		id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
+		nome_mdo_sistema = "mdo_sistema_"+id_estrela;
+		
+		div_colonias = document.getElementById(id_colonias);
+		div_produz = document.getElementById(id_produz);
+		div_consome = document.getElementById(id_consome);
+		div_balanco = document.getElementById(id_balanco);
+		div_balanco_planeta = document.getElementById(id_balanco_planeta);
+		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
+		div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
+		div_produz_consome = document.getElementById(id_planeta_instalacoes);
+		
+		div_colonias.innerHTML = resposta.lista_colonias
+		div_produz.innerHTML = resposta.recursos_produzidos;
+		div_consome.innerHTML = resposta.recursos_consumidos;
+		div_balanco.innerHTML = resposta.recursos_balanco;
+		div_balanco_planeta.innerHTML = resposta.balanco_planeta;
+		div_pop_mdo_planeta.innerHTML = resposta.pop_mdo_planeta;
+		if (div_produz_consome !== null) {
+			div_produz_consome.innerHTML = resposta.id_planeta_instalacoes_produz_consome;
+		}
+		
+		for (let index=0; index < div_mdo_sistema.length; index++) {
+			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
+		}
+	//}
 }

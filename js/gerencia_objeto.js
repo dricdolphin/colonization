@@ -241,7 +241,7 @@ function atualiza_lista_techs(objeto) {
 		id_tech=dados['id_tech'].value;
 
 		var dados_ajax = "post_type=POST&action=dados_transfere_tech&id_imperio="+id_imperio;
-		console.log(dados_ajax);
+		//console.log(dados_ajax);
 		var xhttp_salvou = new XMLHttpRequest();
 		xhttp_salvou.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {

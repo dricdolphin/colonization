@@ -1101,7 +1101,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		if (empty($resposta['debug']) {
+		if (empty($resposta['debug'])) {
 			$resposta['debug'] = "";
 		}
 		
