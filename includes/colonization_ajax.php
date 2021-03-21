@@ -1101,8 +1101,13 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		//$resposta['debug'] = "";
+		if (empty($resposta['debug']) {
+			$resposta['debug'] = "";
+		}
 		
+		if (empty($_POST['desativado'])) {
+			$_POST['desativado'] = 0;
+		}
 		$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
 		//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
 		$sem_balanco = true;
@@ -1111,7 +1116,7 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
 		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes'], true); //Recalcula os balanços
-		$resposta['debug'] = $resposta['debug'] + "Salvando os Balanços... \n";
+		$resposta['debug'] .= "Salvando os Balanços... \n";
 		//$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
 		$resposta['resposta_ajax'] = "SALVO!";
 		

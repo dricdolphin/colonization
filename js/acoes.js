@@ -234,6 +234,9 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 			if (resposta.debug !== undefined) {
 				console.log(resposta.debug);
 			}
+		} else if(this.status == 500) {
+			console.log(this.responseText);
+			console.log(this.statusText);
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
