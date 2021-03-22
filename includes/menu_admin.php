@@ -741,7 +741,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
-			<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th style='width: 80px;'><th>Autônoma</th><th style='width: 120px;'>Desguarnecida</th><th style='width: 120px;'>Pode desativar</th><th style='width: 60px;'>Oculta</th><th>Especiais</th><th>Ícone</th><th>Custos</th><th>&nbsp;</th>
+			<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th style='width: 80px;'><th>Autônoma</th><th style='width: 120px;'>Desguarnecida</th><th style='width: 120px;'>Pode desativar</th><th style='width: 60px;'>Oculta</th><th style='width: 60px;'>Publica</th><th>Especiais</th><th>Ícone</th><th>Custos</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -1306,19 +1306,24 @@ class menu_admin {
 
 		$proximo_turno = $turno->turno + 1;
 
-		if ($turno->bloqueado) {
+		if ($turno->encerrado == 0) {
 			$diferenca_datas = $data_atual->diff($proxima_semana);
 			
-			if ((($diferenca_datas->invert == 0 && $diferenca_datas->h < 14) || ($diferenca_datas->invert == 1)) && $turno->encerrado == 0) {
+			//$html .= "<div>{$diferenca_datas->invert} | {$diferenca_datas->h} | {$diferenca_datas->invert} => {$turno->encerrado} </div>";
+			if ($diferenca_datas->invert == 0 && $diferenca_datas->h < 15 && $turno->encerrado == 0) {
 				$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return encerra_turno(event, this);'>Encerrar o Turno</a></div><br><br>";
+			} else {
+				$data_encerra = new DateTime($proxima_semana_string);
+				$data_encerra->modify('-15 hours');
+				$data_encerra_string = $data_encerra->format('Y-m-d H:i:s');
+				$html .= "<div>TURNO EM ANDAMENTO! O Turno só poderá ser ENCERRADO à partir de {$data_encerra_string}</div>";
 			}
+		} else {
+			$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return roda_turno(event);'>Rodar Turno</a></div>";
 		}
-
-		$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return roda_turno(event);'>Rodar Turno</a></div>
-		<br>
+		
+		$html .= "<br>
 		<div id='resultado_turno'>&nbsp;</div>";
-
-
 		//$html = $roda_turno->executa_roda_turno();
 		
 		echo $html;

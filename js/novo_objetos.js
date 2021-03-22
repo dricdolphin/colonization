@@ -448,6 +448,7 @@ function nova_instalacao(evento) {
 	var desguarnecida = linha_nova.insertCell(-1);
 	var sempre_ativa = linha_nova.insertCell(-1);
 	var oculta = linha_nova.insertCell(-1);
+	var publica = linha_nova.insertCell(-1);
 	var especiais = linha_nova.insertCell(-1);
 	var icone = linha_nova.insertCell(-1);
 	var custos = linha_nova.insertCell(-1);
@@ -468,6 +469,7 @@ function nova_instalacao(evento) {
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
 	sempre_ativa.innerHTML = "<div data-atributo='sempre_ativa' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='sempre_ativa' data-ajax='true' checked></input></div>";
 	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
+	publica.innerHTML = "<div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='publica' data-ajax='true' checked></input></div>";
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 	custos.innerHTML = "<div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='custos' data-ajax='true' data-branco='true'></input></div>";
@@ -607,7 +609,7 @@ function popular_recursos_planeta(evento, objeto, id_planeta) {
 				var resposta = JSON.parse(this.responseText);
 				resposta.forEach(element => {
 					novo_planeta_recurso(evento, id_planeta, true, element);
-					console.log(element);
+					//console.log(element);
 				});
 			} catch (err) {
 				console.log(resposta);
@@ -873,4 +875,118 @@ function nova_acao_admin(evento) {
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();
 	return false;
+}
+
+
+/******************
+function nova_instalacao_jogador
+--------------------
+Cria uma nova Instalação que o Jogador pode adicionar
+******************/
+function nova_instalacao_jogador(evento, objeto, id_planeta) {
+	if (range_em_edicao || range_em_edicao == objeto) {
+		alert("Já existe um objeto em edição!");
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	range_em_edicao = objeto;
+	let dados_ajax = "post_type=POST&action=lista_instalacoes_imperio&id_planeta="+id_planeta;
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			try {
+				var resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				return false;
+			}
+				
+			if (resposta.resposta_ajax == "OK!") {
+				custos_instalacao = resposta.custo_instalacao;
+				//console.log(custos_instalacao);
+				processa_nova_instalacao_jogador(evento, objeto, id_planeta, resposta.html);
+			} else {
+				alert(resposta.resposta_ajax);
+			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}
+		} else if (this.status == 500) {
+			console.log(this.responseText);
+			console.log(this.statusText);
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function processa_nova_instalacao_jogador
+--------------------
+Cria uma nova Instalação que o Jogador pode adicionar
+******************/
+function processa_nova_instalacao_jogador(evento, objeto, id_planeta, lista_instalacao="") {
+	let td_colonia = pega_ascendente(objeto,"TD");
+	let tr_colonia = pega_ascendente(objeto, "TR");
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let trs = tabela.getElementsByTagName("TR");
+		
+	//console.log(td_colonia.rowSpan);
+	let index_linha = 0;
+	for (index_linha=0; index_linha < trs.length; index_linha++) {
+		//console.log(trs[index_linha].cells[0].rowSpan);
+		if (trs[index_linha].cells[0] == td_colonia) {
+			//console.log("A linha atual da colônia é a linha " + index_linha);
+			break;
+		}
+	}
+	
+	td_colonia.rowSpan = td_colonia.rowSpan + 1;
+	try {
+		var nova_linha = tabela.insertRow(index_linha+td_colonia.rowSpan-1);
+	} catch (err) {
+		//Normalmente isso acontece pois uma adição foi cancelada. Nesse caso temos que reverter a situação do rowSpan
+		td_colonia.rowSpan = td_colonia.rowSpan - 1;
+		var nova_linha = tabela.insertRow(index_linha+td_colonia.rowSpan-1);
+	}
+	
+	let celula_instalacao = nova_linha.insertCell(-1);
+	let celula_acao = nova_linha.insertCell(-1);
+	let celula_gerenciar = nova_linha.insertCell(-1);
+	
+	celula_instalacao.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
+	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_instalacao'></input>"
+	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação?'></input>"
+	+"<input type='hidden' data-atributo='nivel' data-editavel='true' data-style='width: 30px;' value='1'></input>"
+	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"
+	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
+	+"<div data-atributo='custo_instalacao' class='custo_instalacao'>&nbsp;</div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+
+	celula_acao.innerHTML = "&nbsp";
+	celula_gerenciar.innerHTML = "&nbsp";
+	
+	nova_linha.style.backgroundColor = tr_colonia.style.backgroundColor;
+	nova_linha.scrollIntoView({behavior: "smooth", block: "center"});
+	//objeto.style.visibility = "hidden";
+	
+	select_lista_instalacao = celula_instalacao.getElementsByTagName("SELECT")[0];
+	select_lista_instalacao.focus();
+	atualiza_custo_instalacao(evento,select_lista_instalacao);
+	
+	evento.preventDefault();
+	return false;
+	
 }

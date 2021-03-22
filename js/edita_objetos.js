@@ -91,6 +91,7 @@ Cancela a edição do objeto
 ******************/	
 function cancela_edicao(evento, objeto) {
 	objeto_em_edicao = false;
+	range_em_edicao = false;
 	
 	var tabela_objetos = pega_ascendente(objeto,"TABLE");
 	var linha = pega_ascendente(objeto,"TR");
@@ -300,8 +301,9 @@ function salva_objeto(evento, objeto, cancela = false)
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
+remove_gerenciar -- Define se deve remover a opção de voltar a editar o objeto
 ******************/	
-function salva_objeto(evento, objeto, cancela = false) {
+function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false) {
 	if (objeto_em_salvamento) {
 		evento.preventDefault();
 		return false;
@@ -366,6 +368,7 @@ function salva_objeto(evento, objeto, cancela = false) {
 			
 			objeto_em_salvamento = false;
 			objeto_em_edicao = false; //Libera a edição de outros objetos
+			range_em_edicao = false;
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
@@ -407,7 +410,7 @@ function excluir_objeto(evento, objeto) {
 		return false;
 	}
 	
-	var linha_imperio = pega_ascendente(objeto,"TR");
+	var linha_objeto = pega_ascendente(objeto,"TR");
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	
 	if (typeof(objeto_editado['mensagem_exclui_objeto']) === "undefined") {
@@ -425,13 +428,27 @@ function excluir_objeto(evento, objeto) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} 
+				catch (err) {
+					console.log(this.responseText);
+					retorno = false;
+					return false;
+				}
+
 				if (resposta.resposta_ajax == "DELETADO!") {
-					linha_imperio.remove(); //Remove a linha
+					linha_objeto.remove(); //Remove a linha
 					objeto_em_edicao = false;
+					range_em_edicao = false;
 				} else {
 					alert(resposta.resposta_ajax);
 					objeto_em_edicao = false;
+					range_em_edicao = false;
+				}
+				
+				if (resposta.debug != undefined) {
+					console.log(resposta.debug);
 				}
 			}
 		};
@@ -452,8 +469,9 @@ function desabilita_edicao_objeto(objeto, cancela)
 Desabilita o modo de edição e atualiza os dados
 objeto -- objeto sendo desabilitado
 cancela = false -- define se pega os dados originais ou os novos
+remove_gerenciar = false -- define se deve remover o div "gerenciar"
 ******************/	
-function desabilita_edicao_objeto(objeto, cancela = false) {
+function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=false) {
 
 	var linha = pega_ascendente(objeto,"TR");
 	var inputs = linha.getElementsByTagName("INPUT");
@@ -536,6 +554,9 @@ function desabilita_edicao_objeto(objeto, cancela = false) {
 	for (let index=0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
 			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>"+html_deletar;
+			if (remove_gerenciar) {
+				divs[index].style.visibility = "hidden";
+			}
 		} else if (divs[index].getAttribute('data-atributo') == "processa_string") {
 			divs[index].style.visibility = "hidden";
 		}

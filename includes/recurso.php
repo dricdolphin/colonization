@@ -19,12 +19,17 @@ class recurso
 	
 	function __construct($id) {
 		global $wpdb;
-		
+		$wpdb->hide_errors();
 		$this->id = $id;
 
 		$resultados = $wpdb->get_results("SELECT nome, descricao, nivel, acumulavel, extrativo, local, icone FROM colonization_recurso WHERE id=".$this->id);
-		$resultado = $resultados[0];
+		if (empty($resultados)) {
+			$this->id = 0;
+			return;
+		}
 		
+		$resultado = $resultados[0];
+
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
 		$this->nivel = $resultado->nivel;

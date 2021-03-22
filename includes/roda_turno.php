@@ -98,7 +98,7 @@ class roda_turno {
 							}
 
 							$html .= "INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno};<br>";
-							$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
+							//$wpdb->query("INSERT INTO colonization_planeta_recursos SET id_planeta={$id_planeta}, id_recurso={$id_recurso}, disponivel={$recursos_disponivel}, turno={$proximo_turno}");
 						}
 					}
 				}
@@ -122,7 +122,7 @@ class roda_turno {
 						$acoes->recursos_balanco[$id_recurso] = 0;
 					}
 					$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$id_recurso}, qtd={$imperio_recursos->qtd[$chave]}+{$acoes->recursos_balanco[$id_recurso]}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$id_recurso}, qtd={$imperio_recursos->qtd[$chave]}+{$acoes->recursos_balanco[$id_recurso]}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
+					//$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$id_recurso}, qtd={$imperio_recursos->qtd[$chave]}+{$acoes->recursos_balanco[$id_recurso]}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
 				}
 				
 				//Cria poluição
@@ -184,7 +184,7 @@ class roda_turno {
 					}
 				
 					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}");
+					//$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}");
 				}
 
 				//Registra a pesquisa das naves
@@ -201,17 +201,17 @@ class roda_turno {
 						$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
 						if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 							$html.= "INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}<br>";
-							$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}");
+							//$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$imperio->id}, id_estrela={$id_estrela}, turno={$proximo_turno}");
 						}
 
 						//Verifica se a Estrela já foi visitada, e se não foi marca como visitada
 						$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$id_estrela}");
 						if (empty($estrela_visitada)) {
 							$html.= "INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$id_estrela}, turno={$proximo_turno}<br>";
-							$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$id_estrela}, turno={$proximo_turno}");
+							//$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$id_estrela}, turno={$proximo_turno}");
 						} else {
 							$html.= "UPDATE colonization_estrelas_historico SET turno={$proximo_turno} WHERE id={$estrela_visitada}<br>";
-							$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$proximo_turno} WHERE id={$estrela_visitada}");
+							//$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$proximo_turno} WHERE id={$estrela_visitada}");
 						}						
 					}
 				}
@@ -225,17 +225,17 @@ class roda_turno {
 			$colonia = new colonia($id_colonia->id);
 			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}<br>";	
 
-			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital},
-			pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}");
+			//$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital},
+			//pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}");
 		}
 		
 		$html.= "UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'<br>";
 		$html.= "UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'<br>";
 		$html.= "INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1<br>";
 		
-		$wpdb->query("UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'");
-		$wpdb->query("UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'");
-		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");		
+		//$wpdb->query("UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'");
+		//$wpdb->query("UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'");
+		//$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");		
 		$this->concluido = true;
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";

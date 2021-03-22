@@ -36,6 +36,83 @@ function calcula_distancia(exibe=true, estrela_origem_id=0, estrela_destino_id=0
 }
 
 /******************
+function calcula_distancia
+--------------------
+Calcula a distância entre duas estrelas, considerando a possibilidade de reabastecer
+******************/
+function calcula_distancia_reabastece(evento, objeto, id_nave) {
+	let linha = pega_ascendente(objeto,"TR");
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let tabela_selects = tabela.getElementsByTagName("SELECT");
+	let divs = linha.getElementsByTagName("DIV");
+	let destinos_select = "";
+	let alcance = 0;
+	
+	for (let index=0; index < divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == "nome_estrela") {
+			for (let index_child=0; index_child<divs[index].childNodes.length; index_child++) {
+				if (divs[index].childNodes[index_child].tagName == "SELECT") {
+					var id_estrela = divs[index].childNodes[index_child].value;
+					destinos_select = divs[index].childNodes[index_child];
+					
+					estrela_destino_id = destinos_select.value;
+					alcance = destinos_select.getAttribute('data-alcance');
+					//destinos_select.disabled = true;
+				}
+			}
+		}
+	}
+	
+	let estrela_origem_id = 0;
+	for (let index_nave=0; index_nave < tabela_selects.length; index_nave++) {
+		if (tabela_selects[index_nave] == destinos_select) {
+			estrela_origem_id = id_estrela_atual[index_nave];
+			break;
+		}
+	}
+	
+	
+	//Verifica se está num ponto de reabastecimento. Se não estiver, verifica a distância do local atual até o ponto de reabastecimento mais próximo.
+	//O motivo é para verificar quanto de combustível a nave ainda tem. Ela sempre sai de tanque cheio!
+	let distancia_pontos_reabastecimento = [];
+	if (lista_estrelas_colonia[id_imperio_atual][estrela_origem_id] != undefined || lista_estrelas_reabastece[id_imperio_atual][estrela_origem_id] != undefined) {
+		combustivel_restante = alcance;
+	} else {
+		
+		let lista_estrelas_reabastece_imperio = [];
+		lista_estrelas_colonia[id_imperio_atual].forEach( id_estrela => {
+			lista_estrelas_reabastece_imperio.push(id_estrela);
+		});
+		
+		lista_estrelas_reabastece[id_imperio_atual].forEach( id_estrela => {
+			lista_estrelas_reabastece_imperio.push(id_estrela);
+		});
+		
+		let distancia_ate_reabastecimento = lista_estrelas_reabastece_imperio.map(id_estrela => {
+			let distancia = calcula_distancia(false, estrela_origem_id, id_estrela);
+			return {'id_estrela': id_estrela, 'distancia': distancia }
+		});
+		
+		distancia_ate_reabastecimento.sort(function(a, b) {
+			return a.distancia - b.distancia;
+		});
+		
+		combustivel_restante = Math.floor(alcance - distancia_ate_reabastecimento[0].distancia);
+	}
+	
+	//Verifica a distância atual até a estrela destino
+	//Se a distância for maior do que o combustível da nave, precisamos reabastecer para chegar lá!
+	
+	
+	let string_resposta = calcula_distancia(false, estrela_origem_id, estrela_destino_id);
+	string_resposta = string_resposta + " -> " + alcance;
+	
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
 function calcula_pulos_hyperdrive
 --------------------
 Cria o caminho dos pulos de hyperdrive
@@ -571,4 +648,76 @@ function lista_distancia() {
 	div_lista_distancia.innerHTML = html_lista;
 	
 	return false;
+}
+
+
+/******************
+function popula_selects_estrelas_frotas
+--------------------
+Popula os selects com as lista das estrelas onde uma nave do Império escolhido possa chegar
+******************/
+function popula_selects_estrelas_frotas() {
+	let selects = document.getElementsByTagName('SELECT');
+	
+	for (let index=0; index < selects.length; index++) {
+		if (selects[index].getAttribute('data-atributo') == 'id_estrela') {
+			let alcance_nave = selects[index].getAttribute('data-alcance');
+			let alcance_estendido = 2;
+			let reabastece = true;
+			let estrela_atual = id_estrela_atual[index]
+			let estrelas_destino = array_estrelas(alcance_nave,alcance_estendido,reabastece,estrela_atual);
+			console.log('Index: '+index+'; '+estrela_atual);
+			let alcance_local = selects[index].getAttribute('data-alcance-local');
+			reabastece = false;
+			alcance_estendido = 1;
+			let estrelas_destino_local = array_estrelas(alcance_local,alcance_estendido,reabastece,estrela_atual);
+			
+			mapped_estrelas_destino_local = estrelas_destino_local.map(function(el, i) {
+				return { index: i, value: el };
+			});
+				mapped_estrelas_destino_local.forEach(
+			function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+				estrelas_destino[id_estrela_origem] = true;
+			});						
+				
+			mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[index].map(function(el, i) {
+				return { index: i, value: el };
+			});
+				mapped_estrelas_buraco_de_minhoca.forEach(
+			function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+				estrelas_destino[valor_estrelas_imperio.value] = true;
+			});	
+			
+			var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
+				return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
+			});	
+			
+			mapped_estrelas_destino.sort(function(firstEl, secondEl) {
+				if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
+				return -1;
+				}
+				if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
+				return 1;
+				}
+				// a must be equal to b
+				return 0;
+			});
+			
+			html_lista = '';
+			mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
+				let selecionado = '';
+				if (id_estrela_destino[index] == 0) {
+					id_estrela_destino[index] = estrela_capital[id_imperio_atual];
+				}
+					if (valor_destino.id_estrela == id_estrela_destino[index]) {
+					selecionado = 'selected';
+				}
+				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela +'</option>';
+				
+				//distancia[chave_destino] = true;
+			});
+			
+			selects[index].innerHTML = html_lista;
+		}
+	}
 }

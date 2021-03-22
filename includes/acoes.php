@@ -349,7 +349,7 @@ class acoes
 			}
 		}
 
-
+		
 		
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
@@ -364,12 +364,28 @@ class acoes
 			
 			$html_upgrade = "";
 
+			$this->disabled = "";
+			$turno_atual = new turno();
+			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
+					$this->disabled = "disabled";
+			}
+
+
 			if ($ultimo_planeta != $this->id_planeta[$chave]) {
 				$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
 				$html_recursos_planeta = $planeta->exibe_recursos_planeta();
 				$estrela = new estrela($planeta->id_estrela);
 				$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
 
+				if ($colonia->vassalo == 1 && $roles != "administrator") {
+					$this->disabled = "disabled";
+				}
+				
+				$html_nova_instalacao_jogador = "";
+				if ($roles == "administrator") {
+					$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id});' {$this->disabled}>Nova Instalação</a></div>";
+				}
+				
 				$ultimo_planeta = $this->id_planeta[$chave];				
 				$slots = 0;
 				$balanco_planeta = "";
@@ -379,10 +395,14 @@ class acoes
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
-				<div data-atributo='nome_planeta'>{$colonia->instalacoes}/{$planeta->tamanho} | {$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | 
-				<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
-				<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
-				<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
+				<div data-atributo='nome_planeta'>
+					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
+					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
+					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
+					<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
+					<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
+				{$html_nova_instalacao_jogador}
+				</div>
 				</td>";
 				if ($estilo == $estilo_par) {
 					$estilo = $estilo_impar;
@@ -393,16 +413,6 @@ class acoes
 				$primeira_linha = "&nbsp;";
 			}
 	
-			$this->disabled = "";
-			$turno_atual = new turno();
-			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
-					$this->disabled = "disabled";
-			}
-
-			if ($colonia->vassalo == 1 && $roles != "administrator") {
-				$this->disabled = "disabled";
-			}
-
 			if ($this->disabled != "disabled" && empty($this->turno_destroi[$chave])) {
 				//Verifica se há uma Tech para Upgrade e se o Império tem essa Tech
 				$nivel_upgrade = $this->nivel_instalacao[$chave] + 1;

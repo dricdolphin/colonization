@@ -18,6 +18,7 @@ class instalacao
 	public $desguarnecida;
 	public $sempre_ativa;
 	public $oculta;
+	public $publica;
 	public $icone;
 	public $especiais;
 	public $limite = 0;
@@ -38,7 +39,12 @@ class instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, sempre_ativa, oculta, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT nome, descricao, id_tech, slots, autonoma, desguarnecida, sempre_ativa, oculta, publica, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
+		if (empty($resultados)) {
+			$this->id = 0;
+			return;
+		}
+
 		$resultado = $resultados[0];
 		
 		$this->nome = $resultado->nome;
@@ -50,6 +56,7 @@ class instalacao
 		$this->sempre_ativa = $resultado->sempre_ativa;
 		$this->icone = $resultado->icone;
 		$this->oculta = $resultado->oculta;
+		$this->publica = $resultado->publica;
 		$this->especiais = $resultado->especiais;
 		$this->custos = $resultado->custos;
 		
@@ -163,6 +170,12 @@ class instalacao
 		} else {
 			$oculta_checked = "";
 		}
+
+		if ($this->publica == 1) {
+			$publica_checked = "checked";
+		} else {
+			$publica_checked = "";
+		}
 		
 		$tech = new tech($this->id_tech);
 		//Exibe os dados do objeto
@@ -183,6 +196,7 @@ class instalacao
 			<td><div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='{$this->desguarnecida}'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true' {$desguarnecida_checked} disabled></input></div></td>
 			<td><div data-atributo='sempre_ativa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->sempre_ativa}'><input type='checkbox' data-atributo='sempre_ativa' data-ajax='true' {$sempre_ativa_checked} disabled></input></div></td>
 			<td><div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='{$this->oculta}'><input type='checkbox' data-atributo='oculta' data-ajax='true' {$oculta_checked} disabled></input></div></td>
+			<td><div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->publica}'><input type='checkbox' data-atributo='publica' data-ajax='true' {$publica_checked} disabled></input></div></td>
 			<td><div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original='{$this->especiais}'>{$this->especiais}</div></td>
 			<td><div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
 			<td><div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original='{$this->custos}'>{$this->custos}</div></td>
@@ -269,6 +283,7 @@ class instalacao
 		foreach ($custos as $custo) {
 			$dados_custo = explode("=",$custo);
 			$recurso = new recurso($dados_custo[0]);
+			
 			
 			$nome_recurso = $recurso->nome;
 			$nome_tooltip = "";			

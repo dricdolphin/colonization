@@ -39,13 +39,82 @@ class colonization_ajax {
 		add_action('wp_ajax_transfere_pop', array ($this, 'transfere_pop'));//transfere_pop
 		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formato JSON
 		add_action('wp_ajax_ids_recursos_extrativos', array ($this, 'ids_recursos_extrativos'));//Retorna com todos os recursos extrativos formatados em JSON
+		add_action('wp_ajax_lista_instalacoes_imperio', array ($this, 'lista_instalacoes_imperio'));//Retorna uma lista com todas as Instalações que o Império pode construir
+	}
+
+
+	/***********************
+	function lista_instalacoes_imperio()
+	----------------------
+	Retorna uma lista com todas as Instalações que o Império pode construir
+	***********************/
+	function lista_instalacoes_imperio() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		
+		$id_imperio = $wpdb->get_var("
+		SELECT cic.id_imperio 
+		FROM colonization_imperio_colonias AS cic
+		WHERE cic.id_planeta={$_POST['id_planeta']}");
+		
+		$imperio = new imperio($id_imperio);
+		
+		$ids_instalacao = $wpdb->get_results("
+		SELECT ci.id 
+		FROM colonization_instalacao AS ci
+		JOIN colonization_imperio_techs AS cit
+		ON cit.id_tech = ci.id_tech
+		WHERE cit.id_imperio={$imperio->id} AND cit.custo_pago=0 AND ci.publica=1
+		ORDER BY ci.nome");
+		
+		$dados_salvos['debug'] = "";
+		$html_select_instalacoes = "<select data-atributo='id_instalacao' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_instalacao(event, this);'>";
+		
+		foreach ($ids_instalacao as $id_instalacao) {
+			$instalacao = new instalacao($id_instalacao->id);
+			
+			if ($instalacao->especiais != "") {
+				$especiais = explode(";",$instalacao->especiais);
+				
+				//Especiais: tech_requisito=id_tech
+				//Requer uma Tech especial como requisito
+
+				$tech_requisito = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'tech_requisito') !== false;
+				}));
+				
+				if (!empty($tech_requisito)) {
+					$valor_tech_requisito = explode("=",$tech_requisito[0]);
+					$id_tech_requisito = $valor_tech_requisito[1];
+					$tech_requisito = new tech ($id_tech_requisito);
+					
+					$id_tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0");
+					//$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago=0 \n";
+					if (empty($id_tech_imperio)) {//O Império não tem a Tech requisito -- vai para a próxima Instalação
+						continue;
+					}
+				}
+			}
+			
+			$html_select_instalacoes .= "<option value='{$instalacao->id}'>{$instalacao->nome}</option>";
+			$dados_salvos['custo_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
+		}
+		
+		$html_select_instalacoes .= "</select>";
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['html'] = $html_select_instalacoes;
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
 	}
 
 	/***********************
 	function lista_estrelas ()
 	----------------------
 	Retorna com todas as estrelas disponíveis em formado JSON
-	***********************/	
+	***********************/
 	function lista_estrelas() {
 		global $wpdb;
 		
@@ -71,7 +140,7 @@ class colonization_ajax {
 		}
 		
 		echo json_encode($dados_estrela); //Envia a resposta via echo, codificado como JSON
-		wp_die();		
+		wp_die();
 	}
 
 	/***********************
@@ -1192,14 +1261,16 @@ OR id_tech_parent LIKE '%;{$tech_requisito[$nivel]->id}' \n";
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
-		$where[$_POST['where_clause']]=$_POST['where_value'];
+		//$where = [];
+		//$where[$_POST['where_clause']]=$_POST['where_value'];
 		
-		$resposta = $wpdb->delete($_POST['tabela'],$where);
+		$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}");
 
 		if ($resposta !== false) {
 			$dados_salvos['resposta_ajax'] = "DELETADO!";
 		} else {
-			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
+			$dados_salvos['debug'] = "DELETE FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}";
+			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente! \nErro: {$_POST['tabela']}: {$_POST['where_clause']}={$_POST['where_value']}  \n{$wpdb->last_error}";
 		}
 	
 		echo json_encode($dados_salvos); //Envia a resposta via echo

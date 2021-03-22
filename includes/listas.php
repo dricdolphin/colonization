@@ -44,6 +44,7 @@ var lista_x_estrela=[];
 var lista_y_estrela=[];
 var lista_z_estrela=[];
 var lista_nome_estrela=[];
+var custos_instalacao=[];
 
 var turno_atual={$turno->turno};
 

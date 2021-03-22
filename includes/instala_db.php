@@ -65,7 +65,8 @@ class instala_db {
 		oculta BOOLEAN DEFAULT FALSE,
 		icone VARCHAR(255) DEFAULT '',
 		especiais VARCHAR(255) DEFAULT '',
-		custos VARCHAR(255) DEFAULT ''
+		custos VARCHAR(255) DEFAULT '',
+		publica BOOLEAN DEFAULT TRUE
 		)");
 
 		//Tabela com os tipos de recursos existentes
@@ -378,7 +379,6 @@ class instala_db {
 		BEGIN
 		DELETE FROM colonization_instalacao_recursos WHERE id_instalacao = old.id;
 		DELETE FROM colonization_planeta_instalacoes WHERE id_instalacao = old.id;
-		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE id_instalacao = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$
 		DELIMITER ;");

@@ -854,3 +854,26 @@ function mostra_div_transferencia (evento, objeto) {
 	evento.preventDefault()
 	return false;
 }
+
+
+/******************
+function atualiza_custo_instalacao()
+--------------------
+Atualiza a DIV com o custo das instalações
+******************/
+function atualiza_custo_instalacao(evento, objeto) {
+	let index_selecionado = objeto.selectedIndex;
+	let id_instalacao = objeto.options[index_selecionado].value;
+	let td_instalacao = pega_ascendente(objeto,"TD");
+	let divs_td_instalacao = td_instalacao.getElementsByTagName("DIV");
+	let div_custo_instalacao = "";
+	
+	for (let index_divs=0; index_divs<divs_td_instalacao.length; index_divs++) {
+		if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "custo_instalacao") {
+			div_custo_instalacao = divs_td_instalacao[index_divs];
+			break;
+		}
+	}
+	
+	div_custo_instalacao.innerHTML = "Custo por nível: " + custos_instalacao[id_instalacao];
+}

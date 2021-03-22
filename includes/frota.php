@@ -226,9 +226,9 @@ class frota
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
 			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
-			if ($banido === "banned") {
-				return;
-			} 
+			//if ($banido === "banned") {
+			//	return;
+			//} 
 		}
 
 
@@ -268,14 +268,7 @@ class frota
 			$this->alcance = $this->alcance+$imperio->bonus_alcance;
 			
 			$display_select = "";
-			$user = wp_get_current_user();
-			$roles = "";
-			if (!empty($user->ID)) {
-				$roles = $user->roles[0];
-				$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
-			}
-
-			if ($this->id_estrela_destino == 0 && $turno->encerrado != 1 && !$banido) {
+			if (($this->id_estrela_destino == 0 && $turno->encerrado != 1 && $banido !== "banned") || $roles == "administrator") {
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
@@ -287,10 +280,8 @@ class frota
 		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 		<input type='hidden' data-atributo='where_clause' value='id'></input>
 		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
-		<b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b>
-		</td>
-		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>
-		<td>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
+		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b></div>
+		<div data-atributo='atributos'>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
 
 		$html .= $html_armas;
 		
@@ -302,14 +293,22 @@ class frota
 		if ($this->especiais != "") {
 		$html .= " Especiais: {$this->especiais};";
 		} 
-		$html .= "</td>";
+		$html .= "</div>
+		</td>
+		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>		
+		";
 
+
+		$href_calcula_distancia = "";
+		if ($roles == "administrator") {
+			$href_calcula_distancia = " &nbsp; <a href='#' onclick='return calcula_distancia_reabastece(event, this, false, {$this->id});'>Custo e Trajeto</a>";
+		}
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
 		<select data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' {$disabled}>
 		</select>
 		</div>
-		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
+		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a>{$href_calcula_distancia}</div>
 		</td>";			
 
 
