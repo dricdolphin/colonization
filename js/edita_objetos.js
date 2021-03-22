@@ -303,7 +303,7 @@ objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 remove_gerenciar -- Define se deve remover a opção de voltar a editar o objeto
 ******************/	
-function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false) {
+function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='') {
 	if (objeto_em_salvamento) {
 		evento.preventDefault();
 		return false;
@@ -351,7 +351,11 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false) {
 
 	objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto_editado pois eles podem ter sido modificados pelas funções de validação e pós-processamento
 	//Cria o string que será passado para o AJAX
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+objeto_editado['nome_tabela']+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
+	if (nome_tabela == '') {
+		nome_tabela = objeto_editado['nome_tabela'];
+	}
+	
+	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+nome_tabela+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 
 	//Envia a chamada de AJAX para salvar o objeto
 	var xhttp = new XMLHttpRequest();

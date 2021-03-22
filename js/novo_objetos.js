@@ -973,7 +973,7 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, lista_inst
 	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
 	+"<div data-atributo='custo_instalacao' class='custo_instalacao'>&nbsp;</div>"
-	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true,\"colonization_planeta_instalacoes\");'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
 	celula_acao.innerHTML = "&nbsp";
 	celula_gerenciar.innerHTML = "&nbsp";

@@ -102,7 +102,11 @@ function calcula_distancia_reabastece(evento, objeto, id_nave) {
 	
 	//Verifica a distância atual até a estrela destino
 	//Se a distância for maior do que o combustível da nave, precisamos reabastecer para chegar lá!
-	
+	if (calcula_distancia(false, estrela_origem_id, estrela_destino_id) > combustivel_restante) {
+		
+	} else {//É só gastar o combustível!
+		
+	}
 	
 	let string_resposta = calcula_distancia(false, estrela_origem_id, estrela_destino_id);
 	string_resposta = string_resposta + " -> " + alcance;
