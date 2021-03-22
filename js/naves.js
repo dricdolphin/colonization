@@ -341,14 +341,16 @@ function processa_string(evento, objeto) {
 	
 	for (let index=0; index<partes_nave.length; index++) {
 		let subparte = partes_nave[index].split("=");
-		if (qtd[index].type == "checkbox") {
-			if (subparte[0] == 1) {
-				qtd[index].checked = true;
+		if (qtd[index] != undefined) {
+			if (qtd[index].type == "checkbox") {
+				if (subparte[0] == 1) {
+					qtd[index].checked = true;
+				} else {
+					qtd[index].checked = false;
+				}
 			} else {
-				qtd[index].checked = false;
+				qtd[index].value = subparte[0];
 			}
-		} else {
-			qtd[index].value = subparte[0];
 		}
 		
 		if (mk[index] !== undefined) {
