@@ -235,7 +235,7 @@ function atualiza_lista_techs()
 --------------------
 Atualiza a lista de Techs enviadas e recebidas
 ******************/
-function atualiza_lista_techs(objeto) {
+function atualiza_lista_techs(objeto, argumentos="") {
 		var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
 		id_imperio=dados['id_imperio_origem'].value;
 		id_tech=dados['id_tech'].value;

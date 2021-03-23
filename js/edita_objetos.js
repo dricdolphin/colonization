@@ -198,7 +198,7 @@ function edita_objeto(evento, objeto) {
 }
 
 /******************
-function chama_funcao_validacao(objeto,funcao)
+function chama_funcao_validacao(objeto,funcao,argumentos)
 --------------------
 Função do tipo "helper" para chamar uma função de validação
 funcao -- função a ser chamada
@@ -296,12 +296,13 @@ function pega_dados_objeto(objeto) {
 
 
 /******************
-function salva_objeto(evento, objeto, cancela = false)
+function salva_objeto(evento, objeto, cancela = false, nome_tabela='' )
 --------------------
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 remove_gerenciar -- Define se deve remover a opção de voltar a editar o objeto
+nome_tabela='' -- Define em qual tabela os dados serão salvos
 ******************/	
 function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='') {
 	if (objeto_em_salvamento) {
@@ -313,15 +314,15 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 	
 	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	if (typeof(objeto_editado['funcao_pos_processamento_objeto']) != "") {
-		var pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
+		var funcao_pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
 	}
 	
 	if (cancela) {
 		var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela);
 		
 		var processa = true;
-		if (typeof(pos_processamento) !== "undefined") {
-			processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento, true);
+		if (typeof(funcao_pos_processamento) !== "undefined") {
+			processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, true);
 		}
 		
 		objeto_em_edicao = false;
@@ -378,8 +379,13 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-				if (typeof(pos_processamento) !== "undefined") {
-					var processa = chama_funcao_validacao(objeto_desabilitado, pos_processamento);
+				if (typeof(funcao_pos_processamento) !== "undefined") {
+					if (resposta.pos_processamento != undefined) {
+						var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
+					} else {
+						var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
+					}
+					
 				}
 			} else {
 				alert(resposta.resposta_ajax);

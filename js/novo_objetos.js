@@ -883,7 +883,7 @@ function nova_instalacao_jogador
 --------------------
 Cria uma nova Instalação que o Jogador pode adicionar
 ******************/
-function nova_instalacao_jogador(evento, objeto, id_planeta) {
+function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
 	if (range_em_edicao || range_em_edicao == objeto) {
 		alert("Já existe um objeto em edição!");
 		
@@ -908,7 +908,7 @@ function nova_instalacao_jogador(evento, objeto, id_planeta) {
 			if (resposta.resposta_ajax == "OK!") {
 				custos_instalacao = resposta.custo_instalacao;
 				//console.log(custos_instalacao);
-				processa_nova_instalacao_jogador(evento, objeto, id_planeta, resposta.html);
+				processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio, resposta.html);
 			} else {
 				alert(resposta.resposta_ajax);
 			}
@@ -933,7 +933,7 @@ function processa_nova_instalacao_jogador
 --------------------
 Cria uma nova Instalação que o Jogador pode adicionar
 ******************/
-function processa_nova_instalacao_jogador(evento, objeto, id_planeta, lista_instalacao="") {
+function processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio, lista_instalacao="") {
 	let td_colonia = pega_ascendente(objeto,"TD");
 	let tr_colonia = pega_ascendente(objeto, "TR");
 	let tabela = pega_ascendente(objeto,"TABLE");
@@ -964,10 +964,12 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, lista_inst
 	
 	celula_instalacao.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_instalacao'></input>"
+	+"<input type='hidden' data-atributo='funcao_pos_processamento' value='atualiza_recursos_imperio'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação?'></input>"
 	+"<input type='hidden' data-atributo='nivel' data-editavel='true' data-style='width: 30px;' value='1'></input>"
 	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"

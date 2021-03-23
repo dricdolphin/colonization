@@ -22,6 +22,7 @@ class missoes
 	public $ativo;
 	public $turno_validade;
 	public $sucesso;
+	public $id_imperios_sucesso;
 	
 	/***********************
 	function __construct()
@@ -38,7 +39,7 @@ class missoes
 		
 
 		$resultados = $wpdb->get_results("SELECT id, descricao, texto_sucesso, texto_fracasso, lista_recurso, qtd, 
-		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade, sucesso
+		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade, id_imperios_sucesso, sucesso
 		FROM colonization_missao WHERE id={$id}");
 		$resultado = $resultados[0];
 		
@@ -54,6 +55,7 @@ class missoes
 		$this->turno = $resultado->turno;
 		$this->ativo = $resultado->ativo;
 		$this->turno_validade = $resultado->turno_validade;
+		$this->id_imperios_sucesso = $resultado->id_imperios_sucesso;
 		$this->sucesso = $resultado->sucesso;
 	}
 	
@@ -87,6 +89,7 @@ class missoes
 		<td><div data-atributo='ativo' data-editavel='true' data-type='checkbox' data-valor-original='{$this->ativo}'><input type='checkbox' data-atributo='ativo' data-ajax='true' {$ativo_checked} disabled></input></div></td>
 		<td><div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno}'>{$this->turno}</div></td>
 		<td><div data-atributo='turno_validade' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno_validade}'>{$this->turno_validade}</div></td>
+		<td><div data-atributo='id_imperios_sucesso' data-editavel='true' data-valor-original='{$this->id_imperios_sucesso}' data-style='width: 80px;' data-branco='true'>{$this->id_imperios_sucesso}</div></td>
 		<td><div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-valor-original='{$this->sucesso}'><input type='checkbox' data-atributo='sucesso' data-ajax='true' {$sucesso_checked} disabled></input></div></td>
 		";
 	
@@ -105,9 +108,11 @@ class missoes
 		//Verifica se o player já aceitou ou se rejeitou essa Missão. Uma missão REJEITADA pode ser aceita posteriormente, mas uma missão ACEITA não pode mais ser editada
 		$id_imperios_aceitaram = array_filter(explode(";",$this->id_imperios_aceitaram));
 		$id_imperios_rejeitaram = array_filter(explode(";",$this->id_imperios_rejeitaram));
+		$id_imperios_sucesso = array_filter(explode(";",$this->id_imperios_sucesso));
 		
 		$aceitou = array_search($id_imperio,$id_imperios_aceitaram);
 		$rejeitou = array_search($id_imperio,$id_imperios_rejeitaram);
+		$sucesso_individual = array_search($id_imperio,$id_imperios_sucesso);
 		
 		$html_fracasso = "";
 		if (!empty($this->texto_fracasso)) {
@@ -130,16 +135,23 @@ class missoes
 		} elseif ($roles == "administrator") {
 			$html_aceitar = "<span style='color: #009922 !important;'>ACEITARAM:</span> ";
 			
-			foreach ($id_imperios_aceitaram as $chave => $id_imperio_aceitou) {
-				$imperio_aceitou = new imperio($id_imperio_aceitou);
+			foreach ($id_imperios_aceitaram as $chave => $id_imperio_temp) {
+				$imperio_aceitou = new imperio($id_imperio_temp);
 				$html_aceitar .= "{$imperio_aceitou->nome}; ";
 			}
-			$html_aceitar .= "<br>
-<span style='color: #DD0022 !important;'>REJEITARAM:</span> ";
-			foreach ($id_imperios_rejeitaram as $chave => $id_imperio_rejeitou) {
-				$imperio_rejeitou = new imperio($id_imperio_rejeitou);
+			
+			$html_aceitar .= "<br><span style='color: #DD0022 !important;'>REJEITARAM:</span> ";
+			foreach ($id_imperios_rejeitaram as $chave => $id_imperio_temp) {
+				$imperio_rejeitou = new imperio($id_imperio_temp);
 				$html_aceitar .= "{$imperio_rejeitou->nome}; ";
 			}			
+			
+			$html_aceitar .= "<br><span style='color: #026e1a !important;'>SUCESSO:</span> ";
+			foreach ($id_imperios_sucesso as $chave => $id_imperio_temp) {
+				$imperio_sucesso = new imperio($id_imperio_temp);
+				$html_aceitar .= "{$imperio_sucesso->nome}; ";
+			}			
+			
 			$html_aceitar .= "<br>";
 		}
 		
@@ -158,7 +170,7 @@ class missoes
 		
 		$estilo_sucesso = "";
 		$html_sucesso = "";
-		if ($this->sucesso == 1 && $aceitou !== false) {
+		if (($this->sucesso == 1 || $sucesso_individual !== false) && $aceitou !== false) {
 			$estilo_sucesso = "style='color: #009922 !important;'";
 			$html_sucesso = "<b>* CONCLUÍDO! *</b>";
 		}

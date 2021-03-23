@@ -1148,7 +1148,8 @@ class menu_admin {
 		<thead>
 		<tr><th style='width: 80px;'>ID</th><th style='width: 140px;'>Descrição</th><th style='width: 140px;'>Vitória</th><th style='width: 140px;'>Derrota</th>
 		<th style='width: 60px;'>ID Império</th><th style='width: 120px;'>IDs Aceitam</th><th style='width: 120px;'>IDs Rejeitam</th>
-		<th style='width: 40px;'>Ativa</th><th style='width: 60px;'>Turno</th><th style='width: 60px;'>Validade</th><th style='width: 40px;'>Sucesso</th>
+		<th style='width: 40px;'>Ativa</th><th style='width: 60px;'>Turno</th><th style='width: 60px;'>Validade</th>
+		<th style='width: 120px;'>IDs Sucesso</th><th style='width: 40px;'>Sucesso</th>
 		</tr>
 		</thead>
 		<tbody>";

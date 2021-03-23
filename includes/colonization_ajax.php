@@ -40,7 +40,21 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formato JSON
 		add_action('wp_ajax_ids_recursos_extrativos', array ($this, 'ids_recursos_extrativos'));//Retorna com todos os recursos extrativos formatados em JSON
 		add_action('wp_ajax_lista_instalacoes_imperio', array ($this, 'lista_instalacoes_imperio'));//Retorna uma lista com todas as Instalações que o Império pode construir
+		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 	}
+
+
+	function recursos_atuais_imperio() {
+		global $wpdb;
+
+		$imperio = new imperio($_POST['id_imperio']);
+	
+		$dados_salvos['recursos_atuais'] = $imperio->exibe_recursos_atuais();
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+
 
 
 	/***********************
@@ -1153,6 +1167,7 @@ class colonization_ajax {
 				$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
 				
 				$dados_salvos['recursos_atuais'] = $imperio->exibe_recursos_atuais();
+				$dados_salvos['pos_processamento'] = $dados_salvos['recursos_atuais'];
 				$dados_salvos['resposta_ajax'] = "SALVO!";
 			}
 		}
