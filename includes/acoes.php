@@ -381,10 +381,10 @@ class acoes
 					$this->disabled = "disabled";
 				}
 				
-				$html_nova_instalacao_jogador = "";
-				if ($roles == "administrator") {
+				//$html_nova_instalacao_jogador = "";
+				//if ($roles == "administrator") {
 					$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$this->disabled}>Nova Instalação</a></div>";
-				}
+				//}
 				
 				$ultimo_planeta = $this->id_planeta[$chave];				
 				$slots = 0;

@@ -61,6 +61,11 @@ class frota
 		WHERE id={$this->id}");
 		
 		$resultado = $resultados[0];
+		if (empty($resultado)) {
+			$this->id = 0;
+			return false;
+		}
+		
 		$this->id_imperio = $resultado->id_imperio;
 		$this->nome_npc = $resultado->nome_npc;
 		$this->nome = $resultado->nome;

@@ -234,6 +234,14 @@ class roda_turno {
 		//$wpdb->query("UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'");
 		$wpdb->query("UPDATE wp_forum_topics SET closed = 0 WHERE name LIKE 'Turno {$proximo_turno}%'");
 		$wpdb->query("INSERT INTO colonization_turno_atual SET id={$proximo_turno}, data_turno='{$proxima_semana}', encerrado=0, bloqueado=1");		
+		
+		$lista_id_planetas = $wpdb->get_results("SELECT id FROM colonization_planeta");
+		$html.= "Populando os novos recursos de todos os planetas...<br>";
+		foreach ($lista_id_planetas as $ids_planeta) {
+			//Cria TODOS os planetas para popular os recursos para o Turno atual. Pode demorar um pouco...
+			$planeta = new planeta($ids_planeta->id);
+		}
+		
 		$this->concluido = true;
 		} else {
 			$html = "É NECESSÁRIO TER PRIVILÉGIOS ADMINISTRATIVOS PARA RODAR O TURNO!";

@@ -129,6 +129,13 @@ turno INT(6) NOT NULL,
 disponivel BOOLEAN DEFAULT NOT NULL
 )
 
+--Tabela com as Instalações não-Públicas que o Império pode construir
+CREATE TABLE IF NOT EXISTS colonization_imperio_instalacoes (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_instalacao INT(6) NOT NULL
+)
+
 --Tabela com as Techs do Império
 CREATE TABLE IF NOT EXISTS colonization_imperio_techs (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

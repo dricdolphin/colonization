@@ -420,6 +420,43 @@ function nova_tech_imperio(evento, id_imperio) {
 }
 
 /******************
+function nova_instalacao_imperio
+--------------------
+Adiciona uma nova Instalação não-pública ao Império
+******************/
+function nova_instalacao_imperio(evento, id_imperio) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
+		return false;
+	}
+		
+	
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+	var tabela = document.getElementsByTagName('TABLE');
+	tabela = tabela[2];
+	var linha_nova = tabela.insertRow(-1);
+	
+	var lista_instalacao = lista_instalacoes_ocultas_html();
+	
+	var nome_instalacao = linha_nova.insertCell(-1);
+
+	nome_instalacao.innerHTML = "<td style='width: 400px;'>"
+	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacao' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+
+	window.scrollTo(0, document.body.scrollHeight);
+	evento.preventDefault();
+	return false;
+}
+
+/******************
 function nova_instalacao
 --------------------
 Insere uma nova instalação

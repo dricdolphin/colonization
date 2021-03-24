@@ -26,6 +26,7 @@ include_once('includes/colonia_instalacao.php');
 include_once('includes/planeta_recurso.php');
 include_once('includes/imperio_recursos.php');
 include_once('includes/imperio_techs.php');
+include_once('includes/imperio_instalacoes.php');
 include_once('includes/transfere_tech.php');
 include_once('includes/acoes.php');
 include_once('includes/acoes_admin.php');

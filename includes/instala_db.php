@@ -144,6 +144,14 @@ class instala_db {
 		turno INT(6) NOT NULL,
 		disponivel BOOLEAN DEFAULT NOT NULL
 		)");
+		
+
+		//Tabela com as Instalações não-púbicas liberadas para o Império
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_instalacoes (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) NOT NULL,
+		id_instalacao INT(6) NOT NULL
+		)");
 
 		//Tabela com as Techs dos Impérios
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_techs (
@@ -322,6 +330,7 @@ class instala_db {
 		ON colonization_imperio FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_imperio_recursos WHERE id_imperio = old.id;
+		DELETE FROM colonization_imperio_instalacoes WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_transfere_techs WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_colonias WHERE id_imperio = old.id;
@@ -379,6 +388,7 @@ class instala_db {
 		ON colonization_instalacao FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_instalacao_recursos WHERE id_instalacao = old.id;
+		DELETE FROM colonization_imperio_instalacoes WHERE id_instalacao = old.id;
 		DELETE FROM colonization_planeta_instalacoes WHERE id_instalacao = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_instalacao = old.id;
 		END$$

@@ -198,6 +198,28 @@ class menu_admin {
 			$html .= "\n</tbody>
 			</table></div>
 			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_imperio(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+
+			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_instalacoes WHERE id_imperio={$imperio->id}");
+		
+			$html_instalacoes_imperio = "";
+			foreach ($resultados as $resultado) {
+				$imperio_instalacoes = new imperio_instalacoes($resultado->id);
+				$html_instalacoes_imperio .= $imperio_instalacoes->lista_dados();
+			}
+			
+			$html .= "<br><div><h2>COLONIZATION - Instalações '{$imperio->nome}'</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_instalacoes' style='width: 400px;'>
+			<thead>
+			<tr><th style='width: 300px;'>Instalações não-Publicas liberadas</th></tr>
+			</thead>
+			<tbody>";
+
+			$html .= $html_instalacoes_imperio;
+
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_instalacao_imperio(event, {$imperio->id});'>Adicionar nova Instalação</a></div>";
 			
 			$html .= "<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Impérios</a>";			

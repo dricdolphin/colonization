@@ -79,7 +79,8 @@ class colonization_ajax {
 		FROM colonization_instalacao AS ci
 		JOIN colonization_imperio_techs AS cit
 		ON cit.id_tech = ci.id_tech
-		WHERE cit.id_imperio={$imperio->id} AND cit.custo_pago=0 AND ci.publica=1
+		WHERE cit.id_imperio={$imperio->id} AND cit.custo_pago=0 
+		AND (ci.publica=1 OR ci.id IN (SELECT cii.id_instalacao FROM colonization_imperio_instalacoes AS cii WHERE cii.id_imperio={$imperio->id}))
 		ORDER BY ci.nome");
 		
 		$dados_salvos['debug'] = "";
@@ -329,7 +330,7 @@ class colonization_ajax {
 				JOIN colonization_planeta_recursos AS cpr
 				ON cpr.id_planeta = cp.id
 				AND cir.id_recurso = cpr.id_recurso
-				WHERE cir.disponivel=0 AND cir.id_imperio={$nave->id_imperio} AND cir.turno={$turno->turno}
+				WHERE cir.disponivel=0 AND cir.id_imperio={$nave->id_imperio} AND cir.turno={$turno->turno} AND cpr.turno={$turno->turno}
 				");
 				
 				if (!empty($id_recursos_desconhecidos)) {
@@ -912,8 +913,12 @@ class colonization_ajax {
 			$imperio = new imperio($id_imperio, true);
 		}
 
-		if ($roles != "administrator" && ($id_imperio != $_POST['id_imperio'])) {
-			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação! {$id_imperio} {$_POST['id_imperio']}";
+		$planeta = new planeta($_POST['id_planeta']);
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
+		$colonia = new colonia($id_colonia);
+
+		if ($roles != "administrator" && ($id_imperio != $colonia->id_imperio)) {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação! {$id_imperio} {$colonia->id_imperio}";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		}
@@ -925,9 +930,6 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
-		$planeta = new planeta($_POST['id_planeta']);
-		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
-		$colonia = new colonia($id_colonia);
 		$imperio = new imperio($colonia->id_imperio);
 		
 		$instalacao = new instalacao($_POST['id_instalacao']);
