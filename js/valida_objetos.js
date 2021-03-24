@@ -517,6 +517,9 @@ function destruir_instalacao(evento, objeto) {
 			} else {
 				alert(resposta.resposta_ajax);
 			}
+		} else if (this.status == 500) {
+			console.log(this.responseText);
+			console.log(this.statusText);			
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
@@ -804,49 +807,4 @@ function valida_transfere_tech(objeto){
 	xhttp.send(dados_ajax);
 
 	return retorno;
-}
-
-
-/******************
-function atualiza_recursos_imperio(objeto) 
---------------------
-Atualiza a tabela de recursos do Império
-******************/	
-function atualiza_recursos_imperio(objeto, argumento=false) {
-	let tabela = pega_ascendente(objeto, "TABLE");
-	let tr = pega_ascendente(objeto, "TR");
-	let inputs = tr.getElementsByTagName("INPUT");
-	
-	dados = [];
-	for (let index_inputs=0; index_inputs < inputs.length; index_inputs++) {
-		if (inputs[index_inputs].getAttribute('data-atributo') != undefined) {
-			dados[inputs[index_inputs].getAttribute('data-atributo')] = inputs[index_inputs].value;
-		}
-	}
-
-	
-	var dados_ajax = "post_type=POST&action=recursos_atuais_imperio&id_imperio="+dados['id_imperio'];
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			try {
-				var resposta = JSON.parse(this.responseText);
-			} 
-			catch (err) {
-				console.log(this.responseText);
-				return false;
-			}
-			if (resposta.resposta_ajax != "OK!") {
-				alert (resposta.resposta_ajax);
-			}
-			
-			let id_recursos_atuais = "recursos_atuais_imperio_"+dados['id_imperio'];
-			let div_recursos_atuais = document.getElementById(id_recursos_atuais);
-			div_recursos_atuais.innerHTML = resposta.recursos_atuais;	
-		}
-	};
-
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
 }

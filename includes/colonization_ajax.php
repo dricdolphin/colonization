@@ -1301,18 +1301,23 @@ class colonization_ajax {
 	function destruir_instalacao() {
 		global $wpdb; 
 		$wpdb->hide_errors();
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		
+		
 		$turno = new turno();
-		$colonia_instalacao = new colonia_instalacao($_POST[id]);
-
+		$colonia_instalacao = new colonia_instalacao($_POST['id']);
+		
 		if ($colonia_instalacao->turno_destroi !== null) {
-			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST[id]}";
+			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
 		} else {
-			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = {$turno->turno} WHERE id={$_POST[id]}";
+			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = {$turno->turno} WHERE id={$_POST['id']}";
 		}
+		
 		$resposta = $wpdb->query($query);
 		
 		if ($resposta !== false) {
-			$dados_salvos = $wpdb->get_results("SELECT * FROM colonization_planeta_instalacoes WHERE id={$_POST[id]}");
+			$dados_salvos = $wpdb->get_results("SELECT * FROM colonization_planeta_instalacoes WHERE id={$_POST['id']}");
 			if ($dados_salvos[0]->turno_destroi === null) {
 				$dados_salvos[0]->turno_destroi = "";
 			}
@@ -1321,10 +1326,9 @@ class colonization_ajax {
 		} else {
 			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
 		}
-	
+
 		echo json_encode($dados_salvos); //Envia a resposta via echo
 		wp_die(); //Termina o script e envia a resposta
-
 	}	
 
 	/***********************

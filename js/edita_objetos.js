@@ -377,7 +377,7 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
+				var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
 				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 				if (typeof(funcao_pos_processamento) !== "undefined") {
 					if (resposta.pos_processamento != undefined) {

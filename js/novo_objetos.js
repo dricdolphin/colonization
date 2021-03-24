@@ -964,15 +964,14 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio
 	
 	celula_instalacao.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_planeta' data-ajax='true' data-valor-original='"+id_planeta+"' value='"+id_planeta+"'></input>"
-	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
-	+"<input type='hidden' data-atributo='id_instalacao' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia_instalacao'></input>"
 	+"<input type='hidden' data-atributo='funcao_pos_processamento' value='atualiza_recursos_imperio'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja excluir esta instalação?'></input>"
-	+"<input type='hidden' data-atributo='nivel' data-editavel='true' data-style='width: 30px;' value='1'></input>"
-	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"
+	+"<input type='hidden' data-atributo='nivel' data-editavel='true' data-ajax='true' data-style='width: 30px;' value='1'></input>"
+	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-ajax='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
 	+"<div data-atributo='custo_instalacao' class='custo_instalacao'>&nbsp;</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true,\"colonization_planeta_instalacoes\");'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";

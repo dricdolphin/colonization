@@ -65,6 +65,21 @@ class planeta
 		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno}");		
 	
 		$this->estrela = new estrela($this->id_estrela);
+
+		//Atualiza os recursos do Planeta para o Turno atual, se necessário
+		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 
+		FROM colonization_planeta_recursos AS cpr
+		WHERE cpr.id_planeta={$this->id} 
+		GROUP BY cpr.id_recurso, cpr.id_planeta");
+
+		foreach ($max_turnos as $max_turno) {
+			if ($max_turno->turno < $this->turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
+				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$this->id} AND id_recurso={$max_turno->id_recurso} AND turno={$max_turno->turno}");
+				
+				$planeta_recurso = new planeta_recurso($id_planeta_recurso);
+				$wpdb->query("INSERT INTO colonization_planeta_recursos SET turno={$this->turno->turno}, id_planeta={$this->id}, id_recurso={$max_turno->id_recurso}, disponivel={$planeta_recurso->qtd_disponivel}");					
+			}
+		}
 		
 		//Verifica se tem Instalações com Especiais
 		$id_instalacoes = $wpdb->get_results("
@@ -261,22 +276,6 @@ class planeta
 	***********************/	
 	function exibe_recursos_planeta ($exibe_icones = false) {
 		global $wpdb;
-		
-		//Atualiza os recursos da Colônia para o Turno atual, se necessário
-		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 
-		FROM colonization_planeta_recursos AS cpr
-		WHERE cpr.id_planeta={$this->id} 
-		GROUP BY cpr.id_recurso, cpr.id_planeta");
-
-		foreach ($max_turnos as $max_turno) {
-			if ($max_turno->turno < $this->turno->turno) {//Atualiza os recursos do planeta caso não esteja no Turno Atual
-				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$this->id} AND id_recurso={$max_turno->id_recurso} AND turno={$max_turno->turno}");
-				
-				$planeta_recurso = new planeta_recurso($id_planeta_recurso);
-				$wpdb->query("INSERT INTO colonization_planeta_recursos SET turno={$this->turno->turno}, id_planeta={$this->id}, id_recurso={$max_turno->id_recurso}, disponivel={$planeta_recurso->qtd_disponivel}");					
-			}
-		}
-
 
 		$ids_recursos_planeta = $wpdb->get_results("SELECT cpr.id_recurso, cpr.disponivel 
 		FROM colonization_planeta_recursos AS cpr
