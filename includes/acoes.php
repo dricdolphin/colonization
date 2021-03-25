@@ -415,12 +415,17 @@ class acoes
 	
 			if ($this->disabled != "disabled" && empty($this->turno_destroi[$chave])) {
 				//Verifica se há uma Tech para Upgrade e se o Império tem essa Tech
+				
 				$nivel_upgrade = $this->nivel_instalacao[$chave] + 1;
 				$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
 				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade}"))) {
-					$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'></i></a>";
-					$nivel_upgrade++;
-					$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
+					if ($instalacao[$this->id_instalacao[$chave]]->nivel_maximo === false || $nivel_upgrade < $instalacao[$this->id_instalacao[$chave]]->nivel_maximo) {//Não tem nível máximo, ou o nível atual é menor que o nível máximo
+						$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'></i></a>";
+						$nivel_upgrade++;
+						$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
+					} else {
+						break;
+					}
 				}
 			}
 			
@@ -560,6 +565,7 @@ class acoes
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
 		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
 
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
@@ -692,6 +698,9 @@ class acoes
 						$this->recursos_produzidos_planeta_instalacao[$id_recurso][$this->id_planeta[$chave]]++;
 					}
 				}
+				
+				//Se for uma instalação Comercial, já atualiza os valores de produção
+				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]]->id);
 				
 				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
@@ -905,6 +914,8 @@ class acoes
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Produção Total {$diferenca}ms \n";
 
+		/************
+		*** AGORA AS NAVES PRODUZEM PESQUISA AO CHEGAR NUM NOVO SISTEMA
 		//As naves podem produzir Pesquisa
 		$pesquisa_naves = 0;
 		$frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota
@@ -928,6 +939,7 @@ class acoes
 		} else {
 			$this->recursos_produzidos[$id_pesquisa] = $this->recursos_produzidos[$id_pesquisa] + $pesquisa_naves;
 		}
+		***********/
 		
 		$ids_colonia = $wpdb->get_results("SELECT id, id_planeta FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
 

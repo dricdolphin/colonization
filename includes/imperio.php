@@ -29,6 +29,7 @@ class imperio
 	public $limite_poluicao = 100;
 	public $alcance_logistica = 0;
 	public $bonus_alcance = 0;
+	public $bonus_comercio = 0;
 	public $bonus_recurso = [];
 	public $sinergia = [];
 	public $extrativo = [];
@@ -229,6 +230,18 @@ class imperio
 					$this->bonus_alcance = $bonus_alcance_valor[1];
 				}
 			}			
+
+			//Especiais -- bonus_comercio
+			$bonus_comercio = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_comercio') !== false;
+			}));
+			
+			if (!empty($bonus_comercio)) {
+				$bonus_comercio_valor = explode("=",$bonus_comercio[0]);
+				if ($this->bonus_comercio < $bonus_comercio_valor[1]) {
+					$this->bonus_comercio = $bonus_comercio_valor[1];
+				}
+			}	
 			
 			//Especiais -- bonus_logistica
 			$bonus_logistica = array_values(array_filter($especiais, function($value) {

@@ -1309,6 +1309,12 @@ class colonization_ajax {
 		
 		$turno = new turno();
 		$colonia_instalacao = new colonia_instalacao($_POST['id']);
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta}");
+		$id_imperio = 0;
+		if (!empty($id_colonia)) {
+			$colonia = new colonia($id_colonia);
+			$id_imperio = $colonia->id_imperio;
+		}
 		
 		if ($colonia_instalacao->turno_destroi !== null) {
 			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
@@ -1324,6 +1330,13 @@ class colonization_ajax {
 				$dados_salvos[0]->turno_destroi = "";
 			}
 			$dados_salvos['resposta_ajax'] = "OK!";
+			//Atualiza os balanços
+			if ($id_imperio != 0) {
+				$acoes = new acoes($id_imperio);
+				$chave_id_planeta_instalacoes = array_search($colonia_instalacao->id, $acoes->id_planeta_instalacoes);
+				$acoes->pop[$chave_id_planeta_instalacoes] = 0;
+				$this->pega_balanco_recursos($colonia_instalacao->id, true);
+			}
 			
 		} else {
 			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";

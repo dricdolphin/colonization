@@ -24,6 +24,7 @@ class instalacao
 	public $limite = 0;
 	public $nao_extrativo = false;
 	public $bonus_extrativo = 0;
+	public $nivel_maximo = false;
 	//public $bonus_recurso = false;
 	public $custos;
 	public $id_tech_requisito;
@@ -33,6 +34,8 @@ class instalacao
 	public $recursos_consome_qtd = [];
 	public $consumo_fixo = [];
 	public $consumo_fixo_qtd = [];
+	public $comercio = false;
+	public $comercio_processou = false;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -89,7 +92,20 @@ class instalacao
 			$limite_valor = explode("=",$limite[0]);
 			$this->limite = $this->limite + $limite_valor[1];
 		}
+
+		//nivel_maximo=1
+		$especiais = explode(";",$this->especiais);
+
+		$nivel_maximo = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'nivel_maximo') !== false;
+		}));
+
+		if (!empty($nivel_maximo)) {
+			$nivel_maximo_valor = explode("=",$nivel_maximo[0]);
+			$this->nivel_maximo = $nivel_maximo_valor[1];
+		}		
 		
+		//nao_extrativo
 		$nao_extrativo = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'nao_extrativo') !== false;
 		}));
@@ -108,11 +124,12 @@ class instalacao
 			$this->bonus_extrativo = $bonus_extrativo_valor[1];
 		}		
 
+
+		//consumo_fixo=11,100
 		$consumo_fixo = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'consumo_fixo') !== false;
 		}));
 
-		//consumo_fixo=11,100
 		if (!empty($consumo_fixo)) {
 			$consumo_fixo_valores = explode("=",$consumo_fixo[0]);
 			$consumo_fixo_valores = $consumo_fixo_valores[1];
@@ -134,6 +151,41 @@ class instalacao
 				$chave_consumo_fixo++;
 			}
 			
+		}	
+		
+		//comercio=1
+		$comercio = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'comercio') !== false;
+		}));
+
+		
+		if (!empty($comercio)) {//Esta é uma instalação comercial. Ela gera Pesquisa e Industrializáveis, dependendo da Pop da colônia e do número de colônias dentro do alcance
+			$this->comercio = true;
+			//O bônus base é de 0 Pesquisas e 0 Industrializáveis
+			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+			$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");
+			
+			$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
+			if ($chave_pesquisa === false) {
+				$chave_pesquisa = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_pesquisa] = $id_pesquisa;
+				$this->recursos_produz_qtd[$chave_pesquisa] = 0;
+			}
+			
+			$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
+			if ($chave_industrializaveis === false) {
+				$chave_industrializaveis = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_industrializaveis] = $id_industrializaveis;
+				$this->recursos_produz_qtd[$chave_industrializaveis] = 0;
+			}
+
+			$chave_plasma = array_search($id_plasma, $this->recursos_produz);
+			if ($chave_plasma === false) {
+				$chave_plasma = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_plasma] = $id_plasma;
+				$this->recursos_produz_qtd[$chave_plasma] = 0;
+			}
 		}	
 		
 		//custo_instalacao=70;id_instalacao=29,57
@@ -298,6 +350,74 @@ class instalacao
 		
 		return $html;
 	}
+
+	/***********************
+	function lista_dados()
+	----------------------
+	Exibe os dados do objeto
+	***********************/
+	function produz_comercio($id_colonia) {
+		global $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];	
+		}		
+
+		if (!$this->comercio || $this->comercio_processou) {//Só faz os cálculos se for uma Instalação comercial
+			return false;
+		}
+
+		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");		
+		$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");		
+
+		$colonia_atual = new colonia($id_colonia);
+		$imperio = new imperio($colonia_atual->id_imperio);
+		
+		$estrelas = [];
+		$planetas = [];
+
+		$planeta_atual = new planeta($colonia_atual->id_planeta);
+		$planetas[$planeta_atual->id] = $planeta_atual;
+		
+		$estrela_atual = new estrela($planeta_atual->id_estrela);
+		$estrelas[$estrela_atual->id] = $estrela_atual;
+		
+		$ids_colonia_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+		$bonus_comercio = $imperio->bonus_comercio;
+		foreach($ids_colonia_imperio as $ids_colonia) {
+			$colonias = new colonia($ids_colonia->id);
+			if (empty($planetas[$colonias->id_planeta])) {
+				$planetas[$colonias->id_planeta] = new planeta($colonias->id_planeta);
+			}
+			if (empty($estrelas[$planetas[$colonias->id_planeta]->id_estrela])) {
+				$estrelas[$planetas[$colonias->id_planeta]->id_estrela] = new estrela($planetas[$colonias->id_planeta]->id_estrela);
+			}			
+			
+			if ($planetas[$colonias->id_planeta]->id != $planeta_atual->id || $colonia_atual->capital) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
+				if ($estrela_atual->distancia_estrela($estrelas[$planetas[$colonias->id_planeta]->id_estrela]->id) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
+					$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+					$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+					
+					$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
+					$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
+					$chave_plasma = array_search($id_plasma, $this->recursos_produz);
+					
+					$this->recursos_produz_qtd[$chave_pesquisa]++;
+					$this->recursos_produz_qtd[$chave_industrializaveis]++;
+					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
+				}
+			}
+			
+			//TODO -- bônus para contato com outros Impérios
+		}
+		
+		$this->comercio_processou = true;		
+	}
+
+	
 }
 
 ?>
