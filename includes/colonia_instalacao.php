@@ -16,6 +16,7 @@ class colonia_instalacao
 	public $nivel;
 	public $turno;
 	public $turno_destroi;
+	public $turno_desmonta;
 	public $instalacao_inicial;
 	public $instalacao;
 	public $planeta;
@@ -26,7 +27,7 @@ class colonia_instalacao
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, instalacao_inicial, turno_destroi FROM colonization_planeta_instalacoes WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, instalacao_inicial, turno_destroi, turno_desmonta FROM colonization_planeta_instalacoes WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_planeta = $resultado->id_planeta;
@@ -35,6 +36,7 @@ class colonia_instalacao
 		$this->turno = $resultado->turno;
 		$this->instalacao_inicial = $resultado->instalacao_inicial;
 		$this->turno_destroi = $resultado->turno_destroi;
+		$this->turno_desmonta = $resultado->turno_desmonta;
 		
 		//$this->planeta = new planeta($this->id_planeta);
 		//$this->instalacao = new instalacao($this->id_instalacao);
@@ -79,7 +81,8 @@ class colonia_instalacao
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='{$this->instalacao_inicial}'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' {$instalacao_inicial_checked} disabled></input></div></td>			
-			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi} data-style='width: 30px;'>{$this->turno_destroi}</div></td>
+			<td><div data-atributo='turno_desmonta' data-style='width: 50px;' data-editavel='true' data-valor-original='{$this->turno_desmonta}' data-branco='true'>{$this->turno_desmonta}</div></td>
+			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi}' data-style='width: 30px;'>{$this->turno_destroi}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return destruir_instalacao(event, this);'>{$texto_destruir}</a></div></td>";
 		
 		return $html;

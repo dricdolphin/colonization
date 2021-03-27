@@ -96,8 +96,19 @@ function cancela_edicao(evento, objeto) {
 	var tabela_objetos = pega_ascendente(objeto,"TABLE");
 	var linha = pega_ascendente(objeto,"TR");
 	//tabela_objetos.deleteRow(-1);
+	linha_acima = linha.previousElementSibling;
+	do {
+		//console.log(linha_acima.cells[0].rowSpan);
+		if (linha_acima.cells[0].rowSpan > 1) {
+			if (linha_acima.getAttribute('data-atributo') == "dados_colonia") {
+				linha_acima.cells[0].rowSpan = linha_acima.cells[0].rowSpan - 1;
+			}
+			break;
+		}
+		linha_acima = linha_acima.previousElementSibling
+	} while(linha_acima != null)
+
 	linha.parentNode.removeChild(linha);
-	
 	evento.preventDefault();
 	return false;
 }

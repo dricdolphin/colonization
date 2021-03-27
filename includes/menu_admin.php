@@ -408,7 +408,7 @@ class menu_admin {
 			<div><h3>Instalações do Planeta - Máximo de {$max_instalacoes}</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
-			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
+			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Desmonta</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -866,7 +866,7 @@ class menu_admin {
 			<div><h3>Instalações do Planeta - {$planeta->instalacoes}/{$planeta->tamanho} slots</h3>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
-			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
+			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Desmonta</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>

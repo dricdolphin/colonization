@@ -126,7 +126,7 @@ class estrela
 	-----------
 	Retorna o HTML de todos os planetas que estão em uma estrela
 	******************/	
-	function pega_html_planetas_estrela($detalhes_planetas = true, $exibe_recursos_planetas=false) {
+	function pega_html_planetas_estrela($detalhes_planetas = true, $exibe_recursos_planetas=false, $turno_visitado=0) {
 		global $wpdb;
 		
 		//Pega os planetas que orbitam a estrela
@@ -136,16 +136,24 @@ class estrela
 		ORDER BY cp.posicao, cp.id
 		");
 
+		$turno = new turno($turno_visitado);
 		$html_planetas = "<div class='lista_planetas'>";
 		foreach ($ids_planetas_estrela as $id_planeta) {
-			$planeta = new planeta($id_planeta->id);
+			$planeta = new planeta($id_planeta->id, $turno->turno);
+			$icone_colonia = "";
 			
 			if ($planeta->classe == "Lua") {
 				$planeta->icone_habitavel = "<div class='fas fa-moon tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Lua</span></div>";;
 			} elseif ($planeta->classe == "Gigante Gasoso") {
 				$planeta->icone_habitavel = "<div class='fas fa-planet-ringed tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Gigante Gasoso</span></div>";
 			}
-			$html_planetas .= "{$planeta->posicao}-{$planeta->icone_habitavel}{$planeta->nome}"; 
+
+			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
+			if (!empty($id_colonia)) {
+				$icone_colonia = "<div class='far fa-flag tooltip' style='font-size: 0.85em; top: -0.3em; right: -0.2em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado</span></div>";;;
+			}
+			
+			$html_planetas .= "{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$planeta->nome}"; 
 			if ($detalhes_planetas) {
 				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho})";
 			}

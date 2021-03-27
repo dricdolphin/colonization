@@ -481,7 +481,7 @@ class lista_instalacoes
 			$index++;
 		}		
 		
-		$this->html_lista = 
+		$this->html_lista .= 
 "		/******************
 		function lista_instalacoes_ocultas_html(id=0)
 		--------------------

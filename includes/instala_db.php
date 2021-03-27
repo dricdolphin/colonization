@@ -123,6 +123,7 @@ class instala_db {
 		nivel INT(6) NOT NULL,
 		turno INT(6) NOT NULL,
 		turno_destroi INT(6) DEFAULT NULL,
+		turno_desmonta INT(6) DEFAULT NULL,
 		instalacao_inicial BOOLEAN DEFAULT FALSE
 		)");
 
@@ -432,6 +433,26 @@ class instala_db {
 		DELETE FROM colonization_lista_colonias_turno WHERE turno = old.id;
 		DELETE FROM colonization_acoes_admin WHERE turno = old.id;
 		DELETE FROM colonization_missao WHERE turno = old.id;
+		END$$
+		DELIMITER ;");
+		
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER insere_colonia
+		AFTER INSERT
+		ON colonization_imperio_colonias FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_balancos_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
+		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
+		END$$
+		DELIMITER ;");
+
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER atualiza_colonia
+		AFTER UPDATE
+		ON colonization_imperio_colonias FOR EACH ROW
+		BEGIN
+		DELETE FROM colonization_balancos_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
+		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
 		END$$
 		DELIMITER ;");
 		

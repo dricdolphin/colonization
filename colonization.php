@@ -69,7 +69,7 @@ class colonization {
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
-		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe o mapa com a posição das naves
 		add_shortcode('colonization_exibe_dados_estrelas',array($this,'colonization_exibe_dados_estrelas')); //Exibe os dados de uma estrela ou de todas as estrelas que um Jogador já visitou
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
 		
@@ -359,7 +359,7 @@ class colonization {
 			
 			//descricao_html = str_ireplace("{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})","",$estrela->descricao);
 			$descricao_html = $estrela->descricao;
-			$planetas_html = $estrela->pega_html_planetas_estrela();
+			$planetas_html = $estrela->pega_html_planetas_estrela(true, false, $turno_visita);
 			$html .= "<div class='par_impar' style='margin-bottom: 5px;'>
 			<div class='nome_estrela'>{$html_pesquisa_nave}<b>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})</b> {$nomes_imperios}</div>
 			<div class='descricao_estrela'>{$descricao_html}</div>

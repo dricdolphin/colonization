@@ -446,7 +446,11 @@ function valida_colonia_instalacao(objeto) {
 	}
 
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" || (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof(id_instalacao) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "nivel" ||inputs_linha[index].getAttribute('data-atributo') == "id_planeta" 
+		|| (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof(id_instalacao) === "undefined") 
+		|| inputs_linha[index].getAttribute('data-atributo') == "id"
+		|| inputs_linha[index].getAttribute('data-atributo') == "instalacao_inicial"
+		) {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -476,160 +480,6 @@ function valida_colonia_instalacao(objeto) {
 	xhttp.send(dados_ajax);
 
 	return retorno;
-}
-
-/******************
-function destruir_instalacao(evento, objeto)
---------------------
-Função para chamar o AJAX de destruir instalação
-objeto -- objeto sendo editado
-******************/
-function destruir_instalacao(evento, objeto) {
-	var linha=pega_ascendente(objeto,"TR");
-	var inputs=linha.getElementsByTagName("INPUT");
-	var dados_ajax = "post_type=POST&action=destruir_instalacao";
-
-	
-	for (let index = 0; index < inputs.length; index++) {
-		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
-		}
-	}
-	
-	dados_ajax = dados_ajax + "&id=" + id_objeto;
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			objeto_em_edicao = false;
-		}
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			if (resposta.resposta_ajax == "OK!") {
-				if (resposta[0].turno_destroi != "") {
-					objeto.text = "Reparar Instalação";
-				} else {
-					objeto.text = "Destruir Instalação";
-					resposta[0].turno_destroi = "&nbsp;";
-				}
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-			} else {
-				alert(resposta.resposta_ajax);
-			}
-		} else if (this.status == 500) {
-			console.log(this.responseText);
-			console.log(this.statusText);			
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-	objeto_em_edicao = true;
-	
-	evento.preventDefault();
-	return false;
-}
-
-/******************
-function remove_excluir(objeto) 
---------------------
-Remove a opção de excluir um objeto
-objeto -- objeto sendo editado
-******************/	
-function remove_excluir(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	
-	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
-	var celula = linha.cells[0]
-	var divs = celula.getElementsByTagName("DIV");
-	divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>";
-}
-
-/******************
-function mais_dados_imperio(objeto) 
---------------------
-Pega dados adicionais do Império
-objeto -- objeto sendo editado
-******************/	
-function mais_dados_imperio(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var dados_ajax = "post_type=POST&action=dados_imperio";
-
-	
-	for (let index = 0; index < inputs.length; index++) {
-		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
-		}
-	}
-	
-	dados_ajax = dados_ajax + "&id=" + id_objeto;
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			objeto_em_edicao = false;
-		}
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			if (resposta.resposta_ajax == "OK!") {
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-			} else {
-				alert(resposta.resposta_ajax);
-			}
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-}
-
-/******************
-function altera_imperio_colonia(objeto) 
---------------------
-Altera a colônia para outro Império
-objeto -- objeto sendo editado
-******************/	
-function altera_imperio_colonia(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	var tabela = pega_ascendente(objeto,"TABLE");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var selects = linha.getElementsByTagName("SELECT");
-	var divs = linha.getElementsByTagName("DIV");
-
-	for (let index=0; index<divs.length; index++) {
-		if (divs[index].getAttribute('data-atributo') == "nome_imperio") {
-			if (divs[index].getAttribute('data-id-selecionado') != tabela.getAttribute('data-id-imperio')) { //Mudou de Império!
-				let id_novo_imperio = divs[index].getAttribute('data-id-selecionado');
-				let id_antigo_imperio = tabela.getAttribute('data-id-imperio');
-				let tabela_novo_imperio = document.getElementsByTagName('TABLE');
-			
-				//Determina qual tabela (ou seja, qual Império) está sendo editado
-				for (let index_tabelas = 0; index_tabelas < tabela_novo_imperio.length; index_tabelas++) {
-					if (tabela_novo_imperio[index_tabelas].getAttribute('data-id-imperio') == id_novo_imperio) {
-						tabela_novo_imperio = tabela_novo_imperio[index_tabelas];
-						break;
-					}
-				}
-				
-				//Primeiro verifica se está indo de um NPC para um PC. Nese caso tem que alterar a estrutura da linha
-				if (id_novo_imperio == 0) {
-					linha.insertCell(1);
-				} else if (id_antigo_imperio == 0) {
-					linha.deleteCell(1);
-				}
-				
-				//Copia a linha para a tabela do novo Império
-				let linha_nova = tabela_novo_imperio.insertRow(-1);
-				linha_nova.innerHTML = linha.innerHTML;
-				
-				//E remove da tabela antiga
-				linha.parentNode.removeChild(linha);
-			}
-		}
-	}
 }
 
 

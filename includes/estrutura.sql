@@ -107,6 +107,7 @@ id_instalacao INT(6) NOT NULL,
 nivel INT(6) NOT NULL,
 turno INT(6) NOT NULL,
 turno_destroi INT(6) DEFAULT NULL,
+turno_desmonta INT(6) DEFAULT NULL,
 instalacao_inicial BOOLEAN DEFAULT FALSE
 )
 

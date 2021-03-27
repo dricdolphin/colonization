@@ -18,6 +18,7 @@ class acoes
 	public $id_instalacao = [];
 	public $id_planeta_instalacoes = [];
 	public $nivel_instalacao = [];
+	public $turno_desmonta = [];
 	public $turno_destroi = [];
 	public $pop = [];
 	public $desativado = [];
@@ -77,6 +78,7 @@ class acoes
 			$resultados_temp = $wpdb->get_results("
 				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
+				cpi.turno_desmonta AS turno_desmonta,
 				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
 				FROM colonization_imperio_colonias AS cic 
 				JOIN colonization_planeta_instalacoes AS cpi
@@ -118,6 +120,7 @@ class acoes
 				$this->pop[$chave] = 0;
 				$this->desativado[$chave] = 0;
 				$this->turno_destroi[$chave] = "";
+				$this->turno_desmonta[$chave] = "";
 				$this->data_modifica[$chave] = $this->turno->data_turno;
 				
 			} else {
@@ -129,7 +132,8 @@ class acoes
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = $valor->pop;
 				$this->desativado[$chave] = $valor->desativado;
-				$this->turno_destroi[$chave] = $valor->turno_destroi;
+				$this->turno_destroi[$chave] = "";
+				$this->turno_desmonta[$chave] = $valor->turno_desmonta;
 				$this->data_modifica[$chave] = $valor->data_modifica;
 				
 				$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno > {$this->turno->turno}");
@@ -137,11 +141,14 @@ class acoes
 					$this->nivel_instalacao[$chave] = $wpdb->get_var("SELECT nivel_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
 					$this->id_instalacao[$chave] = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]} AND turno = {$turno_upgrade}");
 				}
-			}
-			if (!empty($valor->turno_destroi)) {
-				$this->pop[$chave] = 0;
-			}
 
+				if ($valor->turno_destroi <= $this->turno->turno) {
+					$this->turno_destroi[$chave] = $valor->turno_destroi;
+					if (!empty($valor->turno_destroi)) {
+						$this->pop[$chave] = 0;
+					}
+				}
+			}
 			$chave++;
 		}
 
@@ -349,16 +356,15 @@ class acoes
 			}
 		}
 
-		
-		
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
 			}
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 
-			if ($instalacao[$this->id_instalacao[$chave]]->oculta != 0) {
-				continue; //Caso seja uma instalação oculta, deve pular
+			
+			if ($instalacao[$this->id_instalacao[$chave]]->oculta != 0 || ($this->turno_desmonta[$chave] <= $this->turno->turno && !empty($this->turno_desmonta[$chave]))) {
+				continue; //Caso seja uma instalação oculta ou se tiver sido desmontada, deve pular
 			}
 			
 			
@@ -394,7 +400,7 @@ class acoes
 				
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				
-				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}'>
+				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia'>
 				<div data-atributo='nome_planeta'>
 					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
 					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>

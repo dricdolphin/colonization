@@ -61,7 +61,9 @@ class colonia
 		JOIN colonization_instalacao AS ci
 		ON ci.id = cpi.id_instalacao
 		WHERE cpi.id_planeta={$this->id_planeta}
-		AND cpi.turno <={$this->turno->turno}");
+		AND cpi.turno <={$this->turno->turno}
+		AND (cpi.turno_desmonta IS NULL OR cpi.turno_desmonta=0 OR cpi.turno_desmonta > {$this->turno->turno})
+		");
 		
 		$this->num_instalacoes = $wpdb->get_var("SELECT COUNT(cpi.id) 
 		FROM colonization_planeta_instalacoes AS cpi
@@ -69,6 +71,7 @@ class colonia
 		ON ci.id = cpi.id_instalacao
 		WHERE cpi.id_planeta={$this->id_planeta}
 		AND cpi.turno <={$this->turno->turno}
+		AND (cpi.turno_desmonta IS NULL OR cpi.turno_desmonta=0 OR cpi.turno_desmonta > {$this->turno->turno})
 		AND ci.oculta = false
 		");		
 		

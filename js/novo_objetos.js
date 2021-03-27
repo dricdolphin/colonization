@@ -729,6 +729,7 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	var turno = linha_nova.insertCell(-1);
 	var instalacao_inicial = linha_nova.insertCell(-1);
 	var turno_destroi = linha_nova.insertCell(-1);
+	var turno_desmonta = linha_nova.insertCell(-1);
 	var gerencia = linha_nova.insertCell(-1);
 	
 	var lista_instalacao = lista_instalacoes_html();
@@ -746,6 +747,7 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	nivel.innerHTML = "<div data-atributo='nivel' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='nivel' data-ajax='true' style='width: 30px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
+	turno_desmonta.innerHTML = "<div data-atributo='turno_desmonta' data-style='width: 50px;' data-editavel='true' data-valor-original='' data-branco='true'><input type='text' data-atributo='turno_desmonta' data-ajax='true' style='width: 30px;'></input></div>";
 	instalacao_inicial.innerHTML = "<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' value='1'></input></div></td>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>";
 

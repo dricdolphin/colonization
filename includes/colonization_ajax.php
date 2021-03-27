@@ -239,9 +239,9 @@ class colonization_ajax {
 	}
 
 	/***********************
-	function processa_viagem_nave ()
+	function envia_nave ()
 	----------------------
-	Processa uma viagem
+	Despacha uma nave
 	***********************/	
 	function envia_nave() {
 		global $wpdb;
@@ -324,7 +324,7 @@ class colonization_ajax {
 				
 				//Pega os recursos desconhecidos
 				$id_recursos_desconhecidos = $wpdb->get_results("
-				SELECT cir.id_recurso FROM colonization_imperio_recursos AS cir
+				SELECT DISTINCT cir.id_recurso FROM colonization_imperio_recursos AS cir
 				JOIN colonization_planeta AS cp
 				ON cp.id_estrela={$estrela->id}
 				JOIN colonization_planeta_recursos AS cpr
@@ -345,6 +345,7 @@ class colonization_ajax {
 				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}");
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
+					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
 				}
 			}
 			
@@ -1134,6 +1135,7 @@ class colonization_ajax {
 						if (empty($recursos_devolve[$id_recurso])) {
 							$recursos_devolve[$id_recurso] = 0;
 						}
+						$dados_salvos['debug'] .= "ID:{$_POST['id']} instalacao_inicial:{$_POST['instalacao_inicial']}";
 						if (!($_POST['id'] == "" && $_POST['instalacao_inicial'] == 1)) {//Uma instalação inicial é gratuita, desde que esteja sendo criada.
 							$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
 							$custo_recursos = $qtd*$niveis;
@@ -1302,15 +1304,16 @@ class colonization_ajax {
 	***********************/	
 	function destruir_instalacao() {
 		global $wpdb; 
-		$wpdb->hide_errors();
+		//$wpdb->hide_errors();
 		// Report all PHP errors
-		//error_reporting(E_ALL);
+		error_reporting(E_ALL);
 		
 		
 		$turno = new turno();
 		$colonia_instalacao = new colonia_instalacao($_POST['id']);
-		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta}");
+		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta} AND turno={$turno->turno}");
 		$id_imperio = 0;
+		
 		if (!empty($id_colonia)) {
 			$colonia = new colonia($id_colonia);
 			$id_imperio = $colonia->id_imperio;
@@ -1322,6 +1325,19 @@ class colonization_ajax {
 			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = {$turno->turno} WHERE id={$_POST['id']}";
 		}
 		
+		//Atualiza os balanços
+		if ($id_imperio != 0) {
+			$acoes = new acoes($id_imperio);
+			$chave_id_planeta_instalacoes = array_search($colonia_instalacao->id, $acoes->id_planeta_instalacoes);
+			$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id={$acoes->id[$chave_id_planeta_instalacoes]}");
+			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
+			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
+			$imperio = new imperio($id_imperio);
+			$imperio->acoes = $acoes;
+			$colonias[0] = $id_colonia;
+			$colonias[1] = 0;
+			$imperio->exibe_lista_colonias($colonias);
+		}
 		$resposta = $wpdb->query($query);
 		
 		if ($resposta !== false) {
@@ -1330,18 +1346,11 @@ class colonization_ajax {
 				$dados_salvos[0]->turno_destroi = "";
 			}
 			$dados_salvos['resposta_ajax'] = "OK!";
-			//Atualiza os balanços
-			if ($id_imperio != 0) {
-				$acoes = new acoes($id_imperio);
-				$chave_id_planeta_instalacoes = array_search($colonia_instalacao->id, $acoes->id_planeta_instalacoes);
-				$acoes->pop[$chave_id_planeta_instalacoes] = 0;
-				$this->pega_balanco_recursos($colonia_instalacao->id, true);
-			}
-			
 		} else {
 			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
 		}
-
+		
+		$dados_salvos['debug'] = "{$id_colonia}";
 		echo json_encode($dados_salvos); //Envia a resposta via echo
 		wp_die(); //Termina o script e envia a resposta
 	}	
