@@ -373,6 +373,10 @@ class instalacao
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");		
 		$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");		
 
+		$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
+		$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
+		$chave_plasma = array_search($id_plasma, $this->recursos_produz);
+
 		$colonia_atual = new colonia($id_colonia);
 		$imperio = new imperio($colonia_atual->id_imperio);
 		
@@ -398,13 +402,6 @@ class instalacao
 			
 			if ($planetas[$colonias->id_planeta]->id != $planeta_atual->id || $colonia_atual->capital) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
 				if ($estrela_atual->distancia_estrela($estrelas[$planetas[$colonias->id_planeta]->id_estrela]->id) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
-					$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-					$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
-					
-					$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
-					$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
-					$chave_plasma = array_search($id_plasma, $this->recursos_produz);
-					
 					$this->recursos_produz_qtd[$chave_pesquisa]++;
 					$this->recursos_produz_qtd[$chave_industrializaveis]++;
 					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
@@ -412,6 +409,18 @@ class instalacao
 			}
 			
 			//TODO -- bônus para contato com outros Impérios
+			$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
+			foreach ($ids_imperios_contato as $imperios_contato) {
+				//TODO -- no futuro pode haver bloqueios comerciais
+				$this->recursos_produz_qtd[$chave_pesquisa]++;
+				$this->recursos_produz_qtd[$chave_industrializaveis]++;
+				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
+				if ($imperios_contato->acordo_comercial == 1) {
+					$this->recursos_produz_qtd[$chave_pesquisa]++;
+					$this->recursos_produz_qtd[$chave_industrializaveis]++;
+					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;					
+				}
+			}
 		}
 		
 		$this->comercio_processou = true;		

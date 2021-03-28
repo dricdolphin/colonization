@@ -664,6 +664,7 @@ class colonization_ajax {
 		//$dados_salvos['debug'] .= $resposta;
 		
 		$imperio = new imperio($_POST['id_imperio']);
+		$turno = $imperio->turno;
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
@@ -683,9 +684,15 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "É necessário realizar o PRIMEIRO CONTATO antes de subir o nível das relações diplomáticas!";
 			} else {
 				$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_imperio={$_POST['id_imperio']}, id_imperio_contato={$_POST['id_imperio_contato']}, nome_npc='{$_POST['nome_npc']}', acordo_comercial=false");
+				//Reseta os dados do JSON
+				$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
+				$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
 			}
 		} else {//Temos que atualizar, pois é uma mudança de acordo_comercial (ou outra variável futura)
 			$resposta = $wpdb->query("UPDATE {$_POST['tabela']} SET acordo_comercial={$_POST['acordo_comercial']} WHERE id={$resposta}");
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
 		}
 
 		if ($dados_salvos['resposta_ajax'] == "") {
