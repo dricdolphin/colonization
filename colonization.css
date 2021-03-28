@@ -493,7 +493,13 @@ tr.th_linha_1 th {
 
 .titulo_imperio {
 	font-weight: bold;
-	font-size: 1.5em;
+	font-size: 1.2em;
+}
+
+.titulo_diplomacia {
+	font-weight: bold;
+	font-size: 1em;
+	text-decoration: underline;
 }
 
 .subtitulo {

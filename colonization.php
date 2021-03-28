@@ -71,6 +71,7 @@ class colonization {
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
 		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe o mapa com a posição das naves
 		add_shortcode('colonization_exibe_dados_estrelas',array($this,'colonization_exibe_dados_estrelas')); //Exibe os dados de uma estrela ou de todas as estrelas que um Jogador já visitou
+		add_shortcode('colonization_exibe_diplomacia',array($this,'colonization_exibe_diplomacia')); //Exibe as condições diplomáticas do Império
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
 		
 		
@@ -131,8 +132,8 @@ class colonization {
 				echo "<div class='icone_topico'><i class='fad fa-radar' style='font-size: 32px; color: #a2a2a2;'></i></div>";
 			}
 
-			if ($asgarosforum->content->get_topic_title($topic_id) == "Autorização de Reabastecimento") {
-				echo "<div class='icone_topico'><i class='fas fa-gas-pump' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Diplomacia e Pontos de Reabastecimento") {
+				echo "<div class='icone_topico'><i class='far fa-handshake' style='font-size: 32px; color: #a2a2a2;'></i></div>";
 			}
 
 			if ($asgarosforum->content->get_topic_title($topic_id) == "Dados do Império") {
@@ -2028,6 +2029,63 @@ var id_imperio_atual = {$imperio->id};
 		
 		$html = $html_lista;
 
+		return $html;
+	}
+
+	/***********************
+	function colonization_exibe_diplomacia($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_diplomacia]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_diplomacia($atts = [], $content = null) {
+		global $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		} else {
+			$imperio = new imperio();
+		}
+
+		$ids_diplomacia = $wpdb->get_results("SELECT id_imperio, id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
+		
+		if ($roles == "administrator" && $imperio->id == 0) {
+			$ids_diplomacia = $wpdb->get_results("SELECT id_imperio, id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia ORDER BY id_imperio");
+		}
+		
+		$html = "<div class='titulo_diplomacia'>Situação Diplomática</div>";
+		$id_imperio_anterior = $imperio->id;
+		//$html .= "\n<div class='titulo_imperio'>{$imperio->nome}</div>";
+		foreach ($ids_diplomacia as $id_diplomacia) {
+			if ($id_imperio_anterior != $id_diplomacia->id_imperio && $roles == "administrator") {
+				$id_imperio_anterior = $id_diplomacia->id_imperio;
+				$imperio = new imperio($id_diplomacia->id_imperio);
+				$html .= "\n<div class='titulo_imperio'>{$imperio->nome}</div>";
+			}
+			
+			$imperio_contato = new imperio($id_diplomacia->id_imperio_contato, true);
+			$acordo_comercial = "";
+			if ($id_diplomacia->id_imperio_contato == 0) {
+				$imperio_contato->nome = $id_diplomacia->nome_npc;
+			}
+			
+			if ($id_diplomacia->acordo_comercial == 1) {
+				$acordo_comercial = "; Acordo Comercial";
+			}
+			
+			$html .= "\n<div class='imperio_contato'><span style='subtitulo'>{$imperio_contato->nome}</span>: Primeiro Contato</div>";
+		}
+		
 		return $html;
 	}
 	
