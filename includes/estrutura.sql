@@ -263,6 +263,16 @@ json_balancos TEXT NOT NULL,
 turno INT(6) NOT NULL
 )
 
+--Tabela com os contatos diplomáticos
+CREATE TABLE colonization_diplomacia (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) NOT NULL,
+id_imperio_contato INT(6) NOT NULL,
+nome_npc VARCHAR(255) DEFAULT '',
+acordo_comercial BOOLEAN DEFAULT FALSE,
+turno INT(6) NOT NULL
+)
+
 --Tabela com as ações do Admin
 CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

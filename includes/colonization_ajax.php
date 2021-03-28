@@ -41,6 +41,7 @@ class colonization_ajax {
 		add_action('wp_ajax_ids_recursos_extrativos', array ($this, 'ids_recursos_extrativos'));//Retorna com todos os recursos extrativos formatados em JSON
 		add_action('wp_ajax_lista_instalacoes_imperio', array ($this, 'lista_instalacoes_imperio'));//Retorna uma lista com todas as Instalações que o Império pode construir
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
+		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 	}
 
 
@@ -648,6 +649,52 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 
+
+	/***********************
+	function valida_diplomacia()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
+	function salva_diplomacia() {
+		global $wpdb; 
+		$wpdb->hide_errors();
+
+		$resposta = $wpdb->get_var("SELECT id FROM {$_POST['tabela']} WHERE id_imperio={$_POST['id_imperio']} AND id_imperio_contato={$_POST['id_imperio_contato']} AND nome_npc='{$_POST['nome_npc']}'");
+		//$dados_salvos['debug'] = "SELECT id FROM {$_POST['tabela']} WHERE id_imperio={$_POST['id_imperio']} AND id_imperio_contato={$_POST['id_imperio_contato']} AND nome_npc='{$_POST['nome_npc']}' \n";
+		//$dados_salvos['debug'] .= $resposta;
+		
+		$imperio = new imperio($_POST['id_imperio']);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$dados_salvos['resposta_ajax'] = "";
+		
+		if ($roles != "administrator" && $_POST['id_imperio'] != $imperio->id) {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die();
+		}
+		
+		if (empty($resposta)) {//Não existe o ponto, pode adicionar
+			if ($_POST['acordo_comercial'] == 1) {
+				$dados_salvos['resposta_ajax'] = "É necessário realizar o PRIMEIRO CONTATO antes de subir o nível das relações diplomáticas!";
+			} else {
+				$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_imperio={$_POST['id_imperio']}, id_imperio_contato={$_POST['id_imperio_contato']}, nome_npc='{$_POST['nome_npc']}', acordo_comercial=false");
+			}
+		} else {//Temos que atualizar, pois é uma mudança de acordo_comercial (ou outra variável futura)
+			$resposta = $wpdb->query("UPDATE {$_POST['tabela']} SET acordo_comercial={$_POST['acordo_comercial']} WHERE id={$resposta}");
+		}
+
+		if ($dados_salvos['resposta_ajax'] == "") {
+			$dados_salvos['resposta_ajax'] = "OK!";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
 
 	/***********************
 	function valida_reabastecimento()

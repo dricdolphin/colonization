@@ -29,18 +29,19 @@ class menu_admin {
 		add_menu_page('Colonization','Colonization','publish_pages','colonization_admin_menu',array($this,'colonization_admin_configura'),'none');
 		add_submenu_page('colonization_admin_menu','Configuração','Configuração','publish_pages','colonization_admin_menu',array($this,'colonization_admin_configura'));
 		add_submenu_page('colonization_admin_menu','Impérios','Impérios','publish_pages','colonization_admin_imperios',array($this,'colonization_admin_imperios'));
+		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','publish_pages','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
+		add_submenu_page('colonization_admin_menu','Missões','Missões','publish_pages','colonization_admin_missoes',array($this,'colonization_admin_missoes'));
+		add_submenu_page('colonization_admin_menu','Frotas','Frotas','publish_pages','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
+		add_submenu_page('colonization_admin_menu','Diplomacia','Diplomacia','publish_pages','colonization_admin_diplomacia',array($this,'colonization_admin_diplomacia'));
+		add_submenu_page('colonization_admin_menu','Reabastecimentos','Reabastecimentos','publish_pages','colonization_admin_reabastece_imperio',array($this,'colonization_admin_reabastece_imperio'));
 		add_submenu_page('colonization_admin_menu','Estrelas','Estrelas','publish_pages','colonization_admin_estrelas',array($this,'colonization_admin_estrelas'));
 		add_submenu_page('colonization_admin_menu','Estrelas Visitadas','Estrelas Visitadas','publish_pages','colonization_admin_estrelas_visitadas',array($this,'colonization_admin_estrelas_visitadas'));		
-		add_submenu_page('colonization_admin_menu','Planetas','Planetas','publish_pages','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Recursos','Recursos','publish_pages','colonization_admin_recursos',array($this,'colonization_admin_recursos'));
 		add_submenu_page('colonization_admin_menu','Techs','Techs','publish_pages','colonization_admin_techs',array($this,'colonization_admin_techs'));		
 		add_submenu_page('colonization_admin_menu','Instalações','Instalações','publish_pages','colonization_admin_instalacoes',array($this,'colonization_admin_instalacoes'));
+		add_submenu_page('colonization_admin_menu','Planetas','Planetas','publish_pages','colonization_admin_planetas',array($this,'colonization_admin_planetas'));
 		add_submenu_page('colonization_admin_menu','Colônias','Colônias','publish_pages','colonization_admin_colonias',array($this,'colonization_admin_colonias'));
-		add_submenu_page('colonization_admin_menu','Frotas','Frotas','publish_pages','colonization_admin_frotas',array($this,'colonization_admin_frotas'));
-		add_submenu_page('colonization_admin_menu','Reabastecimentos','Reabastecimentos','publish_pages','colonization_admin_reabastece_imperio',array($this,'colonization_admin_reabastece_imperio'));
 		add_submenu_page('colonization_admin_menu','Ações','Ações','publish_pages','colonization_admin_acoes',array($this,'colonization_admin_acoes'));
-		add_submenu_page('colonization_admin_menu','Ações do Admin','Ações do Admin','publish_pages','colonization_admin_acoes_admin',array($this,'colonization_admin_acoes_admin'));
-		add_submenu_page('colonization_admin_menu','Missões','Missões','publish_pages','colonization_admin_missoes',array($this,'colonization_admin_missoes'));
 		add_submenu_page('colonization_admin_menu','Roda Turno','Roda Turno','publish_pages','colonization_admin_roda_turno',array($this,'colonization_admin_roda_turno'));
 		add_action( 'admin_bar_menu', array($this,'add_link_forum_admin_bar'),999 ); //Adiciona um link para o Fórum
 	}
@@ -569,7 +570,106 @@ class menu_admin {
 		echo $html;
 	}
 
+	//colonization_admin_diplomacia
+	/******************
+	function colonization_admin_diplomacia()
+	-----------
+	Exibe o sistema de Diplomacia
+	******************/
+	function colonization_admin_diplomacia() {
+		global $plugin_colonization, $wpdb;
+		
 
+		$html = $this->html_header;
+		
+		$imperios = [];
+		$imperios_contato = [];
+		
+		$ids_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		foreach ($ids_imperios as $ids_imperio) {
+			$imperios[] = new imperio($ids_imperio->id, true);
+		}
+		
+		$imperios_contato = $imperios;
+		
+		$nomes_npcs = $wpdb->get_results("SELECT DISTINCT nome_npc FROM colonization_imperio_colonias WHERE nome_npc != ''");
+		foreach ($nomes_npcs as $nome_npcs) {
+			$imperios_contato[] = new imperio(0, true);
+			$ultimo_index = count($imperios_contato)-1;
+			$imperios_contato[$ultimo_index]->nome = $nome_npcs->nome_npc;
+		}
+
+		$html .= "<div><h2>COLONIZATION - Diplomacia</h2></div>
+		<div>
+		";
+		
+		$html_contato_imperio = [];
+		$html_comercio_imperio = [];
+		foreach ($imperios as $chave_atual => $imperio_atual) {
+			$html_lista_contato_imperios = "";
+			$html_lista_comercio_imperios = "";
+			$html_contato_imperio[$chave_atual] = "<div data-atributo='lista_imperios_contato' class='lista_imperios_contato par_impar' data-tabela='colonization_diplomacia'>
+			<div class='titulo_imperio'>Império {$imperio_atual->nome}</div>
+			<div class='subtitulo'>Primeiro Contato</div>
+			";
+			
+			$html_comercio_imperio[$chave_atual] = "<div data-atributo='lista_imperios_contato' class='lista_imperios_contato par_impar' data-tabela='colonization_diplomacia'>
+			<div class='titulo_imperio'>Império {$imperio_atual->nome}</div>
+			<div class='subtitulo'>Acordo Comercial</div>
+			";
+			
+			foreach ($imperios_contato as $chave_contato => $imperio_contato) {
+				if ($imperio_contato->id == $imperio_atual->id) {
+					continue;
+				}
+				$nome_npc = "";
+				$texto_npc = "";
+				if ($imperio_contato->id == 0) {
+					$nome_npc = $imperio_contato->nome;
+					$texto_npc = "NPC: ";
+				}
+				
+				$encontro = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$imperio_atual->id} AND id_imperio_contato={$imperio_contato->id} AND nome_npc='{$nome_npc}'");
+				$comercio = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$imperio_atual->id} AND id_imperio_contato={$imperio_contato->id} AND nome_npc='{$nome_npc}' and acordo_comercial=true");
+				
+				$encontro_checked = "";
+				$encontro_disabled = "";
+				if (!empty($encontro)) {
+					$encontro_checked = "checked";
+					$encontro_disabled = "disabled";
+				}
+
+				$comercio_checked = "";
+				if (!empty($comercio)) {
+					$comercio_checked = "checked";
+				}
+				
+				$html_lista_contato_imperios .= "<input type='checkbox' onchange='return salva_diplomacia(event, this,{$imperio_atual->id},{$imperio_contato->id},\"{$nome_npc}\",\"encontro\");' {$encontro_checked} {$encontro_disabled}></input><label>{$texto_npc}{$imperio_contato->nome}</label><br>\n";
+				$html_lista_comercio_imperios .= "<input type='checkbox' onchange='return salva_diplomacia(event, this,{$imperio_atual->id},{$imperio_contato->id},\"{$nome_npc}\",\"acordo_comercial\");' {$comercio_checked}></input><label>{$texto_npc}{$imperio_contato->nome}</label><br>\n";
+			}
+			
+			$html_contato_imperio[$chave_atual] .= $html_lista_contato_imperios;
+			$html_contato_imperio[$chave_atual] .= "</div>";
+			
+			$html_comercio_imperio[$chave_atual] .= $html_lista_comercio_imperios;
+			$html_comercio_imperio[$chave_atual] .= "</div>";
+		}
+		
+
+		foreach ($html_contato_imperio as $chave => $valor) {
+			$html .= $valor;
+		}
+
+		$html .= "<hr>";
+		
+		foreach ($html_comercio_imperio as $chave => $valor) {
+			$html .= $valor;
+		}
+		
+		$html .= "</div>";
+		
+		echo $html;
+	}
 
 	
 	/******************

@@ -670,7 +670,7 @@ function popula_selects_estrelas_frotas() {
 			let reabastece = true;
 			let estrela_atual = id_estrela_atual[index]
 			let estrelas_destino = array_estrelas(alcance_nave,alcance_estendido,reabastece,estrela_atual);
-			console.log('Index: '+index+'; '+estrela_atual);
+			//console.log('Index: '+index+'; '+estrela_atual);
 			let alcance_local = selects[index].getAttribute('data-alcance-local');
 			reabastece = false;
 			alcance_estendido = 1;
@@ -716,7 +716,8 @@ function popula_selects_estrelas_frotas() {
 					if (valor_destino.id_estrela == id_estrela_destino[index]) {
 					selecionado = 'selected';
 				}
-				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela +'</option>';
+				distancia = Math.ceil(calcula_distancia(false, estrela_atual, valor_destino.id_estrela));
+				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela + ' - ' + distancia + 'pc</option>';
 				
 				//distancia[chave_destino] = true;
 			});

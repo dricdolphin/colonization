@@ -1966,7 +1966,7 @@ var id_imperio_atual = {$imperio->id};
 			WHERE cic.id_imperio={$imperio->id}
 			AND cic.turno={$turno->turno}");
 			
-			$where_id = "WHERE id != {$imperio->id}";
+			$where_id = "WHERE id != {$imperio->id} AND id IN (SELECT id_imperio_contato FROM colonization_diplomacia WHERE id_imperio={$imperio->id})";
 		}
 		
 		$lista_ids_imperios = $wpdb->get_results("SELECT id, nome FROM colonization_imperio {$where_id}");

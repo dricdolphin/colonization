@@ -674,3 +674,111 @@ function transfere_pop(evento,objeto,id_imperio,id_colonia_origem,id_planeta,id_
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function salva_reabastece(objeto, id_imperio, id_estrela)
+--------------------
+Salva o Reabastecimento
+******************/	
+function salva_reabastece(evento, objeto, id_imperio, id_estrela, tabela='colonization_imperio_abastecimento') {
+	if (reabastece_em_edicao) {
+		//alert("Aguarde o processamento de outro item antes de prosseguir!");
+		objeto.checked = !objeto.checked;
+		return false;
+	}
+	//console.log(objeto.checked);
+	reabastece_em_edicao = true;
+	
+	var dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela+"&tabela="+tabela;
+	var retorno = false;
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}
+			
+			if (!retorno) {
+				if (objeto.checked) {
+					objeto.checked = false;
+				} else {
+					objeto.checked = true;
+				}
+			}
+		reabastece_em_edicao = false;
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function salva_diplomacia(objeto, id_imperio, id_estrela)
+--------------------
+Salva o status diplomático
+******************/	
+//salva_diplomacia(event, this,{$imperio_atual->id},{$imperio_contato->id},{$nome_npc}'encontro')
+function salva_diplomacia(evento, objeto, id_imperio_atual, id_imperio_contato, nome_npc, tipo_diplomacia, tabela='colonization_diplomacia') {
+	if (reabastece_em_edicao) {
+		//alert("Aguarde o processamento de outro item antes de prosseguir!");
+		objeto.checked = !objeto.checked;
+		return false;
+	}
+	//console.log(objeto.checked);
+	reabastece_em_edicao = true;
+	dados_diplomacia = "";
+	
+	if (tipo_diplomacia == "acordo_comercial") {
+		if (objeto.checked) {
+			acordo_comercial = 1;
+		} else {
+			acordo_comercial = 0;
+		}
+		dados_diplomacia = dados_diplomacia + "&acordo_comercial=" + acordo_comercial;
+	}
+	
+	var dados_ajax = "post_type=POST&action=salva_diplomacia&id_imperio="+id_imperio_atual+"&id_imperio_contato="+id_imperio_contato+"&nome_npc="+nome_npc+"&tabela="+tabela+dados_diplomacia;
+	var retorno = false;
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resposta = JSON.parse(this.responseText);
+			if (resposta.resposta_ajax == "OK!") {
+				retorno = true;
+				if (tipo_diplomacia == "encontro") {
+					objeto.disabled = true;
+				}
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			if (resposta.debug !== undefined) {
+				console.log(resposta.debug);
+			}
+			
+			if (!retorno) {
+				objeto.checked = !objeto.checked;
+			}
+		reabastece_em_edicao = false;
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);
+
+	evento.preventDefault();
+	return false;
+}

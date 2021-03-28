@@ -280,7 +280,17 @@ class instala_db {
 		id_imperio INT(6) NOT NULL,
 		json_balancos TEXT NOT NULL,
 		turno INT(6) NOT NULL
-		)");		
+		)");
+
+		//Tabela com os contatos diplomáticos
+		$wpdb->query("CREATE TABLE colonization_diplomacia (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) NOT NULL,
+		id_imperio_contato INT(6) NOT NULL,
+		nome_npc VARCHAR(255) DEFAULT '',
+		acordo_comercial BOOLEAN DEFAULT FALSE,
+		turno INT(6) NOT NULL
+		)");
 		
 		//Tabela com as ações do Admin
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_acoes_admin (
@@ -338,6 +348,7 @@ class instala_db {
 		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_historico_pesquisa WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
+		DELETE FROM colonization_diplomacia WHERE id_imperio = old.id;
 		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
 		DELETE FROM colonization_balancos_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = old.id;

@@ -485,6 +485,23 @@ tr.th_linha_1 th {
 	font-weight: bold;
 }
 
+.lista_imperios_contato {
+	display: inline-block;
+	margin: 10px;
+	padding: 4px;
+}
+
+.titulo_imperio {
+	font-weight: bold;
+	font-size: 1.5em;
+}
+
+.subtitulo {
+	font-style: italic;
+	font-size: 1em;
+	text-decoration: underline;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/
