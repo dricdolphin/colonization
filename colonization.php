@@ -410,7 +410,14 @@ class colonization {
 		}		
 		
 		if ($imperio->id == 0 && $roles == "administrator") {
-			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE turno_destruido=0 ORDER BY id_imperio");
+			$ids_naves = $wpdb->get_results("
+			SELECT cif.id 
+			FROM colonization_imperio_frota AS cif 
+			LEFT JOIN colonization_estrela AS ce
+			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
+			WHERE cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
+			");		
+			
 			$ids_estrelas = $wpdb->get_results("
 			SELECT DISTINCT ce.id 
 			FROM colonization_imperio_colonias AS cic
@@ -425,7 +432,15 @@ class colonization {
 			if ($apenas_recursos) {//Somente naves de pesquisa conseguem ver os recursos dos planetas onde estão
 				$somente_pesquisa = " AND pesquisa=1";
 			}
-			$ids_naves = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0{$somente_pesquisa}");
+			$ids_naves = $wpdb->get_results("
+			SELECT cif.id 
+			FROM colonization_imperio_frota AS cif 
+			LEFT JOIN colonization_estrela AS ce
+			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
+			WHERE cif.id_imperio = {$imperio->id} 
+			AND cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
+			");
+			
 			$ids_estrelas = $wpdb->get_results("
 			SELECT DISTINCT ce.id
 			FROM colonization_imperio_colonias AS cic
@@ -2083,7 +2098,7 @@ var id_imperio_atual = {$imperio->id};
 				$acordo_comercial = "; Acordo Comercial";
 			}
 			
-			$html .= "\n<div class='imperio_contato'><span style='subtitulo'>{$imperio_contato->nome}</span>: Primeiro Contato</div>";
+			$html .= "\n<div class='imperio_contato'><span style='subtitulo'>{$imperio_contato->nome}</span>: Primeiro Contato{$acordo_comercial}</div>";
 		}
 		
 		return $html;
