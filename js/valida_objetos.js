@@ -11,18 +11,33 @@ function processa_xhttp_basico(dados_ajax)	{
 		//Envia a chamada de AJAX para salvar o objeto
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
-			if (resposta.mensagem !== undefined) {
-				alert(resposta.mensagem);	
-			}
-			
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+
+				if (resposta.debug !== undefined) {
+					console.log(resposta.debug);
+				}
+
+				if (resposta.mensagem !== undefined) {
+					alert(resposta.mensagem);	
+				}
+
 				if (resposta.resposta_ajax != "OK!") {
 					alert(resposta.resposta_ajax);
-					resolve(true);
-				} else {
 					resolve(false);
+				} else {
+					resolve(true);
 				}
+			} else if (this.status == 500) {
+				console.log(this.responseText);
+				console.log(this.statusText);
 			}
 		};
 		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
@@ -160,7 +175,15 @@ function valida_tech_imperio(objeto) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+				
 				if (resposta.debug !== undefined) {
 					console.log(resposta.debug);
 				}
@@ -277,7 +300,6 @@ function valida_instalacao_recurso(objeto) {
 	var inputs_linha = linha.getElementsByTagName("INPUT");
 	var select_linha = linha.getElementsByTagName("SELECT");
 	var dados_ajax = "post_type=POST&action=valida_instalacao_recurso";
-	var retorno = false;
 	
 	if (!valida_generico(objeto)) {
 		return false;
@@ -330,7 +352,15 @@ function valida_planeta_recurso(objeto) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+				
 				if (resposta.resposta_ajax == "OK!") {
 					altera_recursos_planeta(objeto);
 					retorno = true;
@@ -385,7 +415,15 @@ function valida_colonia_instalacao(objeto) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+				
 				if (resposta.debug !== undefined) {
 					console.log(resposta.debug);
 				}
@@ -410,7 +448,6 @@ function valida_colonia_instalacao(objeto) {
 
 	return retorno;
 }
-
 
 /******************
 function valida_acao_admin(dados)
@@ -437,7 +474,15 @@ function valida_acao_admin(objeto) {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				try {
+					var resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+				
 				if (resposta.resposta_ajax == "OK!") {
 					var div_resposta = document.getElementById("div_resposta");
 					div_resposta.innerHTML = resposta.html;
@@ -478,25 +523,7 @@ function altera_recursos_planeta(objeto) {
 		}
 	}
 	
-	var retorno = new Promise((resolve, reject) => {
-		//Envia a chamada de AJAX para salvar o objeto
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
-				if (resposta.resposta_ajax != "OK!") {
-					resolve(true);
-				} else {
-					resolve(false);
-				}
-			}
-		};
-		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhttp.send(dados_ajax);
-	});
-
-	return retorno;	
+	return processa_xhttp_basico(dados_ajax);	
 }
 
 /******************
@@ -518,7 +545,11 @@ Valida uma nave (inicialmente somente os custos)
 ******************/	
 function valida_nave(objeto){
 	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&id_imperio="+dados['id_imperio'].value;
+	var dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&id_imperio="+dados['id_imperio'].value+"&id="+dados['id'].value;
+
+	if (!valida_generico(objeto)) {
+		return false;
+	}
 	
 	//TODO -- valida se a nave pode ser construída pelo jogador
 	

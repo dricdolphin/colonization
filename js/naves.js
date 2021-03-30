@@ -299,14 +299,14 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let custos = {
 		'industrializaveis': industrializaveis,
 		'energium': energium,
-		'dillithium': dillithium,
-		'duranium': duranium,
+		'Dillithium': dillithium,
+		'Duranium': duranium,
 		'nor_duranium': nor_duranium,
-		'trillithium': trillithium,
-		'corasita': corasita,
-		'tritanium': tritanium,
-		'neutronium': neutronium,
-		'tricobalto': tricobalto
+		'Trillithium': trillithium,
+		'Corasita': corasita,
+		'Tritanium': tritanium,
+		'Neutronium': neutronium,
+		'Tricobalto': tricobalto
 	};
 	
 	//console.log(custos);
@@ -326,7 +326,15 @@ Processa a string com os dados da nave
 ******************/	
 function processa_string(evento, objeto) {
 	let input_string_nave = document.getElementById('input_string_construcao').value;
-	let nave = JSON.parse(input_string_nave);
+	
+	try {
+		var nave = JSON.parse(input_string_nave);
+	} catch (err) {
+		alert('Erro! JSON inválido!');
+		
+		evento.preventDefault();
+		return false;
+	}
 	/***
 		let nave = {
 		"qtd_laser":"0",
@@ -430,7 +438,14 @@ function processa_string_admin (evento, objeto) {
 	}
 	
 	let input_string_nave = document.getElementById('string_nave').value;
-	let nave = JSON.parse(input_string_nave);
+	try {
+		var nave = JSON.parse(input_string_nave);
+	} catch (err) {
+		alert('Erro! JSON inválido!');
+		
+		evento.preventDefault();
+		return false;
+	}
 	
 	let calcula_nave = calcula_custos(evento, objeto, nave, false);
 	

@@ -393,6 +393,10 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 						return false;
 					}
 					
+					if (resposta.debug !== undefined) {
+						console.log(resposta.debug);
+					}					
+					
 					objeto_em_salvamento = false;
 					objeto_em_edicao = false; //Libera a edição de outros objetos
 					range_em_edicao = false;
@@ -400,6 +404,7 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 					if (resposta.resposta_ajax == "SALVO!") {
 						//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 						var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
+						console.log(resposta[0]);
 						var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 						if (typeof(funcao_pos_processamento) !== "undefined") {
 							if (resposta.pos_processamento != undefined) {
@@ -412,10 +417,9 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 					} else {
 						alert(resposta.resposta_ajax);
 					}
-
-					if (resposta.debug !== undefined) {
-						console.log(resposta.debug);
-					}			
+				} else if (this.status == 500) {
+					console.log(this.responseText);
+					console.log(this.statusText);			
 				}
 			};
 			xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

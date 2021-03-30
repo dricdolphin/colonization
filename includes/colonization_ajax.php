@@ -42,9 +42,86 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_instalacoes_imperio', array ($this, 'lista_instalacoes_imperio'));//Retorna uma lista com todas as Instalações que o Império pode construir
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
+		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida o CUSTO de uma nave
+	}
+
+	/***********************
+	function valida_nave()
+	----------------------
+	Valida uma nova nave
+	***********************/
+	function valida_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+
+		/***
+		{"industrializaveis":6,
+		"energium":2,
+		"dillithium":1,
+		"duranium":2,
+		"nor_duranium":0,
+		"trillithium":0,
+		"corasita":0,
+		"tritanium":0,
+		"neutronium":0,
+		"tricobalto":0}
+		***/
+		if (!empty($_POST['id'])) {
+			$dados_salvos['resposta_ajax'] = "OK!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+		
+		$imperio = new imperio($_POST['id_imperio']);
+		//$custo = json_decode(stripslashes($_POST['custo']));
+		$semslashes = stripslashes($_POST['custo']);
+		$custo = json_decode($semslashes,true);
+		$dados_salvos['debug'] = "POST: {$semslashes} \nCusto: {$custo}";
+		$dados_salvos['resposta_ajax'] = "OK!";
+		
+		$queries = [];
+		foreach ($custo as $nome_recurso => $qtd) {
+			if ($qtd == 0) {
+				continue;
+			}
+			
+			if ($nome_recurso == "industrializaveis") {
+				$nome_recurso = "Industrializáveis";
+			} elseif ($nome_recurso == "energium") {
+				$nome_recurso = "Enérgium";
+			} elseif ($nome_recurso == "nor_duranium") {
+				$nome_recurso = "Nor-Duranium";
+			}
+			
+			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
+			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
+			if ($qtd_recurso_imperio <= $qtd) {
+				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes!";
+				break;
+			}
+			$queries[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtd} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}";
+		}
+		
+		if ($dados_salvos['resposta_ajax'] == "OK!") {
+			foreach ($queries as $chave => $query) {
+				$wpdb->query($query);
+			}
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
 	}
 
 
+
+	/***********************
+	function recursos_atuais_imperio()
+	----------------------
+	Exibe os recursos atuais do Império
+	***********************/
 	function recursos_atuais_imperio() {
 		global $wpdb;
 
@@ -55,8 +132,6 @@ class colonization_ajax {
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
-
-
 
 	/***********************
 	function lista_instalacoes_imperio()
@@ -1179,7 +1254,6 @@ class colonization_ajax {
 			if ($niveis > 0) {
 				if ($instalacao->custos != "") {
 					$custos = explode(";",$instalacao->custos);
-					
 					foreach ($custos as $chave_recurso => $recurso) {
 						$recursos = explode("=",$recurso);
 						$id_recurso = $recursos[0];
@@ -1275,6 +1349,9 @@ class colonization_ajax {
 	function salva_objeto($resposta_ajax = true) {
 		global $wpdb; 
 		$wpdb->hide_errors();
+		// Report all PHP errors
+		error_reporting(E_ALL); 
+		ini_set("display_errors", 1);		
 		
 		foreach ($_POST as $chave => $valor) {
 			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
@@ -1306,10 +1383,17 @@ class colonization_ajax {
 			//Retorna os dados do objeto e uma variável "resposta" com "SALVO!"
 			$where = "";
 			foreach ($dados as $chave => $valor) {
-				$where .= " AND $chave='$valor'";
+				$semslashes = addslashes($valor);
+				$where .= " AND {$chave}='{$semslashes}'";
 			}
 			$where = substr($where,5);
 			$dados_salvos = $wpdb->get_results("SELECT * FROM {$_POST['tabela']} WHERE {$where}");
+			foreach ($dados_salvos[0] as $chave => $valor) {
+				if (str_contains($valor, "\\")) {
+					$dados_salvos[0]->$chave = stripslashes($valor);
+				}
+			}
+			
 			$dados_salvos['debug'] = "SELECT * FROM {$_POST['tabela']} WHERE {$where}";
 			$dados_salvos['resposta_ajax'] = "SALVO!";
 		} else {

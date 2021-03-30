@@ -79,8 +79,8 @@ class frota
 		$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$this->X} AND Y={$this->Y} AND Z={$this->Z}");
 		$this->estrela = new estrela($id_estrela);
 		
-		$this->string_nave = $resultado->string_nave;
-		$this->custo = $resultado->custo;
+		$this->string_nave = stripslashes($resultado->string_nave);
+		$this->custo = stripslashes($resultado->custo);
 		$this->tamanho = $resultado->tamanho;
 		$this->velocidade = $resultado->velocidade;
 		$this->alcance = $resultado->alcance;
