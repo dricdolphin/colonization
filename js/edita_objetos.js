@@ -348,68 +348,91 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
 	}
 	
-	var valida_dados = true;
-	if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
-		valida_dados = chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']);
-	}
+	//var valida_dados = true;
+	//if (objeto_editado['funcao_valida_objeto'] != "") { //Valida os dados através de uma função específica, definida para cada objeto
+	//	valida_dados = chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']);
+	//}
 
-	if (!valida_dados) {
-		
-		objeto_em_salvamento = false;
-		
-		evento.preventDefault();
-		return false;
-	}
 
-	objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto_editado pois eles podem ter sido modificados pelas funções de validação e pós-processamento
-	//Cria o string que será passado para o AJAX
-	if (nome_tabela == '') {
-		nome_tabela = objeto_editado['nome_tabela'];
-	}
+	var valida_dados = new Promise((resolve, reject) => {
+		if (objeto_editado['funcao_valida_objeto'] != "") {
+			resolve(chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']));
+		} else {
+			objeto_em_edicao = false;
+			resolve(true);
+		}
+		// or
+		// reject(new Error("Error!"));
+	});
 	
-	objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+nome_tabela+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
-
-	//Envia a chamada de AJAX para salvar o objeto
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			try {
-				var resposta = JSON.parse(this.responseText);
-			} 
-			catch (err) {
-				console.log(this.responseText);
-				retorno = false;
-				return false;
-			}
-			
+	valida_dados.then((successMessage) => {
+		if (!successMessage) {
 			objeto_em_salvamento = false;
-			objeto_em_edicao = false; //Libera a edição de outros objetos
-			range_em_edicao = false;
-			
-			if (resposta.resposta_ajax == "SALVO!") {
-				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-				if (typeof(funcao_pos_processamento) !== "undefined") {
-					if (resposta.pos_processamento != undefined) {
-						var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
-					} else {
-						var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
+		} else {
+			/********************************************
+			PARTE QUE EFETIVAMENTE SALVA O OBJETO
+			*********************************************/
+			objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto_editado novamente pois eles podem ter sido modificados pelas funções de validação e pós-processamento
+			//Cria o string que será passado para o AJAX
+			if (nome_tabela == '') {
+				nome_tabela = objeto_editado['nome_tabela'];
+			}
+				
+			objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+nome_tabela+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
+
+			//Envia a chamada de AJAX para salvar o objeto
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					try {
+						var resposta = JSON.parse(this.responseText);
+					} 
+					catch (err) {
+						console.log(this.responseText);
+						retorno = false;
+						return false;
 					}
 					
-				}
-			} else {
-				alert(resposta.resposta_ajax);
-			}
+					objeto_em_salvamento = false;
+					objeto_em_edicao = false; //Libera a edição de outros objetos
+					range_em_edicao = false;
+					
+					if (resposta.resposta_ajax == "SALVO!") {
+						//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
+						var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
+						var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+						if (typeof(funcao_pos_processamento) !== "undefined") {
+							if (resposta.pos_processamento != undefined) {
+								var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
+							} else {
+								var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
+							}
+							
+						}
+					} else {
+						alert(resposta.resposta_ajax);
+					}
 
-			if (resposta.debug !== undefined) {
-				console.log(resposta.debug);
-			}			
+					if (resposta.debug !== undefined) {
+						console.log(resposta.debug);
+					}			
+				}
+			};
+			xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.send(objeto_editado['dados_ajax']);
+			/********************************************
+				PARTE QUE EFETIVAMENTE SALVA O OBJETO
+			*********************************************/	
 		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(objeto_editado['dados_ajax']);
+	});
+	
+	//if (!valida_dados) {
+	//	objeto_em_salvamento = false;
+	//	
+	//	evento.preventDefault();
+	//	return false;
+	//}
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();

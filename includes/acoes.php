@@ -400,7 +400,7 @@ class acoes
 				
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				
-				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia'>
+				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
 				<div data-atributo='nome_planeta'>
 					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
 					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>

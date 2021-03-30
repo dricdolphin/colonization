@@ -448,7 +448,9 @@ function processa_string_admin (evento, objeto) {
 		'categoria' : categoria,
 		'especiais' : texto_especiais
 		'pesquisa' : nave.qtd_pesquisa,
-		'nivel_estacao_orbital' : nave.qtd_estacao_orbital
+		'nivel_estacao_orbital' : nave.qtd_estacao_orbital,
+		'qtd_bombas' : nave.qtd_bombas,
+		'qtd_tropas': nave.qtd_tropas		
 	}
 	*********/
 

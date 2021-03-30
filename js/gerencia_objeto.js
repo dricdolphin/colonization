@@ -1,4 +1,51 @@
 /******************
+function altera_lista_recursos_qtd(objeto) 
+--------------------
+Altera os valores da lista de recursos e suas qtds
+objeto -- objeto sendo editado
+******************/	
+function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
+	var linha = pega_ascendente(objeto,"TR");
+	var inputs = linha.getElementsByTagName("INPUT");
+	var divs = linha.getElementsByTagName("DIV");
+	var div_lista_recursos_qtd = "";
+	var input_qtd = "";
+	var input_lista_recursos = "";
+	var qtds = [];
+	var recursos = [];
+	
+	for (let index=0; index<divs.length; index++) { //Encontra o lista_recursos_qtd
+		if (divs[index].getAttribute('data-atributo') == 'lista_recursos_qtd') {
+			div_lista_recursos_qtd = divs[index];
+		}
+	}
+	
+	if (cancela) {
+		if (div_lista_recursos_qtd.getAttribute('data-valor-original') != "") {
+			div_lista_recursos_qtd.innerHTML = div_lista_recursos_qtd.getAttribute('data-valor-original');
+			
+			return;
+		}
+	} else if (valida) {
+		//Atualiza o INPUT qtds
+		var index_qtds = 0;
+		for (let index=0; index<inputs.length; index++) {
+			if (inputs[index].getAttribute('data-atributo') == 'qtd') {
+				input_qtd = inputs[index];
+			} else if (inputs[index].getAttribute('data-atributo') == 'qtd') {
+				input_lista_recursos = inputs[index];
+			} else if(inputs[index].type == 'text' && inputs[index].getAttribute('data-atributo') != 'lista_recursos' && inputs[index].getAttribute('data-atributo') != 'qtd' && inputs[index].getAttribute('data-atributo') != 'descricao' & inputs[index].getAttribute('data-atributo') != 'turno') {
+				qtds[index_qtds] = inputs[index].value;
+				recursos[index_qtds] = inputs[index].getAttribute('data-atributo');
+				index_qtds++;
+			}
+		}
+		input_qtd.value = qtds.join(";");
+		input_lista_recursos.value = recursos.join(";");
+	}
+}
+
+/******************
 function inclui_recurso(evento, id_recurso)
 --------------------
 Inclui um recurso na lista_recursos_qtd
