@@ -790,7 +790,10 @@ function nova_nave(evento, id_imperio) {
 	var Y = linha_nova.insertCell(-1);
 	var Z = linha_nova.insertCell(-1);
 
-	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>";
+	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>"
+	+ "\n<div class='subtitulo'>Custo</div>"
+	+"\n<div data-atributo='custo' data-ajax='true' data-editavel='true' data-branco='true' data-valor-original='' data-style='width: 100px;' data-id='custo'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='custo'></input></div>";
+	
 	qtd.innerHTML = "<div data-atributo='qtd' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 30px;'></input></div>";
 	X.innerHTML = "<div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div>";
 	Y.innerHTML = "<div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' style='width: 30px;'></input></div>";
@@ -804,13 +807,13 @@ function nova_nave(evento, id_imperio) {
 		var HP = linha_nova.insertCell(-1);
 		var velocidade = linha_nova.insertCell(-1);
 		var alcance = linha_nova.insertCell(-1);
-		var PDF_laser = linha_nova.insertCell(-1);
-		var PDF_torpedo = linha_nova.insertCell(-1);
-		var PDF_projetil = linha_nova.insertCell(-1);
+		var pdf_laser = linha_nova.insertCell(-1);
+		var pdf_torpedo = linha_nova.insertCell(-1);
+		var pdf_projetil = linha_nova.insertCell(-1);
 		var blindagem = linha_nova.insertCell(-1);
 		var escudos = linha_nova.insertCell(-1);
-		var PDF_bombardeamento = linha_nova.insertCell(-1);
-		var poder_invasao = linha_nova.insertCell(-1);
+		var qtd_bombas = linha_nova.insertCell(-1);
+		var qtd_tropas = linha_nova.insertCell(-1);
 		var pesquisa = linha_nova.insertCell(-1);
 		var camuflagem = linha_nova.insertCell(-1);
 		var nivel_estacao_orbital = linha_nova.insertCell(-1);
@@ -828,20 +831,20 @@ function nova_nave(evento, id_imperio) {
 	
 		string_nave.innerHTML = "<div data-atributo='string_nave' data-editavel='true' data-type='textarea' data-valor-original='' data-style='width: 80px; height: 200px;' data-id='string_nave'><textarea data-atributo='string_nave' data-ajax='true' style='width: 80px; height: 200px;' id='string_nave'></textarea></div>";
 		tamanho.innerHTML = "<div data-atributo='tamanho' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='tamanho'><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 50px;' id='tamanho'></input></div>";
-		HP.innerHTML = "<div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='HP'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;' id='HP'></input></div>";
+		HP.innerHTML = "<div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='hp'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;' id='hp'></input></div>";
 		velocidade.innerHTML = "<div data-atributo='velocidade' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='velocidade'><input type='text' data-atributo='velocidade' data-ajax='true' style='width: 50px;' id='velocidade'></input></div>";
 		alcance.innerHTML = "<div data-atributo='alcance' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='alcance'><input type='text' data-atributo='alcance' data-ajax='true' style='width: 50px;' id='alcance'></input></div>";
-		PDF_laser.innerHTML = "<div data-atributo='PDF_laser' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_laser'><input type='text' data-atributo='PDF_laser' data-ajax='true' style='width: 50px;' id='PDF_laser'></input></div>";
-		PDF_torpedo.innerHTML = "<div data-atributo='PDF_torpedo' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_torpedo'><input type='text' data-atributo='PDF_torpedo' data-ajax='true' style='width: 50px;' id='PDF_torpedo'></input></div>";
-		PDF_projetil.innerHTML = "<div data-atributo='PDF_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='PDF_projetil'><input type='text' data-atributo='PDF_projetil' data-ajax='true' style='width: 50px;' id='PDF_projetil'></input></div>";
+		pdf_laser.innerHTML = "<div data-atributo='pdf_laser' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='pdf_laser'><input type='text' data-atributo='pdf_laser' data-ajax='true' style='width: 50px;' id='pdf_laser'></input></div>";
+		pdf_torpedo.innerHTML = "<div data-atributo='pdf_torpedo' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='pdf_torpedo'><input type='text' data-atributo='pdf_torpedo' data-ajax='true' style='width: 50px;' id='pdf_torpedo'></input></div>";
+		pdf_projetil.innerHTML = "<div data-atributo='pdf_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='pdf_projetil'><input type='text' data-atributo='pdf_projetil' data-ajax='true' style='width: 50px;' id='pdf_projetil'></input></div>";
 		blindagem.innerHTML = "<div data-atributo='blindagem' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='blindagem'><input type='text' data-atributo='blindagem' data-ajax='true' style='width: 50px;' id='blindagem'></input></div>";
 		escudos.innerHTML = "<div data-atributo='escudos' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='escudos'><input type='text' data-atributo='escudos' data-ajax='true' style='width: 50px;' id='escudos'></input></div>";
-		PDF_bombardeamento.innerHTML = "<div data-atributo='PDF_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombas'><input type='text' data-atributo='PDF_bombardeamento' data-ajax='true' style='width: 50px;' id='qtd_bombas'></input></div>";
-		poder_invasao.innerHTML = "<div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div>";
+		qtd_bombas.innerHTML = "<div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombas'><input type='text' data-atributo='pdf_bombardeamento' data-ajax='true' style='width: 50px;' id='qtd_bombas'></input></div>";
+		qtd_tropas.innerHTML = "<div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div>";
 		pesquisa.innerHTML = "<div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa'></input></div>";
 		camuflagem.innerHTML = "<div data-atributo='camuflagem' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='camuflagem' data-ajax='true' style='width: 50px;' value=0></input></div>";
 		nivel_estacao_orbital.innerHTML = "<div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='nivel_estacao_orbital'><input type='text' data-atributo='nivel_estacao_orbital' data-ajax='true' style='width: 50px;' id='nivel_estacao_orbital'></input></div>";
-		especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='' data-branco='true' data-style='width: 120px; height: 100px;'><textarea data-atributo='especiais' data-ajax='true' style='width: 120px; height: 100px;' data-branco='true'></textarea></div>";
+		especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='' data-branco='true' data-style='width: 120px; height: 100px;' data-id='especiais'><textarea data-atributo='especiais' data-ajax='true' style='width: 120px; height: 100px;' data-branco='true' id='especiais'></textarea></div>";
 	} else {
 		var nome_npc = linha_nova.insertCell(0);
 		

@@ -19,15 +19,16 @@ class frota
 	public $Z;
 	public $estrela;
 	public $string_nave;
+	public $custo;
 	public $tamanho;
 	public $velocidade;
 	public $alcance;
-	public $PDF_laser;
-	public $PDF_projetil;
-	public $PDF_torpedo;
+	public $pdf_laser;
+	public $pdf_projetil;
+	public $pdf_torpedo;
 	public $blindagem;
 	public $escudos;
-	public $PDF_bombardeamento;
+	public $pdf_bombardeamento;
 	public $poder_invasao;
 	public $pesquisa;
 	public $camuflagem;
@@ -51,11 +52,11 @@ class frota
 		
 		$this->id = $id;
 	
-		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_npc, nome, tipo, qtd, X, Y, Z, string_nave, 
+		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_npc, nome, tipo, qtd, X, Y, Z, string_nave, custo,
 		tamanho, HP, velocidade, alcance, 
-		PDF_laser, PDF_projetil, PDF_torpedo,
+		pdf_laser, pdf_projetil, pdf_torpedo,
 		blindagem, escudos, 
-		PDF_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
+		pdf_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
 		camuflagem, especiais, turno, turno_destruido, id_estrela_destino, visivel
 		FROM colonization_imperio_frota 
 		WHERE id={$this->id}");
@@ -79,15 +80,16 @@ class frota
 		$this->estrela = new estrela($id_estrela);
 		
 		$this->string_nave = $resultado->string_nave;
+		$this->custo = $resultado->custo;
 		$this->tamanho = $resultado->tamanho;
 		$this->velocidade = $resultado->velocidade;
 		$this->alcance = $resultado->alcance;
-		$this->PDF_laser = $resultado->PDF_laser;
-		$this->PDF_projetil = $resultado->PDF_projetil;
-		$this->PDF_torpedo = $resultado->PDF_torpedo;
+		$this->pdf_laser = $resultado->pdf_laser;
+		$this->pdf_projetil = $resultado->pdf_projetil;
+		$this->pdf_torpedo = $resultado->pdf_torpedo;
 		$this->blindagem = $resultado->blindagem;
 		$this->escudos = $resultado->escudos;
-		$this->PDF_bombardeamento = $resultado->PDF_bombardeamento;
+		$this->pdf_bombardeamento = $resultado->pdf_bombardeamento;
 		$this->poder_invasao = $resultado->poder_invasao;
 		$this->camuflagem = $resultado->camuflagem;
 		$this->pesquisa = $resultado->pesquisa;
@@ -151,27 +153,30 @@ class frota
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 				<div data-atributo='processa_string' data-valor-original='' style='visibility: hidden;'><a href='#' onclick='return processa_string_admin(event, this);'>Processa String</a></div>
 				</td>
-				<td><div data-atributo='tipo' data-editavel='true' data-valor-original='{$this->tipo}' data-style='width: 100px;' data-id='categoria'>{$this->tipo}</div></td>
+				<td><div data-atributo='tipo' data-editavel='true' data-valor-original='{$this->tipo}' data-style='width: 100px;' data-id='categoria'>{$this->tipo}</div>
+				<div class='subtitulo'>Custo</div>
+				<div data-atributo='custo' data-ajax='true' data-editavel='true' data-branco='true' data-valor-original='{$this->custo}' data-style='width: 100px;' data-id='custo'>{$this->custo}</div>
+				</td>
 				<td><div data-atributo='qtd' data-editavel='true' data-valor-original='{$this->qtd}' data-style='width: 30px;'>{$this->qtd}</div></td>
 				<td><div data-atributo='X' data-editavel='true' data-valor-original='{$this->X}' data-style='width: 30px;'>{$this->X}</div></td>
 				<td><div data-atributo='Y' data-editavel='true' data-valor-original='{$this->Y}' data-style='width: 30px;'>{$this->Y}</div></td>
 				<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
 				<td><div data-atributo='string_nave' data-type='textarea' data-editavel='true' data-valor-original='{$this->string_nave}' data-style='width: 80px; height: 200px;' data-id='string_nave' data-branco='true'>{$this->string_nave}</div></td>
 				<td><div data-atributo='tamanho' data-editavel='true' data-valor-original='{$this->tamanho}' data-style='width: 50px;' data-id='tamanho' data-id='tamanho'>{$this->tamanho}</div></td>
-				<td><div data-atributo='HP' data-editavel='true' data-valor-original='{$this->HP}' data-style='width: 50px;' data-id='HP'>{$this->HP}</div></td>
+				<td><div data-atributo='HP' data-editavel='true' data-valor-original='{$this->HP}' data-style='width: 50px;' data-id='hp'>{$this->HP}</div></td>
 				<td><div data-atributo='velocidade' data-editavel='true' data-valor-original='{$this->velocidade}' data-style='width: 50px;' data-id='velocidade'>{$this->velocidade}</div></td>
 				<td><div data-atributo='alcance' data-editavel='true' data-valor-original='{$this->alcance}' data-style='width: 50px;' data-id='alcance'>{$this->alcance}</div></td>
-				<td><div data-atributo='PDF_laser' data-editavel='true' data-valor-original='{$this->PDF_laser}' data-style='width: 50px;' data-id='PDF_laser'>{$this->PDF_laser}</div></td>
-				<td><div data-atributo='PDF_torpedo' data-editavel='true' data-valor-original='{$this->PDF_torpedo}' data-style='width: 50px;' data-id='PDF_torpedo'>{$this->PDF_torpedo}</div></td>
-				<td><div data-atributo='PDF_projetil' data-editavel='true' data-valor-original='{$this->PDF_projetil}' data-style='width: 50px;' data-id='PDF_projetil'>{$this->PDF_projetil}</div></td>
+				<td><div data-atributo='pdf_laser' data-editavel='true' data-valor-original='{$this->pdf_laser}' data-style='width: 50px;' data-id='pdf_laser'>{$this->pdf_laser}</div></td>
+				<td><div data-atributo='pdf_torpedo' data-editavel='true' data-valor-original='{$this->pdf_torpedo}' data-style='width: 50px;' data-id='pdf_torpedo'>{$this->pdf_torpedo}</div></td>
+				<td><div data-atributo='pdf_projetil' data-editavel='true' data-valor-original='{$this->pdf_projetil}' data-style='width: 50px;' data-id='pdf_projetil'>{$this->pdf_projetil}</div></td>
 				<td><div data-atributo='blindagem' data-editavel='true' data-valor-original='{$this->blindagem}' data-style='width: 50px;' data-id='blindagem'>{$this->blindagem}</div></td>
 				<td><div data-atributo='escudos' data-editavel='true' data-valor-original='{$this->escudos}' data-style='width: 50px;' data-id='escudos'>{$this->escudos}</div></td>
-				<td><div data-atributo='PDF_bombardeamento' data-editavel='true' data-valor-original='{$this->PDF_bombardeamento}' data-style='width: 50px;' data-id='qtd_bombas'>{$this->PDF_bombardeamento}</div></td>
+				<td><div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='{$this->pdf_bombardeamento}' data-style='width: 50px;' data-id='qtd_bombas'>{$this->pdf_bombardeamento}</div></td>
 				<td><div data-atributo='poder_invasao' data-editavel='true' data-valor-original='{$this->poder_invasao}' data-style='width: 50px;' data-id='qtd_tropas'>{$this->poder_invasao}</div></td>
 				<td><div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->pesquisa}' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' {$pesquisa_checked} disabled></input></div></td>
 				<td><div data-atributo='camuflagem' data-editavel='true' data-valor-original='{$this->camuflagem}' data-style='width: 50px;'>{$this->camuflagem}</div></td>
 				<td><div data-atributo='nivel_estacao_orbital' data-editavel='true' data-valor-original='{$this->nivel_estacao_orbital}' data-style='width: 50px;' data-id='nivel_estacao_orbital'>{$this->nivel_estacao_orbital}</div></td>			
-				<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;'>{$this->especiais}</div></td>
+				<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;' data-id='especiais'>{$this->especiais}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
 				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div>
@@ -214,16 +219,16 @@ class frota
 		$turno = new turno();
 		
 		$html_armas = "";
-		if ($this->PDF_laser >0) {
-			$html_armas .= " PdF Laser: {$this->PDF_laser};";
+		if ($this->pdf_laser >0) {
+			$html_armas .= " pdf Laser: {$this->pdf_laser};";
 		}
 
-		if ($this->PDF_torpedo >0) {
-			$html_armas .= " PdF Torpedo: {$this->PDF_torpedo};";
+		if ($this->pdf_torpedo >0) {
+			$html_armas .= " pdf Torpedo: {$this->pdf_torpedo};";
 		}
 
-		if ($this->PDF_projetil >0) {
-			$html_armas .= " PdF Projétil: {$this->PDF_projetil};";
+		if ($this->pdf_projetil >0) {
+			$html_armas .= " pdf Projétil: {$this->pdf_projetil};";
 		}
 
 		$user = wp_get_current_user();

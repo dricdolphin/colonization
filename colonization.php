@@ -2150,7 +2150,7 @@ var id_imperio_atual = {$imperio->id};
 		<div {$estilo}><label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input></div>
 		</div>
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
-		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=1;0=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
+		<div id='texto_partes_nave' {$estilo}>0=1;0=1;0=1;0=0;0=0;1=1;1=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1;0=1</div>
 		";
 		//{"laser":{"qtd":0,"mk":1},"torpedo":{"qtd":0,"mk":1},"projetil":{"qtd":0,"mk":1},"blindagem":{"qtd":0,"mk":1},"escudos":{"qtd":0,"mk":1}}
 		//"0":{"0":1,"1":2,"2":3}

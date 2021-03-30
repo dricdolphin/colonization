@@ -61,6 +61,8 @@ class menu_admin {
 			wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
 			wp_enqueue_script('acoes_js', '/wp-content/plugins/colonization/js/acoes.js',false,$hoje);
 			wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
+			wp_enqueue_script('naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
+			wp_enqueue_script('estrela_js', '/wp-content/plugins/colonization/js/estrela.js',false,$hoje);
 			wp_enqueue_style('fonteawesome_css', '/wp-includes/fontawesome/css/all.css',false,$hoje);
 			wp_enqueue_style('colonization_css', '/wp-content/plugins/colonization/colonization.css',false,$hoje);
 	}
@@ -78,7 +80,7 @@ class menu_admin {
 		wp_enqueue_script('gerencia_objeto_js', '/wp-content/plugins/colonization/js/gerencia_objeto.js',false,$hoje);
 		wp_enqueue_script('acoes_js', '/wp-content/plugins/colonization/js/acoes.js',false,$hoje);
 		wp_enqueue_script('gerencia_listas_js', '/wp-content/plugins/colonization/js/listas_js.js',false,$hoje);
-		wp_enqueue_script('gerencia_naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
+		wp_enqueue_script('naves_js', '/wp-content/plugins/colonization/js/naves.js',false,$hoje);
 		wp_enqueue_script('estrela_js', '/wp-content/plugins/colonization/js/estrela.js',false,$hoje);
 		wp_enqueue_script('funcoes_auxiliares_js', '/wp-content/plugins/colonization/js/funcoes_auxiliares.js',false,$hoje);
 		wp_enqueue_script('google_chars', 'https://www.gstatic.com/charts/loader.js',false,$hoje);

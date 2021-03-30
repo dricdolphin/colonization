@@ -202,6 +202,7 @@ class instala_db {
 		Y INT(6) NOT NULL,
 		Z INT(6) NOT NULL,
 		string_nave TEXT NOT NULL,
+		custo TEXT DEFAULT '',
 		tamanho INT(6) NOT NULL,
 		velocidade INT(6) NOT NULL,
 		alcance INT(6) NOT NULL,

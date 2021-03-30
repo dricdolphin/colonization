@@ -21,79 +21,78 @@ function calcula_custos(evento, objeto)
 --------------------
 Calcula os custos de uma nave
 ******************/	
-function calcula_custos(evento, objeto) {
+function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
+	if (Object.keys(nave).length == 0) {
+		nave = {
+			'qtd_laser' : document.getElementById('qtd_laser').value,
+			'qtd_torpedo' : document.getElementById('qtd_torpedo').value,
+			'qtd_projetil' : document.getElementById('qtd_projetil').value,
+			
+			'tritanium_blindagem' : document.getElementById('tritanium').checked,
+			'neutronium_blindagem' : document.getElementById('neutronium').checked,
+			'tricobalto_torpedo' : document.getElementById('tricobalto').checked,
+
+			'qtd_combustivel' : document.getElementById('qtd_combustivel').value,
+			'qtd_pesquisa' : document.getElementById('qtd_pesquisa').checked,
+			'qtd_estacao_orbital' : document.getElementById('qtd_estacao_orbital').value,
+			'qtd_tropas' : document.getElementById('qtd_tropas').value,
+			'qtd_bombas' : document.getElementById('qtd_bombas').value,
+			'qtd_slots_extra' : document.getElementById('qtd_slots_extra').value,
+			'qtd_hp_extra' : document.getElementById('qtd_hp_extra').value,
+			
+			'mk_laser' : document.getElementById('mk_laser').value,
+			'mk_torpedo' : document.getElementById('mk_torpedo').value,
+			'mk_projetil' : document.getElementById('mk_projetil').value,
+			'mk_blindagem' : document.getElementById('mk_blindagem').value,
+			'mk_escudos' : document.getElementById('mk_escudos').value,
+			'mk_impulso' : document.getElementById('mk_impulso').value,
+			'mk_dobra' : document.getElementById('mk_dobra').value
+		};
+	}
+
+
 	let custos_div = document.getElementById('custos');
 	let chassi_div = document.getElementById('chassi');
 	let dados_div = document.getElementById('dados');
 	let texto_especiais_div = document.getElementById('texto_especiais');
 	let texto_partes_nave_div = document.getElementById('texto_partes_nave');
 	
-	let qtd_laser = document.getElementById('qtd_laser').value;
-	let qtd_torpedo = document.getElementById('qtd_torpedo').value;
-	let qtd_projetil = document.getElementById('qtd_projetil').value;
-	//let qtd_blindagem = document.getElementById('qtd_blindagem').value;
-	
-	let tritanium = document.getElementById('tritanium');
-	let neutronium = document.getElementById('neutronium');
-	let tricobalto = document.getElementById('tricobalto');
-	
-	//let qtd_escudos = document.getElementById('qtd_escudos').value;
-	//let qtd_impulso = document.getElementById('qtd_impulso').value;
-	//let qtd_dobra = document.getElementById('qtd_dobra').value;
-	let qtd_combustivel = document.getElementById('qtd_combustivel').value;
-	let qtd_pesquisa = document.getElementById('qtd_pesquisa');
-	let qtd_estacao_orbital = document.getElementById('qtd_estacao_orbital').value;
-	let qtd_tropas = document.getElementById('qtd_tropas').value;
-	let qtd_bombas = document.getElementById('qtd_bombas').value;
-	let qtd_slots_extra = document.getElementById('qtd_slots_extra').value;
-	let qtd_hp_extra = document.getElementById('qtd_hp_extra').value;
-	
-	let mk_laser = document.getElementById('mk_laser').value;
-	let mk_torpedo = document.getElementById('mk_torpedo').value;
-	let mk_projetil = document.getElementById('mk_projetil').value;
-	let mk_blindagem = document.getElementById('mk_blindagem').value;
-	let mk_escudos = document.getElementById('mk_escudos').value;
-	let mk_impulso = document.getElementById('mk_impulso').value;
-	let mk_dobra = document.getElementById('mk_dobra').value;
-	
 	let especiais = 0;
 	let custo_estacao_orbital = 0;
+	let texto_especiais = "";
 	
-	
-	if (qtd_pesquisa.checked) {
-		qtd_pesquisa = qtd_pesquisa.value;
+	if (nave.qtd_pesquisa) {
+		texto_especiais = "(1) - Pode realizar Pesquisas";
+		qtd_pesquisa = 1;
 		especiais++;
-		texto_especiais_div.innerHTML = "Especiais: (1) - Pode realizar Pesquisas"; 
 	} else {
 		qtd_pesquisa = 0;
-		texto_especiais_div.innerHTML = "Especiais: &nbsp;";
 	}
 	
-	if (qtd_tropas != 0) {
+	if (nave.qtd_tropas != 0) {
 		if (especiais == 0) {
-			texto_especiais_div.innerHTML = "Especiais: (1) - Carrega Tropas de Invasão";
+			texto_especiais = "(1) - Carrega Tropas de Invasão";
 			especiais++;
 		} else {
+			texto_especiais = texto_especiais + "; ("+especiais+") - Carrega Tropas de Invasão";
 			especiais++;
-			texto_especiais_div.innerHTML = texto_especiais_div.innerHTML + "; ("+especiais+") - Carrega Tropas de Invasão";
 		}
 	}
 
-	if (qtd_bombas != 0) {
+	if (nave.qtd_bombas != 0) {
 		if (especiais == 0) {
-			texto_especiais_div.innerHTML = "Especiais: (1) - Pode realizar Bombardeamento Planetário";
+			texto_especiais = "(1) - Pode realizar Bombardeamento Planetário";
 			especiais++;
 		} else {
+			texto_especiais = texto_especiais + "; ("+especiais+") - Pode realizar Bombardeamento Planetário";
 			especiais++;
-			texto_especiais_div.innerHTML = texto_especiais_div.innerHTML + "; ("+especiais+") - Pode realizar Bombardeamento Planetário";
 		}
 	}
 	
-	chassi = qtd_bombas*10 + qtd_tropas*5 + qtd_slots_extra*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_pesquisa*1;
+	chassi = nave.qtd_bombas*10 + nave.qtd_tropas*5 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + qtd_pesquisa*1;
 	
-	
-	let capacidade_dobra = mk_dobra*5;
-	let capacidade_impulso = mk_impulso*5;
+	let capacidade_dobra = nave.mk_dobra*5;
+	let capacidade_impulso = nave.mk_impulso*5;
 	
 	let qtd_dobra = 1 + Math.trunc(chassi/capacidade_dobra,0);
 	let qtd_impulso = 1 + Math.trunc(chassi/capacidade_impulso,0);
@@ -102,135 +101,131 @@ function calcula_custos(evento, objeto) {
 	let fator_b = (6.303-qtd_dobra);
 	
 	let qtd_combustivel_maximo = Math.floor(-fator_b/(2*fator_a));
-	if (qtd_combustivel > qtd_combustivel_maximo) {
-		qtd_combustivel = Math.floor(qtd_combustivel_maximo);
-		document.getElementById('qtd_combustivel').value = qtd_combustivel;
+	if (nave.qtd_combustivel > qtd_combustivel_maximo) {
+		nave.qtd_combustivel = Math.floor(qtd_combustivel_maximo);
+		if (exibe_resultados) {
+			document.getElementById('qtd_combustivel').value = nave.qtd_combustivel;
+		}
 	}
 
-	alcance = Math.ceil(10 + fator_a*Math.pow(qtd_combustivel,2) + fator_b*qtd_combustivel);
+	alcance = Math.ceil(10 + fator_a*Math.pow(nave.qtd_combustivel,2) + fator_b*nave.qtd_combustivel);
 	
-	if (qtd_estacao_orbital != 0) {
-		custo_estacao_orbital = 20*qtd_estacao_orbital;
+	if (nave.qtd_estacao_orbital != 0) {
+		custo_estacao_orbital = 20*nave.qtd_estacao_orbital;
 		alcance = 0;
 		velocidade = 0;
 		qtd_dobra = 0;
 		qtd_impulso = 0;
-		qtd_combustivel = 0;
-		document.getElementById('qtd_combustivel').value = 0;
-		
+		nave.qtd_combustivel = 0;
+		if (exibe_resultados) {
+			document.getElementById('qtd_combustivel').value = 0;
+		}
+	
 		if (especiais == 0) {
-			texto_especiais_div.innerHTML = "Especiais: (1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+			texto_especiais = "(1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
 			especiais++;
 		} else {
+
+			texto_especiais = texto_especiais + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
 			especiais++;
-			texto_especiais_div.innerHTML = texto_especiais_div.innerHTML + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
 		}
 	}
 	
-	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + qtd_combustivel*1 + qtd_estacao_orbital*20;
-	hp = chassi*10+qtd_hp_extra*1;
+	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + nave.qtd_combustivel*1 + nave.qtd_estacao_orbital*20;
+	hp = chassi*10 + nave.qtd_hp_extra*1;
 	
-	pdf_laser = qtd_laser*(mk_laser*2-1);
-	pdf_torpedo = qtd_torpedo*(mk_torpedo*2-1);
-	pdf_projetil = qtd_projetil*(mk_projetil*2-1);
+	pdf_laser = nave.qtd_laser*(nave.mk_laser*2-1);
+	pdf_torpedo = nave.qtd_torpedo*(nave.mk_torpedo*2-1);
+	pdf_projetil = nave.qtd_projetil*(nave.mk_projetil*2-1);
 	
-	let custo_blindagem = (Math.trunc(chassi/10,0)+1)*mk_blindagem;
-	let custo_escudos = (Math.trunc(chassi/5,0)+1)*mk_escudos;
+	let custo_blindagem = (Math.trunc(chassi/10,0)+1)*nave.mk_blindagem;
+	let custo_escudos = (Math.trunc(chassi/5,0)+1)*nave.mk_escudos;
 
 	let qtd_blindagem = custo_blindagem;
 	let qtd_escudos = custo_escudos;	
 	
-	blindagem = Math.ceil(Math.pow(mk_blindagem*2-1,1.5));
-	escudos = Math.ceil(Math.pow(mk_escudos*2-1,1.5));
+	blindagem = Math.ceil(Math.pow(nave.mk_blindagem*2-1,1.5));
+	escudos = Math.ceil(Math.pow(nave.mk_escudos*2-1,1.5));
 	
 	if (blindagem < 0 || isNaN(blindagem)) {blindagem = 0;}
 	if (escudos < 0 || isNaN(escudos)) {escudos = 0;}
 	
-	let duranium_blindagem = qtd_blindagem*1;
-	if (duranium_blindagem < qtd_blindagem) {
-		duranium_blindagem = qtd_blindagem;
+	let duranium = qtd_blindagem*1;
+	if (duranium < qtd_blindagem) {
+		duranium = qtd_blindagem;
 	}
 	
-	let nor_duranium_blindagem = 0;
-	if (mk_blindagem*1 > 2) {
-		nor_duranium_blindagem = duranium_blindagem;
-		duranium_blindagem = 0;
+	let nor_duranium = 0;
+	let texto_nor_duranium = "";
+	if (nave.mk_blindagem*1 > 2) {
+		nor_duranium = duranium;
+		duranium = 0;
+		texto_nor_duranium = " | Nor-Duranium: "+nor_duranium;
 	}
 
-	let corasita_escudos = 0;
-	if (mk_escudos*1 > 2) {
-		corasita_escudos = energium_escudos;
-		energium_escudos = 0;
-	}
-
-	let tritanium_blindagem = 0;
-	if (tritanium.checked) {
-		tritanium_blindagem = 1*qtd_blindagem;
+	let tritanium = 0;
+	let texto_tritanium= "";
+	if (nave.tritanium_blindagem) {
+		tritanium = 1*qtd_blindagem;
 		blindagem = blindagem*3;
+		texto_tritanium = " | Tritanium: "+tritanium;
 	}
 
-	let neutronium_blindagem = 0;
-	if (neutronium.checked) {
-		neutronium_blindagem = 1*qtd_blindagem;
-		if (tritanium_blindagem) {
+	let neutronium = 0;
+	let texto_neutronium = "";
+	if (nave.neutronium_blindagem) {
+		neutronium = 1*qtd_blindagem;
+		texto_neutronium = " | Neutronium: "+neutronium;
+		if (tritanium) {
 			blindagem = blindagem*5;
 		} else {
 			blindagem = blindagem*10;
 		}
 	}
+
+	let texto_trillithium = "";
+	let trillithium = 0;
+	if (nave.mk_dobra*1 > 2) {
+		trillithium = dillithium;
+		texto_trillithium = " | Trillithium: "+ trillithium;
+	}
 	
-	let tricobalto_torpedo = 0;
-	if (tricobalto.checked) {
-		tricobalto_torpedo = 1*qtd_torpedo;
+	let tricobalto = 0;
+	let texto_tricobalto = "";
+	if (nave.tricobalto_torpedo) {
+		tricobalto = 1*nave.qtd_torpedo;
 		pdf_torpedo = pdf_torpedo*3;
+		texto_tricobalto = " | Tricobalto: "+tricobalto;
 	}
 
 	let energium_escudos = qtd_escudos*1;
 	if (energium_escudos < qtd_escudos) {
 		energium_escudos = qtd_escudos;
 	}
-	
-	let texto_nor_duranium = "";
-	if (nor_duranium_blindagem > 0) {
-		texto_nor_duranium = " | Nor-Duranium: "+nor_duranium_blindagem;
-	}
 
+	let corasita = 0;
 	let texto_corasita = "";
-	if (corasita_escudos > 0) {
-		texto_corasita = " | Corasita: "+corasita_escudos;
-	}
-
-
-	let texto_tritanium= "";
-	if (tritanium_blindagem > 0) {
-		texto_tritanium = " | Tritanium: "+tritanium_blindagem;
-	}
-
-	let texto_neutronium = "";
-	if (neutronium_blindagem > 0) {
-		texto_neutronium = " | Neutronium: "+neutronium_blindagem;
-	}
-
-	let texto_tricobalto = "";
-	if (tricobalto_torpedo > 0) {
-		texto_tricobalto = " | Tricobalto: "+tricobalto_torpedo;
+	if (nave.mk_escudos*1 > 2) {
+		corasita = energium_escudos;
+		energium_escudos = 0;
+		texto_corasita = " | Corasita: "+corasita;
 	}	
 	
 	if (chassi <= 10) {
 		categoria = "Corveta";
-		velocidade = 4 + mk_impulso*1;
+		velocidade = 4 + nave.mk_impulso*1;
 	} else if (chassi > 10 && chassi <= 20) {
 		categoria = "Fragata";
-		velocidade = 3 + mk_impulso*1;
+		velocidade = 3 + nave.mk_impulso*1;
 	} else if (chassi > 20 && chassi <= 50) {
 		categoria = "Destroier";
-		velocidade = 2 + mk_impulso*1;
+		velocidade = 2 + nave.mk_impulso*1;
 	} else if (chassi > 50 && chassi <= 100) {
 		categoria = "Cruzador";
-		velocidade = 1 + mk_impulso*1;
+		velocidade = 1 + nave.mk_impulso*1;
 	} else if (chassi > 100 && chassi <= 200) {
 		categoria = "Nave de Guerra";
-		velocidade = mk_impulso*1;
+		velocidade = nave.mk_impulso*1;
 	} else if (chassi > 200 && chassi <= 300) {
 		categoria = "Nave de Batalha";
 		velocidade = 1;
@@ -248,36 +243,80 @@ function calcula_custos(evento, objeto) {
 		velocidade = 1;
 	}
 
-	if (qtd_estacao_orbital != 0) {
+	if (nave.qtd_estacao_orbital != 0) {
 		categoria = "Estação Orbital";
 		velocidade = 0;
 	}
 
 
-	industrializaveis = qtd_bombas*10 + custo_estacao_orbital*1 + qtd_laser*mk_laser + qtd_torpedo*mk_torpedo + qtd_projetil*mk_projetil + qtd_impulso*mk_impulso + qtd_dobra*mk_dobra + qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + qtd_pesquisa*1 + qtd_slots_extra*1;
-	energium = Math.ceil(custo_estacao_orbital/4) + qtd_laser*1 + qtd_torpedo*1 + qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
-	dillithium = qtd_dobra*mk_dobra;
+	industrializaveis = nave.qtd_bombas*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil 
+	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1;
 	
-	texto_trillithium = "";
-	if (mk_dobra*1 > 2) {
-		trillithium = dillithium;
-		texto_trillithium = " | Trillithium: "+ trillithium;
+	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
+	dillithium = qtd_dobra*nave.mk_dobra;
+	duranium = duranium*1 + nave.qtd_projetil*1;
+	
+	if (exibe_resultados) {
+		if (texto_especiais != "") {
+			texto_especiais_div.innerHTML = "Especiais: " + texto_especiais;
+		}
+		
+		dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
+		+"pdf Laser: "+pdf_laser+"/ pdf Torpedo: "+pdf_torpedo+"/ pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
+		chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
+		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium + texto_trillithium 
+		+ texto_tritanium + texto_neutronium + texto_tricobalto;
+	
+		/***
+		texto_partes_nave_div.innerHTML = nave.qtd_laser+"="+nave.mk_laser+";"+nave.qtd_torpedo+"="+nave.mk_torpedo+";"+nave.qtd_projetil+"="+nave.mk_projetil+";"
+		+qtd_blindagem+"="+nave.mk_blindagem+";"+qtd_escudos+"="+nave.mk_escudos+";"
+		+qtd_impulso+"="+nave.mk_impulso+";"+qtd_dobra+"="+nave.mk_dobra+";"+nave.qtd_combustivel+"=1;"
+		+qtd_pesquisa+"=1;"+nave.qtd_estacao_orbital+"=1;"+nave.qtd_tropas+"=1;"+nave.qtd_bombas+"=1;"+nave.qtd_slots_extra+"=1;"+nave.qtd_hp_extra+"=1;"
+		+tritanium+"=1;"+neutronium+"=1;"+tricobalto+"=1";
+		***/
+		
+		texto_partes_nave_div.innerHTML = JSON.stringify(nave);
 	}
 	
-	duranium = duranium_blindagem*1 + qtd_projetil*1;
+	let dados_nave = {
+		'tamanho' : chassi,
+		'velocidade' : velocidade,
+		'alcance': alcance,
+		'pdf_laser' : pdf_laser,
+		'pdf_torpedo' : pdf_torpedo,
+		'pdf_projetil' : pdf_projetil,
+		'blindagem' : blindagem,
+		'escudos' : escudos,
+		'hp' : hp,
+		'categoria' : categoria,
+		'especiais' : texto_especiais,
+		'pesquisa' : nave.qtd_pesquisa,
+		'nivel_estacao_orbital' : nave.qtd_estacao_orbital,
+		'qtd_bombas' : nave.qtd_bombas,
+		'qtd_tropas': nave.qtd_tropas
+	}
+
+	let custos = {
+		'industrializaveis': industrializaveis,
+		'energium': energium,
+		'dillithium': dillithium,
+		'duranium': duranium,
+		'nor_duranium': nor_duranium,
+		'trillithium': trillithium,
+		'corasita': corasita,
+		'tritanium': tritanium,
+		'neutronium': neutronium,
+		'tricobalto': tricobalto
+	};
 	
-	dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
-	+"PdF Laser: "+pdf_laser+"/ PdF Torpedo: "+pdf_torpedo+"/ PdF Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
-	chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
-	custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium + texto_trillithium 
-	+ texto_tritanium + texto_neutronium + texto_tricobalto;
+	//console.log(custos);
 	
-	texto_partes_nave_div.innerHTML = qtd_laser+"="+mk_laser+";"+qtd_torpedo+"="+mk_torpedo+";"+qtd_projetil+"="+mk_projetil+";"
-	+qtd_blindagem+"="+mk_blindagem+";"+qtd_escudos+"="+mk_escudos+";"
-	+qtd_impulso+"="+mk_impulso+";"+qtd_dobra+"="+mk_dobra+";"+qtd_combustivel+"=1;"
-	+qtd_pesquisa+"=1;"+qtd_estacao_orbital+"=1;"+qtd_tropas+"=1;"+qtd_bombas+"=1;"+qtd_slots_extra+"=1;"+qtd_hp_extra+"=1;"
-	+tritanium_blindagem+"=1;"+neutronium_blindagem+"=1;"+tricobalto_torpedo+"=1";
+	let custos_calculados = {
+		'dados_nave' : dados_nave,
+		'custo' : custos
+	};
 	
+	return custos_calculados;
 }
 
 /******************
@@ -286,54 +325,66 @@ function processa_string(evento, objeto)
 Processa a string com os dados da nave
 ******************/	
 function processa_string(evento, objeto) {
-	var input_string_construcao = document.getElementById('input_string_construcao').value;
-
-	let qtd_laser = document.getElementById('qtd_laser');
-	let qtd_torpedo = document.getElementById('qtd_torpedo');
-	let tricobalto = document.getElementById('tricobalto');
+	let input_string_nave = document.getElementById('input_string_construcao').value;
+	let nave = JSON.parse(input_string_nave);
+	/***
+		let nave = {
+		"qtd_laser":"0",
+		"qtd_torpedo":"0",
+		"qtd_projetil":"0",
+		"tritanium_blindagem":false,
+		"neutronium_blindagem":false,
+		"tricobalto_torpedo":false,
+		"qtd_combustivel":"0",
+		"qtd_pesquisa":false,
+		"qtd_estacao_orbital":"0",
+		"qtd_tropas":"0",
+		"qtd_bombas":"0",
+		"qtd_slots_extra":"0",
+		"qtd_hp_extra":"0",
+		"mk_laser":"1",
+		"mk_torpedo":"1",
+		"mk_projetil":"1",
+		"mk_blindagem":"0",
+		"mk_escudos":"0",
+		"mk_impulso":"1",
+		"mk_dobra":"1"
+		};
+	***/
 	
-	let qtd_projetil = document.getElementById('qtd_projetil');
-	let qtd_blindagem = document.getElementById('qtd_blindagem');
-	let tritanium = document.getElementById('tritanium');
-	let neutronium = document.getElementById('neutronium');
-	
-	let qtd_escudos = document.getElementById('qtd_escudos');
-	let qtd_impulso = document.getElementById('qtd_impulso');
-	let qtd_dobra = document.getElementById('qtd_dobra');
-	let qtd_combustivel = document.getElementById('qtd_combustivel');
-	let qtd_pesquisa = document.getElementById('qtd_pesquisa');
-	let qtd_estacao_orbital = document.getElementById('qtd_estacao_orbital');
-	let qtd_tropas = document.getElementById('qtd_tropas');
-	let qtd_bombas = document.getElementById('qtd_bombas');
-	let qtd_slots_extra = document.getElementById('qtd_slots_extra');
-	let qtd_hp_extra = document.getElementById('qtd_hp_extra');
-	
-	let mk_laser = document.getElementById('mk_laser');
-	let mk_torpedo = document.getElementById('mk_torpedo');
-	let mk_projetil = document.getElementById('mk_projetil');
-	let mk_blindagem = document.getElementById('mk_blindagem');
-	let mk_escudos = document.getElementById('mk_escudos');
-	let mk_impulso = document.getElementById('mk_impulso');
-	let mk_dobra = document.getElementById('mk_dobra');
-
-	/*
-	{
-		"laser":{"qtd":0,"mk":1},
-		"torpedo":{"qtd":0,"mk":1},
-		"projetil":{"qtd":0,"mk":1},
-		"blindagem":{"qtd":0,"mk":1},
-		"escudos":{"qtd":0,"mk":1}},
-		"impulso":{"qtd":0,"mk":1}},
-		"dobra":{"qtd":0,"mk":1}},
-		"combustivel":{"qtd":0,"mk":1}},
-		"pesquisa":{"qtd":0,"mk":1}},
-		"estacao_orbital":{"qtd":0,"mk":1}},
-		"tropas":{"qtd":0,"mk":1}},
-		"bombas":{"qtd":0,"mk":1}},
-		"slots":{"qtd":0,"mk":1}}
+	let nave_elementos = {
+		'qtd_laser' : document.getElementById('qtd_laser'),
+		'qtd_torpedo' : document.getElementById('qtd_torpedo'),
+		'qtd_projetil' : document.getElementById('qtd_projetil'),
+		'tritanium_blindagem' : document.getElementById('tritanium'),
+		'neutronium_blindagem' : document.getElementById('neutronium'),
+		'tricobalto_torpedo' : document.getElementById('tricobalto'),
+		'qtd_combustivel' : document.getElementById('qtd_combustivel'),	
+		'qtd_pesquisa' : document.getElementById('qtd_pesquisa'),
+		'qtd_estacao_orbital' : document.getElementById('qtd_estacao_orbital'),
+		'qtd_tropas' : document.getElementById('qtd_tropas'),
+		'qtd_bombas' : document.getElementById('qtd_bombas'),
+		'qtd_slots_extra' : document.getElementById('qtd_slots_extra'),
+		'qtd_hp_extra' : document.getElementById('qtd_hp_extra'),
+		'mk_laser' : document.getElementById('mk_laser'),
+		'mk_torpedo' : document.getElementById('mk_torpedo'),
+		'mk_projetil' : document.getElementById('mk_projetil'),
+		'mk_blindagem' : document.getElementById('mk_blindagem'),
+		'mk_escudos' : document.getElementById('mk_escudos'),
+		'mk_impulso' : document.getElementById('mk_impulso'),
+		'mk_dobra' : document.getElementById('mk_dobra')
 	}
-	/***/
+
 	
+	for (const property in nave_elementos) {
+		if (typeof(nave[property]) == "boolean") {
+			nave_elementos[property].checked = nave[property];
+		} else {
+			nave_elementos[property].value = nave[property];
+		}
+	}
+	
+	/*** CÓDIGO ANTIGO ANTES DO JSON ***
 	let qtd = [qtd_laser, qtd_torpedo, qtd_projetil, qtd_blindagem, qtd_escudos, qtd_impulso, qtd_dobra, qtd_combustivel, qtd_pesquisa, qtd_estacao_orbital, qtd_tropas, qtd_bombas, qtd_slots_extra, qtd_hp_extra, tritanium, neutronium, tricobalto];
 	let mk = [mk_laser, mk_torpedo, mk_projetil, mk_blindagem, mk_escudos, mk_impulso, mk_dobra];
 
@@ -343,7 +394,7 @@ function processa_string(evento, objeto) {
 		let subparte = partes_nave[index].split("=");
 		if (qtd[index] != undefined) {
 			if (qtd[index].type == "checkbox") {
-				if (subparte[0] == 1) {
+				if (subparte[0] > 0) {
 					qtd[index].checked = true;
 				} else {
 					qtd[index].checked = false;
@@ -357,8 +408,78 @@ function processa_string(evento, objeto) {
 			mk[index].value = subparte[1];
 		}
 	}
+	/**************************************/
 	
-	let calcula = calcula_custos(evento, objeto);
+	let calcula = calcula_custos(evento, objeto, nave);
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function processa_string_admin
+--------------------
+Processa uma string de nave na área de Frotas (menu_admin)
+******************/
+function processa_string_admin (evento, objeto) {
+	let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	let input_string_nave = document.getElementById('string_nave').value;
+	let nave = JSON.parse(input_string_nave);
+	
+	let calcula_nave = calcula_custos(evento, objeto, nave, false);
+	
+	/**********
+	let dados_nave = {
+		'chassi' : chassi,
+		'velocidade' : velocidade,
+		'alcance': alcance,
+		'pdf_laser' : pdf_laser,
+		'pdf_torpedo' : pdf_torpedo,
+		'pdf_projetil' : pdf_projetil,
+		'blindagem' : blindagem,
+		'escudos' : escudos,
+		'hp' : hp,
+		'categoria' : categoria,
+		'especiais' : texto_especiais
+		'pesquisa' : nave.qtd_pesquisa,
+		'nivel_estacao_orbital' : nave.qtd_estacao_orbital
+	}
+	*********/
+
+	let nave_elementos = {
+		'tamanho' : document.getElementById('tamanho'),
+		'velocidade' : document.getElementById('velocidade'),
+		'alcance' : document.getElementById('alcance'),
+		'pdf_laser' : document.getElementById('pdf_laser'),
+		'pdf_torpedo' : document.getElementById('pdf_torpedo'),
+		'pdf_projetil' : document.getElementById('pdf_projetil'),
+		'blindagem' : document.getElementById('blindagem'),
+		'escudos' : document.getElementById('escudos'),
+		'hp' : document.getElementById('hp'),
+		'categoria' : document.getElementById('categoria'),
+		'especiais' : document.getElementById('especiais'),
+		'pesquisa' : document.getElementById('pesquisa'),
+		'nivel_estacao_orbital' : document.getElementById('nivel_estacao_orbital'),
+		'qtd_bombas' : document.getElementById('qtd_bombas'),
+		'qtd_tropas' : document.getElementById('qtd_tropas'),
+		'custo' : document.getElementById('custo')
+	};
+
+	for (const property in calcula_nave.dados_nave) {
+		if (typeof(calcula_nave.dados_nave[property]) == "boolean") {
+			nave_elementos[property].checked = calcula_nave.dados_nave[property];
+		} else {
+			nave_elementos[property].value = calcula_nave.dados_nave[property];
+		}
+	}
+	
+	nave_elementos.custo.value = JSON.stringify(calcula_nave.custo);
 	
 	evento.preventDefault();
 	return false;
