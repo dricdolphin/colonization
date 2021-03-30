@@ -380,6 +380,7 @@ class colonization_ajax {
 		}
 
 		$nave = new frota($_POST['id']);
+		$imperio = new imperio($nave->id_imperio);
 		$turno = new turno();
 		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
 			$estrela = new estrela($nave->id_estrela_destino);
@@ -396,7 +397,7 @@ class colonization_ajax {
 			//Verifica se já pesquisou essa estrela. Se ainda não pesquisou, então fornece 5 pontos de pesquisa automaticamente
 			if ($nave->pesquisa == 1) {
 				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				$pesquisa_anterior = $wpdb->get_results("SELECT id, sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
 				
 				//Pega os recursos desconhecidos
 				$id_recursos_desconhecidos = $wpdb->get_results("
@@ -419,9 +420,15 @@ class colonization_ajax {
 				}
 				
 				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
-					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}");
-					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
-					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+5 WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
+					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}, sensores={$imperio->sensores}");
+					$qtd_pesquisa = 5*($imperio->sensores + 1);
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
+					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
+				} elseif ($pesquisa_anterior->sensores < $imperio->sensores) {
+					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores} WHERE id={$pesquisa_anterior->id}");
+					$qtd_pesquisa = 5*($imperio->sensores - $pesquisa_anterior->sensores);
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
+					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
 				}
 			}
 			

@@ -424,7 +424,7 @@ class acoes
 				
 				$nivel_upgrade = $this->nivel_instalacao[$chave] + 1;
 				$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
-				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade}"))) {
+				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade} AND custo=0"))) {
 					if ($instalacao[$this->id_instalacao[$chave]]->nivel_maximo === false || $nivel_upgrade < $instalacao[$this->id_instalacao[$chave]]->nivel_maximo) {//Não tem nível máximo, ou o nível atual é menor que o nível máximo
 						$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'></i></a>";
 						$nivel_upgrade++;

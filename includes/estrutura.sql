@@ -212,6 +212,7 @@ CREATE TABLE colonization_imperio_historico_pesquisa (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 id_imperio INT(6) NOT NULL,
 id_estrela INT(6) NOT NULL,
+sensores INT(6) DEFAULT 0,
 turno INT(6) NOT NULL
 )
 

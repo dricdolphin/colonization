@@ -790,9 +790,7 @@ function nova_nave(evento, id_imperio) {
 	var Y = linha_nova.insertCell(-1);
 	var Z = linha_nova.insertCell(-1);
 
-	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>"
-	+ "\n<div class='subtitulo'>Custo</div>"
-	+"\n<div data-atributo='custo' data-ajax='true' data-editavel='true' data-branco='true' data-valor-original='' data-style='width: 100px;' data-id='custo'><input type='text' data-atributo='custo' data-ajax='true' style='width: 100px;' id='custo'></input></div>";
+	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>";
 	
 	qtd.innerHTML = "<div data-atributo='qtd' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 30px;'></input></div>";
 	X.innerHTML = "<div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div>";
@@ -818,7 +816,11 @@ function nova_nave(evento, id_imperio) {
 		var camuflagem = linha_nova.insertCell(-1);
 		var nivel_estacao_orbital = linha_nova.insertCell(-1);
 		var especiais = linha_nova.insertCell(-1);
-
+		
+		categoria.innerHTML = categoria.innerHTML
+		+ "\n<div class='subtitulo'>Custo</div>"
+		+"\n<div data-atributo='custo' data-ajax='true' data-editavel='true' data-branco='true' data-valor-original='' data-style='width: 100px;' data-id='custo'><input type='text' data-atributo='custo' data-ajax='true' style='width: 100px;' id='custo'></input></div>";
+		
 		nome.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
