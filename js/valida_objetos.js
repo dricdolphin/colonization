@@ -362,11 +362,10 @@ function valida_planeta_recurso(objeto) {
 				}
 				
 				if (resposta.resposta_ajax == "OK!") {
-					altera_recursos_planeta(objeto);
-					retorno = true;
+					resolve(altera_recursos_planeta(objeto));
 				} else {
 					alert(resposta.resposta_ajax);
-					retorno = false;
+					resolve(false);
 				}
 			}
 		};
@@ -407,7 +406,11 @@ function valida_colonia_instalacao(objeto) {
 		|| inputs_linha[index].getAttribute('data-atributo') == "id"
 		|| inputs_linha[index].getAttribute('data-atributo') == "instalacao_inicial"
 		) {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
+			} else {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			}
 		}
 	}
 

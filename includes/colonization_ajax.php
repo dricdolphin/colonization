@@ -424,8 +424,8 @@ class colonization_ajax {
 					$qtd_pesquisa = 5*($imperio->sensores + 1);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
 					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
-				} elseif ($pesquisa_anterior->sensores < $imperio->sensores) {
-					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores} WHERE id={$pesquisa_anterior->id}");
+				} elseif ($pesquisa_anterior[0]->sensores < $imperio->sensores) {
+					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores} WHERE id={$pesquisa_anterior[0]->id}");
 					$qtd_pesquisa = 5*($imperio->sensores - $pesquisa_anterior->sensores);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
 					$dados_salvos['debug'] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
@@ -986,9 +986,11 @@ class colonization_ajax {
 		global $wpdb; 
 		$wpdb->hide_errors();
 
-		$query = "UPDATE colonization_planeta_recursos SET id_recurso={$_POST['id_recurso']} WHERE id_recurso={$_POST['id_recurso_original']} AND id_planeta={$_POST['id_planeta']}";
-		
-		$resposta = $wpdb->query($query);
+		$resposta = 0;
+		if (!empty($_POST['id_recurso_original'])) {
+			$query = "UPDATE colonization_planeta_recursos SET id_recurso={$_POST['id_recurso']} WHERE id_recurso={$_POST['id_recurso_original']} AND id_planeta={$_POST['id_planeta']}";
+			$resposta = $wpdb->query($query);
+		}
 
 		if ($resposta === 0) {
 			$dados_salvos['resposta_ajax'] = "OK!";
@@ -1270,7 +1272,7 @@ class colonization_ajax {
 						if (empty($recursos_devolve[$id_recurso])) {
 							$recursos_devolve[$id_recurso] = 0;
 						}
-						$dados_salvos['debug'] .= "ID:{$_POST['id']} instalacao_inicial:{$_POST['instalacao_inicial']}";
+						$dados_salvos['debug'] .= "\nID:{$_POST['id']} instalacao_inicial:{$_POST['instalacao_inicial']}";
 						if (!($_POST['id'] == "" && $_POST['instalacao_inicial'] == 1)) {//Uma instalação inicial é gratuita, desde que esteja sendo criada.
 							$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
 							$custo_recursos = $qtd*$niveis;

@@ -287,11 +287,7 @@ class colonization {
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false);
 		} else {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio, true);
+			$imperio = new imperio();
 		}		
 		
 		if ($imperio->id == 0 && $roles == "administrator") {
@@ -391,11 +387,7 @@ class colonization {
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false);
 		} else {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio, true);
+			$imperio = new imperio();
 		}		
 
 		$apenas_recursos = false;
@@ -769,7 +761,7 @@ class colonization {
 			$imperio = new imperio($atts['id'],false);
 			$roles = "";
 		} else {
-			$imperio = new imperio(0,false);
+			$imperio = new imperio();
 		}
 		
 		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
