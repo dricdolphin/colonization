@@ -414,6 +414,7 @@ class instala_db {
 		ON colonization_planeta_instalacoes FOR EACH ROW
 		BEGIN
 		DELETE FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = old.id;
+		DELETE FROM colonization_acoes_turno WHERE id_planeta_instalacoes = old.id;
 		END$$
 		DELIMITER ;");		
 

@@ -462,7 +462,10 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 	
 	
 	for (let index=0; index<inputs.length; index++) {
-		if (inputs[index].getAttribute("data-atributo") == "id_imperio" || inputs[index].getAttribute("data-atributo") == "id_planeta" || inputs[index].getAttribute("data-atributo") == "id_instalacao" || inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
+		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
+		|| inputs[index].getAttribute("data-atributo") == "id_instalacao" 
+		|| inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
 		} else if (inputs[index].getAttribute("data-atributo") == "nivel") {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
@@ -494,6 +497,9 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				console.log(this.responseText);
 				retorno = false;
 				return false;
+			}
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
 			}
 			
 			objeto_em_salvamento = false;
@@ -542,7 +548,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				let div_recursos_atuais = document.getElementById(id_recursos_atuais);
 				div_recursos_atuais.innerHTML = resposta.recursos_atuais;
 				
-				let fator =  ((nivel_upgrade-1)/(nivel_upgrade));
+				let fator = ((nivel_upgrade-1)/(nivel_upgrade));
 				
 				if (input_pop != undefined) {
 					input_pop.value = Math.floor(input_pop.value*fator);
@@ -560,11 +566,6 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 			}
 			
 			objeto_em_salvamento = false;
-			
-			if (resposta.debug != undefined) {
-				console.log(resposta.debug);
-			}
-		
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
@@ -576,6 +577,11 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 	return false;	
 }
 
+/******************
+function alerta()
+--------------------
+Chama um alert
+******************/
 function alerta(texto) {
 	alert(texto);
 }
@@ -967,53 +973,206 @@ function destruir_instalacao(evento, objeto)
 Função para chamar o AJAX de destruir instalação
 objeto -- objeto sendo editado
 ******************/
-function destruir_instalacao(evento, objeto) {
-	var linha=pega_ascendente(objeto,"TR");
-	var inputs=linha.getElementsByTagName("INPUT");
-	var dados_ajax = "post_type=POST&action=destruir_instalacao";
+function destruir_instalacao(evento, objeto, jogador=false) {
+	let linha=pega_ascendente(objeto,"TR");
+	let inputs=linha.getElementsByTagName("INPUT");
+	let dados_ajax = "post_type=POST&action=destruir_instalacao";
 
+	if(objeto_em_edicao) {
+		evento.preventDefault();
+		return false;		
+	}
 	
+	id_objeto = 0;
 	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
+			id_objeto = inputs[index].value;
+		}
+		if (jogador) {
+			if (inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
+				id_objeto = inputs[index].value;
+			}
 		}
 	}
 	
 	dados_ajax = dados_ajax + "&id=" + id_objeto;
 	
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			objeto_em_edicao = false;
-		}
-		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
-			if (resposta.resposta_ajax == "OK!") {
-				if (resposta[0].turno_destroi != "") {
-					objeto.text = "Reparar Instalação";
-				} else {
-					objeto.text = "Destruir Instalação";
-					resposta[0].turno_destroi = "&nbsp;";
-				}
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-			} else {
-				alert(resposta.resposta_ajax);
-			}
-			
-			if (resposta.debug != undefined) {
-				console.log(resposta.debug);
-			}
-		} else if (this.status == 500) {
-			console.log(this.responseText);
-			console.log(this.statusText);			
-		}
-	};
-	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(dados_ajax);
-	objeto_em_edicao = true;
 	
+	let retorno = new Promise((resolve, reject) =>	{
+		let xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4) {
+				objeto_em_edicao = false;
+			}
+			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
+				try {
+					resposta = JSON.parse(this.responseText);
+				} catch(err) {
+					console.log(err);
+					reject(false);
+				}
+				
+				if (resposta.debug != undefined) {
+					console.log(resposta.debug);
+				}				
+				if (resposta.resposta_ajax == "OK!") {
+					if (!jogador) {
+						if (resposta[0].turno_destroi != "") {
+							objeto.text = "Reparar Instalação";
+						} else {
+							objeto.text = "Destruir Instalação";
+							resposta[0].turno_destroi = "&nbsp;";
+						}
+						let objeto_desabilitado = desabilita_edicao_objeto(objeto);
+						let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+					}
+					resolve(true);
+				} else {
+					alert(resposta.resposta_ajax);
+					resolve(false);
+				}
+			} else if (this.status == 500) {
+				console.log(this.responseText);
+				console.log(this.statusText);
+				reject(false);
+			}
+		};
+		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send(dados_ajax);
+	});
+
+	objeto_em_edicao = true;
+	evento.preventDefault();
+	return retorno;
+}
+
+/******************
+function desmonta_instalacao(evento, objeto, turno, jogador=false)
+--------------------
+Função para chamar o AJAX de desmontar uma instalação
+objeto -- objeto sendo editado
+******************/
+function desmonta_instalacao(evento, objeto, turno, jogador=false) {
+	let linha=pega_ascendente(objeto,"TR");
+	let tabela=pega_ascendente(linha,"TABLE");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let divs = linha.getElementsByTagName("DIV");
+	let dados = [];
+	let id_objeto = 0;
+
+	if(objeto_em_edicao) {
+		evento.preventDefault();
+		return false;		
+	}
+	
+	let confirma=confirm("AVISO!\nEsta ação é irreversível. Deseja continuar?");
+
+	if (!confirma) {
+		evento.preventDefault();
+		return false;		
+	}
+	
+	for (let index=0; index<inputs.length; index++) {
+		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
+		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
+		|| inputs[index].getAttribute("data-atributo") == "id_instalacao" 
+		|| inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
+		} else if (inputs[index].getAttribute("data-atributo") == "nivel") {
+			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
+			input_nivel = inputs[index];
+		}  else if (inputs[index].getAttribute("data-atributo") == "id") {
+			id_objeto = inputs[index].value;
+		}
+		
+		if (jogador) {
+			if (inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
+				id_objeto = inputs[index].value;
+			}
+		}
+	}
+	
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "id_imperio" 
+		|| divs[index].getAttribute("data-atributo") == "id_planeta" 
+		|| divs[index].getAttribute("data-atributo") == "id_instalacao" 
+		|| divs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+			dados[divs[index].getAttribute("data-atributo")] = divs[index].innerHTML;
+		} else if (divs[index].getAttribute("data-atributo") == "nivel") {
+			dados[divs[index].getAttribute("data-atributo")] = divs[index].innerHTML;
+			input_nivel = divs[index];
+		} else if (divs[index].getAttribute("data-atributo") == "id") {
+			id_objeto = divs[index].innerHTML;
+		}
+		
+		if (jogador) {
+			if (divs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
+				id_objeto = divs[index].innerHTML;
+			}
+		}
+	}	
+
+	let dados_ajax = "post_type=POST&action=desmonta_instalacao&upgrade_acao=true&id="+id_objeto+"&nivel="+dados['nivel']+"&tabela=colonization_planeta_instalacoes"
+	+"&where_clause=id&where_value="+id_objeto+"&id_planeta="+dados['id_planeta']+"&id_instalacao="+dados['id_instalacao']+"&turno_desmonta="+turno;
+	
+	let link_destruir = document.getElementById('destruir_'+id_objeto).getElementsByTagName("A")[0];
+
+	if (jogador) {
+		link_destruir = objeto;
+	}
+	
+	let valida_dados = new Promise((resolve, reject) =>	{
+		resolve(destruir_instalacao(evento, link_destruir, jogador));
+	});
+	
+	valida_dados.then((successMessage) => {
+		if (successMessage) {
+			let xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4) {
+					objeto_em_edicao = false;
+				}
+				let resposta = "";
+				if (this.readyState == 4 && this.status == 200) {
+					try {
+						resposta = JSON.parse(this.responseText);
+					} catch(err) {
+						console.log(err)
+					}
+					if (resposta.debug != undefined) {
+						console.log(resposta.debug);
+					}
+					if (resposta.resposta_ajax == "SALVO!") {
+						console.log(resposta);
+						if (!jogador) {
+							if (resposta[0].turno_desmonta != "") {
+								objeto.style.visibility = "hidden";
+							} else {
+								resposta[0].turno_desmonta = "&nbsp;";
+							}
+							let objeto_desabilitado = desabilita_edicao_objeto(objeto);
+							let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+						} else {
+							linha.remove();
+						}
+					} else {
+						destruir_instalacao(evento, link_destruir, jogador);
+						alert(resposta.resposta_ajax);
+					}
+				} else if (this.status == 500) {
+					console.log(this.responseText);
+					console.log(this.statusText);			
+				}
+			};
+			xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.send(dados_ajax);
+		}
+	});
+	
+	objeto_em_edicao = true;
 	evento.preventDefault();
 	return false;
 }

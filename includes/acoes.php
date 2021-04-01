@@ -424,9 +424,9 @@ class acoes
 				
 				$nivel_upgrade = $this->nivel_instalacao[$chave] + 1;
 				$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
-				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade} AND custo=0"))) {
+				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade} AND custo_pago=0"))) {
 					if ($instalacao[$this->id_instalacao[$chave]]->nivel_maximo === false || $nivel_upgrade < $instalacao[$this->id_instalacao[$chave]]->nivel_maximo) {//Não tem nível máximo, ou o nível atual é menor que o nível máximo
-						$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'></i></a>";
+						$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'><span class='tooltiptext'>Upgrade</span></i></a>";
 						$nivel_upgrade++;
 						$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
 					} else {
@@ -481,7 +481,6 @@ class acoes
 					$exibe_acoes = "<label class='switch'><input type='checkbox' data-atributo='desativado' data-ajax='true' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});' data-valor-original='{$this->desativado[$chave]}' value='{$this->desativado[$chave]}' checked {$this->disabled}><span class='slider round'></span></label>";
 					//$exibe_acoes = "<a href='#' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});'><i class='fas fa-toggle-on tooltip' style='color: #007700; font-size: x-large;'></i></a>";	
 				}
-				
 			} else {
 				$exibe_acoes = "&nbsp;";
 			}
@@ -507,6 +506,13 @@ class acoes
 					}				
 				}
 				
+				$div_desmonta_instalacao = "";
+				if ($roles == "administrator") {
+					if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
+						$div_desmonta_instalacao = "<div data-atributo='gerenciar'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true);'>Desmantelar</a></div>";
+					}
+				}
+				
 				$html_custo_instalacao = $instalacao[$this->id_instalacao[$chave]]->html_custo();
 				$html .= "		
 				<tr {$estilo}>
@@ -524,6 +530,7 @@ class acoes
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
 					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}' class='nome_instalacao tooltip'>{$instalacao[$this->id_instalacao[$chave]]->nome}<span class='tooltiptext'>{$instalacao[$this->id_instalacao[$chave]]->descricao}</span><label data-atributo='nivel'> {$nivel}</label>{$html_upgrade}</div>
+					{$div_desmonta_instalacao}
 					<div data-atributo='custo_instalacao' data-valor-original='' class='custo_instalacao'><label>Custo por nível:</label> {$html_custo_instalacao}</div>
 					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' class='balanco_instalacao'><label>Balanço da produção:</label> {$html_producao_consumo_instalacao}</div>
 				</td>

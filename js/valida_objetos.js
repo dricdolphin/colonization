@@ -143,22 +143,20 @@ function valida_tech_imperio(objeto) {
 	var custo_pago = "";
 
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" || inputs_linha[index].getAttribute('data-atributo') == "id") {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "id"
+		) {
+			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
+			} else {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			}
 		}
 		
 		if (inputs_linha[index].getAttribute('data-atributo') == "custo_pago") {
 			custo_pago = inputs_linha[index];
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
-		
-		if (inputs_linha[index].type == 'checkbox') {
-			if (inputs_linha[index].checked) {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
-			} else {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
-			}			
-		}			
 	}
 
 	if (typeof(select_linha[0]) !== "undefined") {
@@ -238,7 +236,10 @@ function valida_estrela(objeto) {
 	
 	//Verifica se o nome do Império está preenchido
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "X" || inputs_linha[index].getAttribute('data-atributo') == "Y" || inputs_linha[index].getAttribute('data-atributo') == "Z" || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "X" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "Y" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "Z" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -272,15 +273,15 @@ function valida_colonia(objeto) {
 	
 	//Verifica se o nome do Império está preenchido
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno" || inputs_linha[index].getAttribute('data-atributo') == "nome_npc" || inputs_linha[index].getAttribute('data-atributo') == "pop") {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
-		}
-		if (inputs_linha[index].type == 'checkbox') {
-			if (inputs_linha[index].checked) {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
-			} else {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "turno" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "nome_npc" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "pop") {
+			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
-			}			
+			} else {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			}
 		}
 	}
 
@@ -311,7 +312,10 @@ function valida_instalacao_recurso(objeto) {
 	}
 
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" || inputs_linha[index].getAttribute('data-atributo') == "consome" || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "consome" 
+		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") 
+		|| inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -343,7 +347,10 @@ function valida_planeta_recurso(objeto) {
 	}
 
 	for (let index = 0; index < inputs_linha.length; index++) {
-		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  || (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") || inputs_linha[index].getAttribute('data-atributo') == "id" || inputs_linha[index].getAttribute('data-atributo') == "turno") {
+		if (inputs_linha[index].getAttribute('data-atributo') == "id_planeta"  
+		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") 
+		|| inputs_linha[index].getAttribute('data-atributo') == "id" 
+		|| inputs_linha[index].getAttribute('data-atributo') == "turno") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}
 	}
@@ -405,6 +412,7 @@ function valida_colonia_instalacao(objeto) {
 		|| (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" && typeof(id_instalacao) === "undefined") 
 		|| inputs_linha[index].getAttribute('data-atributo') == "id"
 		|| inputs_linha[index].getAttribute('data-atributo') == "instalacao_inicial"
+		|| inputs_linha[index].getAttribute('data-atributo') == "turno_desmonta"
 		) {
 			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";

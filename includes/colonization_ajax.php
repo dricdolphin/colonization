@@ -20,6 +20,7 @@ class colonization_ajax {
 		add_action('wp_ajax_altera_recursos_planeta', array ($this, 'altera_recursos_planeta'));//altera_recursos_planeta
 		add_action('wp_ajax_valida_colonia_instalacao', array ($this, 'valida_colonia_instalacao'));
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
+		add_action('wp_ajax_desmonta_instalacao', array ($this, 'desmonta_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
 		//add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
@@ -142,6 +143,7 @@ class colonization_ajax {
 		global $wpdb;
 		// Report all PHP errors
 		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
 		
 		$id_imperio = $wpdb->get_var("
 		SELECT cic.id_imperio 
@@ -1045,19 +1047,16 @@ class colonization_ajax {
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio, true);
+			$imperio = new imperio();
 		}
 
 		$planeta = new planeta($_POST['id_planeta']);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 		$colonia = new colonia($id_colonia);
 
-		if ($roles != "administrator" && ($id_imperio != $colonia->id_imperio)) {
-			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação! {$id_imperio} {$colonia->id_imperio}";
+		if ($roles != "administrator" && ($imperio->id != $colonia->id_imperio)) {
+			$dados_salvos['resposta_ajax'] = "Você não está autorizado a realizar esta operação! {$imperio->id}:{$colonia->id_imperio}";
+			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		}
@@ -1123,7 +1122,6 @@ class colonization_ajax {
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
-			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
 		}
@@ -1234,33 +1232,47 @@ class colonization_ajax {
 
 			//Verifica se o Império tem os Recursos para construir ou realizar o upgrade
 			$niveis = $_POST['nivel'] - $nivel_original;
-			$dados_salvos['debug'] .= "{$niveis} = {$_POST['nivel']} - {$nivel_original}; \n";
+			$dados_salvos['debug'] .= "\nDiferença de níveis: {$niveis} = {$_POST['nivel']} - {$nivel_original}; \n";
 			
 			//Se substituiu uma Instalação, DEVOLVE os recursos da Instalação antiga
+			//Se DESMONTOU uma Instalação, DEVOLVE os recursos, mas cobra 1 Industrializáveis
+			//Se realizou um DOWNGRADE, DEVOLVE a diferença dos recursos
+			$devolve_recursos = false;
 			if (!empty($instalacao_antiga)) {
 				$niveis = $_POST['nivel'];//Ajusta para cobrar o valor TOTAL da nova Instalação
+				$devolve_recursos = true;
+			} elseif (!empty($_POST['turno_desmonta'])) {
+				$niveis = 0;//Está DESMONTANDO uma instalação, então só DEVOLVE os recursos
+				$instalacao_antiga = $instalacao;
+				//Cobra 1 Industrializáveis
+				$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+				$query_update_recursos[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-1 WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+				$devolve_recursos = true;
+			} elseif ($niveis < 0) {
+				$nivel_original = -$niveis;
+				$instalacao_antiga = $instalacao;
+				$devolve_recursos = true;
+			}
 				
+			if ($devolve_recursos) {
 				//Devolve os recursos
-				$chave = 0;
 				if ($instalacao_antiga->custos != "") {
 					$custos = explode(";",$instalacao_antiga->custos);
 					
 					$recursos_devolve = [];
-					
 					foreach ($custos as $chave_recurso => $recurso) {
 						$recursos = explode("=",$recurso);
 						$id_recurso = $recursos[0];
 						$qtd = $recursos[1];
 					
 						$custo_recursos = $qtd*$nivel_original;
-						$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+						$query_update_recursos[] = "UPDATE colonization_imperio_recursos SET qtd=qtd+{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
 						$recursos_devolve[$id_recurso] = $custo_recursos;
-						$chave++;
 					}
 				}				
 			}
 
-			if ($niveis > 0) {
+			if ($niveis > 0) {//Só cobra se tiver diferença entre os níveis
 				if ($instalacao->custos != "") {
 					$custos = explode(";",$instalacao->custos);
 					foreach ($custos as $chave_recurso => $recurso) {
@@ -1276,8 +1288,7 @@ class colonization_ajax {
 						if (!($_POST['id'] == "" && $_POST['instalacao_inicial'] == 1)) {//Uma instalação inicial é gratuita, desde que esteja sendo criada.
 							$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
 							$custo_recursos = $qtd*$niveis;
-							$query_update_recursos[$chave] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
-							$chave++;
+							$query_update_recursos[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_recursos} WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
 							if ($qtd_imperio < $custo_recursos) {
 								$dados_salvos['resposta_ajax'] = "O Império não tem Recursos suficientes para concluir essa operação.";	
 							}
@@ -1289,6 +1300,9 @@ class colonization_ajax {
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
 			$dados_salvos['resposta_ajax'] = "OK!";
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
 
 			//Se chegou até aqui pode atualizar os Recursos do Império
 			if ($imperio->id != 0) {
@@ -1300,13 +1314,11 @@ class colonization_ajax {
 		
 			if (!empty($_POST['upgrade_acao'])) {
 				unset($_POST['upgrade_acao']);
-				unset($_POST['id_imperio']);
+				unset($_POST['id_imperio']);				
 				
-				$resposta = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
-				//Reseta os dados do JSON
-				$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
-				$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
-				
+				$debug = $dados_salvos['debug'];
+				$dados_salvos = $this->salva_objeto(false); //Define que NÃO é pra responder com wp_die
+				$dados_salvos['debug'] = $debug;
 				$dados_salvos['recursos_atuais'] = $imperio->exibe_recursos_atuais();
 				$dados_salvos['pos_processamento'] = $dados_salvos['recursos_atuais'];
 				$dados_salvos['resposta_ajax'] = "SALVO!";
@@ -1359,8 +1371,8 @@ class colonization_ajax {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		// Report all PHP errors
-		error_reporting(E_ALL); 
-		ini_set("display_errors", 1);		
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);		
 		
 		foreach ($_POST as $chave => $valor) {
 			if ($chave!='tabela' && $chave!='where_clause' && $chave!='post_type' && $chave!='action' && $chave!='where_value') {
@@ -1453,7 +1465,8 @@ class colonization_ajax {
 		global $wpdb; 
 		//$wpdb->hide_errors();
 		// Report all PHP errors
-		error_reporting(E_ALL);
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
 		
 		
 		$turno = new turno();
@@ -1479,11 +1492,12 @@ class colonization_ajax {
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id={$acoes->id[$chave_id_planeta_instalacoes]}");
 			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
 			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
-			$imperio = new imperio($id_imperio);
-			$imperio->acoes = $acoes;
-			$colonias[0] = $id_colonia;
-			$colonias[1] = 0;
-			$imperio->exibe_lista_colonias($colonias);
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
+
+			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
+			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
 		}
 		$resposta = $wpdb->query($query);
 		
@@ -1500,7 +1514,46 @@ class colonization_ajax {
 		$dados_salvos['debug'] = "{$id_colonia}";
 		echo json_encode($dados_salvos); //Envia a resposta via echo
 		wp_die(); //Termina o script e envia a resposta
-	}	
+	}
+	
+	/***********************
+	function desmonta_instalacao ()
+	----------------------
+	Destrói uma instalação
+	***********************/	
+	function desmonta_instalacao() {
+		global $wpdb; 
+		//$wpdb->hide_errors();
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
+		
+		$turno = new turno();
+		$colonia_instalacao = new colonia_instalacao($_POST['id']);
+		$instalacao = new instalacao($colonia_instalacao->id_instalacao);
+	
+		$dados_salvos['resposta_ajax'] = "";
+		
+		if ($instalacao->sempre_ativa == 0) {
+			$dados_salvos['resposta_ajax'] = "Não é possível desmantelar uma Instalação que não pode ser desativada.";
+		}
+
+		if (!empty($colonia_instalacao->turno_desmonta)) {
+			$dados_salvos['resposta_ajax'] = "Não é possível reverter uma operação de desmantelamento. Construa uma nova instalação.";
+		}
+
+		if (empty($colonia_instalacao->turno_destroi)) {
+			$dados_salvos['resposta_ajax'] = "A Instalação precisa ser destruída antes de poder ser desmantelada!";
+		}
+		
+		if ($dados_salvos['resposta_ajax'] == "") {
+			$this->valida_colonia_instalacao();
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo
+		wp_die(); //Termina o script e envia a resposta
+	}
+
 
 	/***********************
 	function dados_imperio ()

@@ -749,7 +749,8 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
 	turno_desmonta.innerHTML = "<div data-atributo='turno_desmonta' data-style='width: 50px;' data-editavel='true' data-valor-original='' data-branco='true'>#</div>";
 	instalacao_inicial.innerHTML = "<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' value='1'></input></div></td>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return desmonta_instalacao(event, this, "+turno_atual+");' style='visibility: hidden;'>Desmantelar</a></div>";
 
 	evento.preventDefault();
 	return false;
@@ -831,7 +832,7 @@ function nova_nave(evento, id_imperio) {
 		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>"
 		+"<div data-atributo='processa_string' data-valor-original=''><a href='#' onclick='return processa_string_admin(event, this);'>Processa String</a></div>";
 	
-		string_nave.innerHTML = "<div data-atributo='string_nave' data-editavel='true' data-type='textarea' data-valor-original='' data-style='width: 80px; height: 200px;' data-id='string_nave'><textarea data-atributo='string_nave' data-ajax='true' style='width: 80px; height: 200px;' id='string_nave'></textarea></div>";
+		string_nave.innerHTML = "<div data-atributo='string_nave' data-editavel='true' data-type='textarea' data-valor-original='' data-style='width: 100px; height: 200px;' data-id='string_nave'><textarea data-atributo='string_nave' data-ajax='true' style='width: 80px; height: 200px;' id='string_nave'></textarea></div>";
 		tamanho.innerHTML = "<div data-atributo='tamanho' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='tamanho'><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 50px;' id='tamanho'></input></div>";
 		HP.innerHTML = "<div data-atributo='HP' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='hp'><input type='text' data-atributo='HP' data-ajax='true' style='width: 50px;' id='hp'></input></div>";
 		velocidade.innerHTML = "<div data-atributo='velocidade' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='velocidade'><input type='text' data-atributo='velocidade' data-ajax='true' style='width: 50px;' id='velocidade'></input></div>";

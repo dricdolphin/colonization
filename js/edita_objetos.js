@@ -100,7 +100,7 @@ function cancela_edicao(evento, objeto) {
 	do {
 		//console.log(linha_acima.cells[0].rowSpan);
 		if (linha_acima.cells[0].rowSpan > 1) {
-			if (linha_acima.getAttribute('data-atributo') == "dados_colonia") {
+			if (linha_acima.cells[0].getAttribute('data-atributo') == "dados_colonia") {
 				linha_acima.cells[0].rowSpan = linha_acima.cells[0].rowSpan - 1;
 			}
 			break;

@@ -58,11 +58,18 @@ class colonia_instalacao
 		
 		$this->instalacao = new instalacao($this->id_instalacao);
 		
-		if ($this->turno_destroi === null) {
+		if (empty($this->turno_destroi)) {
 			$texto_destruir	= "Destruir Instalação";
 			$this->turno_destroi = "&nbsp;";
 		} else {
 			$texto_destruir	= "Reparar Instalação";
+		}
+		
+		$html_desmontar = "&nbsp;";
+		if (empty($this->turno_desmonta)) {
+			$turno_atual = new turno();
+			$html_desmontar = "<a href='#' onclick='return desmonta_instalacao(event, this, {$turno_atual->turno});'>Desmantelar</a>";
+			$this->turno_desmonta = "&nbsp;";
 		}
 		
 		//Exibe os dados da colônia
@@ -81,9 +88,12 @@ class colonia_instalacao
 			<td><div data-atributo='nivel' data-editavel='true' data-valor-original='{$this->nivel}' data-style='width: 30px;'>{$this->nivel}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 30px;'>{$this->turno}</div></td>
 			<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='{$this->instalacao_inicial}'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' {$instalacao_inicial_checked} disabled></input></div></td>			
-			<td><div data-atributo='turno_desmonta' data-style='width: 50px;' data-editavel='true' data-valor-original='{$this->turno_desmonta}' data-branco='true'>{$this->turno_desmonta}</div></td>
-			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi}' data-style='width: 30px;'>{$this->turno_destroi}</div></td>
-			<td><div data-atributo='gerenciar'><a href='#' onclick='return destruir_instalacao(event, this);'>{$texto_destruir}</a></div></td>";
+			<td><div data-atributo='turno_desmonta' data-style='width: 30px;'  data-valor-original='{$this->turno_desmonta}' data-branco='true'>{$this->turno_desmonta}</div></td>
+			<td><div data-atributo='turno_destroi' data-valor-original='{$this->turno_destroi}' data-style='width: 30px;' data-branco='true'>{$this->turno_destroi}</div></td>
+			<td>
+			<div data-atributo='gerenciar' id='destruir_{$this->id}'><a href='#' onclick='return destruir_instalacao(event, this);'>{$texto_destruir}</a></div>
+			<div data-atributo='gerenciar'>{$html_desmontar}</div>
+			</td>";
 		
 		return $html;
 	}
