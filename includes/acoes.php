@@ -370,10 +370,12 @@ class acoes
 			
 			$html_upgrade = "";
 
-			$this->disabled = "";
+			//$this->disabled = "";
+			$visivel = "";
 			$turno_atual = new turno();
 			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
 					$this->disabled = "disabled";
+					$visivel = "style='visibility: hidden;'";
 			}
 
 
@@ -385,11 +387,12 @@ class acoes
 
 				if ($colonia->vassalo == 1 && $roles != "administrator") {
 					$this->disabled = "disabled";
+					$visivel = "style='visibility: hidden;'";
 				}
 				
 				//$html_nova_instalacao_jogador = "";
 				//if ($roles == "administrator") {
-					$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$this->disabled}>Nova Instalação</a></div>";
+					$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$visivel}>Nova Instalação</a></div>";
 				//}
 				
 				$ultimo_planeta = $this->id_planeta[$chave];				
@@ -426,7 +429,7 @@ class acoes
 				$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
 				while (!empty($tech_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$this->id_imperio} AND id_tech={$tech_upgrade} AND custo_pago=0"))) {
 					if ($instalacao[$this->id_instalacao[$chave]]->nivel_maximo === false || $nivel_upgrade < $instalacao[$this->id_instalacao[$chave]]->nivel_maximo) {//Não tem nível máximo, ou o nível atual é menor que o nível máximo
-						$html_upgrade = "<a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'><span class='tooltiptext'>Upgrade</span></i></a>";
+						$html_upgrade = "<div data-atributo='upgrade' class='upgrade' {$visivel}><a href='#' onclick='return upgrade_instalacao(event,this,{$nivel_upgrade});'><i class='fas fa-level-up tooltip'><span class='tooltiptext'>Upgrade</span></i></a></div>";
 						$nivel_upgrade++;
 						$tech_upgrade = $instalacao[$this->id_instalacao[$chave]]->tech_requisito_upgrade($nivel_upgrade);
 					} else {
@@ -507,11 +510,11 @@ class acoes
 				}
 				
 				$div_desmonta_instalacao = "";
-				if ($roles == "administrator") {
+				//if ($roles == "administrator") {
 					if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
-						$div_desmonta_instalacao = "<div data-atributo='gerenciar'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true);'>Desmantelar</a></div>";
+						$div_desmonta_instalacao = "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true);' {$visivel}>Desmantelar</a></div>";
 					}
-				}
+				//}
 				
 				$html_custo_instalacao = $instalacao[$this->id_instalacao[$chave]]->html_custo();
 				$html .= "		

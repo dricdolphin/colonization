@@ -307,7 +307,7 @@ function pega_dados_objeto(objeto) {
 
 
 /******************
-function salva_objeto(evento, objeto, cancela = false, nome_tabela='' )
+function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='', jogador=false)
 --------------------
 Salva o Império sendo editado.
 objeto -- objeto sendo editado
@@ -315,7 +315,7 @@ cancela = false -- Define se é para salvar ou apenas cancelar a edição
 remove_gerenciar -- Define se deve remover a opção de voltar a editar o objeto
 nome_tabela='' -- Define em qual tabela os dados serão salvos
 ******************/	
-function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='') {
+function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='', jogador=false) {
 	if (objeto_em_salvamento) {
 		evento.preventDefault();
 		return false;
@@ -323,17 +323,19 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 	
 	objeto_em_salvamento = true;
 	
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let funcao_pos_processamento = "";
 	if (typeof(objeto_editado['funcao_pos_processamento_objeto']) != "") {
-		var funcao_pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
+		funcao_pos_processamento = objeto_editado['funcao_pos_processamento_objeto'];
 	}
 	
+	let objeto_desabilitado = "";
 	if (cancela) {
-		var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela);
+		objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela);
 		
-		var processa = true;
+		//let processa = true;
 		if (typeof(funcao_pos_processamento) !== "undefined") {
-			processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, true);
+			let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, true);
 		}
 		
 		objeto_em_edicao = false;
@@ -343,8 +345,9 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 		return false;
 	}
 
+	let where_clause = "";
 	if (objeto_editado['where_value'] == "") {//Se a o valor do WHERE estiver em branco, significa que estamos criando um objeto novo
-		var where_clause = objeto_editado['where_clause'];
+		where_clause = objeto_editado['where_clause'];
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
 	}
 	
@@ -354,15 +357,13 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 	//}
 
 
-	var valida_dados = new Promise((resolve, reject) => {
+	let valida_dados = new Promise((resolve, reject) => {
 		if (objeto_editado['funcao_valida_objeto'] != "") {
 			resolve(chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']));
 		} else {
 			objeto_em_edicao = false;
 			resolve(true);
 		}
-		// or
-		// reject(new Error("Error!"));
 	});
 	
 	valida_dados.then((successMessage) => {
@@ -381,11 +382,12 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 			objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+nome_tabela+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 
 			//Envia a chamada de AJAX para salvar o objeto
-			var xhttp = new XMLHttpRequest();
+			let xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
+					let resposta="";
 					try {
-						var resposta = JSON.parse(this.responseText);
+						resposta = JSON.parse(this.responseText);
 					} 
 					catch (err) {
 						console.log(this.responseText);
@@ -403,17 +405,19 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 					
 					if (resposta.resposta_ajax == "SALVO!") {
 						//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
-						var objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
+						let objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
 						console.log(resposta[0]);
-						var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+						let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 						if (typeof(funcao_pos_processamento) !== "undefined") {
 							if (resposta.pos_processamento != undefined) {
-								var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
+								let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
 							} else {
-								var processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
+								let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
 							}
-							
 						}
+					if (jogador) {
+						document.location.reload();
+					}
 					} else {
 						alert(resposta.resposta_ajax);
 					}

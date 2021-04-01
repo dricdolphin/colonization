@@ -1479,8 +1479,14 @@ class colonization_ajax {
 			$id_imperio = $colonia->id_imperio;
 		}
 		
-		if ($colonia_instalacao->turno_destroi !== null) {
-			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
+		if (!empty($colonia_instalacao->turno_destroi)) {
+			if (empty($colonia_instalacao->turno_desmonta)) {
+				$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
+			} else {
+				$dados_salvos['resposta_ajax'] = "Não é possível reparar uma Instalação que foi desmantelada!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo
+				wp_die(); //Termina o script e envia a resposta
+			}
 		} else {
 			$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = {$turno->turno} WHERE id={$_POST['id']}";
 		}

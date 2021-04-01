@@ -508,6 +508,10 @@ tr.th_linha_1 th {
 	text-decoration: underline;
 }
 
+.upgrade {
+	display: inline-block;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

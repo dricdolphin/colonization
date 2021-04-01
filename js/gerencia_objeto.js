@@ -1117,10 +1117,10 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 	let dados_ajax = "post_type=POST&action=desmonta_instalacao&upgrade_acao=true&id="+id_objeto+"&nivel="+dados['nivel']+"&tabela=colonization_planeta_instalacoes"
 	+"&where_clause=id&where_value="+id_objeto+"&id_planeta="+dados['id_planeta']+"&id_instalacao="+dados['id_instalacao']+"&turno_desmonta="+turno;
 	
-	let link_destruir = document.getElementById('destruir_'+id_objeto).getElementsByTagName("A")[0];
+	let link_destruir = objeto;
 
-	if (jogador) {
-		link_destruir = objeto;
+	if (!jogador) {
+		link_destruir = document.getElementById('destruir_'+id_objeto).getElementsByTagName("A")[0];
 	}
 	
 	let valida_dados = new Promise((resolve, reject) =>	{
@@ -1155,7 +1155,18 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 							let objeto_desabilitado = desabilita_edicao_objeto(objeto);
 							let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 						} else {
+							linha_acima = linha.previousElementSibling;
+							do {
+								if (linha_acima.cells[0].rowSpan > 1) {
+									if (linha_acima.cells[0].getAttribute('data-atributo') == "dados_colonia") {
+										linha_acima.cells[0].rowSpan = linha_acima.cells[0].rowSpan - 1;
+									}
+									break;
+								}
+								linha_acima = linha_acima.previousElementSibling
+							} while(linha_acima != null)						
 							linha.remove();
+							document.location.reload();
 						}
 					} else {
 						destruir_instalacao(evento, link_destruir, jogador);

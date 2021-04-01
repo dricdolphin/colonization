@@ -939,7 +939,7 @@ function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
 	range_em_edicao = objeto;
 	let dados_ajax = "post_type=POST&action=lista_instalacoes_imperio&id_planeta="+id_planeta;
 	
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			try {
@@ -1019,7 +1019,7 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio
 	+"<input type='hidden' data-atributo='turno' data-editavel='true' data-ajax='true' data-style='width: 30px;' value='"+turno_atual+"'></input>"
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
 	+"<div data-atributo='custo_instalacao' class='custo_instalacao'>&nbsp;</div>"
-	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true,\"colonization_planeta_instalacoes\");'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true,\"colonization_planeta_instalacoes\", true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
 	celula_acao.innerHTML = "&nbsp";
 	celula_gerenciar.innerHTML = "&nbsp";
