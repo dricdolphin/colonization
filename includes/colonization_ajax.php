@@ -1480,8 +1480,14 @@ class colonization_ajax {
 		}
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
-			if (empty($colonia_instalacao->turno_desmonta)) {
-				$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
+			if (empty($colonia_instalacao->turno_desmonta) ) { //Só um ADMINISTRADOR pode reparar uma instalação
+				if ($roles == "administrator") {//Só um ADMINISTRADOR pode reparar uma instalação
+					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
+				} else {
+					$dados_salvos['resposta_ajax'] = "OK!";
+					echo json_encode($dados_salvos); //Envia a resposta via echo
+					wp_die(); //Termina o script e envia a resposta					
+				}
 			} else {
 				$dados_salvos['resposta_ajax'] = "Não é possível reparar uma Instalação que foi desmantelada!";
 				echo json_encode($dados_salvos); //Envia a resposta via echo
@@ -1505,6 +1511,7 @@ class colonization_ajax {
 			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
 			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
 		}
+		
 		$resposta = $wpdb->query($query);
 		
 		if ($resposta !== false) {

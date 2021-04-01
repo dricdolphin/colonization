@@ -356,7 +356,7 @@ class instalacao
 	----------------------
 	Exibe os dados do objeto
 	***********************/
-	function produz_comercio($id_colonia) {
+	function produz_comercio($colonia_atual) {
 		global $wpdb;
 
 		$user = wp_get_current_user();
@@ -365,8 +365,12 @@ class instalacao
 			$roles = $user->roles[0];	
 		}		
 
-		if (!$this->comercio || $this->comercio_processou) {//Só faz os cálculos se for uma Instalação comercial
+		if (!$this->comercio || $colonia_atual->comercio_processou) {//Só faz os cálculos se for uma Instalação comercial
 			return false;
+		}
+		
+		if ($roles == "administrator") {
+			//echo "\n{$colonia_atual->id}:{$this->id}=>({$this->comercio})||{$colonia_atual->comercio_processou}<br>";
 		}
 
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
@@ -377,7 +381,7 @@ class instalacao
 		$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
 		$chave_plasma = array_search($id_plasma, $this->recursos_produz);
 
-		$colonia_atual = new colonia($id_colonia);
+		
 		$imperio = new imperio($colonia_atual->id_imperio);
 		
 		$estrelas = [];
@@ -407,26 +411,24 @@ class instalacao
 					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
 				}
 			}
-			
-			//TODO -- bônus para contato com outros Impérios
-			$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
-			foreach ($ids_imperios_contato as $imperios_contato) {
-				//TODO -- no futuro pode haver bloqueios comerciais
+		}
+		
+		//TODO -- bônus para contato com outros Impérios
+		$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
+		foreach ($ids_imperios_contato as $imperios_contato) {
+			//TODO -- no futuro pode haver bloqueios comerciais
+			$this->recursos_produz_qtd[$chave_pesquisa]++;
+			$this->recursos_produz_qtd[$chave_industrializaveis]++;
+			$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
+			if ($imperios_contato->acordo_comercial == 1) {
 				$this->recursos_produz_qtd[$chave_pesquisa]++;
 				$this->recursos_produz_qtd[$chave_industrializaveis]++;
-				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
-				if ($imperios_contato->acordo_comercial == 1) {
-					$this->recursos_produz_qtd[$chave_pesquisa]++;
-					$this->recursos_produz_qtd[$chave_industrializaveis]++;
-					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;					
-				}
+				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;					
 			}
 		}
 		
-		$this->comercio_processou = true;		
+		$colonia_atual->comercio_processou = true;		
 	}
-
-	
 }
 
 ?>

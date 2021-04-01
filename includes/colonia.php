@@ -35,6 +35,7 @@ class colonia
 	public $html_instalacao_ataque = [];
 	public $bonus_extrativo = false;
 	public $bonus_recurso = [];
+	public $comercio_processou = false;
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;

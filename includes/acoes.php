@@ -375,7 +375,7 @@ class acoes
 			$turno_atual = new turno();
 			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
 					$this->disabled = "disabled";
-					$visivel = "style='visibility: hidden;'";
+					$visivel = "style='display: none;'";
 			}
 
 
@@ -387,7 +387,7 @@ class acoes
 
 				if ($colonia->vassalo == 1 && $roles != "administrator") {
 					$this->disabled = "disabled";
-					$visivel = "style='visibility: hidden;'";
+					$visivel = "style='display: none;'";
 				}
 				
 				//$html_nova_instalacao_jogador = "";
@@ -511,7 +511,7 @@ class acoes
 				
 				$div_desmonta_instalacao = "";
 				//if ($roles == "administrator") {
-					if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
+					if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1 && empty($this->turno_destroi[$chave])) {
 						$div_desmonta_instalacao = "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true);' {$visivel}>Desmantelar</a></div>";
 					}
 				//}
@@ -532,7 +532,10 @@ class acoes
 					<input type='hidden' data-atributo='nivel' value='{$this->nivel_instalacao[$chave]}'></input>
 					<input type='hidden' data-atributo='where_value' value='{$this->id[$chave]}'></input>
 					<input type='hidden' data-atributo='funcao_validacao' value='valida_acao'></input>
-					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}' class='nome_instalacao tooltip'>{$instalacao[$this->id_instalacao[$chave]]->nome}<span class='tooltiptext'>{$instalacao[$this->id_instalacao[$chave]]->descricao}</span><label data-atributo='nivel'> {$nivel}</label>{$html_upgrade}</div>
+					<div data-atributo='nome_instalacao' data-valor-original='{$instalacao[$this->id_instalacao[$chave]]->nome}' class='nome_instalacao tooltip'>
+					{$instalacao[$this->id_instalacao[$chave]]->nome}<span class='tooltiptext'>{$instalacao[$this->id_instalacao[$chave]]->descricao}</span><label data-atributo='nivel'> {$nivel}</label>
+					</div>
+					{$html_upgrade}
 					{$div_desmonta_instalacao}
 					<div data-atributo='custo_instalacao' data-valor-original='' class='custo_instalacao'><label>Custo por nível:</label> {$html_custo_instalacao}</div>
 					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' class='balanco_instalacao'><label>Balanço da produção:</label> {$html_producao_consumo_instalacao}</div>
@@ -716,7 +719,7 @@ class acoes
 				}
 				
 				//Se for uma instalação Comercial, já atualiza os valores de produção
-				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]]->id);
+				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]]);
 				
 				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);

@@ -1246,7 +1246,7 @@ if (!empty($imperios[0])) {
 			$roles = $user->roles[0];
 		}
 		
-		$html = "<div id='barra_recursos' class='nojq'>";
+		$html = "<div id='barra_recursos' class='nojq barra_recursos'>";
 		$html_recursos = "";
 		if ($roles == "administrator") {
 			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio");
@@ -1261,18 +1261,17 @@ if (!empty($imperios[0])) {
 		
 		foreach ($resultados as $resultado) {
 			$imperio = new imperio($resultado->id);
-			if ($roles == "administrator") {
-				$html_recursos .= "<b>{$imperio->nome}{$imperio->icones_html}</b> - ";
-			} else {
-				$html_recursos .= "<b>{$imperio->nome}{$imperio->icones_html}</b> - ";
-			}
+			$html_recursos .= "<div class='linha_barra_recursos'>
+			<div class='celula_barra_recursos'><b>{$imperio->nome}</b></div>
+			<div class='celula_barra_recursos'>{$imperio->icones_html}</div>";
 			
 			$recursos_atuais = $imperio->exibe_recursos_atuais(true);
 			$recursos_atuais = substr($recursos_atuais,19); //Remove o cabeçalho
-			$html_recursos .= $recursos_atuais."<br>";
+			$html_recursos .= "<div class='celula_barra_recursos'>{$recursos_atuais}</div>
+			</div>";
 		}
 		
-		$html_recursos = substr($html_recursos,0,-4);
+		//$html_recursos = substr($html_recursos,0,-4);
 		
 		$html .= $html_recursos."</div>
 		<div style='position: static; top: 0px; left: 0px; height: 20px;'>&nbsp;</div>";
@@ -1607,7 +1606,9 @@ if (!empty($imperios[0])) {
 				
 				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
 			}
-			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z})</div>";
+			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
+			{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z})
+			</div>";
 		}
 		
 		$html_lista	= "

@@ -512,6 +512,18 @@ tr.th_linha_1 th {
 	display: inline-block;
 }
 
+.barra_recursos {
+	display: table;
+}
+
+.linha_barra_recursos {
+	display: table-row;
+}
+
+.celula_barra_recursos {
+	display: table-cell;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/
