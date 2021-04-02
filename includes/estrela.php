@@ -150,10 +150,10 @@ class estrela
 
 			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 			if (!empty($id_colonia)) {
-				$icone_colonia = "<div class='far fa-flag tooltip' style='font-size: 0.85em; top: -0.3em; right: -0.2em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado</span></div>";;;
+				$icone_colonia = "<div class='far fa-flag tooltip'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado</span></div>";;;
 			}
 			
-			$html_planetas .= "{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$planeta->nome}"; 
+			$html_planetas .= "<div class='planeta_na_lista'>{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$planeta->nome}"; 
 			if ($detalhes_planetas) {
 				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho})";
 			}
@@ -162,7 +162,7 @@ class estrela
 				$html_recursos_planeta = $planeta->exibe_recursos_planeta(true);
 				$html_planetas .= "<div class='recursos_planeta'>{$html_recursos_planeta}</div>";
 			}
-			$html_planetas .= "; ";
+			$html_planetas .= "</div>";
 		}
 	
 	return $html_planetas."</div>";

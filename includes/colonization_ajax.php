@@ -830,6 +830,9 @@ class colonization_ajax {
 			$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
 		}
 
+		//Reseta os dados do JSON
+		$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+		$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
 		$dados_salvos['resposta_ajax'] = "OK!";
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON

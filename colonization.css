@@ -425,7 +425,7 @@ tr.th_linha_1 th {
 }
 
 .nome_estrela {
-	background-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(0, 0, 0, 0.2);
 }
 
 .lista_planetas {
@@ -433,7 +433,6 @@ tr.th_linha_1 th {
 }
 
 .recursos_planeta {
-	background-color: rgba(0, 0, 0, 0.1);
 	margin-left: 3px;
 	display: inline-block;
 	font-size: 0.75em;
@@ -522,6 +521,14 @@ tr.th_linha_1 th {
 
 .celula_barra_recursos {
 	display: table-cell;
+}
+
+.planeta_na_lista:nth-of-type(odd) { 
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.planeta_na_lista:nth-of-type(even) { 
+	background-color: rgba(0, 0, 0, 0.1);
 }
 
 @media only screen and (max-width: 1209px) {

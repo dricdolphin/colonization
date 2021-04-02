@@ -426,6 +426,17 @@ class instalacao
 			}
 		}
 		
+		$pontos_reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
+		foreach ($pontos_reabastece as $ponto_reabastece) {
+			if (empty($estrelas[$ponto_reabastece->id_estrela])) {//Só pega os pontos de abastecimento se não tiver pego a estrela anteriormente
+				if ($estrela_atual->distancia_estrela($ponto_reabastece->id_estrela) <= $imperio->alcance_logistica) {
+					$this->recursos_produz_qtd[$chave_pesquisa] = $this->recursos_produz_qtd[$chave_pesquisa] + $this->comercio;
+					$this->recursos_produz_qtd[$chave_industrializaveis] =  $this->recursos_produz_qtd[$chave_industrializaveis] + $this->comercio;
+					$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + $this->comercio*10;					
+				}
+			}
+		}
+		
 		//TODO -- bônus para contato com outros Impérios
 		$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
 		foreach ($ids_imperios_contato as $imperios_contato) {
@@ -436,9 +447,11 @@ class instalacao
 			if ($imperios_contato->acordo_comercial == 1) {
 				$this->recursos_produz_qtd[$chave_pesquisa] = $this->recursos_produz_qtd[$chave_pesquisa] + $this->comercio;
 				$this->recursos_produz_qtd[$chave_industrializaveis] =  $this->recursos_produz_qtd[$chave_industrializaveis] + $this->comercio;
-				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + $this->comercio*10;			
+				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + $this->comercio*10;	
 			}
 		}
+		
+		//Pontos de Reabastecimento também aumentam a quantidade de comércio (contam como Colônias)
 		
 		$colonia_atual->comercio_processou = true;		
 	}
