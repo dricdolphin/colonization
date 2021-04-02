@@ -1651,7 +1651,7 @@ if (!empty($imperios[0])) {
 		function drawChart() {
 			var data = google.visualization.arrayToDataTable([";
 		
-		$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		$imperios = $wpdb->get_results("SELECT id FROM colonization_imperio ORDER BY nome");
 		
 		$html_lista .= "['Turno'";
 		foreach ($imperios as $id) {
@@ -1679,11 +1679,10 @@ if (!empty($imperios[0])) {
 
 			var options = {
 				title: 'Pontuação',
-				hAxis: {title: 'Turno',  titleTextStyle: {color: '#333'}},
-				vAxis: {minValue: 0}
+				hAxis: {title: 'Turno',  titleTextStyle: {color: '#333'}}
 			};
 		
-			var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 			chart.draw(data, options);
       }
     </script>

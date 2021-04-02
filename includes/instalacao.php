@@ -36,6 +36,7 @@ class instalacao
 	public $consumo_fixo_qtd = [];
 	public $comercio = false;
 	public $comercio_processou = false;
+	public $requer_instalacao_sistema = false;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -81,9 +82,19 @@ class instalacao
 	
 	
 		//Especiais
-		//limite=qtd -- determina quantas dessa Instalação podem ser construídas no planeta (default 0, para sem limite)
 		$especiais = explode(";",$this->especiais);
+		
+		//requer_instalacao_sistema
+		$requer_instalacao_sistema = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'requer_instalacao_sistema') !== false;
+		}));
 
+		if (!empty($requer_instalacao_sistema)) {
+			$requer_instalacao_sistema_valor = explode("=",$requer_instalacao_sistema[0]);
+			$this->requer_instalacao_sistema = $requer_instalacao_sistema_valor[1];
+		}
+
+		//limite=qtd -- determina quantas dessa Instalação podem ser construídas no planeta (default 0, para sem limite)
 		$limite = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'limite') !== false;
 		}));
@@ -94,8 +105,6 @@ class instalacao
 		}
 
 		//nivel_maximo=1
-		$especiais = explode(";",$this->especiais);
-
 		$nivel_maximo = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'nivel_maximo') !== false;
 		}));
@@ -160,7 +169,11 @@ class instalacao
 
 		
 		if (!empty($comercio)) {//Esta é uma instalação comercial. Ela gera Pesquisa e Industrializáveis, dependendo da Pop da colônia e do número de colônias dentro do alcance
-			$this->comercio = true;
+			if (!empty($comercio)) {
+				$comercio_valor = explode("=",$comercio[0]);
+				$this->comercio = $comercio_valor[1];
+			}
+			
 			//O bônus base é de 0 Pesquisas e 0 Industrializáveis
 			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
@@ -368,11 +381,11 @@ class instalacao
 		if (!$this->comercio || $colonia_atual->comercio_processou) {//Só faz os cálculos se for uma Instalação comercial
 			return false;
 		}
-		
+
 		if ($roles == "administrator") {
 			//echo "\n{$colonia_atual->id}:{$this->id}=>({$this->comercio})||{$colonia_atual->comercio_processou}<br>";
 		}
-
+		
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");		
 		$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");		
@@ -417,13 +430,13 @@ class instalacao
 		$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
 		foreach ($ids_imperios_contato as $imperios_contato) {
 			//TODO -- no futuro pode haver bloqueios comerciais
-			$this->recursos_produz_qtd[$chave_pesquisa]++;
-			$this->recursos_produz_qtd[$chave_industrializaveis]++;
-			$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;
+			$this->recursos_produz_qtd[$chave_pesquisa] = $this->recursos_produz_qtd[$chave_pesquisa] + $this->comercio;
+			$this->recursos_produz_qtd[$chave_industrializaveis] =  $this->recursos_produz_qtd[$chave_industrializaveis] + $this->comercio;
+			$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + $this->comercio*10;
 			if ($imperios_contato->acordo_comercial == 1) {
-				$this->recursos_produz_qtd[$chave_pesquisa]++;
-				$this->recursos_produz_qtd[$chave_industrializaveis]++;
-				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + 10;					
+				$this->recursos_produz_qtd[$chave_pesquisa] = $this->recursos_produz_qtd[$chave_pesquisa] + $this->comercio;
+				$this->recursos_produz_qtd[$chave_industrializaveis] =  $this->recursos_produz_qtd[$chave_industrializaveis] + $this->comercio;
+				$this->recursos_produz_qtd[$chave_plasma] = $this->recursos_produz_qtd[$chave_plasma] + $this->comercio*10;			
 			}
 		}
 		

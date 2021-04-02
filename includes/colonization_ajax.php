@@ -1480,7 +1480,7 @@ class colonization_ajax {
 		}
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
-			if (empty($colonia_instalacao->turno_desmonta) ) { //Só um ADMINISTRADOR pode reparar uma instalação
+			if (empty($colonia_instalacao->turno_desmonta) ) { 
 				if ($roles == "administrator") {//Só um ADMINISTRADOR pode reparar uma instalação
 					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
 				} else {

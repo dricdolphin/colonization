@@ -124,9 +124,23 @@ class imperio
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;
 
-		$pontuacao = $wpdb->get_var("SELECT SUM(qtd) FROM colonization_imperio_recursos WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
+		$pontuacao = $wpdb->get_var("SELECT 
+		SUM(cir.qtd*cr.nivel) 
+		FROM colonization_imperio_recursos AS cir
+		JOIN colonization_recurso AS cr
+		ON cr.id=cir.id_recurso
+		WHERE cir.id_imperio={$this->id} AND cir.turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;
+		
+		//Industrializáveis contam à parte
+		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+		$pontuacao = $wpdb->get_var("SELECT 
+		SUM(cir.qtd) 
+		FROM colonization_imperio_recursos AS cir
+		WHERE cir.id_imperio={$this->id} AND cir.turno={$this->turno->turno} AND cir.id_recurso={$id_industrializaveis}");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_desenvolvimento = $this->pontuacao_desenvolvimento + $pontuacao;		
 		
 		$pontuacao = $wpdb->get_var("SELECT SUM(qtd*(tamanho*2 + PDF_laser + PDF_projetil + PDF_torpedo + blindagem + escudos + pesquisa + FLOOR(alcance/1.8))) AS pontuacao FROM colonization_imperio_frota WHERE id_imperio={$this->id} AND turno<={$this->turno->turno} AND turno_destruido<{$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
