@@ -996,6 +996,7 @@ class imperio
 				$mdo_disponivel_sistema = $pop_sistema[$planeta_id_estrela[$colonia[$resultado->id]->id_planeta]] - $mdo_sistema[$planeta_id_estrela[$colonia[$resultado->id]->id_planeta]];
 				$html_transfere_pop = "";
 				$mdo_disponivel_planeta = $colonia[$resultado->id]->pop - $mdo;
+				$mdo_transfere = min($mdo_disponivel_sistema, $mdo_disponivel_planeta);
 				if ($mdo_disponivel_planeta > $mdo_disponivel_sistema) {
 					$mdo_disponivel_planeta = $mdo_disponivel_sistema;
 				}
@@ -1020,13 +1021,13 @@ class imperio
 						}
 					}
 
-					$html_lista_planetas = "<b>Transferir</b> <input data-atributo='pop' data-ajax='true' data-valor-original='1' type='range' min='1' max='{$mdo_disponivel_planeta}' value='1' oninput='return altera_pop_transfere(event, this);' style='width: 80px;'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>1</label>
+					$html_lista_planetas = "<b>Transferir</b> <input data-atributo='pop' data-ajax='true' data-valor-original='1' type='range' min='1' max='{$mdo_transfere}' value='1' oninput='return altera_pop_transfere(event, this);' style='width: 80px;'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>1</label>
 					&nbsp; <b>Pop para</b> &nbsp; 
 					<select class='select_lista_planetas'>
 					{$lista_options_colonias}
 					</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$resultado->id},{$colonia[$resultado->id]->id_planeta},{$colonia[$resultado->id]->id_estrela});'>TRANSFERIR!</a>
 					";
-					$html_transfere_pop = "<div style='display: inline;'><a href='#' onclick='return mostra_div_transferencia(event, this);'><div class='fas fa-walking tooltip'><span class='tooltiptext'>Transferir Pop para outro planeta</span> ({$mdo_disponivel_planeta})</div></a>
+					$html_transfere_pop = "<div style='display: inline;'><a href='#' onclick='return mostra_div_transferencia(event, this);'><div class='fas fa-walking tooltip'><span class='tooltiptext'>Transferir Pop para outro planeta</span> ({$mdo_transfere})</div></a>
 					<div data-atributo='lista_planetas' class='div_lista_planetas'>{$html_lista_planetas}</div>
 					</div>";
 				}
