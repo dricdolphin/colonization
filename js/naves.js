@@ -97,18 +97,47 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let qtd_dobra = 1 + Math.trunc(chassi/capacidade_dobra,0);
 	let qtd_impulso = 1 + Math.trunc(chassi/capacidade_impulso,0);
 	
-	let fator_a = -0.4504*Math.pow(capacidade_dobra,-0.949);
-	let fator_b = (6.303-qtd_dobra);
+	/*************************
+		CÁLCULO DO ALCANCE
+	**************************/
+	alcance = Math.ceil(8.2927*Math.log(nave.mk_dobra*1)+9.9005); //Alcance inicial
+
+	//Cada qtd_combustível adiciona alcance
+	let alcance_maximo_por_celula = 7 - qtd_dobra;
+	let qtd_celulas_combustivel = nave.qtd_combustivel*1;
 	
-	let qtd_combustivel_maximo = Math.floor(-fator_b/(2*fator_a));
-	if (nave.qtd_combustivel > qtd_combustivel_maximo) {
-		nave.qtd_combustivel = Math.floor(qtd_combustivel_maximo);
-		if (exibe_resultados) {
-			document.getElementById('qtd_combustivel').value = nave.qtd_combustivel;
+	if (alcance_maximo_por_celula == 6) {
+		//A primeira célula pode valer 6
+		
+		if (qtd_celulas_combustivel > 0) {
+			alcance = alcance + 6;
+			qtd_celulas_combustivel = qtd_celulas_combustivel - 1;
+			alcance_maximo_por_celula = 5;
 		}
+	} else if(alcance_maximo_por_celula <= 0) {
+		alcance_maximo_por_celula = 1;
+	}
+	
+	let celulas_grupo = 0;
+	while (qtd_celulas_combustivel > 0) {
+		alcance = alcance + alcance_maximo_por_celula;
+		qtd_celulas_combustivel--;
+		celulas_grupo++;
+		if (celulas_grupo == capacidade_dobra) {
+			celulas_grupo = 0;
+			alcance_maximo_por_celula--;
+			if (alcance_maximo_por_celula < 1) {alcance_maximo_por_celula = 1;}
+		}
+	} 
+	
+	//let fator_a = -0.4504*Math.pow(capacidade_dobra,-0.949);
+	//let fator_b = (6.303-qtd_dobra);
+	
+	if (exibe_resultados) {
+		document.getElementById('qtd_combustivel').value = nave.qtd_combustivel;
 	}
 
-	alcance = Math.ceil(10 + fator_a*Math.pow(nave.qtd_combustivel,2) + fator_b*nave.qtd_combustivel);
+	//alcance = Math.ceil(10 + fator_a*Math.pow(nave.qtd_combustivel,2) + fator_b*nave.qtd_combustivel);
 	
 	if (nave.qtd_estacao_orbital != 0) {
 		custo_estacao_orbital = 20*nave.qtd_estacao_orbital;
