@@ -510,10 +510,14 @@ class acoes
 				}
 				
 				$div_desmonta_instalacao = "";
+				$ja_destruiu = "";
+				if (empty($this->turno_destroi[$chave])) {
+					$ja_destruiu = ", true";
+				}
 				//if ($roles == "administrator") {
-					if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1 && empty($this->turno_destroi[$chave])) {
-						$div_desmonta_instalacao = "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true);' {$visivel}>Desmantelar</a></div>";
-					}
+				if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
+					$div_desmonta_instalacao = "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true{$ja_destruiu});' {$visivel}>Desmantelar</a></div>";
+				}
 				//}
 				
 				$html_custo_instalacao = $instalacao[$this->id_instalacao[$chave]]->html_custo();

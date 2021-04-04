@@ -824,10 +824,30 @@ class colonization_ajax {
 			wp_die();
 		}
 		
-		if (empty($resposta)) {//Não existe o ponto, pode adicionar
-			$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
-		} else {//Existe o ponto, é para remover
-			$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
+		//Só é possível criar um Ponto de Reabastecimento em Impérios que já sejam conhecidos (ou seja, que tenha o Primeiro Contato)
+		//Pega todos os planetas e colônias na estrela
+		$ids_colonias = $wpdb->get_results("
+		SELECT DISTINCT cic.id_imperio, cic.nome_npc
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cp.id_estrela = {$_POST['id_estrela']}
+		");
+		
+		$contato_imperio = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$_POST['id_imperio']} AND nome_npc='{$ids_colonias[0]->nome_npc}' AND id_imperio_contato={$ids_colonias[0]->id_imperio}");
+		$dados_salvos['debug'] = "\nSELECT id FROM colonization_diplomacia WHERE id_imperio={$_POST['id_imperio']} AND nome_npc='{$ids_colonias[0]->nome_npc}' AND id_imperio_contato={$ids_colonias[0]->id_imperio}";
+
+		if (!empty($contato_imperio)) {
+			if (empty($resposta)) {//Não existe o ponto, pode adicionar
+				$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
+			} else {//Existe o ponto, é para remover
+				$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE id_estrela={$_POST['id_estrela']} AND id_imperio={$_POST['id_imperio']}");
+			}
+		} else {
+			$dados_salvos['resposta_ajax'] = "É necessário primeiro realizar o Primeiro Contato com o Império antes de criar um Ponto de Reabastecimento!";
+
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a 			
 		}
 
 		//Reseta os dados do JSON

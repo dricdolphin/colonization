@@ -1054,7 +1054,7 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false)
 Função para chamar o AJAX de desmontar uma instalação
 objeto -- objeto sendo editado
 ******************/
-function desmonta_instalacao(evento, objeto, turno, jogador=false) {
+function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=false) {
 	let linha=pega_ascendente(objeto,"TR");
 	let tabela=pega_ascendente(linha,"TABLE");
 	let inputs = linha.getElementsByTagName("INPUT");
@@ -1078,7 +1078,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
 		|| inputs[index].getAttribute("data-atributo") == "id_instalacao" 
-		|| inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+		|| inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes"
+		|| inputs[index].getAttribute("data-atributo") == "turno_destroi") {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
 		} else if (inputs[index].getAttribute("data-atributo") == "nivel") {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
@@ -1098,7 +1099,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 		if (divs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| divs[index].getAttribute("data-atributo") == "id_planeta" 
 		|| divs[index].getAttribute("data-atributo") == "id_instalacao" 
-		|| divs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
+		|| divs[index].getAttribute("data-atributo") == "id_planeta_instalacoes"
+		|| divs[index].getAttribute("data-atributo") == "turno_destroi") {
 			dados[divs[index].getAttribute("data-atributo")] = divs[index].innerHTML;
 		} else if (divs[index].getAttribute("data-atributo") == "nivel") {
 			dados[divs[index].getAttribute("data-atributo")] = divs[index].innerHTML;
@@ -1114,6 +1116,10 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 		}
 	}	
 
+	if (dados["turno_destroi"] == "&nbsp;") {
+		destruido = true;
+	}
+
 	let dados_ajax = "post_type=POST&action=desmonta_instalacao&upgrade_acao=true&id="+id_objeto+"&nivel="+dados['nivel']+"&tabela=colonization_planeta_instalacoes"
 	+"&where_clause=id&where_value="+id_objeto+"&id_planeta="+dados['id_planeta']+"&id_instalacao="+dados['id_instalacao']+"&turno_desmonta="+turno;
 	
@@ -1124,7 +1130,11 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false) {
 	}
 	
 	let valida_dados = new Promise((resolve, reject) =>	{
-		resolve(destruir_instalacao(evento, link_destruir, jogador));
+		if (!destruido) {
+			resolve(destruir_instalacao(evento, link_destruir, jogador));
+		} else {
+			resolve(true);
+		}
 	});
 	
 	valida_dados.then((successMessage) => {
