@@ -259,10 +259,15 @@ class colonization {
 		
 		$html = "O Turno {$turno->turno} já começou!";
 		if (!$turno->encerrado && $turno->bloqueado) {
+			$proximo_turno = $turno->turno + 1;
+			$timezone = new DateTimeZone('America/Sao_Paulo');
+			$proxima_semana = new DateTime($turno->data_turno, $timezone);
+			$proxima_semana->modify('+7 days');
+			
 			$date = new DateTime($turno->data_turno);
 			//echo $date->format('Y-m-d H:i:s');
-			$date = $date->format('d/m/Y');
-			$html = "O Turno {$turno->turno} irá começar dia {$date}!<br><br>Fique atento!";
+			$proxima_semana_string = $proxima_semana->format('d/m/Y');
+			$html .= "\n<br>O Turno {$proximo_turno} irá começar dia {$proxima_semana_string}!<br><br>Fique atento!";
 		}
 		
 		return $html;
