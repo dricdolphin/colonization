@@ -62,7 +62,7 @@ class planeta
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
 		ON ci.id = cpi.id_instalacao
-		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno}");		
+		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno} AND (turno_desmonta = 0 OR turno_desmonta IS NULL)");
 	
 		$this->estrela = new estrela($this->id_estrela);
 
