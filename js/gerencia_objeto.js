@@ -684,23 +684,20 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 			}
 			
 			objeto_em_salvamento = false;
-			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}			
 			if (resposta.resposta_ajax == "SALVO!") {
 				div_notice.remove();
 				if (div_notice_panel.childElementCount == 0) {
 					div_notice_panel.remove();
 				}
-				if (resposta.alerta != undefined) {
-					alert("O Império descobriu os seguintes recursos novos: \n" + resposta.alerta);
+				if (resposta.alerta != undefined && resposta.alerta != "") {
+					alert(resposta.alerta);
 				}
 			} else {
 				alert(resposta.resposta_ajax);
 			}
-			
-			if (resposta.debug != undefined) {
-				console.log(resposta.debug);
-			}
-		
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

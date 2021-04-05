@@ -1013,9 +1013,9 @@ class acoes
 				}						
 				
 				if (empty($this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta])) {
-					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
+					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito, $imperio->limite_poluicao);
 				} else {
-					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito);
+					$this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_alimento][$id->id_planeta] + $colonia[$id->id]->pega_alimentos_consumidos_planeta($imperio->alimento_inospito, $imperio->limite_poluicao);
 				}
 				
 				//E por fim calcula o total de recursos de alimento considerando as Instalações, Pop e condições especiais

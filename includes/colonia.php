@@ -293,7 +293,7 @@ class colonia
 	----------------------
 	Calcula o consumo de Alimentos de um planeta por sua Pop
 	***********************/		
-	function pega_alimentos_consumidos_planeta ($imperio_alimento_inospito) {
+	function pega_alimentos_consumidos_planeta ($imperio_alimento_inospito, $imperio_limite_poluicao) {
 
 		if (empty($this->planeta)) {
 			$this->planeta = new planeta ($this->id_planeta);
@@ -314,7 +314,16 @@ class colonia
 			$consumo_extra_pop = ($this->pop - $this->planeta->tamanho*10);
 		}
 	
-		return $this->pop + $consumo_extra_inospito + $consumo_extra_pop;
+		//A poluição mais alta também aumenta o consumo de alimentos
+		//$imperio->limite_poluicao
+		$consumo_extra_poluicao = 0;
+		if ($this->poluicao > 2*$imperio_limite_poluicao) {
+			$fator_poluicao = ($this->poluicao)/(2*$imperio_limite_poluicao);
+			$consumo_extra_poluicao = ceil($this->pop * (1-exp(1-$fator_poluicao)));
+			
+		}
+	
+		return $this->pop + $consumo_extra_inospito + $consumo_extra_pop + $consumo_extra_poluicao;
 	}
 	
 	

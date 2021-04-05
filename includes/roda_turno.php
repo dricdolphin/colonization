@@ -174,7 +174,7 @@ class roda_turno {
 										$nova_pop = $limite_pop_planeta;
 									}
 								}
-							}
+							} 
 						}
 					} else {
 						//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%

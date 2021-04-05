@@ -150,12 +150,41 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			document.getElementById('qtd_combustivel').value = 0;
 		}
 	
+		let categoria_estacao_orbital = "";
+		switch(nave.qtd_estacao_orbital*1) {
+			case 1:
+			categoria_estacao_orbital = "Fragatas";
+			break;
+			case 2:
+			categoria_estacao_orbital = "Destróiers";
+			break;
+			case 3:
+			categoria_estacao_orbital = "Cruzadores";
+			break;
+			case 4:
+			categoria_estacao_orbital = "Naves de Guerra";
+			break;
+			case 5:
+			categoria_estacao_orbital = "Naves de Batalha";
+			break;
+			case 6:
+			categoria_estacao_orbital = "Couraçados";
+			break;
+			case 7:
+			categoria_estacao_orbital = "Dreadnoughts";
+			break;			
+			case 8:
+			categoria_estacao_orbital = "Naves-Mãe";
+			break;			
+			default:
+			categoria_estacao_orbital = "??????";
+		}
+		
 		if (especiais == 0) {
-			texto_especiais = "(1) - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+			texto_especiais = "(1) - Permite produzir " + categoria_estacao_orbital;
 			especiais++;
 		} else {
-
-			texto_especiais = texto_especiais + "; ("+especiais+") - Produz até "+ qtd_estacao_orbital*10 +" Equipamentos de Naves por turno";
+			texto_especiais = texto_especiais + "; ("+especiais+") - Permite produzir " + categoria_estacao_orbital;
 			especiais++;
 		}
 	}
