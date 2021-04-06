@@ -388,8 +388,7 @@ class colonization_ajax {
 		$turno = new turno();
 		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
 			$estrela = new estrela($nave->id_estrela_destino);
-			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}");
-			
+		
 			//Verifica se a Estrela já foi visitada, e se não foi marca como visitada
 			$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
 			if (empty($estrela_visitada)) {
@@ -433,12 +432,14 @@ class colonization_ajax {
 				$dados_salvos['debug'] .= count($naves_no_local);
 				
 				foreach ($naves_no_local as $ids_imperio) {
-					$imperio = new imperio($ids_imperio->id);
+					$imperio = new imperio($ids_imperio->id_imperio);
 					if ($imperio->id == 0) {
 						$imperio->nome = $ids_imperio->nome_npc;
 					}
 					$dados_salvos['alerta'] .= "{$imperio->nome}\n";
 				}
+				
+				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}"); //Atualiza a posição da nave
 				
 				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}, sensores={$imperio->sensores}");
