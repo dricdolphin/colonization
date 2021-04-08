@@ -99,7 +99,7 @@ class colonization_ajax {
 			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
 			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
-			if ($qtd_recurso_imperio <= $qtd) {
+			if ($qtd_recurso_imperio < $qtd) {
 				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes!";
 				break;
 			}
