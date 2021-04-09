@@ -80,7 +80,6 @@ class colonization {
 	}
 	
 	function carrega_actions() {
-		
 		include_once('js/listas_js.php');
 		add_action('wp_head', array($this,'colonization_ajaxurl')); //Necessário para incluir o ajaxurl
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
@@ -91,9 +90,182 @@ class colonization {
 		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
 		add_action('asgarosforum_custom_topic_column', array($this,'colonization_muda_icone_topico'), 10, 2);
 		
+		add_filter('asgarosforum_filter_get_threads', array($this,'colonization_filtra_topicos_compartilhados'), 10, 2);
+		add_filter('asgarosforum_filter_check_access', array($this,'colonization_check_access_compartilhado'), 10, 2);
+
 		$colonization_ajax = new colonization_ajax();
 	}
+	
+	/******************
+	function colonization_check_access_compartilhado()
+	-----------
+	Verifica se o usuário tem autorização para acessar um Tópico específico
+	
+	$arg1 -- sempre TRUE
+	$categoria -- id da categoria sendo verificada
+	******************/	
+	function colonization_check_access_compartilhado($arg1, $categoria) {
+		global $asgarosforum, $wpdb;
 
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}		
+		
+		$id_categoria_comunicacoes_globais = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID da Categoria de Comunicações Globais'");
+		$id_categoria_comunicacoes_globais = new configuracao($id_categoria_comunicacoes_globais);
+		
+		if ($asgarosforum->current_view == "topic" && $categoria == $id_categoria_comunicacoes_globais->id_post && $roles != "administrator") {
+			//Se estivermos vendo um Tópico na área de Comunicações Globais, só libera a exibição caso o usuário tenha seu nome ou nome do Império no título do post
+			$imperio = new imperio();
+			if ($imperio->id == 0) {
+				$imperio->nome = $user->display_name;
+			}
+			
+			$nome_topico = $asgarosforum->content->get_topic_title($asgarosforum->current_element);
+			
+			if (!str_contains($nome_topico,$imperio->nome)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/******************
+	function colonization_filtra_topicos_compartilhados()
+	-----------
+	Filtra os tópicos a serem exibidos na Categoria de Comunicações Globais. Exibe somente Tópicos cujo título incluírem o nome do Jogador ou de seu Império
+	
+	$results -- lista de tópicos
+	******************/	
+	function colonization_filtra_topicos_compartilhados($results) {
+		global $asgarosforum, $wpdb, $contador;
+	
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		$id_categoria_comunicacoes_globais = $wpdb->get_var("SELECT id FROM colonization_referencia_forum WHERE descricao='ID da Categoria de Comunicações Globais'");
+		$id_categoria_comunicacoes_globais = new configuracao($id_categoria_comunicacoes_globais);
+		$id_forum_categoria_comunicacoes_globais = $wpdb->get_var("SELECT MAX(id) FROM wp_forum_forums WHERE parent_id={$id_categoria_comunicacoes_globais->id_post}");
+		$nome_categoria = $wpdb->get_var("SELECT name FROM wp_terms WHERE term_id = {$asgarosforum->current_category}");
+		
+		$sticky = true;
+		if (!empty($results)) {
+			if ($results[0]->sticky == 0) {
+				$sticky = false;
+			}
+		} else {
+			return $results;
+		}
+
+		$imperio = new imperio();
+		if ($imperio->id == 0) {
+			$imperio->nome = $user->display_name;
+		}
+
+		// Build query-part for pagination.
+		$limit_end = $asgarosforum->options['topics_per_page'];
+		$limit_start = $asgarosforum->current_page * $limit_end;
+		
+		$results_temp = [];
+		if (($asgarosforum->current_category == $id_categoria_comunicacoes_globais->id_post && $roles != "administrator")) {
+			if (!$sticky) {
+				// Build query-part for ordering.
+				$order = "(SELECT MAX(id) FROM {$asgarosforum->tables->posts} WHERE parent_id = t.id) DESC";
+				$order = apply_filters('asgarosforum_filter_get_threads_order', $order);
+
+				// Build additional sub-queries.
+				$query_answers = "SELECT (COUNT(*) - 1) FROM {$asgarosforum->tables->posts} WHERE parent_id = t.id";
+
+				// Build final query and get results.
+				$query = "SELECT t.id, t.name, t.views, t.sticky, t.closed, t.author_id, ({$query_answers}) AS answers 
+				FROM {$asgarosforum->tables->topics} AS t 
+				WHERE t.parent_id = %d AND t.sticky = 0 AND t.approved = 1 
+				ORDER BY {$order};";
+				$results = $asgarosforum->db->get_results($asgarosforum->db->prepare($query, $asgarosforum->current_forum));
+			}
+
+			foreach ($results as $chave => $resultado) {
+				if ($resultado->sticky == 2) {//Sticky global é exibido normalmente
+					return $results;
+				} elseif ($resultado->sticky == 1) {
+					//Exibe só os que tem o nome do Império
+					if (str_contains($resultado->name,$imperio->nome)) {
+						$results_temp[] = $resultado;	
+					}
+				} else {
+					if (str_contains($resultado->name,$imperio->nome)) {
+						$results_temp[] = $resultado;
+					}
+				}
+			}
+
+			//echo "current_forum: {$asgarosforum->current_forum}<br>";
+			//echo "results:<br>";
+			//var_dump($results);
+		}  elseif ((str_contains($nome_categoria, $user->display_name) && !$sticky) || ($roles == "administrator" && !$sticky)) {
+			$contem_display_name = false;
+			if ($roles == "administrator") {
+				$ids_jogadores = $wpdb->get_results("SELECT id, id_jogador FROM colonization_imperio");
+				foreach ($ids_jogadores as $ids) {
+					$user = get_user_by("ID",$ids->id_jogador);
+					//echo "display_name: {$user->display_name}<br>";
+					if (str_contains($nome_categoria, $user->display_name)) {
+						$contem_display_name = true;
+						$imperio = new imperio($ids->id);
+						break;
+					}
+				}
+				
+				if (!$contem_display_name) {
+					return $results;
+				}
+			}
+			
+			$ids_originais = [];
+			foreach ($results as $chave => $resultado) {
+				$ids_originais[] = $resultado->id;
+			}
+			$topic_ids = implode(",", $ids_originais);
+			// Build query-part for ordering.
+			$order = "(SELECT MAX(id) FROM {$asgarosforum->tables->posts} WHERE parent_id = t.id) DESC";
+			$order = apply_filters('asgarosforum_filter_get_threads_order', $order);
+
+			// Build additional sub-queries.
+			$query_answers = "SELECT (COUNT(*) - 1) FROM {$asgarosforum->tables->posts} WHERE parent_id = t.id";
+
+			// Build final query and get results.
+			$query = "SELECT t.id, t.name, t.views, t.sticky, t.closed, t.author_id, ({$query_answers}) AS answers 
+			FROM {$asgarosforum->tables->topics} AS t 
+			WHERE (t.parent_id = {$id_forum_categoria_comunicacoes_globais} AND t.sticky = 0 AND t.approved = 1 AND (t.name LIKE '%{$imperio->nome}%' OR t.name LIKE '%{$user->display_name}%')) OR t.id IN ({$topic_ids})
+			ORDER BY {$order};";
+			
+			$results_temp = $wpdb->get_results($query);
+		} else {
+			$results_temp = $results;
+		}
+
+		if (!$sticky) {
+			$results_temp_temp = [];
+			//echo "limit_start: {$limit_start}<br>";
+			for ($i=$limit_start; $i < ($limit_start+$limit_end); $i++) {
+				if (empty($results_temp[$i])) {
+					break;
+				}
+				$results_temp_temp[] = $results_temp[$i];
+			}
+			$results_temp = $results_temp_temp;
+		}
+
+		$results = $results_temp;
+		
+		return $results;
+	}
 	
 	function colonization_muda_icone_topico($topic_id) {
 		global $asgarosforum, $wpdb;
