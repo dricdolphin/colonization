@@ -491,12 +491,12 @@ class colonization {
 			
 			$pesquisa_anterior = "";
 			if (!empty($estrela->id)) {
-				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$imperio->id} AND id_estrela={$estrela->id}");
+				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$imperio->id} AND id_estrela={$estrela->id} AND sensores >= {$imperio->sensores}");
 			}
 			
 			$html_pesquisa_nave = "";
 			if (empty($pesquisa_anterior)) {
-				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema ainda NÃO pesquisado</span></div>";	
+				$html_pesquisa_nave = "<div class='fas fa-search tooltip'><span class='tooltiptext'>Sistema ainda pode ser pesquisado</span></div>";	
 			}
 
 			if ($imperio->id == 0 && $roles == "administrator") {

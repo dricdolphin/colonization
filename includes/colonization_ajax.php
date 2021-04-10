@@ -425,9 +425,19 @@ class colonization_ajax {
 					$dados_salvos['alerta'] .= "{$recurso->nome} \n";
 				}
 				
-				$naves_no_local = $wpdb->get_results("SELECT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}'");
+				$naves_no_local = $wpdb->get_results("SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}'");
 				if (!empty($naves_no_local)) {
 					$dados_salvos['alerta'] .= "Foram encontradas naves no local: \n";
+					foreach ($naves_no_local as $nave_no_local) {
+						//Atualiza a tabela de Diplomacia com Primeiro Contato, caso não tenha
+						$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$nave_no_local->id_imperio} and nome_npc={$nave_no_local->nome_npc}");
+						if (empty($id_diplomacia)) {
+							if ($nave_no_local->id_imperio != 0) {
+								$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave_no_local->id_imperio}, id_imperio_contato={$nave->id_imperio}");
+							}
+							$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave->id_imperio}, id_imperio_contato={$nave_no_local->id_imperio}, nome_npc={$nave_no_local->nome_npc}");
+						}
+					}
 				}
 				$dados_salvos['debug'] .= count($naves_no_local);
 				
