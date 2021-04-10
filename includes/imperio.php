@@ -856,9 +856,9 @@ class imperio
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
 		$lista_colonias_db = stripslashes(str_replace(array("\\n", "\\r", "\\t"), "", $wpdb->get_var("SELECT json_balancos FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}")));
-			if ($roles == "administrator") {
-				//TODO -- Debug
-			}
+		if ($roles == "administrator") {
+			//TODO -- Debug
+		}
 	
 		$mdo = 0;
 		$estrela = [];
@@ -982,6 +982,7 @@ class imperio
 				
 				$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 				$balanco_poluicao_planeta = "";
+				
 				if (!empty($this->acoes->recursos_balanco_planeta[$id_poluicao][$colonia[$resultado->id]->id_planeta])) {
 					if ($this->acoes->recursos_balanco_planeta[$id_poluicao][$colonia[$resultado->id]->id_planeta] > 0) {
 						$balanco_poluicao_planeta = "(<span style='color: red;'>+{$this->acoes->recursos_balanco_planeta[$id_poluicao][$colonia[$resultado->id]->id_planeta]}</span>)";

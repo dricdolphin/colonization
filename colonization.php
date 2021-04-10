@@ -1712,11 +1712,12 @@ if (!empty($imperios[0])) {
 		
 		$imperio->acoes = new acoes($imperio->id, $turno);
 		
-		$lista_colonias = $imperio->exibe_lista_colonias();
 		$recursos_atuais = $imperio->exibe_recursos_atuais();
 		$recursos_produzidos = $imperio->acoes->exibe_recursos_produzidos();
 		$recursos_consumidos = $imperio->acoes->exibe_recursos_consumidos();
 		$balanco_recursos = $imperio->acoes->exibe_recursos_balanco();
+		$imperio->acoes->lista_dados(false); //Mostra somente o Turno atual
+		$lista_colonias = $imperio->exibe_lista_colonias();
 		$html_frota = "";
 	
 		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0 ORDER BY nivel_estacao_orbital DESC");

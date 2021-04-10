@@ -9,7 +9,7 @@ class menu_admin {
 	public $html_header = "";
 	
 	function __construct() {
-		global $asgarosforum;
+		global $asgarosforum, $plugin_colonization;
 		
 		add_action( 'wp_enqueue_scripts', array($this,'colonization_scripts'));
 		add_action( 'admin_enqueue_scripts', array($this,'colonization_admin_scripts'));
@@ -1201,7 +1201,7 @@ class menu_admin {
 	Exibe as ações dos Impérios
 	******************/
 	function colonization_admin_acoes() {
-		global $wpdb;
+		global $wpdb, $plugin_colonization;
 		$turno = new turno();
 		
 		$html = $this->html_header;
@@ -1214,15 +1214,20 @@ class menu_admin {
 		$html_lista = "";
 		
 		foreach ($lista_id_imperio as $id) {
-			$imperio = new imperio($id->id,true);
-			$imperio_acoes = new acoes($imperio->id,$turno->turno);
+			//$imperio = new imperio($id->id,true);
+			//$imperio_acoes = new acoes($imperio->id,$turno->turno);
 			
-			$lista_colonias = $imperio->exibe_lista_colonias();
-			$recursos_atuais = $imperio->exibe_recursos_atuais();
-			$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
-			$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
-			$recursos_balanco = $imperio_acoes->exibe_recursos_balanco();
+			//$lista_colonias = $imperio->exibe_lista_colonias();
+			//$recursos_atuais = $imperio->exibe_recursos_atuais();
+			//$recursos_produzidos = $imperio_acoes->exibe_recursos_produzidos();
+			//$recursos_consumidos = $imperio_acoes->exibe_recursos_consumidos();
+			//$recursos_balanco = $imperio_acoes->exibe_recursos_balanco();
 			
+			$atts = [];
+			$atts['id'] = $id->id;
+			$html_lista .= $plugin_colonization->colonization_exibe_acoes_imperio($atts);
+			
+			/***
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Ações do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
 			<div id='lista_colonias_imperio_{$imperio->id}'>{$lista_colonias}</div>
@@ -1248,6 +1253,7 @@ class menu_admin {
 			
 			$html_lista .= "</tbody>
 			</table>";
+			***/
 		}
 
 		$html .= $html_lista;
