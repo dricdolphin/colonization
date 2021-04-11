@@ -435,7 +435,12 @@ class colonization_ajax {
 							if ($nave_no_local->id_imperio != 0) {
 								$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave_no_local->id_imperio}, id_imperio_contato={$nave->id_imperio}");
 							}
-							$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave->id_imperio}, id_imperio_contato={$nave_no_local->id_imperio}, nome_npc={$nave_no_local->nome_npc}");
+							$imperio_tem_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc='{$nave_no_local->nome_npc}')");
+							$dados_salvos['debug'] .= "\nSELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc='{$nave_no_local->nome_npc}')
+							imperio_tem_colonias: {$imperio_tem_colonias}";
+							if ($imperio_tem_colonias != 0) {
+								$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave->id_imperio}, id_imperio_contato={$nave_no_local->id_imperio}, nome_npc={$nave_no_local->nome_npc}");
+							}
 						}
 					}
 				}
@@ -1888,8 +1893,9 @@ class colonization_ajax {
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->pop_mdo_sistema() {$diferenca}ms \n";		
 		
-		//$id_planeta_instalacoes
-		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "";
+		$chave_acao = array_search($id_planeta_instalacoes, $imperio->acoes->id_planeta_instalacoes);
+		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "<label>Balanço da produção:</label> {$imperio->acoes->html_producao_consumo_instalacao($chave_acao)}";
+		/***
 		if (!empty($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
 			foreach ($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
 				$recurso = new recurso($id_recurso);
@@ -1903,6 +1909,7 @@ class colonization_ajax {
 				$dados_salvos['id_planeta_instalacoes_produz_consome'] .= "{$recurso->nome}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
 			}
 		}
+		***/
 		
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
 		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";

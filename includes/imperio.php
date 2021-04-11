@@ -149,7 +149,7 @@ class imperio
 
 		$pontuacao = $wpdb->get_var("SELECT SUM(custo) 
 		FROM
-		(SELECT (CASE WHEN cit.custo_pago > 0 THEN cit.custo_pago ELSE ct.custo END)*ct.nivel AS custo
+		(SELECT (CASE WHEN cit.custo_pago > 0 THEN cit.custo_pago ELSE ct.custo END) AS custo
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id=cit.id_tech

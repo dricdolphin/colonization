@@ -493,8 +493,9 @@ class acoes
 			}
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->oculta == 0) {
-				$html_producao_consumo_instalacao = "";
+				$html_producao_consumo_instalacao = $this->html_producao_consumo_instalacao($chave);
 				
+				/***
 				if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
 					foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
 						$recurso = new recurso($id_recurso);
@@ -508,6 +509,7 @@ class acoes
 						$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
 					}				
 				}
+				***/
 				
 				$div_desmonta_instalacao = "";
 				$ja_destruiu = "";
@@ -553,6 +555,34 @@ class acoes
 		
 		return $html;
 	}
+
+
+	/***********************
+	function html_producao_consumo_instalacao($chave)
+	----------------------
+	Pegoa o HTML com a produção de uma Instalação
+	
+	$chave -- chave da ação sendo processada
+	***********************/
+	function html_producao_consumo_instalacao($chave) {
+		$html_producao_consumo_instalacao = "";
+		if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
+			foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
+				$recurso = new recurso($id_recurso);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: {$qtd}; ";
+			}
+		}
+
+		if (!empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
+			foreach ($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
+				$recurso = new recurso($id_recurso);
+			$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
+			}				
+		}
+		return $html_producao_consumo_instalacao;				
+	}
+
+
 
 	/***********************
 	function pega_balanco_recursos($id_planeta_instalacoes=0, $salva_balanco=false)
