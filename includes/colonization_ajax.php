@@ -1000,6 +1000,8 @@ class colonization_ajax {
 			if (($colonia_destino->pop + $_POST['pop']) > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "O planeta de destino é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}
+		} elseif (($colonia_origem->vassalo == 1 || $colonia_destino->vassalo == 1) && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Somente o Admin pode transferir Pop entre Colônias de Vassalos.";
 		}
 
 		if ($dados_salvos['resposta_ajax'] == "SALVO!") {

@@ -370,7 +370,7 @@ class acoes
 			
 			$html_upgrade = "";
 
-			//$this->disabled = "";
+			$this->disabled = "";
 			$visivel = "";
 			$turno_atual = new turno();
 			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {

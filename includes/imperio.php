@@ -800,8 +800,8 @@ class imperio
 
 		
 		$this->debug = "";
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias:  {$diferenca}ms \n";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "imperio->exibe_lista_colonias:  {$diferenca}ms \n";
 		$id_estrelas_imperio = $wpdb->get_results("
 		SELECT DISTINCT ce.id
 		FROM colonization_imperio_colonias AS cic
@@ -813,8 +813,8 @@ class imperio
 		AND cic.turno = {$this->turno->turno}
 		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z
 		");
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> Query {$diferenca}ms \n";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "imperio->exibe_lista_colonias -> Query {$diferenca}ms \n";
 
 		$resultados = [];
 		foreach ($id_estrelas_imperio as $id_estrela) {
@@ -832,8 +832,8 @@ class imperio
 			
 			$resultados = array_merge($resultados,$resultados_temp);
 		}
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "imperio->exibe_lista_colonias -> foreach ordena estrelas {$diferenca}ms \n";	
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "imperio->exibe_lista_colonias -> foreach ordena estrelas {$diferenca}ms \n";	
 
 		$html_lista = "<b>Lista de Colônias</b><br>";
 		$html_planeta = [];
@@ -878,6 +878,7 @@ class imperio
 			$lista_colonias_db = json_decode($lista_colonias_db, true, 512, JSON_UNESCAPED_UNICODE);
 			
 			$html_planeta_temp = $lista_colonias_db['html_planeta'];
+			//$html_transfere_pop_planeta_temp = $lista_colonias_db['html_transfere_pop_planeta'];
 			$planeta_id_estrela = $lista_colonias_db['planeta_id_estrela'];
 			$mdo_sistema = $lista_colonias_db['mdo_sistema'];
 			$pop_sistema = $lista_colonias_db['pop_sistema'];
@@ -899,10 +900,9 @@ class imperio
 			
 			foreach ($html_planeta_temp as $chave => $html_do_planeta) {
 				$html_planeta[$chave] = html_entity_decode($html_do_planeta, ENT_QUOTES);
+				//$html_transfere_pop_planeta[$chave] = html_entity_decode($html_transfere_pop_planeta_temp, ENT_QUOTES);
 			}
 		}
-		
-
 
 		foreach ($resultados as $resultado) {
 			if (!$flag_nova_lista && $id_colonia[0] != $resultado->id && $id_colonia[1] != $resultado->id) { //Só processa se houve alguma alteração
@@ -995,47 +995,8 @@ class imperio
 				foreach ($icones_planeta as $id_instalacao => $html) {
 					$html_icones_planeta .= $html;
 				}
-				
-				$mdo_disponivel_sistema = $pop_sistema[$planeta_id_estrela[$colonia[$resultado->id]->id_planeta]] - $mdo_sistema[$planeta_id_estrela[$colonia[$resultado->id]->id_planeta]];
-				$html_transfere_pop = "";
-				$mdo_disponivel_planeta = $colonia[$resultado->id]->pop - $mdo;
-				$mdo_transfere = min($mdo_disponivel_sistema, $mdo_disponivel_planeta);
-				if ($mdo_disponivel_planeta > $mdo_disponivel_sistema) {
-					$mdo_disponivel_planeta = $mdo_disponivel_sistema;
-				}
-				$html_lista_planetas = "";
-				$lista_options_colonias = "";
-				if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$resultado->id]->vassalo == 0 || ($colonia[$resultado->id]->vassalo == 1 && $roles == "administrator"))) {
-					$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$resultado->id}");
-					foreach ($resultados as $id_colonia_imperio) {
-						if (empty($colonia[$id_colonia_imperio->id])) {
-							$colonia[$id_colonia_imperio->id] = new colonia($id_colonia_imperio->id);
-							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
-						}
-						
-						if (empty($planeta[$colonia[$id_colonia_imperio->id]->id_planeta])) {
-							$planeta[$colonia[$id_colonia_imperio->id]->id_planeta] = new planeta($colonia[$id_colonia_imperio->id]->id_planeta);
-							$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-							$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
-						}
-						if ($id_colonia_imperio->id != $resultado->id && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
-								$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
-						}
-					}
-
-					$html_lista_planetas = "<b>Transferir</b> <input data-atributo='pop' data-ajax='true' data-valor-original='1' type='range' min='1' max='{$mdo_transfere}' value='1' oninput='return altera_pop_transfere(event, this);' style='width: 80px;'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>1</label>
-					&nbsp; <b>Pop para</b> &nbsp; 
-					<select class='select_lista_planetas'>
-					{$lista_options_colonias}
-					</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$resultado->id},{$colonia[$resultado->id]->id_planeta},{$colonia[$resultado->id]->id_estrela});'>TRANSFERIR!</a>
-					";
-					$html_transfere_pop = "<div style='display: inline;'><a href='#' onclick='return mostra_div_transferencia(event, this);'><div class='fas fa-walking tooltip'><span class='tooltiptext'>Transferir Pop para outro planeta</span> ({$mdo_transfere})</div></a>
-					<div data-atributo='lista_planetas' class='div_lista_planetas'>{$html_lista_planetas}</div>
-					</div>";
-				}
-				
-				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia[$resultado->id]->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta} {$html_transfere_pop}</div>";
+				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia[$resultado->id]->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Dados das Colônias {$diferenca}ms \n";
@@ -1046,9 +1007,11 @@ class imperio
 			$html_planeta_temp = [];		
 			foreach ($html_planeta as $chave => $html_do_planeta) {
 				$html_planeta_temp[$chave] = htmlentities($html_do_planeta, ENT_QUOTES);
+				//$html_transfere_pop_temp[$chave] = htmlentities($html_transfere_pop_planeta[$chave], ENT_QUOTES);
 			}
 			$dados_html_para_salvar = [];
 			$dados_html_para_salvar['html_planeta'] = $html_planeta_temp;
+			//$dados_html_para_salvar['html_transfere_pop_planeta'] = $html_transfere_pop_planeta_temp;
 			$dados_html_para_salvar['planeta_id_estrela'] = $planeta_id_estrela;
 			$dados_html_para_salvar['mdo_sistema'] = $mdo_sistema;
 			$dados_html_para_salvar['pop_sistema'] = $pop_sistema;
@@ -1097,13 +1060,60 @@ class imperio
 				{$html_defesas_sistema}
 				</div>";
 			}
-			$html_sistema[$planeta_id_estrela[$id_planeta]] .= $html;
+
+			//Define se exibe ou não o div de transferência de Pop
+			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND id_planeta={$id_planeta}");
+			if (empty($colonia[$id_colonia])) {
+				$colonia[$id_colonia] = new colonia($id_colonia);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
+			}
+			
+			$mdo_disponivel_sistema = $pop_sistema[$planeta_id_estrela[$id_planeta]] - $mdo_sistema[$planeta_id_estrela[$id_planeta]];
+			$html_transfere_pop = "";
+			$mdo_disponivel_planeta = $colonia[$id_colonia]->pop - $mdo;
+			$mdo_transfere = min($mdo_disponivel_sistema, $mdo_disponivel_planeta);
+			if ($mdo_disponivel_planeta > $mdo_disponivel_sistema) {
+				$mdo_disponivel_planeta = $mdo_disponivel_sistema;
+			}
+			$html_lista_planetas = "";
+			$lista_options_colonias = "";
+			if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$id_colonia]->vassalo == 0 || ($colonia[$id_colonia]->vassalo == 1 && $roles == "administrator"))) {
+				$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$resultado->id}");
+				foreach ($ids_colonias as $id_colonia_imperio) {
+					if (empty($colonia[$id_colonia_imperio->id])) {
+						$colonia[$id_colonia_imperio->id] = new colonia($id_colonia_imperio->id);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
+					}
+					
+					if (empty($planeta[$colonia[$id_colonia_imperio->id]->id_planeta])) {
+						$planeta[$colonia[$id_colonia_imperio->id]->id_planeta] = new planeta($colonia[$id_colonia_imperio->id]->id_planeta);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
+					}
+					if ($id_colonia_imperio->id != $resultado->id && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
+							$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
+					}
+				}
+				$html_lista_planetas = "<b>Transferir</b> <input data-atributo='pop' data-ajax='true' data-valor-original='1' type='range' min='1' max='{$mdo_transfere}' value='1' oninput='return altera_pop_transfere(event, this);' style='width: 80px;'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>1</label>
+				&nbsp; <b>Pop para</b> &nbsp; 
+				<select class='select_lista_planetas'>
+				{$lista_options_colonias}
+				</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$resultado->id},{$colonia[$resultado->id]->id_planeta},{$colonia[$resultado->id]->id_estrela});'>TRANSFERIR!</a>
+				";
+				$html_transfere_pop = "<div style='display: inline;'><a href='#' onclick='return mostra_div_transferencia(event, this);'><div class='fas fa-walking tooltip' style='display: inline;'><span class='tooltiptext'>Transferir Pop para outro planeta</span> ({$mdo_transfere})</div></a>
+				<div data-atributo='lista_planetas' class='div_lista_planetas'>{$html_lista_planetas}</div>
+				</div>";
+			}			
+			
+			$html_sistema[$planeta_id_estrela[$id_planeta]] .= "{$html}{$html_transfere_pop}<br>";
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms \n";
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
-			$html_lista .= $html."</div>";
+			$html_lista .= "{$html}</div>";
 		}
 		
 		return $html_lista;
