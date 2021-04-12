@@ -385,15 +385,12 @@ class acoes
 				$estrela = new estrela($planeta->id_estrela);
 				$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
 
+				$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$visivel}>Nova Instalação</a></div>";
 				if ($colonia->vassalo == 1 && $roles != "administrator") {
 					$this->disabled = "disabled";
 					$visivel = "style='display: none;'";
+					$html_nova_instalacao_jogador = "";
 				}
-				
-				//$html_nova_instalacao_jogador = "";
-				//if ($roles == "administrator") {
-					$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$visivel}>Nova Instalação</a></div>";
-				//}
 				
 				$ultimo_planeta = $this->id_planeta[$chave];				
 				$slots = 0;

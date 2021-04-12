@@ -233,6 +233,16 @@ class instala_db {
 		sensores INT(6) DEFAULT 0,
 		turno INT(6) NOT NULL
 		)");
+
+		//Tabela com o histórico de Pesquisas das naves do Império
+		$wpdb->query("CREATE TABLE colonization_frota_historico_movimentacao (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_nave INT(6) NOT NULL,
+		id_imperio INT(6) NOT NULL,
+		id_estrela_origem INT(6) NOT NULL,
+		id_estrela_destino INT(6) DEFAULT 0,
+		turno INT(6) NOT NULL
+		)");
 		
 		//Tabela com os pontos de reabastecimento do Império
 		$wpdb->query("CREATE TABLE colonization_imperio_abastecimento (
@@ -357,6 +367,7 @@ class instala_db {
 		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
+		DELETE FROM colonization_frota_historico_movimentacao WHERE id_imperio = old.id
 		END$$
 		DELIMITER ;");
 		
@@ -382,6 +393,7 @@ class instala_db {
 		DELETE FROM colonization_imperio_historico_pesquisa WHERE id_estrela = old.id;
 		DELETE FROM colonization_imperio_abastecimento WHERE id_estrela = old.id;
 		DELETE FROM colonization_estrelas_historico WHERE id_estrela = old.id;
+		DELETE FROM colonization_frota_historico_movimentacao WHERE id_estrela_destino = old.id OR id_estrela_origem = old.id
 		END$$
 		DELIMITER ;");
 		
@@ -447,6 +459,7 @@ class instala_db {
 		DELETE FROM colonization_lista_colonias_turno WHERE turno = old.id;
 		DELETE FROM colonization_acoes_admin WHERE turno = old.id;
 		DELETE FROM colonization_missao WHERE turno = old.id;
+		DELETE FROM colonization_frota_historico_movimentacao WHERE turno = old.id
 		END$$
 		DELIMITER ;");
 		

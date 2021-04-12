@@ -216,6 +216,16 @@ sensores INT(6) DEFAULT 0,
 turno INT(6) NOT NULL
 )
 
+--Tabela com o histórico de Pesquisas das naves do Império
+CREATE TABLE colonization_frota_historico_movimentacao (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_nave INT(6) NOT NULL,
+id_imperio INT(6) NOT NULL,
+id_estrela_origem INT(6) NOT NULL,
+id_estrela_destino INT(6) DEFAULT 0,
+turno INT(6) NOT NULL
+)
+
 --Tabela com os pontos de reabastecimento do Império
 CREATE TABLE colonization_imperio_abastecimento (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

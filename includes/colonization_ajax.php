@@ -385,6 +385,8 @@ class colonization_ajax {
 
 		$nave = new frota($_POST['id']);
 		$imperio = new imperio($nave->id_imperio);
+		$id_estrela_origem = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+		$estrela_origem = new estrela($id_estrela_origem);
 		$turno = new turno();
 		if ($roles == "administrator" && $nave->id_estrela_destino != 0) {
 			$estrela = new estrela($nave->id_estrela_destino);
@@ -399,9 +401,6 @@ class colonization_ajax {
 			
 			//Verifica se já pesquisou essa estrela. Se ainda não pesquisou, então fornece 5 pontos de pesquisa automaticamente
 			if ($nave->pesquisa == 1) {
-				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-				$pesquisa_anterior = $wpdb->get_results("SELECT id, sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
-				
 				//Pega os recursos desconhecidos
 				$id_recursos_desconhecidos = $wpdb->get_results("
 				SELECT DISTINCT cir.id_recurso FROM colonization_imperio_recursos AS cir
@@ -424,51 +423,91 @@ class colonization_ajax {
 					$recurso = new recurso($id_recurso_novo->id_recurso);
 					$dados_salvos['alerta'] .= "{$recurso->nome} \n";
 				}
-				
-				$naves_no_local = $wpdb->get_results("SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}'");
-				if (!empty($naves_no_local)) {
-					$dados_salvos['alerta'] .= "Foram encontradas naves no local: \n";
-					foreach ($naves_no_local as $nave_no_local) {
-						//Atualiza a tabela de Diplomacia com Primeiro Contato, caso não tenha
-						$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$nave_no_local->id_imperio} and nome_npc={$nave_no_local->nome_npc}");
-						if (empty($id_diplomacia)) {
-							if ($nave_no_local->id_imperio != 0) {
-								$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave_no_local->id_imperio}, id_imperio_contato={$nave->id_imperio}");
-							}
-							$imperio_tem_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc='{$nave_no_local->nome_npc}')");
-							$dados_salvos['debug'] .= "\nSELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc='{$nave_no_local->nome_npc}')
-							imperio_tem_colonias: {$imperio_tem_colonias}";
-							if ($imperio_tem_colonias != 0) {
-								$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave->id_imperio}, id_imperio_contato={$nave_no_local->id_imperio}, nome_npc={$nave_no_local->nome_npc}");
-							}
-						}
-					}
-				}
-				$dados_salvos['debug'] .= count($naves_no_local);
-				
-				foreach ($naves_no_local as $ids_imperio) {
-					$imperio = new imperio($ids_imperio->id_imperio);
-					if ($imperio->id == 0) {
-						$imperio->nome = $ids_imperio->nome_npc;
-					}
-					$dados_salvos['alerta'] .= "{$imperio->nome}\n";
-				}
-				
-				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}"); //Atualiza a posição da nave
+
+				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+				$pesquisa_anterior = $wpdb->get_results("SELECT id, sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				$nivel_sensor_estrela_origem = $wpdb->get_var("SELECT sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$id_estrela_origem}");
 				
 				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}, sensores={$imperio->sensores}");
 					$qtd_pesquisa = 5*($imperio->sensores + 1);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
-					$dados_salvos['debug'] .= "\nUPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
+					$dados_salvos['debug'] .= "\n nova_pesquisa ||UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
 				} elseif ($pesquisa_anterior[0]->sensores < $imperio->sensores) {
-					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores} WHERE id={$pesquisa_anterior[0]->id}");
-					$qtd_pesquisa = 5*($imperio->sensores - $pesquisa_anterior->sensores);
+					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores}, turno={$turno->turno} WHERE id_estrela={$estrela->id} AND id_imperio={$nave->id_imperio}");
+					$qtd_pesquisa = 5*($imperio->sensores - $pesquisa_anterior[0]->sensores);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
-					$dados_salvos['debug'] .= "\nUPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
+					$dados_salvos['debug'] .= "\n sensores_estrela_destino: {$pesquisa_anterior[0]->sensores} || UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
+				}
+				
+				//Pesquisa a estrela_origem se for possível
+				if ($nivel_sensor_estrela_origem < $imperio->sensores) {
+					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores}, turno={$turno->turno} WHERE id_estrela={$id_estrela_origem} AND id_imperio={$nave->id_imperio}");
+					$qtd_pesquisa = 5*($imperio->sensores - $nivel_sensor_estrela_origem);
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
+					$dados_salvos['debug'] .= "\n sensores_estrela_origem: {$nivel_sensor_estrela_origem} || UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";					
 				}
 			}
+
+			$naves_no_local = $wpdb->get_results("SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}'");
+			//Também vale quando há uma COLÔNIA no local
+			$ids_imperios_colonias = $wpdb->get_results("
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc 
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE ce.id={$estrela->id}
+			AND cic.turno={$turno->turno}");
+				
+			if (!empty($ids_imperios_colonias)) {
+				$naves_no_local = array_merge($naves_no_local, $ids_imperios_colonias);
+			}
+				
+			if (!empty($naves_no_local)) {
+				$dados_salvos['alerta'] .= "Foram encontradas naves no local: \n";
+				foreach ($naves_no_local as $nave_no_local) {
+					//Atualiza a tabela de Diplomacia com Primeiro Contato, caso não tenha
+					$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$nave_no_local->id_imperio} and nome_npc='{$nave_no_local->nome_npc}'");
+					if (empty($id_diplomacia)) {
+						if ($nave_no_local->id_imperio != 0) {
+							$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave_no_local->id_imperio}, id_imperio_contato={$nave->id_imperio}");
+						}
+						$imperio_tem_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc='{$nave_no_local->nome_npc}')");
+						$dados_salvos['debug'] .= "\nSELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$nave_no_local->id_imperio} OR (id_imperio=0 AND nome_npc ='{$nave_no_local->nome_npc}')
+						imperio_tem_colonias: {$imperio_tem_colonias}";
+						if ($imperio_tem_colonias != 0) {
+							$wpdb->query("INSERT INTO colonization_diplomacia SET id_imperio={$nave->id_imperio}, id_imperio_contato={$nave_no_local->id_imperio}, nome_npc='{$nave_no_local->nome_npc}'");
+						}
+					}
+				}
+				//Também vale quando há uma COLÔNIA no local
+				$ids_imperios_colonias = $wpdb->get_results("
+				SELECT cic.id_imperio, cic.nome_npc 
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE ce.id={$estrela->id}");
+					
+				foreach ($ids_imperios_colonias as $imperios_colonia) {
+					$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$imperios_colonia->id_imperio} and nome_npc='{$imperios_colonia->nome_npc}'");	
+					}					
+			}
+			$dados_salvos['debug'] .= "\n naves_no_local:" . count($naves_no_local);
+				
+			foreach ($naves_no_local as $ids_imperio) {
+				$imperio = new imperio($ids_imperio->id_imperio);
+				if ($imperio->id == 0) {
+					$imperio->nome = $ids_imperio->nome_npc;
+				}
+				$dados_salvos['alerta'] .= "{$imperio->nome}\n";
+			}
 			
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}"); //Atualiza a posição da nave
+			$resposta = $wpdb->query("INSERT INTO colonization_frota_historico_movimentacao SET id_nave={$nave->id}, id_imperio={$nave->id_imperio}, id_estrela_origem={$id_estrela_origem}, id_estrela_destino={$estrela->id}, turno={$turno->turno}"); //Adiciona o histórico da nave
 		}
 		
 		$dados_salvos['resposta_ajax'] = "SALVO!";
@@ -1895,22 +1934,6 @@ class colonization_ajax {
 		
 		$chave_acao = array_search($id_planeta_instalacoes, $imperio->acoes->id_planeta_instalacoes);
 		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "<label>Balanço da produção:</label> {$imperio->acoes->html_producao_consumo_instalacao($chave_acao)}";
-		/***
-		if (!empty($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
-			foreach ($imperio->acoes->recursos_produzidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
-				$recurso = new recurso($id_recurso);
-				$dados_salvos['id_planeta_instalacoes_produz_consome'] .= "{$recurso->nome}: {$qtd}; ";
-			}
-		}
-		
-		if (!empty($imperio->acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes])) {
-			foreach ($imperio->acoes->recursos_consumidos_id_planeta_instalacoes[$id_planeta_instalacoes] as $id_recurso => $qtd) {
-				$recurso = new recurso($id_recurso);
-				$dados_salvos['id_planeta_instalacoes_produz_consome'] .= "{$recurso->nome}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
-			}
-		}
-		***/
-		
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
 		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
 		
