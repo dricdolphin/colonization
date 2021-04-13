@@ -1066,11 +1066,12 @@ class acoes
 				//$this->recursos_consumidos[$id_energia] = $this->recursos_consumidos[$id_energia] + $this->recursos_consumidos_planeta[$id_energia][$id->id_planeta];
 				
 				//A base de consumo de poluição de planetas habitáveis é de 25 unidades
+				//Mas Techs Auxiliares podem afetar esse valor
 				if ($planeta[$id->id_planeta]->inospito == 0 || $planeta[$id->id_planeta]->terraforma == 1) {
 					if (empty($this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta])) {
-						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25;
+						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] =  25 + $imperio->consome_poluicao;
 					} else {
-						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] + 25;
+						$this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] = $this->recursos_consumidos_planeta[$id_poluicao][$id->id_planeta] + 25 + $imperio->consome_poluicao;
 					}
 				}
 			}

@@ -41,6 +41,7 @@ class imperio
 	public $sensores = 0;
 	public $coloniza_inospito = 0;
 	public $alimento_inospito = 0;
+	public $consome_poluicao = 0;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -211,6 +212,16 @@ class imperio
 				$crescimento_pop_valor = explode("=",$crescimento_pop[0]);
 				$this->crescimento_pop = $this->crescimento_pop	+ $crescimento_pop_valor[1];
 			}
+
+			//Especiais -- consome_poluicao
+			$consome_poluicao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'consome_poluicao') !== false;
+			}));
+			
+			if (!empty($consome_poluicao)) {
+				$consome_poluicao_valor = explode("=",$consome_poluicao[0]);
+				$this->consome_poluicao = $this->consome_poluicao + $consome_poluicao_valor[1];
+			}
 			
 			//Especiais -- sensores
 			$sensores = array_values(array_filter($especiais, function($value) {
@@ -220,7 +231,7 @@ class imperio
 			if (!empty($sensores)) {
 				$sensores_valor = explode("=",$sensores[0]);
 				$this->sensores = $this->sensores	+ $sensores_valor[1];
-			}			
+			}		
 			
 			//Especiais -- logistica
 			$logistica = array_values(array_filter($especiais, function($value) {
@@ -1100,7 +1111,7 @@ class imperio
 				&nbsp; <b>Pop para</b> &nbsp; 
 				<select class='select_lista_planetas'>
 				{$lista_options_colonias}
-				</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$resultado->id},{$colonia[$resultado->id]->id_planeta},{$colonia[$resultado->id]->id_estrela});'>TRANSFERIR!</a>
+				</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$id_colonia},{$colonia[$id_colonia]->id_planeta},{$colonia[$id_colonia]->id_estrela});'>TRANSFERIR!</a>
 				";
 				$html_transfere_pop = "<div style='display: inline;'><a href='#' onclick='return mostra_div_transferencia(event, this);'><div class='fas fa-walking tooltip' style='display: inline;'><span class='tooltiptext'>Transferir Pop para outro planeta</span> ({$mdo_transfere})</div></a>
 				<div data-atributo='lista_planetas' class='div_lista_planetas'>{$html_lista_planetas}</div>

@@ -22,6 +22,7 @@ class missoes
 	public $ativo;
 	public $turno_validade;
 	public $sucesso;
+	public $obrigatoria;
 	public $id_imperios_sucesso;
 	
 	/***********************
@@ -39,7 +40,7 @@ class missoes
 		
 
 		$resultados = $wpdb->get_results("SELECT id, descricao, texto_sucesso, texto_fracasso, lista_recurso, qtd, 
-		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade, id_imperios_sucesso, sucesso
+		id_imperio, id_imperios_aceitaram, id_imperios_rejeitaram, turno, ativo, turno_validade, id_imperios_sucesso, sucesso, obrigatoria
 		FROM colonization_missao WHERE id={$id}");
 		$resultado = $resultados[0];
 		
@@ -57,6 +58,7 @@ class missoes
 		$this->turno_validade = $resultado->turno_validade;
 		$this->id_imperios_sucesso = $resultado->id_imperios_sucesso;
 		$this->sucesso = $resultado->sucesso;
+		$this->obrigatoria = $resultado->obrigatoria;
 	}
 	
 	function lista_dados() {
@@ -70,7 +72,12 @@ class missoes
 		$sucesso_checked = "";
 		if ($this->sucesso == 1) {
 			$sucesso_checked = "checked";
-		}	
+		}
+
+		$obrigatoria_checked = "";
+		if ($this->obrigatoria == 1) {
+			$obrigatoria_checked = "checked";
+		}		
 		
 		$html = "<td>
 			<input type='hidden' data-atributo='where_clause' value='id'></input>
@@ -91,6 +98,7 @@ class missoes
 		<td><div data-atributo='turno_validade' data-editavel='true' data-style='width: 30px;' data-valor-original='{$this->turno_validade}'>{$this->turno_validade}</div></td>
 		<td><div data-atributo='id_imperios_sucesso' data-editavel='true' data-valor-original='{$this->id_imperios_sucesso}' data-style='width: 80px;' data-branco='true'>{$this->id_imperios_sucesso}</div></td>
 		<td><div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-valor-original='{$this->sucesso}'><input type='checkbox' data-atributo='sucesso' data-ajax='true' {$sucesso_checked} disabled></input></div></td>
+		<td><div data-atributo='obrigatoria' data-editavel='true' data-type='checkbox' data-valor-original='{$this->obrigatoria}'><input type='checkbox' data-atributo='obrigatoria' data-ajax='true' {$obrigatoria_checked} disabled></input></div></td>
 		";
 	
 		return $html;
@@ -123,8 +131,8 @@ class missoes
 		$html_rejeitar = "";
 		if ($this->ativo == 1 && $id_imperio != 0) {
 			if ($aceitou === false) {
-				$html_aceitar = "<a href='#' onclick='return aceita_missao(this,event,{$id_imperio},{$this->id});' style='color: #009922 !important;'> Aceitar a Missão</a>";
-				if ($rejeitou === false) {
+				$html_aceitar = "<a href='#' onclick='return aceita_missao(this,event,{$id_imperio},{$this->id});' style='color: #009922 !important;'>Aceitar a Missão</a>";
+				if ($rejeitou === false && $this->obrigatoria == 0) {
 					$html_rejeitar = "<a href='#' onclick='return aceita_missao(this,event,{$id_imperio},{$this->id},false);' style='color: #DD0022 !important;'>REJEITAR a Missão</a>";
 				} elseif ($rejeitou !== false) {
 					$html_aceitar = "<span style='color: #DD0022 !important;'><b>MISSÃO REJEITADA!</b></span> => <a href='#' onclick='return aceita_missao(this,event,{$id_imperio},{$this->id});' style='color: #009922 !important;'> Aceitar a Missão</a>";

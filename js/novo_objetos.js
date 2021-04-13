@@ -251,7 +251,9 @@ function nova_missao(evento) {
 	var ativo = linha_nova.insertCell(-1);
 	var turno = linha_nova.insertCell(-1);
 	var turno_validade = linha_nova.insertCell(-1);
+	var id_imperios_sucesso = linha_nova.insertCell(-1);
 	var sucesso = linha_nova.insertCell(-1);
+	var obrigatoria = linha_nova.insertCell(-1);
 
 	id.innerHTML = "<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
@@ -272,7 +274,9 @@ function nova_missao(evento) {
 	ativo.innerHTML = "<div data-atributo='ativo' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='ativo' data-ajax='true' checked></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	turno_validade.innerHTML = "<div data-atributo='turno_validade' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno_validade' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
+	id_imperios_sucesso.innerHTML = "<div data-atributo='id_imperios_sucesso' data-style='width: 80px;' data-editavel='true' data-valor-original='' data-branco='true'><input type='text' data-atributo='id_imperios_sucesso' data-ajax='true' style='width: 80px;'></input></div>";
 	sucesso.innerHTML = "<div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='sucesso' data-ajax='true'></input></div>";
+	obrigatoria.innerHTML = "<div data-atributo='obrigatoria' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='obrigatoria' data-ajax='true'></input></div>";
 	
 	window.scrollTo(0, document.body.scrollHeight);
 	evento.preventDefault();

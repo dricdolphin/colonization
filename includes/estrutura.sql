@@ -311,7 +311,8 @@ turno INT(6) NOT NULL,
 ativo BOOLEAN DEFAULT TRUE,
 turno_validade INT(6) NOT NULL,
 id_imperios_sucesso TEXT DEFAULT NULL,
-sucesso BOOLEAN DEFAULT FALSE
+sucesso BOOLEAN DEFAULT FALSE,
+obrigatoria BOOLEAN DEFAULT FALSE
 )
 
 --Tabela com as referências do Fórum
