@@ -1073,7 +1073,7 @@ class imperio
 			}
 
 			//Define se exibe ou não o div de transferência de Pop
-			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND id_planeta={$id_planeta}");
+			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND id_planeta={$id_planeta} AND turno={$this->turno->turno}");
 			if (empty($colonia[$id_colonia])) {
 				$colonia[$id_colonia] = new colonia($id_colonia);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1090,7 +1090,7 @@ class imperio
 			$html_lista_planetas = "";
 			$lista_options_colonias = "";
 			if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$id_colonia]->vassalo == 0 || ($colonia[$id_colonia]->vassalo == 1 && $roles == "administrator"))) {
-				$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$resultado->id}");
+				$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$id_colonia}");
 				foreach ($ids_colonias as $id_colonia_imperio) {
 					if (empty($colonia[$id_colonia_imperio->id])) {
 						$colonia[$id_colonia_imperio->id] = new colonia($id_colonia_imperio->id);
@@ -1103,7 +1103,7 @@ class imperio
 						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 						$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
 					}
-					if ($id_colonia_imperio->id != $resultado->id && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
+					if ($id_colonia_imperio->id != $id_colonia && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
 							$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
 					}
 				}
