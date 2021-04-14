@@ -2150,7 +2150,9 @@ var id_imperio_atual = {$imperio->id};
 			SELECT cic.id 
 			FROM colonization_imperio_colonias AS cic
 			WHERE cic.id_imperio={$imperio->id}
-			AND cic.turno={$turno->turno}");
+			AND cic.turno={$turno->turno}
+			AND cic.vassalo=0
+			");
 			
 			$where_id = "WHERE id != {$imperio->id} AND id IN (SELECT id_imperio_contato FROM colonization_diplomacia WHERE id_imperio={$imperio->id})";
 		}
