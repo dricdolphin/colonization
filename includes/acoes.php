@@ -670,6 +670,7 @@ class acoes
 		$recurso = [];
 
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
+		$colonia_sendo_alterada = false;
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 
@@ -679,6 +680,8 @@ class acoes
 				$this->debug .= "acoes->pega_balanco_recursos() -> pulando a ação({$this->id[$chave]}) {$diferenca}ms \n";	
 				continue;
 			} elseif (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] == $id_planeta_instalacoes) {
+				$colonia_sendo_alterada = $this->id_colonia[$chave];
+				$this->debug .= "colonia_sendo_alterada: {$colonia_sendo_alterada} || planeta: {$this->id_planeta[$chave]}\n";
 				//Remove a produção e consumo dessa Instalação das variáveis planetárias e zera a produção e o consumo dessa instalação
 				foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso_instalacao_planeta => $qtd_produzida_instalacao) {
 					$this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_produzida_instalacao;
@@ -960,7 +963,7 @@ class acoes
 				}
 				
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Produzidos #{$id_recurso}:{$this->recursos_produzidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_produzida_planeta} + {$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]} \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Produzidos {$this->recursos_balanco_nome[$id_recurso]}:{$this->recursos_produzidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_produzida_planeta} + {$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]} \n";
 				$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + $qtd_produzida_planeta + $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 				//$this->recursos_produzidos_planeta[$id_recurso][$id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id_planeta]; //+ $this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta];
 			}
@@ -1088,7 +1091,7 @@ class acoes
 				
 				$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta] = $this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta] - $this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta];
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recursos #{$id_recurso}: Planeta({$id->id_planeta})=>{$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta]}={$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta]} - {$this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta]} \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recursos {$this->recursos_balanco_nome[$id_recurso]}: Planeta({$id->id_planeta})=>{$this->recursos_balanco_planeta[$id_recurso][$id->id_planeta]}={$this->recursos_produzidos_planeta[$id_recurso][$id->id_planeta]} - {$this->recursos_consumidos_planeta[$id_recurso][$id->id_planeta]} \n";
 			}
 		}
 		
@@ -1100,7 +1103,7 @@ class acoes
 			
 			foreach ($this->recursos_consumidos_planeta[$id_recurso] as $id_planeta => $qtd_consumida_planeta) {
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Consumidos #{$id_recurso}:{$this->recursos_consumidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_consumida_planeta} \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Recursos Consumidos {$this->recursos_balanco_nome[$id_recurso]}:{$this->recursos_consumidos[$id_recurso]} + Planeta({$id_planeta})=>{$qtd_consumida_planeta} \n";
 				$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + $qtd_consumida_planeta;
 			}
 		}		
@@ -1123,7 +1126,7 @@ class acoes
 			if ($recurso[$id_recurso]->local == 0) {
 				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso #{$id_recurso}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso {$this->recursos_balanco_nome[$id_recurso]}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
 			}
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
