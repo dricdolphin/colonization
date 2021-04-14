@@ -450,13 +450,13 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 	objeto_em_salvamento = true;
 
 	let linha = pega_ascendente(objeto,"TR");
+	let celula = pega_ascendente(objeto,"TD");
 	let inputs = linha.getElementsByTagName("INPUT");
 	let labels = linha.getElementsByTagName("LABEL");
-
-	let label_mk = objeto.parentNode;
+	
 
 	let input_nivel = {};
-	label_mk = label_mk.getElementsByTagName("LABEL")[0];
+	
 	
 	var dados = [];
 	
@@ -475,9 +475,13 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 		}
 	}
 
+	let label_pop = {};
+	let label_mk = {};
 	for (let index=0; index<labels.length; index++) {
 		if (labels[index].getAttribute("data-atributo") == "pop") {
-			var label_pop = labels[index];
+			label_pop = labels[index];
+		} else if (labels[index].getAttribute("data-atributo") == "nivel") {
+			label_mk = labels[index];
 		}
 	}
 	
