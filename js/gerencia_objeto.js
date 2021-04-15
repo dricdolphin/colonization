@@ -513,34 +513,34 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				//Remove o objeto e ATUALIZA a Instalação
 				switch(nivel_upgrade) {
 					case 1:
-						html_nivel = "Mk I";
+						html_nivel = " Mk I";
 						break;
 					case 2:
-						html_nivel = "Mk II";
+						html_nivel = " Mk II";
 						break;
 					case 3:
-						html_nivel = "Mk III";
+						html_nivel = " Mk III";
 						break;
 					case 4:
-						html_nivel = "Mk IV";
+						html_nivel = " Mk IV";
 						break;
 					case 5:
-						html_nivel = "Mk V";
+						html_nivel = " Mk V";
 						break;
 					case 6:
-						html_nivel = "Mk VI";
+						html_nivel = " Mk VI";
 						break;
 					case 7:
-						html_nivel = "Mk VII";
+						html_nivel = " Mk VII";
 						break;
 					case 8:
-						html_nivel = "Mk VIII";
+						html_nivel = " Mk VIII";
 						break;
 					case 9:
-						html_nivel = "Mk IX";
+						html_nivel = " Mk IX";
 						break;
 					case 10:
-						html_nivel = "Mk X";
+						html_nivel = " Mk X";
 						break;
 					default:
 						html_nivel = "";
