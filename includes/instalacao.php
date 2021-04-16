@@ -38,6 +38,8 @@ class instalacao
 	public $comercio = false;
 	public $comercio_processou = false;
 	public $requer_instalacao_sistema = false;
+	public $espacoporto = false;
+	public $base_colonial = false;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -84,6 +86,25 @@ class instalacao
 	
 		//Especiais
 		$especiais = explode(";",$this->especiais);
+
+		//espacoporto
+		$espacoporto = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'espacoporto') !== false;
+		}));
+		
+		if (!empty($espacoporto)) {
+			$this->espacoporto = true;
+		}
+
+
+		//base_colonial
+		$base_colonial = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'base_colonial') !== false;
+		}));
+
+		if (!empty($base_colonial)) {
+			$this->base_colonial = true;
+		}
 		
 		//requer_instalacao_sistema
 		$requer_instalacao_sistema = array_values(array_filter($especiais, function($value) {
@@ -373,7 +394,7 @@ class instalacao
 	----------------------
 	Exibe os dados do objeto
 	***********************/
-	function produz_comercio($colonia_atual) {
+	function produz_comercio($colonia_atual, $nivel_instalacao_atual) {
 		global $wpdb;
 
 		$user = wp_get_current_user();
@@ -405,62 +426,50 @@ class instalacao
 		
 		$imperio = new imperio($colonia_atual->id_imperio);
 		
-		$estrelas = [];
-		$planetas = [];
-
 		$planeta_atual = new planeta($colonia_atual->id_planeta);
-		$planetas[$planeta_atual->id] = $planeta_atual;
-		
 		$estrela_atual = new estrela($planeta_atual->id_estrela);
-		$estrelas[$estrela_atual->id] = $estrela_atual;
 		
-		$ids_colonia_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
-		$bonus_comercio = $imperio->bonus_comercio;
+		$ids_colonia_imperio = $wpdb->get_results("
+		SELECT DISTINCT cic.id, cic.id_planeta, cp.id_estrela
+		FROM colonization_imperio_colonias AS cic 
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cic.id_imperio={$imperio->id} AND cic.turno={$imperio->turno->turno}");
+		
 		foreach($ids_colonia_imperio as $ids_colonia) {
-			$colonias = new colonia($ids_colonia->id);
-			if (empty($planetas[$colonias->id_planeta])) {
-				$planetas[$colonias->id_planeta] = new planeta($colonias->id_planeta);
-			}
-			if (empty($estrelas[$planetas[$colonias->id_planeta]->id_estrela])) {
-				$estrelas[$planetas[$colonias->id_planeta]->id_estrela] = new estrela($planetas[$colonias->id_planeta]->id_estrela);
-			}			
-			
-			if ($planetas[$colonias->id_planeta]->id != $planeta_atual->id || $colonia_atual->capital) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
-				if ($estrela_atual->distancia_estrela($estrelas[$planetas[$colonias->id_planeta]->id_estrela]->id) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
-					$this->recursos_produz_qtd_comercio[$chave_pesquisa]++;
-					$this->recursos_produz_qtd_comercio[$chave_industrializaveis]++;
-					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + 10;
-				}
-			}
-		}
-		
-		$pontos_reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
-		foreach ($pontos_reabastece as $ponto_reabastece) {//Pontos de Reabastecimento também aumentam a quantidade de comércio (contam como Colônias)
-			if (empty($estrelas[$ponto_reabastece->id_estrela])) {//Só pega os pontos de abastecimento se não tiver pego a estrela anteriormente
-				if ($estrela_atual->distancia_estrela($ponto_reabastece->id_estrela) <= $imperio->alcance_logistica) {
+			if ($ids_colonia->id_planeta != $colonia_atual->id_planeta || $colonia_atual->capital == 1) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
+				if ($estrela_atual->distancia_estrela($ids_colonia->id_estrela) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
 					$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
-					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
-					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;					
+					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
+					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + 10*+ $this->comercio;
 				}
 			}
 		}
 		
 		//TODO -- bônus para contato com outros Impérios
-		$ids_imperios_contato = $wpdb->get_results("SELECT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
-		foreach ($ids_imperios_contato as $imperios_contato) {
-			//TODO -- no futuro pode haver bloqueios comerciais
-			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
-			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
-			$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;
-			if ($imperios_contato->acordo_comercial == 1) {
+		if ($colonia_atual->capital == 1) {//O bônus com outros Impérios só conta na CAPITAL
+			$ids_imperios_contato = $wpdb->get_results("SELECT DISTINCT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
+			foreach ($ids_imperios_contato as $imperios_contato) {
+				//TODO -- no futuro pode haver bloqueios comerciais
 				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
 				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
-				$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;	
+				$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;
+				if ($imperios_contato->acordo_comercial == 1) {
+					$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
+					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
+					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;	
+				}
 			}
+		}
+		
+		//Limita a quantidade de Recursos que as instalações Comerciais podem produzir
+		if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*$this->comercio*$nivel_instalacao_atual) {
+			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*$this->comercio*$nivel_instalacao_atual;
+			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*$this->comercio*$nivel_instalacao_atual;
+			$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*$this->comercio*$nivel_instalacao_atual;
 		}
 		
 		return true;
 	}
 }
-
 ?>

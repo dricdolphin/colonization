@@ -943,6 +943,9 @@ class colonization_ajax {
 		$wpdb->hide_errors();
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
+		$planeta = new planeta($_POST['id_planeta']);
+		$estrela = new estrela($planeta->id_estrela);
+		$imperio = new imperio($_POST['id_imperio']);
 		
 		$id_existe = "";
 		if ($_POST['id'] !== "") {//Se o valor estiver em branco, é um novo objeto.
@@ -950,9 +953,33 @@ class colonization_ajax {
 		}
 		
 		$resposta = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta = {$_POST['id_planeta']} AND turno = {$_POST['turno']}{$id_existe}");
-
 		if (!empty($resposta)) {
 			$dados_salvos['resposta_ajax'] = "Este planeta já é a colônia de outro Império!";
+		}
+
+		if ($_POST['id_imperio'] != 0) {
+			$estrelas_colonias_imperio = $wpdb->get_results("
+			SELECT DISTINCT cp.id_estrela
+			FROM colonization_imperio_colonias
+			JOIN colonization_planeta AS cp
+			ON cp.id=cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id=cp.id_estrela
+			WHERE cic.id_imperio={$_POST['id_imperio']} AND cic.turno={$_POST['turno']}
+			AND cic.vassalo=0
+			");
+			
+			$colonia_dentro_logistica = false;
+			foreach ($estrelas_colonias_imperio as $dados_colonia) {
+				if ($estrela->distancia_estrela($dados_colonia->id_estrela) <= $imperio->alcance_logistica) {
+					$colonia_dentro_logistica = true;
+					break;
+				}
+			}
+			
+			if (!$colonia_dentro_logistica) {
+				$dados_salvos['resposta_ajax'] = "Esta estrela está além do Alcance Logístico do Império!";
+			}
 		}
 
 		if ($_POST['capital'] == 1) {
@@ -966,9 +993,6 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Já existe uma Capital para este Império!";
 			}		
 		}
-		
-		$planeta = new planeta($_POST['id_planeta']);
-		$imperio = new imperio($_POST['id_imperio']);
 		
 		if (($planeta->inospito == 1 && $planeta->terraforma == 0) && $imperio->coloniza_inospito != 1) {
 			if ($_POST['pop'] > $planeta->pop_inospito) {

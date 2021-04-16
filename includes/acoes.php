@@ -753,7 +753,7 @@ class acoes
 				}
 				
 				//Se for uma instalação Comercial, já atualiza os valores de produção
-				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]]);
+				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]], $this->nivel_instalacao[$chave]);
 				if (empty($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])) {
 					$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
 					//$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] = $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos];
