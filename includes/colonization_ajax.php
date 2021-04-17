@@ -943,6 +943,7 @@ class colonization_ajax {
 		$wpdb->hide_errors();
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['debug'] = "";
 		$planeta = new planeta($_POST['id_planeta']);
 		$estrela = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
@@ -960,7 +961,7 @@ class colonization_ajax {
 		if ($_POST['id_imperio'] != 0) {
 			$estrelas_colonias_imperio = $wpdb->get_results("
 			SELECT DISTINCT cp.id_estrela
-			FROM colonization_imperio_colonias
+			FROM colonization_imperio_colonias AS cic
 			JOIN colonization_planeta AS cp
 			ON cp.id=cic.id_planeta
 			JOIN colonization_estrela AS ce
@@ -969,8 +970,20 @@ class colonization_ajax {
 			AND cic.vassalo=0
 			");
 			
+			$dados_salvos['debug'] .= "
+			SELECT DISTINCT cp.id_estrela
+			FROM colonization_imperio_colonias
+			JOIN colonization_planeta AS cp
+			ON cp.id=cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id=cp.id_estrela
+			WHERE cic.id_imperio={$_POST['id_imperio']} AND cic.turno={$_POST['turno']}
+			AND cic.vassalo=0
+			\n";
+			
 			$colonia_dentro_logistica = false;
 			foreach ($estrelas_colonias_imperio as $dados_colonia) {
+				$dados_salvos['debug'] .= "distância: {$estrela->distancia_estrela($dados_colonia->id_estrela)} || {$imperio->alcance_logistica}\n";
 				if ($estrela->distancia_estrela($dados_colonia->id_estrela) <= $imperio->alcance_logistica) {
 					$colonia_dentro_logistica = true;
 					break;

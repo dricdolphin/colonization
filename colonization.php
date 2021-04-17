@@ -1270,7 +1270,13 @@ if (!empty($imperios[0])) {
 }
 				
 		foreach ($imperios as $imperio) {
-			$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+			$colonias = $wpdb->get_results("
+			SELECT cic.id, cp.id_estrela, cic.vassalo
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			WHERE cic.id_imperio={$imperio->id} AND cic.turno={$turno->turno}
+			ORDER BY cic.id asc");
 
 			$html_javascript .= "
 			lista_estrelas_colonia[{$imperio->id}]=[];
@@ -1278,25 +1284,25 @@ if (!empty($imperios[0])) {
 			";
 
 			foreach ($colonias as $id_colonia) {
-				$colonia = new colonia($id_colonia->id);
-				$planeta = new planeta($colonia->id_planeta);
+				//$colonia = new colonia($id_colonia->id);
+				//$planeta = new planeta($colonia->id_planeta);
 				
-				$html_javascript .= "
-				lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
-				
-				if ($colonia->capital == 1) {
-					$html_javascript .= "
-					estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
+				if ($id_colonia->vassalo == 0) {
+					$html_javascript .= "lista_estrelas_colonia[{$imperio->id}][{$id_colonia->id_estrela}]={$id_colonia->id_estrela}; \n";
+					
+					if ($colonia->capital == 1) {
+						$html_javascript .= "estrela_capital[{$imperio->id}]={$id_colonia->id_estrela}; \n";
+					}
+				} else {
+					$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_colonia->id_estrela}]={$id_colonia->id_estrela}; \n";
 				}
 			}
 			
 			$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
-			foreach ($reabastece as $id_estrela) {
-				$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_estrela->id_estrela}]={$id_estrela->id_estrela};\n
-				";
+			foreach ($reabastece as $id_colonia) {
+				$html_javascript .= "lista_estrelas_reabastece[{$imperio->id}][{$id_colonia->id_estrela}]={$id_colonia->id_estrela}; \n";
 			}
 		}
-
 
 		$html = "
 		<h3>Distância entre as Estrelas</h3>

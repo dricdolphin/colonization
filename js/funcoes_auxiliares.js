@@ -36,7 +36,7 @@ function calcula_distancia(exibe=true, estrela_origem_id=0, estrela_destino_id=0
 }
 
 /******************
-function calcula_distancia
+function calcula_distancia_reabastece
 --------------------
 Calcula a distância entre duas estrelas, considerando a possibilidade de reabastecer
 ******************/
@@ -287,14 +287,16 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 		estrelas_imperio[chave] = true;
 	});
 
-	var mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
-		return { index: i, value: el };
-	});
+	if (alcance_extendido == 2) {//Alcance das Naves. Para o Alcance Logístico, não considere os pontos de reabastecimento.
+		var mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
+			return { index: i, value: el };
+		});
 
-	mapped_estrelas_reabastece.forEach(
-	function(valor_reabastece, chave_reabastece, mapa_reabastece) {
-		estrelas_imperio[chave_reabastece] = true;
-	});
+		mapped_estrelas_reabastece.forEach(
+		function(valor_reabastece, chave_reabastece, mapa_reabastece) {
+			estrelas_imperio[chave_reabastece] = true;
+		});
+	}
 	
 	let caminho_completo = "";
 	//Verifica qual estrela do Império (incluindo pontos de Reabastecimento), à partir da estrela atual, a nave consegue chegar
