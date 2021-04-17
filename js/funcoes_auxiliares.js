@@ -266,8 +266,9 @@ Retorna um Array com as das estrelas possíveis de serem alcançadas
 ******************/
 function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrela_atual='capital') {
 
-	var estrelas_imperio = [];
-	var estrelas_destino = [];
+	let estrelas_imperio = [];
+	let estrelas_destino = [];
+	let mapped_estrelas_reabastece = []
 
 	if (alcance_nave == 0) {
 		return estrelas_destino;
@@ -277,7 +278,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 		estrela_atual = estrela_capital[id_imperio_atual];
 	}
 	
-	var mapped_estrelas_colonia = lista_estrelas_colonia[id_imperio_atual].map(function(el, i) {
+	let mapped_estrelas_colonia = lista_estrelas_colonia[id_imperio_atual].map(function(el, i) {
 		return { index: i, value: el };
 	});
 
@@ -288,7 +289,7 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 	});
 
 	if (alcance_extendido == 2) {//Alcance das Naves. Para o Alcance Logístico, não considere os pontos de reabastecimento.
-		var mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
+		mapped_estrelas_reabastece = lista_estrelas_reabastece[id_imperio_atual].map(function(el, i) {
 			return { index: i, value: el };
 		});
 
@@ -300,11 +301,11 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 	
 	let caminho_completo = "";
 	//Verifica qual estrela do Império (incluindo pontos de Reabastecimento), à partir da estrela atual, a nave consegue chegar
-	var mapped_estrelas_imperio= estrelas_imperio.map(function(el, i) {
+	let mapped_estrelas_imperio= estrelas_imperio.map(function(el, i) {
 		return { index: i, value: el };
 	});	
 
-	var tem_ponto_reabastece = false;
+	let tem_ponto_reabastece = false;
 	mapped_estrelas_imperio.forEach(
 	function(valor_estrelas_imperio, id_estrela_destino, mapa_estrelas_imperio) {
 		distancia_parsecs = calcula_distancia(false, estrela_atual, id_estrela_destino);
@@ -320,11 +321,11 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 		}
 	});
 
-	var estrelas_destino_temp = [];
-	var mapped_estrelas_origem = "";
-	var mapped_estrelas_destino = "";
-	var mapped_estrelas_temp = "";
-	var startDate = new Date();
+	let estrelas_destino_temp = [];
+	let mapped_estrelas_origem = "";
+	let mapped_estrelas_destino = "";
+	let mapped_estrelas_temp = "";
+	let startDate = new Date();
 	
 	while (tem_ponto_reabastece) {
 		tem_ponto_reabastece = false;
@@ -370,8 +371,8 @@ function array_estrelas (alcance_nave,alcance_extendido=2,reabastece=true,estrel
 			estrelas_destino[id_estrela_origem] = true;
 		});	
 	}
-	var endDate   = new Date();
-	var miliseconds = (endDate.getTime() - startDate.getTime());	
+	let endDate   = new Date();
+	let miliseconds = (endDate.getTime() - startDate.getTime());	
 	console.log("Buscando os Caminhos: "+miliseconds*1+"ms");
 	
 	//estrelas_destino.sort();
