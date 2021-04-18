@@ -1609,6 +1609,13 @@ class colonization_ajax {
 		$colonia_instalacao = new colonia_instalacao($_POST['id']);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta} AND turno={$turno->turno}");
 		$id_imperio = 0;
+		$dados_salvos['debug'] = "";
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		if (!empty($id_colonia)) {
 			$colonia = new colonia($id_colonia);
@@ -1616,7 +1623,7 @@ class colonization_ajax {
 		}
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
-			if (empty($colonia_instalacao->turno_desmonta) ) { 
+			if (empty($colonia_instalacao->turno_desmonta)) {
 				if ($roles == "administrator") {//Só um ADMINISTRADOR pode reparar uma instalação
 					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
 				} else {
@@ -1660,7 +1667,7 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente!";
 		}
 		
-		$dados_salvos['debug'] = "{$id_colonia}";
+		$dados_salvos['debug'] .= "{$id_colonia}\n";
 		echo json_encode($dados_salvos); //Envia a resposta via echo
 		wp_die(); //Termina o script e envia a resposta
 	}
