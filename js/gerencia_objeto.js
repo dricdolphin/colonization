@@ -935,8 +935,8 @@ Atualiza a DIV com o custo da Tech
 function atualiza_custo_tech(evento, objeto) {
 	let index_selecionado = objeto.selectedIndex;
 	let id_tech = objeto.options[index_selecionado].value;
-	let td_tech = pega_ascendente(objeto,"TD");
-	let divs_td_tech = td_tech.getElementsByTagName("DIV");
+	let tr_tech = pega_ascendente(objeto,"TR");
+	let divs_td_tech = tr_tech.getElementsByTagName("DIV");
 	let div_custo_tech = "";
 	
 	for (let index_divs=0; index_divs<divs_td_tech.length; index_divs++) {
@@ -946,7 +946,8 @@ function atualiza_custo_tech(evento, objeto) {
 		}
 	}
 	
-	div_custo_tech.innerHTML = custos_instalacao[id_tech];
+	div_custo_tech.innerHTML = custos_tech[id_tech];
+	console.log(custos_tech[id_tech]);
 }
 
 /******************

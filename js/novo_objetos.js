@@ -1,3 +1,5 @@
+var custos_tech = [];
+var custos_instalacao = [];
 /******************
 function novo_imperio
 --------------------
@@ -961,7 +963,7 @@ function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
 				console.log(resposta.debug);
 			}				
 			if (resposta.resposta_ajax == "OK!") {
-				var custos_instalacao = resposta.custo_instalacao; //Precisa ser uma VAR por ser uma variável global
+				custos_instalacao = resposta.custos_instalacao; //Precisa ser uma VAR por ser uma variável global
 				//console.log(custos_instalacao);
 				processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio, resposta.html);
 			} else {
@@ -1084,7 +1086,7 @@ function nova_tech_jogador(evento, id_imperio) {
 				}
 				
 				if (resposta.resposta_ajax == "OK!") {
-					var custos_tech = resposta.custo_tech; //Precisa ser uma VAR por ser uma variável global
+					custos_tech = resposta.custos_tech; //Precisa ser uma VAR por ser uma variável global
 					resolve(resposta);
 				} else {
 					alert(resposta.resposta_ajax);

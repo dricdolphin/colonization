@@ -63,7 +63,8 @@ function valida_generico(objeto) {
 	let select_linha = linha.getElementsByTagName("SELECT");
 
 	let inputs_linha_temp = [];
-	for (let index = 0; index < inputs_linha.length; index++) {
+	let index = 0;
+	for (index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	
@@ -342,8 +343,9 @@ function valida_planeta_recurso(objeto) {
 		return false;
 	}
 
+	let id_recurso = "";
 	if (typeof(select_linha[0]) !== "undefined") {
-		let id_recurso = select_linha[0].value;
+		id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 

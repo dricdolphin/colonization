@@ -319,7 +319,13 @@ class colonization {
 
 			if ($asgarosforum->content->get_topic_title($topic_id) == "Mapa de Recursos") {
 				echo "<div class='icone_topico'><i class='fas fa-clipboard-list-check' style='font-size: 32px; color: #a2a2a2;'></i></div>";
-			}			
+			}		
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Gerenciamento das Techs") {
+				echo "<div class='icone_topico'><i class='fas fa-flask' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}		
+			
+			//Gerenciamento das Techs			
 		//}
 	}
 	
@@ -359,6 +365,7 @@ class colonization {
 				return;
 			} 
 		}
+		$turno = new turno();
 
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false);
@@ -385,7 +392,7 @@ class colonization {
 			}
 		}
 			
-		$html = "<div><h2>Techs do Império '{$imperio->nome}'</h2></div>
+		$html = "<div><h4>Techs do Império '{$imperio->nome}'</h4></div>
 		<div>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 		<thead>
@@ -396,8 +403,11 @@ class colonization {
 		$html .= $html_techs_imperio;
 
 		$html .= "\n</tbody>
-		</table></div>
-		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_jogador(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+		</table></div>";
+		
+		if (!$banido && !$turno->encerrado && $turno->bloqueado) {
+			$html .= "\n<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_jogador(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+		}
 		
 		return $html;
 	}

@@ -119,7 +119,8 @@ class frota
 			$html_qtd = "{$this->qtd} naves";
 		}
 		
-		$html = "<div>O {$imperio->nome} deseja enviar {$html_qtd} '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
+		$html = "<div>O Império '{$imperio->nome}' deseja enviar {$html_qtd} '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
+		<div>A nave '{$this->nome}' fora para {$estrela_destino->nome}<br><br>{$estrela_destino->descricao}</div>
 		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
 
 		return $html;

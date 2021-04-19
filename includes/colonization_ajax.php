@@ -181,7 +181,7 @@ class colonization_ajax {
 			
 			if (!empty($tech->lista_requisitos)) {
 				foreach ($tech->id_tech_requisito as $chave => $id_tech_requisito) {
-					$dados_salvos['debug'] .= "{$tech->id} => id_tech_requisito: {$id_tech_requisito} \n";
+					//$dados_salvos['debug'] .= "{$tech->id} => id_tech_requisito: {$id_tech_requisito} \n";
 					$imperio_tem_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_tech={$id_tech_requisito} AND custo_pago=0 AND id_imperio={$_POST['id_imperio']}");
 					if (empty($imperio_tem_tech)) {//Se não tem a Tech Requisito, pula a Tech
 						continue 2;
@@ -190,7 +190,7 @@ class colonization_ajax {
 			}
 			
 			$html_select .= "<option value='{$tech->id}'>{$tech->nome}</option>";
-			$dados_salvos['custo_tech'][$id_tech->id] = $tech->custo;
+			$dados_salvos['custos_tech'][$tech->id] = $tech->custo;
 			if (empty($dados_salvos['custo'])) {
 				$dados_salvos['custo'] = $tech->custo;
 			}
@@ -264,7 +264,7 @@ class colonization_ajax {
 			}
 			
 			$html_select_instalacoes .= "<option value='{$instalacao->id}'>{$instalacao->nome}</option>";
-			$dados_salvos['custo_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
+			$dados_salvos['custos_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
 		}
 		
 		$html_select_instalacoes .= "</select>";
@@ -816,7 +816,7 @@ class colonization_ajax {
 		if ($pesquisas_imperio < $custo_a_pagar && $_POST['tech_inicial'] != 1) {
 			$imperio = new imperio($_POST['id_imperio']);
 			if (empty($dados_salvos['resposta_ajax'])) {
-				$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). tech_inicial: {$_POST['tech_inicial']}";
+				$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). {$_POST['tech_inicial']}";
 				$dados_salvos['custo_pago'] = $pesquisas_imperio;
 			}
 		} 
