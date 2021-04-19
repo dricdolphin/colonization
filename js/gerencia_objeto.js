@@ -928,6 +928,28 @@ function atualiza_custo_instalacao(evento, objeto) {
 }
 
 /******************
+function atualiza_custo_tech()
+--------------------
+Atualiza a DIV com o custo da Tech
+******************/
+function atualiza_custo_tech(evento, objeto) {
+	let index_selecionado = objeto.selectedIndex;
+	let id_tech = objeto.options[index_selecionado].value;
+	let td_tech = pega_ascendente(objeto,"TD");
+	let divs_td_tech = td_tech.getElementsByTagName("DIV");
+	let div_custo_tech = "";
+	
+	for (let index_divs=0; index_divs<divs_td_tech.length; index_divs++) {
+		if (divs_td_tech[index_divs].getAttribute('data-atributo') == "custo_tech") {
+			div_custo_tech = divs_td_tech[index_divs];
+			break;
+		}
+	}
+	
+	div_custo_tech.innerHTML = custos_instalacao[id_tech];
+}
+
+/******************
 function atualiza_recursos_imperio(objeto) 
 --------------------
 Atualiza a tabela de recursos do Império

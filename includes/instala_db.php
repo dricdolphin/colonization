@@ -154,6 +154,13 @@ class instala_db {
 		id_instalacao INT(6) NOT NULL
 		)");
 
+		//Tabela com as Techs não-Públicas que o Império pode pesquisar
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_techs_permitidas (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) NOT NULL,
+		id_tech INT(6) NOT NULL
+		)");
+
 		//Tabela com as Techs dos Impérios
 		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_imperio_techs (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

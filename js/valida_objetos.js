@@ -9,11 +9,12 @@ function processa_xhttp_basico(dados_ajax)	{
 	
 	return new Promise((resolve, reject) => {
 		//Envia a chamada de AJAX para salvar o objeto
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} catch (err) {
 					console.log(this.responseText);
 					console.log(err);
@@ -55,16 +56,14 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_generico(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	//var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	//var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var textarea_linha = linha.getElementsByTagName("TEXTAREA");
-	var select_linha = linha.getElementsByTagName("SELECT");
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let textarea_linha = linha.getElementsByTagName("TEXTAREA");
+	let select_linha = linha.getElementsByTagName("SELECT");
 
 	let inputs_linha_temp = [];
-	for (var index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	
@@ -101,19 +100,20 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_imperio(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	var inputs_tabela = tabela.getElementsByTagName("INPUT");
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
+	let linha = pega_ascendente(objeto,"TR");
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let celulas = linha.cells;
+	let inputs_tabela = tabela.getElementsByTagName("INPUT");
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
 	
 	if (!valida_generico(objeto)) {
 		return false;
 	}
 
+	let id_jogador = "";
 	if (typeof(select_linha[0]) !== "undefined") {
-		var id_jogador = select_linha[0].value;
+		id_jogador = select_linha[0].value;
 		//Verifica se o jogador já tem um Império cadastrado. Cada jogador pode ter apenas um Império.
 		for (let index = 0; index < inputs_tabela.length; index++) {
 			if (inputs_tabela[index].getAttribute('data-atributo') == "id_jogador" && inputs_tabela[index].getAttribute('value') == id_jogador) {
@@ -134,13 +134,13 @@ Valida os dados da Tech sendo adicionada à um Império
 objeto -- objeto sendo editado
 ******************/	
 function valida_tech_imperio(objeto) {
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_tech_imperio";
-	var retorno = false;
-	var custo_pago = "";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_tech_imperio";
+	let retorno = false;
+	let custo_pago = "";
 
 	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" 
@@ -160,7 +160,7 @@ function valida_tech_imperio(objeto) {
 	}
 
 	if (typeof(select_linha[0]) !== "undefined") {
-		var id_tech = select_linha[0].value;
+		let id_tech = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_tech="+id_tech;
 	}
 
@@ -168,13 +168,14 @@ function valida_tech_imperio(objeto) {
 		return false;
 	}
 
-	var retorno = new Promise((resolve, reject) =>	{
+	retorno = new Promise((resolve, reject) =>	{
 		//Chama um AJAX para verificar se já existe uma estrela nas coordenadas informadas
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} catch (err) {
 					console.log(this.responseText);
 					console.log(err);
@@ -224,11 +225,11 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_estrela(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_estrela";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_estrela";
 
 	if (!valida_generico(objeto)) {
 		return false;
@@ -255,11 +256,11 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_colonia(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_colonia";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_colonia";
 
 	for (let index = 0; index < select_linha.length; index++) {
 		if (typeof(select_linha[0]) !== "undefined") {
@@ -296,18 +297,18 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_instalacao_recurso(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_instalacao_recurso";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_instalacao_recurso";
 	
 	if (!valida_generico(objeto)) {
 		return false;
 	}	
 	
 	if (typeof(select_linha[0]) !== "undefined") {
-		var id_recurso = select_linha[0].value;
+		let id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
@@ -331,18 +332,18 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_planeta_recurso(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_planeta_recurso";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_planeta_recurso";
 	
 	if (!valida_generico(objeto)) {
 		return false;
 	}
 
 	if (typeof(select_linha[0]) !== "undefined") {
-		var id_recurso = select_linha[0].value;
+		let id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
@@ -355,12 +356,13 @@ function valida_planeta_recurso(objeto) {
 		}
 	}
 
-	var retorno = new Promise((resolve, reject) =>	{
-		var xhttp = new XMLHttpRequest();
+	let retorno = new Promise((resolve, reject) =>	{
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} catch (err) {
 					console.log(this.responseText);
 					console.log(err);
@@ -392,18 +394,19 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_colonia_instalacao(objeto) {
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var dados_ajax = "post_type=POST&action=valida_colonia_instalacao";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let dados_ajax = "post_type=POST&action=valida_colonia_instalacao";
 	
 	if (!valida_generico(objeto)) {
 		return false;
 	}
 
+	let id_instalacao = "";
 	if (typeof(select_linha[0]) !== "undefined") {
-		var id_instalacao = select_linha[0].value;
+		id_instalacao = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_instalacao="+id_instalacao;
 	}
 
@@ -422,12 +425,13 @@ function valida_colonia_instalacao(objeto) {
 		}
 	}
 
-	var retorno = new Promise((resolve, reject) =>	{
-		var xhttp = new XMLHttpRequest();
+	let retorno = new Promise((resolve, reject) =>	{
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} catch (err) {
 					console.log(this.responseText);
 					console.log(err);
@@ -474,19 +478,20 @@ function valida_acao_admin(objeto) {
 		return false;
 	}
 
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	
-	var dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value
+	let dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value
 	+"&lista_recursos="+objeto_editado['lista_recursos'].value+"&qtd="+objeto_editado['qtd'].value+"&descricao="+objeto_editado['descricao'].value+"&id="+objeto_editado['id'].value
 	+"&lista_recursos_original="+objeto_editado['lista_recursos'].parentNode.getAttribute('data-valor-original')+"&qtd_original="+objeto_editado['qtd'].parentNode.getAttribute('data-valor-original');
 	
-	var retorno = new Promise((resolve, reject) =>	{
+	let retorno = new Promise((resolve, reject) =>	{
 		//Envia a chamada de AJAX para salvar o objeto
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} catch (err) {
 					console.log(this.responseText);
 					console.log(err);
@@ -495,12 +500,12 @@ function valida_acao_admin(objeto) {
 				}
 				
 				if (resposta.resposta_ajax == "OK!") {
-					var div_resposta = document.getElementById("div_resposta");
+					let div_resposta = document.getElementById("div_resposta");
 					div_resposta.innerHTML = resposta.html;
 					resolve(true);
 				} else {
 					alert(resposta.resposta_ajax);
-					var div_resposta = document.getElementById("div_resposta");
+					let div_resposta = document.getElementById("div_resposta");
 					div_resposta.innerHTML = resposta.html;
 					resolve(false);
 				}
@@ -520,16 +525,17 @@ function altera_recursos_planeta(objeto)
 Atualiza os recursos do planeta nos Turnos anteriores, caso necessário
 ******************/	
 function altera_recursos_planeta(objeto) {
-	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
 
-	var linha = pega_ascendente(objeto,"TR");
-	var divs = linha.getElementsByTagName("DIV");
+	let linha = pega_ascendente(objeto,"TR");
+	let divs = linha.getElementsByTagName("DIV");
 	
+	let dados_ajax = "";
 	for (let index=0; index<divs.length; index++) {
 		if (divs[index].getAttribute("data-atributo") == "nome_recurso") {
 			if (divs[index].getAttribute("data-id-selecionado") != divs[index].childNodes[1].value) {
 				console.log("MUDOU! De "+divs[index].getAttribute("data-id-selecionado")+" para "+divs[index].childNodes[1].value);
-				var dados_ajax = "post_type=POST&action=altera_recursos_planeta&id_planeta="+dados['id_planeta'].value+"&id_recurso_original="+divs[index].getAttribute("data-id-selecionado")+"&id_recurso="+divs[index].childNodes[1].value;				
+				dados_ajax = "post_type=POST&action=altera_recursos_planeta&id_planeta="+dados['id_planeta'].value+"&id_recurso_original="+divs[index].getAttribute("data-id-selecionado")+"&id_recurso="+divs[index].childNodes[1].value;				
 			}
 		}
 	}
@@ -543,8 +549,8 @@ function valida_transfere_tech(objeto)
 Valida uma transferência de tecnologia
 ******************/	
 function valida_transfere_tech(objeto){
-	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var dados_ajax = "post_type=POST&action=valida_transfere_tech&turno="+dados['turno'].value+"&id_imperio_origem="+dados['id_imperio_origem'].value+"&id_imperio_destino="+dados['id_imperio_destino'].value+"&id_tech="+dados['id_tech'].value;
+	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let dados_ajax = "post_type=POST&action=valida_transfere_tech&turno="+dados['turno'].value+"&id_imperio_origem="+dados['id_imperio_origem'].value+"&id_imperio_destino="+dados['id_imperio_destino'].value+"&id_tech="+dados['id_tech'].value;
 	
 	return processa_xhttp_basico (dados_ajax);
 }
@@ -555,8 +561,8 @@ function valida_nave(objeto)
 Valida uma nave (inicialmente somente os custos)
 ******************/	
 function valida_nave(objeto){
-	var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&id_imperio="+dados['id_imperio'].value+"&id="+dados['id'].value;
+	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&id_imperio="+dados['id_imperio'].value+"&id="+dados['id'].value;
 
 	if (!valida_generico(objeto)) {
 		return false;

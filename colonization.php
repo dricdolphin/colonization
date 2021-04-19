@@ -72,6 +72,7 @@ class colonization {
 		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe o mapa com a posição das naves
 		add_shortcode('colonization_exibe_dados_estrelas',array($this,'colonization_exibe_dados_estrelas')); //Exibe os dados de uma estrela ou de todas as estrelas que um Jogador já visitou
 		add_shortcode('colonization_exibe_diplomacia',array($this,'colonization_exibe_diplomacia')); //Exibe as condições diplomáticas do Império
+		add_shortcode('colonization_gerencia_tech',array($this,'colonization_gerencia_tech')); //Exibe a lista de Techs do Império, e permite adicionar 
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
 		
 		
@@ -339,6 +340,66 @@ class colonization {
 		echo "<script type='text/javascript'>
            var ajaxurl = '" . admin_url('admin-ajax.php') . "';
          </script>";
+	}
+
+	/******************
+	function colonization_gerencia_tech()
+	-----------
+	Mostra a lista com as missões do Império (atuais ou não)
+	******************/	
+	function colonization_gerencia_tech($atts = [], $content = null) {
+		global $asgarosforum, $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}
+
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+		} else {
+			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
+			if (empty($id_imperio)) {
+				$id_imperio = 0;
+			}
+			$imperio = new imperio($id_imperio, false);
+		}		
+			
+		$html_techs_imperio = "";
+		$tech = new tech();
+		$resultados = $tech->query_tech("",$imperio->id);
+		foreach ($resultados as $resultado) {
+			$id_imperio_techs = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$resultado->id}");
+			if (!empty($id_imperio_techs)) {
+				$imperio_techs = new imperio_techs($id_imperio_techs);
+				$tech = new tech($imperio_techs->id_tech);
+				if ($imperio_techs->custo_pago == 0) {
+					$imperio_techs->custo_pago = $tech->custo;
+				}
+				$html_techs_imperio .= "<tr><td>{$tech->nome}</td><td>{$imperio_techs->custo_pago}</td></tr>";
+			}
+		}
+			
+		$html = "<div><h2>Techs do Império '{$imperio->nome}'</h2></div>
+		<div>
+		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
+		<thead>
+		<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th></tr>
+		</thead>
+		<tbody>";
+
+		$html .= $html_techs_imperio;
+
+		$html .= "\n</tbody>
+		</table></div>
+		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_jogador(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+		
+		return $html;
 	}
 
 	/******************

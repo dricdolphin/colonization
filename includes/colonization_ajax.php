@@ -41,6 +41,7 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_estrelas', array ($this, 'lista_estrelas'));//Retorna com todas as estrelas disponíveis em formato JSON
 		add_action('wp_ajax_ids_recursos_extrativos', array ($this, 'ids_recursos_extrativos'));//Retorna com todos os recursos extrativos formatados em JSON
 		add_action('wp_ajax_lista_instalacoes_imperio', array ($this, 'lista_instalacoes_imperio'));//Retorna uma lista com todas as Instalações que o Império pode construir
+		add_action('wp_ajax_lista_techs_imperio', array ($this, 'lista_techs_imperio'));//Retorna uma lista com todas as Techs que o Império pode pesquisar
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida o CUSTO de uma nave
@@ -134,6 +135,78 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta
 	}
 
+
+	//lista_techs_imperio
+	/***********************
+	function lista_techs_imperio()
+	----------------------
+	Retorna uma lista com todas as Techs que o Império pode pesquisar
+	***********************/
+	function lista_techs_imperio() {
+		global $wpdb;
+		$wpdb->hide_errors();
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
+		
+		$imperio = new imperio($_POST['id_imperio']);
+		
+		$ids_techs = $wpdb->get_results("
+		SELECT ct.id 
+		FROM colonization_tech AS ct
+		LEFT JOIN (SELECT cit.id, cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id}) AS cit
+		ON cit.id_tech = ct.id
+		WHERE (ct.publica=1 OR ct.id IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$imperio->id}))
+		AND cit.id_tech IS NULL
+		ORDER BY ct.nome");
+		
+		$dados_salvos['debug'] = "";
+		$html_select = "<select data-atributo='id_tech' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_tech(event, this);'>";
+		
+		foreach ($ids_techs as $id_tech) {
+			$tech = new tech($id_tech->id);
+			if ($tech->id_tech_parent != 0) {
+				$id_tech_parents = explode(";",$tech->id_tech_parent);
+				$id_tech_parents = implode(",",$id_tech_parents);
+				
+				$where_tech_alternativa = "";
+				if (!empty($tech->tech_alternativa)) {
+					$where_tech_alternativa	= " OR id_tech={$tech->tech_alternativa}";
+				}
+				$imperio_tem_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE (id_tech IN ({$id_tech_parents}){$where_tech_alternativa}) AND custo_pago=0 AND id_imperio={$_POST['id_imperio']}");
+				if (empty($imperio_tem_tech)) {//Se não tem a Tech Requisito, pula a Tech
+					continue;
+				}
+			}
+			
+			if (!empty($tech->lista_requisitos)) {
+				foreach ($tech->id_tech_requisito as $chave => $id_tech_requisito) {
+					$dados_salvos['debug'] .= "{$tech->id} => id_tech_requisito: {$id_tech_requisito} \n";
+					$imperio_tem_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_tech={$id_tech_requisito} AND custo_pago=0 AND id_imperio={$_POST['id_imperio']}");
+					if (empty($imperio_tem_tech)) {//Se não tem a Tech Requisito, pula a Tech
+						continue 2;
+					}
+				}
+			}
+			
+			$html_select .= "<option value='{$tech->id}'>{$tech->nome}</option>";
+			$dados_salvos['custo_tech'][$id_tech->id] = $tech->custo;
+			if (empty($dados_salvos['custo'])) {
+				$dados_salvos['custo'] = $tech->custo;
+			}
+		}
+		
+		$html_select .= "</select>";
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['html'] = $html_select;
+		
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
+	}
+	
+	
 	/***********************
 	function lista_instalacoes_imperio()
 	----------------------
