@@ -397,7 +397,7 @@ class imperio
 			
 			if (!empty($pdf_planetario)) {
 				$pdf_planetario_valor = explode("=",$pdf_planetario[0]);
-				$this->pdf_planetario = $this->pdf_planetario	+ $pdf_planetario_valor[1];
+				$this->pdf_planetario = $this->pdf_planetario + $pdf_planetario_valor[1];
 			}
 
 			//Especiais -- pdf_torpedo

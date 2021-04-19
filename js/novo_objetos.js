@@ -302,9 +302,14 @@ function novo_recurso(evento) {
 		
 	objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
 	let tabela = document.getElementsByTagName('TABLE');
-	tabela = tabela[0];
-	let linha_nova = tabela.insertRow(-1);
+	for (let index=0; index < tabela.length; index++) {
+		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_recursos") {
+			tabela = tabela[index];
+			break;
+		}
+	}
 	
+	let linha_nova = tabela.insertRow(-1);
 	let id = linha_nova.insertCell(-1);
 	let nome = linha_nova.insertCell(-1);
 	let descricao = linha_nova.insertCell(-1);
@@ -347,9 +352,14 @@ function nova_tech(evento) {
 		
 	objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
 	let tabela = document.getElementsByTagName('TABLE');
-	tabela = tabela[0];
+	for (let index=0; index < tabela.length; index++) {
+		if (tabela[index].getAttribute("data-tabela") == "colonization_tech") {
+			tabela = tabela[index];
+			break;
+		}
+	}
+
 	let linha_nova = tabela.insertRow(-1);
-	
 	let id = linha_nova.insertCell(-1);
 	let nome = linha_nova.insertCell(-1);
 	let descricao = linha_nova.insertCell(-1);
@@ -399,11 +409,15 @@ function nova_tech_imperio(evento, id_imperio) {
 	
 	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
 	let tabela = document.getElementsByTagName('TABLE');
-	tabela = tabela[1];
+	for (let index=0; index < tabela.length; index++) {
+		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_techs") {
+			tabela = tabela[index];
+			break;
+		}
+	}
+
 	let linha_nova = tabela.insertRow(-1);
-	
 	let lista_techs = lista_techs_html();
-	
 	let nome_tech = linha_nova.insertCell(-1);
 	let custo_pago = linha_nova.insertCell(-1);
 	let turno = linha_nova.insertCell(-1);
@@ -443,11 +457,15 @@ function nova_instalacao_imperio(evento, id_imperio) {
 	
 	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
 	let tabela = document.getElementsByTagName('TABLE');
-	tabela = tabela[2];
+	for (let index=0; index < tabela.length; index++) {
+		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_instalacoes") {
+			tabela = tabela[index];
+			break;
+		}
+	}
+	
 	let linha_nova = tabela.insertRow(-1);
-	
 	let lista_instalacao = lista_instalacoes_ocultas_html();
-	
 	let nome_instalacao = linha_nova.insertCell(-1);
 
 	nome_instalacao.innerHTML = "<td style='width: 400px;'>"
@@ -457,6 +475,48 @@ function nova_instalacao_imperio(evento, id_imperio) {
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacao' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
+	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+
+	window.scrollTo(0, document.body.scrollHeight);
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function nova_tech_permitida_imperio
+--------------------
+Adiciona uma nova Tech não-pública ao Império
+******************/
+function nova_tech_permitida_imperio(evento, id_imperio) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
+		evento.preventDefault();
+		return false;
+	}
+		
+	
+	objeto_em_edicao = true; //Bloqueia a edição de outros objetos
+	let tabela = document.getElementsByTagName('TABLE');
+	for (let index=0; index < tabela.length; index++) {
+		//data-tabela='colonization_imperio_techs_permitidas'
+		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_techs_permitidas") {
+			tabela = tabela[index];
+			break;
+		}
+	}
+	
+	let linha_nova = tabela.insertRow(-1);
+	let lista_tech = lista_techs_ocultas_html();
+	let nome_tech = linha_nova.insertCell(-1);
+
+	nome_tech.innerHTML = "<td style='width: 400px;'>"
+	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
+	+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
+	+"<input type='hidden' data-atributo='where_value' value=''></input>"
+	+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_ocultas_html' data-id-selecionado='' data-valor-original=''>"+lista_tech+"</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
 	window.scrollTo(0, document.body.scrollHeight);
@@ -1129,7 +1189,7 @@ function nova_tech_jogador(evento, id_imperio) {
 		+"<input type='hidden' data-atributo='custo_pago' value='0'></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_imperio'></input>"
 		+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='' data-valor-original=''>"+lista_techs+"</div>"
-		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
+		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true, \"colonization_imperio_techs\", true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 		
 		custo_tech.innerHTML = "<div data-atributo='custo_tech'>"+successMessage.custo+"</div>";
 

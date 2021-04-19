@@ -481,8 +481,8 @@ class lista_instalacoes
 			$index++;
 		}		
 		
-		$this->html_lista .= 
-"		/******************
+		$this->html_lista .= "		
+		/******************
 		function lista_instalacoes_ocultas_html(id=0)
 		--------------------
 		Cria a lista de instalações
@@ -513,7 +513,54 @@ class lista_instalacoes
 
 			return html;
 		}";		
+
+		$resultados = $wpdb->get_results(
+		"SELECT id, nome
+		FROM colonization_tech
+		WHERE publica=0
+		ORDER BY nome");
+
+		$lista_valores = "";
+		$lista_options = "";
+		$index = 0;
+		foreach ($resultados as $resultado) {
+			$lista_options .= "			lista[{$index}]=\"<option value='{$resultado->id}'\"+selecionado[{$index}]+\">{$resultado->nome}</option>\";\n";
+			$lista_valores .= "			lista_valores[{$index}]={$resultado->id};\n";
+			$index++;
+		}		
 		
+		$this->html_lista .= "
+		/******************
+		function lista_techs_ocultas_html(id=0)
+		--------------------
+		Cria a lista de Techs
+		id -- qual ID está selecionado
+		******************/
+		function lista_techs_ocultas_html(id=0) {
+			
+			var lista=[];
+			var lista_valores=[];
+			var selecionado=[];
+{$lista_valores}
+			
+			var html = \"			<select data-atributo='id_tech' style='width: 100%'>\";
+			for (var index = 0; index < lista_valores.length; index++) {
+				if (lista_valores[index] == id) {
+					selecionado[index] = 'selected';
+				} else {
+					selecionado[index] = '';
+				}
+			}
+			
+{$lista_options}
+			for (index = 0; index < lista.length; index++) {
+				html = html+lista[index];
+			}
+			html = html +\"			</select>\";
+
+
+			return html;
+		}";		
 	}
 }
 ?>

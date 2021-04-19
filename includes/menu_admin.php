@@ -210,7 +210,7 @@ class menu_admin {
 				$html_instalacoes_imperio .= $imperio_instalacoes->lista_dados();
 			}
 			
-			$html .= "<br><div><h2>COLONIZATION - Instalações '{$imperio->nome}'</h2></div>
+			$html .= "<br><div><h2>COLONIZATION - Instalações Permitidas '{$imperio->nome}'</h2></div>
 			<div>
 			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_instalacoes' style='width: 400px;'>
 			<thead>
@@ -223,6 +223,29 @@ class menu_admin {
 			$html .= "\n</tbody>
 			</table></div>
 			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_instalacao_imperio(event, {$imperio->id});'>Adicionar nova Instalação</a></div>";
+
+			$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_techs_permitidas WHERE id_imperio={$imperio->id}");
+		
+			$html_techs_permitidas_imperio = "";
+			foreach ($resultados as $resultado) {
+				$techs_permitidas_imperio = new techs_permitidas_imperio($resultado->id);
+				$html_techs_permitidas_imperio .= $techs_permitidas_imperio->lista_dados();
+			}
+			
+			$html .= "<br><div><h2>COLONIZATION - Techs Permitidas '{$imperio->nome}'</h2></div>
+			<div>
+			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs_permitidas' style='width: 400px;'>
+			<thead>
+			<tr><th style='width: 300px;'>Techs não-Publicas liberadas</th></tr>
+			</thead>
+			<tbody>";
+
+			$html .= $html_techs_permitidas_imperio;
+
+			$html .= "\n</tbody>
+			</table></div>
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_tech_permitida_imperio(event, {$imperio->id});'>Adicionar nova Tech</a></div>";
+
 			
 			$html .= "<br>
 			<div><a href='{$_SERVER['SCRIPT_NAME']}?page={$_GET['page']}'>Voltar aos Impérios</a>";			
