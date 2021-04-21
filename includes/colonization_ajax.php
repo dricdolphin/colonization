@@ -523,7 +523,7 @@ class colonization_ajax {
 			}
 
 			$naves_no_local = $wpdb->get_results("
-			SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}' AND (turno_destroi IS NULL OR turno_destroi = '')");
+			SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}' AND (turno_destruido IS NULL OR turno_destruido = '')");
 			//Também vale quando há uma COLÔNIA no local
 			$ids_imperios_colonias = $wpdb->get_results("
 			SELECT DISTINCT cic.id_imperio, cic.nome_npc 

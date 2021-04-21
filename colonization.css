@@ -534,6 +534,33 @@ tr.th_linha_1 th {
 .dados_planeta {
 	display: inline-block;
 	margin-right: 0.5em;
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.mini_mapa {
+	display: inline-block;
+	max-width: 33%;
+	vertical-align: top;
+	background-color: #EFEFEF;
+	margin: 0.2em;
+	padding: 0.2em;
+}
+
+.nome_estrela_mini {
+	display: block;
+}
+
+.naves {
+	display: inline-block;
+	margin-right: 0.5em;
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.naves_mini {
+	display: inline-block;
+	margin-right: 0.5em;	
+	margin-bottom: 0.2em;
+	background-color: rgba(0, 0, 0, 0.1);	
 }
 
 @media only screen and (max-width: 1209px) {

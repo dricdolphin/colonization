@@ -91,12 +91,52 @@ class colonization {
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_missoes_pendente')); //Adiciona as mensagens de missões pendentes
 		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
 		add_action('asgarosforum_custom_topic_column', array($this,'colonization_muda_icone_topico'), 10, 2);
+		add_action('asgarosforum_content_top', array($this,'colonization_mapa_naves_header'), 10, 2);
 		
 		add_filter('asgarosforum_filter_get_threads', array($this,'colonization_filtra_topicos_compartilhados'), 10, 2);
 		add_filter('asgarosforum_filter_check_access', array($this,'colonization_check_access_compartilhado'), 10, 2);
 
 		$colonization_ajax = new colonization_ajax();
 	}
+	
+	
+	function colonization_mapa_naves_header() {
+		global $asgarosforum, $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		$banido = false;
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);			
+		}
+		
+		if ($roles == "administrator") {
+			echo "<div class='spoiler'>
+			<div class='spoiler-head closed'><span>MAPA DAS NAVES</span></div>
+			<div class='spoiler-body'>";
+			
+			$atts['mini_mapa'] = true;
+			echo $this->colonization_exibe_mapa_naves($atts);
+			
+			echo "</div></div><br>";
+		} elseif ($roles != "" && $banido != "banned") {
+			$imperio = new imperio();
+
+			if ($imperio->id != 0) {
+				echo "<div class='spoiler'>
+				<div class='spoiler-head closed'><span>MAPA DAS NAVES</span></div>
+				<div class='spoiler-body'>";
+				
+				$atts['mini_mapa'] = true;
+				$atts['id'] = $imperio->id;
+				echo $this->colonization_exibe_mapa_naves($atts);
+				
+				echo "</div></div><br>";
+			}
+		}
+	}
+	
 	
 	/******************
 	function colonization_check_access_compartilhado()
@@ -645,6 +685,11 @@ class colonization {
 			$apenas_recursos = true;
 		}
 
+		$mini_mapa = false;
+		if (isset($atts['mini_mapa'])) {
+			$mini_mapa = true;
+		}
+
 		$query_estrela = "";
 		if (isset($atts['id_estrela'])) {//Caso seja para mostrar os dados de uma estrela específica
 			$query_estrela = " AND ce.id={$atts['id_estrela']}";
@@ -690,7 +735,7 @@ class colonization {
 			JOIN colonization_estrela AS ce
 			ON ce.id = cp.id_estrela
 			WHERE cic.id_imperio = {$imperio->id}{$query_estrela}
-			AND cic.turno = {$turno->turno}
+			AND cic.turno = {$turno->turno} AND cic.vassalo = 0
 			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");			
 		}
@@ -701,6 +746,8 @@ class colonization {
 
 		$html_estrela = [];
 		$html_naves = [];
+		$html_estrela_mini = [];
+		$html_naves_mini = [];		
 		$html_planetas_na_estrela = [];
 		$exibiu_nave = [];
 		foreach ($ids_estrelas as $id_estrela) {
@@ -732,8 +779,10 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br></div>";
+				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}</div>";
+				$html_estrela_mini[$estrela->id] = "<div class='nome_estrela_mini'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela->id] = "<div class='naves_no_local'>";
+				$html_naves_mini[$estrela->id] = "<div class='naves_no_local'>";
 				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
@@ -747,15 +796,18 @@ class colonization {
 				
 				if ($roles != "administrator") {
 					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
-						$html_naves[$estrela->id] .= "{$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$html_naves[$estrela->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
 					if ($nave->camuflagem > 0 && $nave->visivel == 0) {
-						$html_naves[$estrela->id] .= "<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome});</i> ";
+						$html_naves[$estrela->id] .= "<div class='naves'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
 						$exibiu_nave[$nave->id] = true;
 					} else {
-						$html_naves[$estrela->id] .= "{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome}); ";
+						$html_naves[$estrela->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
@@ -795,8 +847,10 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}<br></div>";
+				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}</div>";
+				$html_estrela_mini[$estrela->id] = "<div class='nome_estrela_mini'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela->id] = "<div class='naves_no_local'>";
+				$html_naves_mini[$estrela->id] = "<div class='naves_no_local'>";
 				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
@@ -811,15 +865,18 @@ class colonization {
 				if (empty($exibiu_nave[$nave_na_estrela->id]) || $exibiu_nave[$nave_na_estrela->id] == false) {
 					if ($roles != "administrator") {
 						if (($imperio->sensores > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
-							$html_naves[$estrela->id] .= "{$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$html_naves[$estrela->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
-							$html_naves[$estrela->id] .= "<i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome});</i> ";
+							$html_naves[$estrela->id] .= "<div class='naves'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</i></div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</i></div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
-							$html_naves[$estrela->id] .= "{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome}); ";
+							$html_naves[$estrela->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}
@@ -845,13 +902,23 @@ class colonization {
 		}
 
 		foreach ($ids_estrelas as $chave) {
+			if ($html_naves_mini[$chave->id] == "<div class='naves_no_local'>") {
+				$html_naves_mini[$chave->id] .= "<i>Sem Naves</i>";
+			}
+
 			$html_naves[$chave->id] .= "</div>";
+			$html_naves_mini[$chave->id] .= "</div>";
+			
 			if ($apenas_recursos) {
 				$html_naves[$chave->id] = "";
 			}
-			$html_final .= "<div class='par_impar' style='margin-bottom: 5px;'>{$html_estrela[$chave->id]}{$html_naves[$chave->id]}
-			{$html_planetas_na_estrela[$chave->id]}
-			</div>";
+			if ($mini_mapa) {
+				$html_final .= "<div class='mini_mapa' style='margin-bottom: 5px;'>{$html_estrela_mini[$chave->id]}{$html_naves_mini[$chave->id]}</div>";				
+			} else {
+				$html_final .= "<div class='par_impar' style='margin-bottom: 5px;'>{$html_estrela[$chave->id]}{$html_naves[$chave->id]}
+				{$html_planetas_na_estrela[$chave->id]}
+				</div>";
+			}
 		}
 		
 		//$html_final = "Império {$imperio->id} // {$roles}";
