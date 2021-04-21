@@ -113,7 +113,7 @@ class colonization {
 		
 		if ($roles == "administrator") {
 			echo "<div class='spoiler'>
-			<div class='spoiler-head closed'><span>MAPA DAS NAVES</span></div>
+			<div class='spoiler-head closed'><span>RADAR DAS NAVES</span></div>
 			<div class='spoiler-body'>";
 			
 			$atts['mini_mapa'] = true;
@@ -125,7 +125,7 @@ class colonization {
 
 			if ($imperio->id != 0) {
 				echo "<div class='spoiler'>
-				<div class='spoiler-head closed'><span>MAPA DAS NAVES</span></div>
+				<div class='spoiler-head closed'><span>RADAR DAS NAVES</span></div>
 				<div class='spoiler-body'>";
 				
 				$atts['mini_mapa'] = true;
