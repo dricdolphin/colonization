@@ -111,29 +111,30 @@ class colonization {
 			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);			
 		}
 		
-		if ($roles == "administrator") {
-			echo "<div class='spoiler'>
-			<div class='spoiler-head closed'><span>RADAR DAS NAVES</span></div>
+		$html = "<div class='spoiler'>
+			<div class='spoiler-head closed'><span style='font-weight: bold;'><i class='fas fa-radar'></i>RADAR DAS NAVES</span></div>
 			<div class='spoiler-body'>";
-			
+		
+		$exibe_mapa = false;
+		if ($roles == "administrator") {
 			$atts['mini_mapa'] = true;
-			echo $this->colonization_exibe_mapa_naves($atts);
-			
-			echo "</div></div><br>";
+			$html .= $this->colonization_exibe_mapa_naves($atts);
+			$exibe_mapa = true;
 		} elseif ($roles != "" && $banido != "banned") {
 			$imperio = new imperio();
 
 			if ($imperio->id != 0) {
-				echo "<div class='spoiler'>
-				<div class='spoiler-head closed'><span>RADAR DAS NAVES</span></div>
-				<div class='spoiler-body'>";
-				
 				$atts['mini_mapa'] = true;
 				$atts['id'] = $imperio->id;
-				echo $this->colonization_exibe_mapa_naves($atts);
-				
-				echo "</div></div><br>";
+
+				$html .= $this->colonization_exibe_mapa_naves($atts);
+				$exibe_mapa = true;
 			}
+		}
+		
+		$html .= "</div></div><br>";
+		if ($exibe_mapa) {
+			echo $html;
 		}
 	}
 	
