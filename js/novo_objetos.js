@@ -68,6 +68,7 @@ function nova_estrela(evento) {
 	let id = linha_nova.insertCell(-1);
 	let nome = linha_nova.insertCell(-1);
 	let descricao = linha_nova.insertCell(-1);
+	let comentarios = linha_nova.insertCell(-1);
 	let estrela_x = linha_nova.insertCell(-1);
 	let estrela_y = linha_nova.insertCell(-1);
 	let estrela_z = linha_nova.insertCell(-1);
@@ -83,6 +84,8 @@ function nova_estrela(evento) {
 	nome.innerHTML = "<div data-atributo='nome' data-editavel='true' data-valor-original=''><input type='text' data-atributo='nome' data-ajax='true'></input></div>";
 	descricao.innerHTML = "<div data-atributo='descricao' data-type='textarea' data-editavel='true' data-valor-original='' data-style='width: 190px; height: 50px;' data-id='descricao'>"
 	+"<textarea data-atributo='descricao' data-ajax='true' style='width: 190px; height: 50px;' id='descricao'></textarea></div>";
+	comentarios.innerHTML = "<div data-atributo='comentarios' data-type='textarea' data-editavel='true' data-valor-original='' data-style='width: 190px; height: 50px;' data-id='comentarios'>"
+	+"<textarea data-atributo='comentarios' data-ajax='true' style='width: 190px; height: 50px;' id='comentarios'></textarea></div>";	
 	estrela_x.innerHTML = "<div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='X' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_y.innerHTML = "<div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Y' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";

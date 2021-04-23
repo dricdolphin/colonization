@@ -12,6 +12,7 @@ class estrela
 	public $id;
 	public $nome;
 	public $descricao;
+	public $comentarios;
 	public $X;
 	public $Y;
 	public $Z;
@@ -40,7 +41,7 @@ class estrela
 		}
 		$this->id = $id_estrela;
 
-		$resultados = $wpdb->get_results("SELECT id, nome, descricao, X, Y, Z, tipo, ids_estrelas_destino FROM colonization_estrela WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, nome, descricao, comentarios, X, Y, Z, tipo, ids_estrelas_destino FROM colonization_estrela WHERE id=".$this->id);
 		if (empty($resultados)) {
 			$this->id = 0;
 			$this->X = -1;
@@ -53,6 +54,7 @@ class estrela
 		
 		$this->nome = $resultado->nome;
 		$this->descricao = $resultado->descricao;
+		$this->comentarios = $resultado->comentarios;
 		$this->X = $resultado->X;
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
@@ -94,6 +96,7 @@ class estrela
 			</td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true' {$estilo_colonias}>{$this->nome}</div></td>
 			<td><div data-atributo='descricao' data-type='textarea' data-editavel='true' data-valor-original='{$this->descricao}' data-style='width: 190px; height: 50px;' data-id='descricao'>{$this->descricao}</div></td>
+			<td><div data-atributo='comentarios' data-type='textarea' data-editavel='true' data-valor-original='{$this->comentarios}' data-style='width: 190px; height: 50px;' data-id='comentarios'>{$this->comentarios}</div></td>
 			<td><div data-atributo='X' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->X}'>{$this->X}</div></td>
 			<td><div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Y}'>{$this->Y}</div></td>
 			<td><div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Z}' >{$this->Z}</div></td>

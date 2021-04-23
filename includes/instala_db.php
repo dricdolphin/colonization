@@ -30,6 +30,7 @@ class instala_db {
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		nome VARCHAR(255) NOT NULL,
 		descricao TEXT DEFAULT '',
+		comentarios TEXT DEFAULT NULL,
 		X INT(6) NOT NULL,
 		Y INT(6) NOT NULL,
 		Z INT(6) NOT NULL,
