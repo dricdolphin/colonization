@@ -702,7 +702,8 @@ class colonization {
 			FROM colonization_imperio_frota AS cif 
 			LEFT JOIN colonization_estrela AS ce
 			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
-			WHERE cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
+			WHERE cif.turno_destruido=0 AND (cif.id_estrela_destino = 0 OR cif.id_estrela_destino IS NULL)
+			{$somente_pesquisa}{$query_estrela}
 			");		
 			
 			$ids_estrelas = $wpdb->get_results("
@@ -724,7 +725,7 @@ class colonization {
 			FROM colonization_imperio_frota AS cif 
 			LEFT JOIN colonization_estrela AS ce
 			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
-			WHERE cif.id_imperio = {$imperio->id} 
+			WHERE cif.id_imperio = {$imperio->id} AND (cif.id_estrela_destino = 0 OR cif.id_estrela_destino IS NULL)
 			AND cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
 			");
 			
@@ -787,7 +788,7 @@ class colonization {
 				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
-			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0");
+			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				$nave = new frota($id_frota->id);
 				$imperio_nave = new imperio($nave->id_imperio,true);
@@ -855,7 +856,7 @@ class colonization {
 				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 			}
 			
-			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0 ORDER BY id_imperio");
+			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL) ORDER BY id_imperio");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				$nave_na_estrela = new frota($id_frota->id);
 				$imperio_nave_na_estrela = new imperio($nave_na_estrela->id_imperio,true);
@@ -1866,7 +1867,27 @@ if (!empty($imperios[0])) {
 		$lista_colonias = $imperio->exibe_lista_colonias();
 		$html_frota = "";
 	
-		$ids_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio = {$imperio->id} AND turno_destruido=0 ORDER BY nivel_estacao_orbital DESC");
+		
+		//***
+		$ids_frota = $wpdb->get_results("
+		SELECT cif.id, MAX(cfhm.id), cfhm.id_estrela_destino
+		FROM colonization_imperio_frota AS cif
+		LEFT JOIN colonization_frota_historico_movimentacao AS cfhm
+		ON cfhm.id_nave = cif.id AND cfhm.turno = {$turno}
+		WHERE (cif.turno_destruido = 0 OR cif.turno_destruido > {$turno}) AND cif.id_imperio = {$imperio->id} AND cif.turno <= {$turno}
+		AND (cfhm.turno = {$turno} OR cfhm.turno IS NULL)
+		GROUP BY cfhm.id_nave
+		ORDER BY cif.nivel_estacao_orbital DESC	
+		");
+		//***/
+		
+		/***
+		$ids_frota = $wpdb->get_results("
+		SELECT cif.id, 0 AS id_estrela_destino
+		FROM colonization_imperio_frota AS cif
+		WHERE cif.id_imperio = {$imperio->id} AND cif.turno <= {$turno} AND (cif.turno_destruido=0 OR cif.turno_destruido > {$turno})
+		ORDER BY cif.nivel_estacao_orbital DESC");
+		//***/
 		
 		foreach ($ids_frota as $ids) {
 			$nave = new frota($ids->id);
@@ -1875,11 +1896,17 @@ if (!empty($imperios[0])) {
 			if ($nave->qtd > 1) {
 				$html_qtd = "{$nave->qtd} ";
 			}
-			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+			
+			if (empty($ids->id_estrela_destino)) {
+				$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+			} else {
+				$id_estrela = $ids->id_estrela_destino;
+			}
 			
 			$pesquisa_anterior = "";
 			if (!empty($id_estrela)) {
 				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
+				$nave->estrela = new estrela($id_estrela);
 			}
 			
 			$html_pesquisa_nave = "";
@@ -1930,8 +1957,15 @@ if (!empty($imperios[0])) {
 				
 				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
 			}
+			
+			if (!empty($nave->id_estrela_destino)) {
+				$html_nave_estrela_atual = "Nave em trânsito";
+			} else {
+				$html_nave_estrela_atual = "{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})";
+			}
+			
 			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
-			{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$nave->estrela->nome} ({$nave->X};{$nave->Y};{$nave->Z})
+			{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
 			</div>";
 		}
 		

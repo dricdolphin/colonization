@@ -381,11 +381,12 @@ function envia_nave (objeto, evento, id_nave) {
 	let divs = linha.getElementsByTagName("DIV");
 	let destinos_select = "";
 	
+	let id_estrela = 0;
 	for (let index=0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "nome_estrela") {
 			for (let index_child=0; index_child<divs[index].childNodes.length; index_child++) {
 				if (divs[index].childNodes[index_child].tagName == "SELECT") {
-					var id_estrela = divs[index].childNodes[index_child].value;
+					id_estrela = divs[index].childNodes[index_child].value;
 					destinos_select = divs[index].childNodes[index_child];
 					destinos_select.disabled = true;
 				}
@@ -393,12 +394,13 @@ function envia_nave (objeto, evento, id_nave) {
 		}
 	}
 	
-	var dados_ajax = "post_type=POST&action=envia_nave&id="+id_nave+"&id_estrela="+id_estrela;
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=envia_nave&id="+id_nave+"&id_estrela="+id_estrela;
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -406,22 +408,21 @@ function envia_nave (objeto, evento, id_nave) {
 				return false;
 			}
 			
+			
 			objeto_em_salvamento = false;
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
+				alert('Nave despachada com sucesso!');
 			} else {
 				alert(resposta.resposta_ajax);
-				
 				destinos_select.disabled = false;
 				objeto.style.display='inline';
 				retorno = false;
 			}
-			
-			if (resposta.debug != undefined) {
-				console.log(resposta.debug);
-			}
-		
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

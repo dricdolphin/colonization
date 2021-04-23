@@ -116,7 +116,7 @@ class menu_admin {
 
 		$html .= "<div><h2>COLONIZATION - Configurações</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_referencia_forum'>
+		<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_referencia_forum'>
 		<thead>
 		<tr><th>ID</th><th>Descrição</th><th>ID Post ou Página</th><th>Página</th></tr>
 		</thead>
@@ -163,7 +163,7 @@ class menu_admin {
 
 			$html .= "<div><h2>COLONIZATION - Recursos do Império '{$imperio->nome}'</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_recursos'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio_recursos'>
 			<thead>
 			<tr><th>ID</th><th>Recurso</th><th>Qtd</th><th>Disponível</th></tr>
 			</thead>
@@ -190,7 +190,7 @@ class menu_admin {
 			
 			$html .= "<div><h2>COLONIZATION - Techs do Império '{$imperio->nome}'</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 			<thead>
 			<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Pesquisas Gastas<br>(0 = completado)</th><th style='width: 40px;'>Turno</th><th style='width: 150px;'>Tech Inicial</th></tr>
 			</thead>
@@ -212,7 +212,7 @@ class menu_admin {
 			
 			$html .= "<br><div><h2>COLONIZATION - Instalações Permitidas '{$imperio->nome}'</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_instalacoes' style='width: 400px;'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio_instalacoes' style='width: 400px;'>
 			<thead>
 			<tr><th style='width: 300px;'>Instalações não-Publicas liberadas</th></tr>
 			</thead>
@@ -234,7 +234,7 @@ class menu_admin {
 			
 			$html .= "<br><div><h2>COLONIZATION - Techs Permitidas '{$imperio->nome}'</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs_permitidas' style='width: 400px;'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio_techs_permitidas' style='width: 400px;'>
 			<thead>
 			<tr><th style='width: 300px;'>Techs não-Publicas liberadas</th></tr>
 			</thead>
@@ -253,7 +253,7 @@ class menu_admin {
 			
 			$html .= "<div><h2>COLONIZATION - Impérios</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio'>
 			<thead>
 			<tr class='th_linha_1'><th>ID</th><th>Usuário</th><th>Nome do Império</th><th>Prestígio</th><th>População</th><th>Pontuação</th><th>&nbsp;</th></tr>
 			</thead>
@@ -300,7 +300,7 @@ class menu_admin {
 			
 			$html .= "<div><h2>COLONIZATION - Sistema Estelar da estrela '{$estrela->nome}' - {$estrela->X};{$estrela->Y};{$estrela->Z} </h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
 			<tr><th style='width: 100px;'>ID</th><th>Nome</th><th>Orbita a Estrela (X;Y;Z)</th><th style='width: 60px;'>Posição</th><th>Classe</th><th>Subclasse</th><th style='width: 70px;'>Tamanho</th><th style='width: 90px;'>Inóspito</th><th>&nbsp;</th>
 			</tr>
@@ -333,7 +333,7 @@ class menu_admin {
 		} else {
 			$html .= "<div><h2>COLONIZATION - Estrelas</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_estrela'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_estrela'>
 			<thead>
 			<tr class='th_linha_1'><th rowspan='2' style='width: 150px;'>ID</th><th rowspan='2'  style='width: 150px;'>Nome da estrela</th><th rowspan='2' style='width: 200px;'>Descrição</th><th rowspan='2' style='width: 200px;'>Comentários</th><th colspan='3' style='width: 150px;'>Posição</th><th rowspan='2'>Tipo de estrela</th><th rowspan='2'>IDs Buracos de Minhoca</th><th rowspan='2'>&nbsp;</th></tr>
 			<tr><th class='th_linha_2' style='width: 30px;'>X</th><th class='th_linha_2' style='width: 30px;'>Y</th><th class='th_linha_2' style='width: 30px;'>Z</th></tr>
@@ -388,7 +388,7 @@ class menu_admin {
 
 			//Recursos da Colônia
 			$html .= "<div><h3>Recursos do Planeta</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_recursos'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta_recursos'>
 			<thead>
 			<tr><th>ID</th><th>Recurso</th><th>Disponível</th><th>Turno</th>
 			</tr>
@@ -432,7 +432,7 @@ class menu_admin {
 			//Instalações da Colônia
 			$html .= "<br>
 			<div><h3>Instalações do Planeta - Máximo de {$max_instalacoes}</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
 			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Desmonta</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
 			</tr>
@@ -467,7 +467,7 @@ class menu_admin {
 		} else {
 			$html .= "<div><h2>COLONIZATION - Planetas</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta'>
 			<thead>
 			<tr class='th_linha_1'><th style='width: 120px;'>ID</th><th>Nome</th><th>Orbita a Estrela (X;Y;Z)</th><th style='width: 60px;'>Posição</th><th>Classe</th><th>Subclasse</th><th style='width: 70px;'>Tamanho</th><th style='width: 90px;'>Inóspito</th><th>&nbsp;</th>
 			</tr>
@@ -709,7 +709,7 @@ class menu_admin {
 		
 		$html .= "<div><h2>COLONIZATION - Recursos</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_recurso'>
+		<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_recurso'>
 		<thead>
 		<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Ícone</th><th>Nível</th><th>Acumulável</th><th>Extrativo</th><th>Local</th>
 		</tr>
@@ -752,7 +752,7 @@ class menu_admin {
 		
 		$html .= "<div><h2>COLONIZATION - Techs</h2></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_tech'>
+		<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_tech'>
 		<thead>
 		<tr class='th_linha_1'>
 		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th style='width: 200px;'>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 120px;'>Lista Requisitos</th><th style='width: 80px;'>Bélica</th><th style='width: 80px;'>Pública</th><th style='width: 200px;'>Especiais</th><th style='width: 200px;'>Ícone</th>
@@ -809,7 +809,7 @@ class menu_admin {
 
 			//Recursos produzidos
 			$html .= "<div><h3>Recursos Produzidos</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_instalacao_recursos'>
 			<thead>
 			<tr><th>ID</th><th>Recurso</th><th>Quantidade por Nível</th>
 			</tr>
@@ -842,7 +842,7 @@ class menu_admin {
 
 			//Recursos consumidos
 			$html .= "<div><h3>Recursos Consumidos</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao_recursos'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_instalacao_recursos'>
 			<thead>
 			<tr><th>ID</th><th>Recurso</th><th>Quantidade por Nível</th>
 			</tr>
@@ -872,7 +872,7 @@ class menu_admin {
 		} else {
 			$html .= "<div><h2>COLONIZATION - Instalações</h2></div>
 			<div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_instalacao'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_instalacao'>
 			<thead>
 			<tr class='th_linha_1'><th>ID</th><th>Nome</th><th>Descrição</th><th>Tech Requisito</th><th style='width: 40px;'>Slots</th style='width: 80px;'><th>Autônoma</th><th style='width: 120px;'>Desguarnecida</th><th style='width: 120px;'>Pode desativar</th><th style='width: 60px;'>Oculta</th><th style='width: 60px;'>Publica</th><th>Especiais</th><th>Ícone</th><th>Custos</th><th>&nbsp;</th>
 			</tr>
@@ -950,7 +950,7 @@ class menu_admin {
 
 			//Recursos da Colônia
 			$html .= "<div><h3>Recursos da Colônia</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_recursos'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta_recursos'>
 			<thead>
 			<tr><th>ID</th><th>Recurso</th><th>Disponível</th><th style='width: 50px;'>Turno</th>
 			</tr>
@@ -989,7 +989,7 @@ class menu_admin {
 			//Instalações da Colônia
 			$html .= "<br>
 			<div><h3>Instalações do Planeta - {$planeta->instalacoes}/{$planeta->tamanho} slots</h3>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_planeta_instalacoes'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_planeta_instalacoes'>
 			<thead>
 			<tr><th>ID</th><th>Nome</th><th style='width: 40px;'>Nível</th><th style='width: 90px;'>Turno Const.</th><th style='width: 90px;'>Inst. Inicial</th><th style='width: 90px;'>Turno Desmonta</th><th style='width: 90px;'>Turno Destr.</th><th>&nbsp;</th>
 			</tr>
@@ -1040,7 +1040,7 @@ class menu_admin {
 				$html .= "<br><div><h3>Colônias de '{$imperio->nome}'</h3></div>";
 				
 				$html_lista = "			
-				<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}' data-nome-imperio='{$imperio->nome}'>
+				<div><table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio_colonias' data-id-imperio='{$id->id}' data-nome-imperio='{$imperio->nome}'>
 				<thead>
 				<tr><th>ID</th>{$imperios_npcs}<th>Planeta</th><th style='width: 80px;'>Capital</th><th style='width: 80px;'>Vassalo</th><th style='width: 100px;'>População</th><th style='width: 100px;'>Robôs</th><th style='width: 100px;'>Poluição</th><th>Turno</th><th>&nbsp;</th>
 				</tr>
@@ -1122,7 +1122,7 @@ class menu_admin {
 		//Naves dos NPCs
 		$html_lista	.= "
 		<div><h4>COLONIZATION - Frotas dos NPCs - Turno {$turno->turno}</h4></div>
-		<table class='wp-list-table widefat fixed striped users' data-id-imperio='0' data-tabela='colonization_imperio_frota'>
+		<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='0' data-tabela='colonization_imperio_frota'>
 		<thead>
 		<tr>
 		<th rowspan='2' style='width: 200px;'>Nome do Império</th>
@@ -1164,7 +1164,7 @@ class menu_admin {
 
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
-			<table class='wp-list-table widefat fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
 			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th>
 			<th rowspan='2' style='width: 100px;'>Categoria</th>
@@ -1258,7 +1258,7 @@ class menu_admin {
 			<div id='recursos_produzidos_imperio_{$imperio->id}'>{$recursos_produzidos}</div>
 			<div id='recursos_consumidos_imperio_{$imperio->id}'>{$recursos_consumidos}</div>
 			<div id='recursos_balanco_imperio_{$imperio->id}'>{$recursos_balanco}</div>
-			<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_acoes_turno'>
 			<thead>
 			<tr style='background-color: #E5E5E5; font-weight: 700;'><td style='width: 40%;'>Slots | Colônia (X;Y;Z;P) | 
 			(<div class='fas fa-user-circle	tooltip'><span class='tooltiptext'>MdO Disponível Sistema</span></div>)
@@ -1297,7 +1297,7 @@ class menu_admin {
 		$html = "<div><h2>COLONIZATION - Missões</h2></div>";
 		
 		$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_missao(event);'>Adicionar nova Missão</a></div><br>
-		<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_missao'>
+		<div><table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_missao'>
 		<thead>
 		<tr><th style='width: 80px;'>ID</th><th style='width: 140px;'>Descrição</th><th style='width: 140px;'>Vitória</th><th style='width: 140px;'>Derrota</th>
 		<th style='width: 60px;'>ID Império</th><th style='width: 120px;'>IDs Aceitam</th><th style='width: 120px;'>IDs Rejeitam</th>
@@ -1362,7 +1362,7 @@ class menu_admin {
 		</div><br>
 		<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_acao_admin(event);'>Adicionar nova Ação Admin</a></div><br>";
 		
-		$html .= "<div><table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_admin'>
+		$html .= "<div><table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_acoes_admin'>
 		<thead>
 		<tr class='th_linha_1'><th style='width: 120px;'>Nome do Império</th><th style='width: 240px;'>Recursos Consumidos &nbsp; || &nbsp; Qtd</th><th style='width: 200px;'>Descrição</th><th style='width: 50px;'>Turno</th></tr>
 		</thead>
@@ -1420,7 +1420,7 @@ class menu_admin {
 		<div>DATA ATUAL - {$string_data_atual}</div>
 		<div>DATA DO TURNO ATUAL - {$turno->data_turno}</div>
 		<div>DATA DO PRÓXIMO TURNO - {$proxima_semana_string}</div></div>
-		<table class='wp-list-table widefat fixed striped users' id='dados_acoes_imperios'>
+		<table class='wp-list-table widefat tabela_admin fixed striped users' id='dados_acoes_imperios'>
 		<thead>
 		<tr><th style='width: 200px;'>Nome do Império</th><th style='width: 200px;'>Dt Última Modificação</th><th style='width: 80px;'>Pontuação</th><th style='width: 100%;'>Balanço dos Recursos</th></tr>
 		</thead>

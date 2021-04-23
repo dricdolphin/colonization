@@ -360,6 +360,11 @@ input:checked + .slider:before {
 	overflow: visible;
 }
 
+.tabela_admin {
+	width: 100%;
+	min-width: 1400px;
+}
+
 tr.th_linha_1 th {
 	background-color: #FDFDFD;
 	position: sticky;
