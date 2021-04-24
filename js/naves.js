@@ -89,7 +89,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 	}
 	
-	chassi = nave.qtd_bombas*10 + nave.qtd_tropas*5 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + qtd_pesquisa*1;
+	chassi = nave.qtd_bombas*10 + nave.qtd_tropas*7 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + qtd_pesquisa*1;
 	
 	let capacidade_dobra = nave.mk_dobra*5;
 	let capacidade_impulso = nave.mk_impulso*5;
@@ -308,7 +308,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 
 
 	industrializaveis = nave.qtd_bombas*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil 
-	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1;
+	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1;
 	
 	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
