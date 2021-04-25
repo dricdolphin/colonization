@@ -568,6 +568,11 @@ tr.th_linha_1 th {
 	background-color: rgba(0, 0, 0, 0.1);	
 }
 
+.nave_em_transito {
+	color: #1040DA;
+	font-style: italic;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

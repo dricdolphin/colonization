@@ -365,7 +365,11 @@ class colonization {
 
 			if ($asgarosforum->content->get_topic_title($topic_id) == "Gerenciamento das Techs") {
 				echo "<div class='icone_topico'><i class='fas fa-flask' style='font-size: 32px; color: #a2a2a2;'></i></div>";
-			}		
+			}
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Simulador de Naves") {
+				echo "<div class='icone_topico'><i class='fal fa-space-shuttle' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
 			
 			//Gerenciamento das Techs			
 		//}
@@ -1836,7 +1840,8 @@ if (!empty($imperios[0])) {
 			$turno = new turno();
 			$turno = $turno->turno;
 		}
-
+		
+		$turno_atual = new turno();
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
@@ -1876,7 +1881,7 @@ if (!empty($imperios[0])) {
 		ON cfhm.id_nave = cif.id AND cfhm.turno = {$turno}
 		WHERE (cif.turno_destruido = 0 OR cif.turno_destruido > {$turno}) AND cif.id_imperio = {$imperio->id} AND cif.turno <= {$turno}
 		AND (cfhm.turno = {$turno} OR cfhm.turno IS NULL)
-		GROUP BY cfhm.id_nave
+		GROUP BY cif.id
 		ORDER BY cif.nivel_estacao_orbital DESC	
 		");
 		//***/
@@ -1925,7 +1930,7 @@ if (!empty($imperios[0])) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Desativar Camuflagem</span></div></a>";
 			}
 			
-			if ($nave->HP < $nave->HP_max) {
+			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*5,0);
 				$icone_dano = "fal fa-claw-marks";
 				switch ($nivel_dano) {
@@ -1959,7 +1964,7 @@ if (!empty($imperios[0])) {
 			}
 			
 			if (!empty($nave->id_estrela_destino)) {
-				$html_nave_estrela_atual = "Nave em trânsito";
+				$html_nave_estrela_atual = "<span class='nave_em_transito'>Nave em trânsito</span>";
 			} else {
 				$html_nave_estrela_atual = "{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})";
 			}
