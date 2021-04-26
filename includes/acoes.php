@@ -102,7 +102,7 @@ class acoes
 				AND cic.turno = {$this->turno->turno}
 				AND cpi.turno <={$this->turno->turno}
 				AND ce.id = {$id_estrela->id}
-				ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao, cpi.id_planeta, ci.nome, cpi.id
+				ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao, cpi.id_planeta, ci.sempre_ativa, ci.nome, cpi.id
 				");
 			
 			$resultados = array_merge($resultados, $resultados_temp);
@@ -485,8 +485,10 @@ class acoes
 				$exibe_acoes = "&nbsp;";
 			}
 			
+			$div_desmonta_instalacao = "";
 			if (!empty($this->turno_destroi[$chave])) {
 				$exibe_acoes = "<span style='color: #DD0000; font-weight: bold;'>DESTRUÍDA!</span>";
+				$div_desmonta_instalacao = "<div class='repara_instalacao'><a href='#' onclick='return repara_instalacao(event, this);' {$visivel}>Reparar Instalação</a></div>";
 			}
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->oculta == 0) {
@@ -508,14 +510,13 @@ class acoes
 				}
 				***/
 				
-				$div_desmonta_instalacao = "";
 				$ja_destruiu = "";
-				if (empty($this->turno_destroi[$chave])) {
+				if (!empty($this->turno_destroi[$chave])) {
 					$ja_destruiu = ", true";
 				}
 				//if ($roles == "administrator") {
 				if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
-					$div_desmonta_instalacao = "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true{$ja_destruiu});' {$visivel}>Desmantelar</a></div>";
+					$div_desmonta_instalacao .= "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true{$ja_destruiu});' {$visivel}>Desmantelar</a></div>";
 				}
 				//}
 				

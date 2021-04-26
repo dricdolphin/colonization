@@ -573,6 +573,31 @@ tr.th_linha_1 th {
 	font-style: italic;
 }
 
+.repara_instalacao {
+	color: #009933;
+	font-weight: bold;
+}
+
+.repara_instalacao a {
+	color: #009933;
+	font-weight: bold;
+}
+
+.repara_instalacao a:link {
+	color: #009933;
+	font-weight: bold;
+}
+
+.repara_instalacao a:visited {
+	color: #009933;
+	font-weight: bold;
+}
+
+.repara_instalacao a:hover {
+	color: #009933;
+	font-weight: bold;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

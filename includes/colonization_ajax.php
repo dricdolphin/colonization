@@ -1678,12 +1678,12 @@ class colonization_ajax {
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
-		
+		$dados_salvos['debug'] = "";
 		$turno = new turno();
 		$colonia_instalacao = new colonia_instalacao($_POST['id']);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta} AND turno={$turno->turno}");
 		$id_imperio = 0;
-		$dados_salvos['debug'] = "";
+		$dados_salvos['debug'] .= "id_colonia_instalacao{$_POST['id']} \n";
 		
 		$user = wp_get_current_user();
 		$roles = "";
@@ -1698,8 +1698,21 @@ class colonization_ajax {
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
 			if (empty($colonia_instalacao->turno_desmonta)) {
-				if ($roles == "administrator") {//Só um ADMINISTRADOR pode reparar uma instalação
-					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
+				if (empty($_POST['desmantelar'])) {//Não está tentando desmantelar uma Instalação, então pode Reparar a Instalação
+					//Reparar uma Instalação custa sempre 1 Industrializável
+					$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+					//Verifica se o Império tem o suficiente (ou se é o Admin que está fazendo
+					if ($id_imperio != 0) {
+						$qtd_industrializaveis_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$id_imperio} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+						if ($qtd_industrializaveis_imperio >= 1) {
+							$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-1 WHERE id_imperio={$id_imperio} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+						} else {
+							$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para reparar essa Instalação!";
+							echo json_encode($dados_salvos); //Envia a resposta via echo
+							wp_die(); //Termina o script e envia a resposta					
+						}
+					}
+					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";					
 				} else {
 					$dados_salvos['resposta_ajax'] = "OK!";
 					echo json_encode($dados_salvos); //Envia a resposta via echo
@@ -1719,14 +1732,9 @@ class colonization_ajax {
 			$acoes = new acoes($id_imperio);
 			$chave_id_planeta_instalacoes = array_search($colonia_instalacao->id, $acoes->id_planeta_instalacoes);
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=0 WHERE id={$acoes->id[$chave_id_planeta_instalacoes]}");
-			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
-			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
 			//Reseta os dados do JSON
-			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
-			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$_POST['id_imperio']}");
-
-			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
-			$acoes->pega_balanco_recursos($colonia_instalacao->id, true);
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$id_imperio}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$id_imperio}");
 		}
 		
 		$resposta = $wpdb->query($query);

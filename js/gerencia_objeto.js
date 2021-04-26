@@ -998,11 +998,12 @@ function destruir_instalacao(evento, objeto)
 Função para chamar o AJAX de destruir instalação
 objeto -- objeto sendo editado
 ******************/
-function destruir_instalacao(evento, objeto, jogador=false) {
+function destruir_instalacao(evento, objeto, jogador=false, reparar=false) {
 	let linha=pega_ascendente(objeto,"TR");
 	let inputs=linha.getElementsByTagName("INPUT");
 	let dados_ajax = "post_type=POST&action=destruir_instalacao";
-
+	let desmantelar = "";
+	
 	if(objeto_em_edicao) {
 		evento.preventDefault();
 		return false;		
@@ -1013,15 +1014,17 @@ function destruir_instalacao(evento, objeto, jogador=false) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
 			id_objeto = inputs[index].value;
 		}
-		if (jogador) {
+		if (jogador) {//Se o input veio do jogador, então está tentando DESMANTELAR a Instalação
 			if (inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
 				id_objeto = inputs[index].value;
+				if (!reparar) {
+					desmantelar = "&desmantelar=true";
+				}
 			}
 		}
 	}
 	
-	dados_ajax = dados_ajax + "&id=" + id_objeto;
-	
+	dados_ajax = dados_ajax + "&id=" + id_objeto + desmantelar;
 	
 	let retorno = new Promise((resolve, reject) =>	{
 		let xhttp = new XMLHttpRequest();
@@ -1222,6 +1225,50 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function repara_instalacao(evento, objeto, turno, jogador=false)
+--------------------
+Função para chamar o AJAX de desmontar uma instalação
+objeto -- objeto sendo editado
+******************/
+function repara_instalacao(evento, objeto, turno, jogador=false, destruido=false) {
+	let linha=pega_ascendente(objeto,"TR");
+	let tabela=pega_ascendente(linha,"TABLE");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let divs = linha.getElementsByTagName("DIV");
+	let dados = [];
+	let id_objeto = 0;
+
+	if(objeto_em_edicao) {
+		evento.preventDefault();
+		return false;		
+	}
+
+	let link_destruir = objeto;
+	
+	let valida_dados = new Promise((resolve, reject) =>	{
+		let jogador = true;
+		let reparar = true;
+		resolve(destruir_instalacao(evento, link_destruir, jogador, reparar));
+	});
+	
+	valida_dados.then((successMessage) => {
+		if (successMessage) {
+			objeto.style.visibility = "hidden";
+			document.location.reload();
+		}
+	});
+
+	valida_dados.catch((reason) => {
+	   console.log("Ocorreu um erro desconhecido!");
+	});
+	
+	objeto_em_edicao = true;
+	evento.preventDefault();
+	return false;
+}
+
 
 /******************
 function remove_excluir(objeto) 
