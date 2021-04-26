@@ -96,7 +96,6 @@ class instalacao
 			$this->espacoporto = true;
 		}
 
-
 		//base_colonial
 		$base_colonial = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'base_colonial') !== false;
