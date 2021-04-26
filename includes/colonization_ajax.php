@@ -1322,7 +1322,7 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] .= "Não é possível criar uma Base Colonial em um planeta que já tem um Espaçoporto.";
 			} elseif (empty($tem_espacoporto) && !$instalacao->espacoporto) {
 				$dados_salvos['resposta_ajax'] .= "A primeira Instalação de um Sistema Estelar precisa ser, necessariamente, um Espaçoporto.";
-			} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia ) && !$instalacao->base_colonial) {
+			} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia) && empty($tem_espacoporto_na_colonia) && !$instalacao->base_colonial) {
 				$dados_salvos['resposta_ajax'] .= "A primeira Instalação de uma Colônia num Sistema Estelar que tenha um Espaçoporto precisa ser, necessariamente, uma Base Colonial.";
 			}
 		}
