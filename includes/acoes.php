@@ -102,7 +102,7 @@ class acoes
 				AND cic.turno = {$this->turno->turno}
 				AND cpi.turno <={$this->turno->turno}
 				AND ce.id = {$id_estrela->id}
-				ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao, cpi.id_planeta, ci.sempre_ativa, ci.nome, cpi.id
+				ORDER BY cic.capital DESC, cic.vassalo ASC, cp.posicao, cpi.id_planeta, (CASE WHEN ci.nome='Espaçoporto' OR ci.nome='Base Colonial' THEN 0 ELSE 1 END), ci.nome, cpi.id
 				");
 			
 			$resultados = array_merge($resultados, $resultados_temp);
