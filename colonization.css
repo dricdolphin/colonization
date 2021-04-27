@@ -365,11 +365,32 @@ input:checked + .slider:before {
 	min-width: 1400px;
 }
 
+.th_linha_1 {
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 30px;
+	z-index: 99;	
+}
+
 tr.th_linha_1 th {
 	background-color: #FDFDFD;
 	position: sticky;
 	top: 30px;
 	z-index: 99;
+}
+
+.th_linha_2 {
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 66px;
+	z-index: 99;	
+}
+
+tr.th_linha_2 th {
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 66px;
+	z-index: 99;	
 }
 
 .verde_escuro {
@@ -400,12 +421,6 @@ tr.th_linha_1 th {
 	background: url('/wp-content/plugins/colonization/crystal.png');
 }
 
-.th_linha_2 {
-	background-color: #FDFDFD;
-	position: sticky;
-	top: 66px;
-	z-index: 99;	
-}
 
 .topic {
 	position: relative;

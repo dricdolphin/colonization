@@ -1124,7 +1124,7 @@ class menu_admin {
 		<div><h4>COLONIZATION - Frotas dos NPCs - Turno {$turno->turno}</h4></div>
 		<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='0' data-tabela='colonization_imperio_frota'>
 		<thead>
-		<tr>
+		<tr class='th_linha_1'>
 		<th rowspan='2' style='width: 200px;'>Nome do Império</th>
 		<th rowspan='2' style='width: 140px;'>Nome da nave</th>
 		<th rowspan='2' style='width: 100px;'>Categoria</th>
@@ -1134,7 +1134,7 @@ class menu_admin {
 		<th rowspan='2' style='width: 40px;'>Dest.</th>
 		<th rowspan='2' style='width: 80px;'>&nbsp;</th>
 		</tr>
-		<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th>
+		<tr class='th_linha_2'><th style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th>
 		</tr>
 		</thead>
 		<tbody>";
@@ -1166,7 +1166,7 @@ class menu_admin {
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
 			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
-			<tr><th rowspan='2' style='width: 140px;'>Nome da nave</th>
+			<tr class='th_linha_1'><th rowspan='2' style='width: 140px;'>Nome da nave</th>
 			<th rowspan='2' style='width: 100px;'>Categoria</th>
 			<th rowspan='2' style='width: 30px;'>Qtd</th>
 			<th colspan='3' style='width: 120px;'>Posição</th>
@@ -1188,7 +1188,7 @@ class menu_admin {
 			<th rowspan='2' style='width: 40px;'>Dest.</th>
 			<th rowspan='2' style='width: 80px;'>&nbsp;</th>
 			</tr>
-			<tr><th class='th_linha_2' style='width: 40px;'>X</th><th class='th_linha_2' style='width: 40px;'>Y</th><th class='th_linha_2' style='width: 40px;'>Z</th><th class='th_linha_2' style='width: 60px;'>Laser</th><th class='th_linha_2' style='width: 60px;'>Torpedo</th><th class='th_linha_2' style='width: 60px;'>Projétil</th></tr>
+			<tr class='th_linha_2'><th style='width: 40px;'>X</th><th style='width: 40px;'>Y</th><th style='width: 40px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
 			</thead>
 			<tbody>";
 			
