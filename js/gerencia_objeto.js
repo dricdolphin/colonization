@@ -939,16 +939,18 @@ function atualiza_custo_tech(evento, objeto) {
 	let tr_tech = pega_ascendente(objeto,"TR");
 	let divs_td_tech = tr_tech.getElementsByTagName("DIV");
 	let div_custo_tech = "";
+	let div_descricao_tech = "";
 	
 	for (let index_divs=0; index_divs<divs_td_tech.length; index_divs++) {
 		if (divs_td_tech[index_divs].getAttribute('data-atributo') == "custo_tech") {
 			div_custo_tech = divs_td_tech[index_divs];
-			break;
+		} else if (divs_td_tech[index_divs].getAttribute('data-atributo') == "descricao_tech") {
+			div_descricao_tech = divs_td_tech[index_divs];
 		}
 	}
 	
 	div_custo_tech.innerHTML = custos_tech[id_tech];
-	console.log(custos_tech[id_tech]);
+	div_descricao_tech.innerHTML = descricao_tech[id_tech];
 }
 
 /******************

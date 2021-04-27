@@ -488,6 +488,16 @@ tr.th_linha_2 th {
 	border-bottom: 1px solid #054d98;
 }
 
+.lista_techs_imperio { 
+
+}
+
+.lista_techs_imperio thead tr th {
+	color: #EEEEEE;
+	background-color: #256DB3;
+	border-bottom: 1px solid #054d98;
+}
+
 .lista_frota_imperio {
 	
 }

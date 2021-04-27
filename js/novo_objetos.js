@@ -1,5 +1,7 @@
 var custos_tech = [];
+var descricao_tech = [];
 var custos_instalacao = [];
+
 /******************
 function novo_imperio
 --------------------
@@ -1150,6 +1152,7 @@ function nova_tech_jogador(evento, id_imperio) {
 				
 				if (resposta.resposta_ajax == "OK!") {
 					custos_tech = resposta.custos_tech; //Precisa ser uma VAR por ser uma variável global
+					descricao_tech = resposta.descricao_tech;
 					resolve(resposta);
 				} else {
 					alert(resposta.resposta_ajax);
@@ -1192,6 +1195,7 @@ function nova_tech_jogador(evento, id_imperio) {
 		+"<input type='hidden' data-atributo='custo_pago' value='0'></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_imperio'></input>"
 		+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='' data-valor-original=''>"+lista_techs+"</div>"
+		+"<div><span style='font-weight: bold;'>Descrição: </span><div data-atributo='descricao_tech' style='display: inline-block;'>"+successMessage.descricao+"</div></div>"
 		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true, \"colonization_imperio_techs\", true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 		
 		custo_tech.innerHTML = "<div data-atributo='custo_tech'>"+successMessage.custo+"</div>";

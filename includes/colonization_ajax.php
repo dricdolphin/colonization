@@ -191,8 +191,10 @@ class colonization_ajax {
 			
 			$html_select .= "<option value='{$tech->id}'>{$tech->nome}</option>";
 			$dados_salvos['custos_tech'][$tech->id] = $tech->custo;
+			$dados_salvos['descricao_tech'][$tech->id] = $tech->descricao;
 			if (empty($dados_salvos['custo'])) {
 				$dados_salvos['custo'] = $tech->custo;
+				$dados_salvos['descricao'] = $tech->descricao;
 			}
 		}
 		
@@ -1281,59 +1283,21 @@ class colonization_ajax {
 		$imperio = new imperio($colonia->id_imperio);
 		$instalacao = new instalacao($_POST['id_instalacao']);
 		
-		//Verifica se é a primeira Instalação da Colônia. Se for, TEM que ser um Espaçoporto ou uma Base Colonial
-		if ($imperio->id != 0) {
-			$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Espaçoporto'");
-			$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
-			
-			$tem_espacoporto = $wpdb->get_var("
-			SELECT cpi.id
-			FROM colonization_planeta_instalacoes AS cpi
-			WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
-			AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}
-			");
-			
-			$dados_salvos['debug'] .= "Query tem_espacoporto ({$tem_espacoporto}): SELECT cpi.id
-			FROM colonization_planeta_instalacoes AS cpi
-			WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
-			AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}\n";
-			
-			$tem_espacoporto_na_colonia = $wpdb->get_var("
-			SELECT cpi.id
-			FROM colonization_planeta_instalacoes AS cpi
-			WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
-			AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}
-			AND cpi.id_planeta = {$colonia->id_planeta}
-			");
-			
-			$tem_base_estelar_na_colonia = $wpdb->get_var("
-			SELECT cpi.id
-			FROM colonization_planeta_instalacoes AS cpi
-			WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
-			AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_base_colonial}
-			AND cpi.id_planeta = {$colonia->id_planeta}
-			");
-
-			if ($instalacao->espacoporto && !empty($tem_espacoporto)) {
-				$dados_salvos['resposta_ajax'] .= "Não é possível construir outro Espaçoporto. Só é possível ter um por Sistema Estelar.";
-			} elseif ($instalacao->base_colonial && empty($tem_espacoporto)) {
-				$dados_salvos['resposta_ajax'] .= "É necessário ter um Espaçoporto no Sistema Estelar antes de poder construir uma Base Colonial.";
-			} elseif (!empty($tem_espacoporto_na_colonia) && $instalacao->base_colonial) {
-				$dados_salvos['resposta_ajax'] .= "Não é possível criar uma Base Colonial em um planeta que já tem um Espaçoporto.";
-			} elseif (empty($tem_espacoporto) && !$instalacao->espacoporto) {
-				$dados_salvos['resposta_ajax'] .= "A primeira Instalação de um Sistema Estelar precisa ser, necessariamente, um Espaçoporto.";
-			} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia) && empty($tem_espacoporto_na_colonia) && !$instalacao->base_colonial) {
-				$dados_salvos['resposta_ajax'] .= "A primeira Instalação de uma Colônia num Sistema Estelar que tenha um Espaçoporto precisa ser, necessariamente, uma Base Colonial.";
-			}
-		}
-
 		$nivel_original = 0;
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			//Realiza a atualização do histórico de upgrades
 			$colonia_instalacao = new colonia_instalacao($_POST['id']);
 			$nivel_original = $colonia_instalacao->nivel;
-			
+			$instalacao_original = new instalacao($colonia_instalacao->id_instalacao);
+
 			if ($_POST['nivel'] != $colonia_instalacao->nivel || $_POST['id_instalacao'] != $colonia_instalacao->id_instalacao) {//É uma atualização! Pode ser um upgrade ou um downgrade
+				if ($_POST['id_instalacao'] != $colonia_instalacao->id_instalacao && ($instalacao_original->espacoporto || $instalacao_original->base_colonial)) {
+					$dados_salvos['resposta_ajax'] = "Não é possível substituir um Espaçoporto ou Base Colonial por outro tipo de Instalação!";
+					
+					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+					wp_die(); //Termina o script e envia a resposta
+				}
+				
 				$turno_upgrade = $wpdb->get_var("SELECT MAX(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes = {$_POST['id']}");
 				if ($turno->turno != $turno_upgrade) {
 					//Já salvou um upgrade, mantém o valor antigo pois qualquer alteração nova será feita para o Turno ATUAL
@@ -1379,6 +1343,52 @@ class colonization_ajax {
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
+		} else {
+			//Verifica se é a primeira Instalação da Colônia. Se for, TEM que ser um Espaçoporto ou uma Base Colonial
+			if ($imperio->id != 0) {
+				$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Espaçoporto'");
+				$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
+				
+				$tem_espacoporto = $wpdb->get_var("
+				SELECT cpi.id
+				FROM colonization_planeta_instalacoes AS cpi
+				WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
+				AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}
+				");
+				
+				$dados_salvos['debug'] .= "Query tem_espacoporto ({$tem_espacoporto}): SELECT cpi.id
+				FROM colonization_planeta_instalacoes AS cpi
+				WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
+				AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}\n";
+				
+				$tem_espacoporto_na_colonia = $wpdb->get_var("
+				SELECT cpi.id
+				FROM colonization_planeta_instalacoes AS cpi
+				WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
+				AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_espacoporto}
+				AND cpi.id_planeta = {$colonia->id_planeta}
+				");
+				
+				$tem_base_estelar_na_colonia = $wpdb->get_var("
+				SELECT cpi.id
+				FROM colonization_planeta_instalacoes AS cpi
+				WHERE cpi.id_planeta IN (SELECT cp.id FROM colonization_planeta AS cp WHERE cp.id_estrela = {$planeta->id_estrela}) 
+				AND turno <={$turno->turno} AND (turno_destroi = 0 OR turno_destroi IS NULL) AND cpi.id_instalacao = {$id_base_colonial}
+				AND cpi.id_planeta = {$colonia->id_planeta}
+				");
+
+				if ($instalacao->espacoporto && !empty($tem_espacoporto)) {
+					$dados_salvos['resposta_ajax'] .= "Não é possível construir outro Espaçoporto. Só é possível ter um por Sistema Estelar.";
+				} elseif ($instalacao->base_colonial && empty($tem_espacoporto)) {
+					$dados_salvos['resposta_ajax'] .= "É necessário ter um Espaçoporto no Sistema Estelar antes de poder construir uma Base Colonial.";
+				} elseif (!empty($tem_espacoporto_na_colonia) && $instalacao->base_colonial) {
+					$dados_salvos['resposta_ajax'] .= "Não é possível criar uma Base Colonial em um planeta que já tem um Espaçoporto.";
+				} elseif (empty($tem_espacoporto) && !$instalacao->espacoporto) {
+					$dados_salvos['resposta_ajax'] .= "A primeira Instalação de um Sistema Estelar precisa ser, necessariamente, um Espaçoporto.";
+				} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia) && empty($tem_espacoporto_na_colonia) && !$instalacao->base_colonial) {
+					$dados_salvos['resposta_ajax'] .= "A primeira Instalação de uma Colônia num Sistema Estelar que tenha um Espaçoporto precisa ser, necessariamente, uma Base Colonial.";
+				}
+			}			
 		}
 		
 		$nivel = 1;

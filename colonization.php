@@ -440,7 +440,7 @@ class colonization {
 			
 		$html = "<div><h4>Techs do Império '{$imperio->nome}'</h4></div>
 		<div>
-		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_imperio_techs' style='width: 700px;'>
+		<table class='lista_techs_imperio' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 		<thead>
 		<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th></tr>
 		</thead>
