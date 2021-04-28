@@ -1963,7 +1963,7 @@ if (!empty($imperios[0])) {
 				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
 			}
 			
-			if (!empty($nave->id_estrela_destino)) {
+			if (!empty($nave->id_estrela_destino) && $turno == $turno_atual->turno) {
 				$html_nave_estrela_atual = "<span class='nave_em_transito'>Nave em trânsito</span>";
 			} else {
 				$html_nave_estrela_atual = "{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})";
