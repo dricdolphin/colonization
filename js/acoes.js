@@ -6,14 +6,14 @@ objeto -- objeto sendo desabilitado
 cancela = false -- define se pega os dados originais ou os novos
 ******************/	
 function altera_acao(evento, objeto) {
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let selects = linha.getElementsByTagName("SELECT");
+	let labels = linha.getElementsByTagName("LABEL");
+	let tds = linha.getElementsByTagName("TD");
+
 	if (!range_em_edicao || range_em_edicao == objeto) {
 		range_em_edicao = objeto;
-		
-		var linha = pega_ascendente(objeto,"TR");
-		var inputs = linha.getElementsByTagName("INPUT");
-		var selects = linha.getElementsByTagName("SELECT");
-		var labels = linha.getElementsByTagName("LABEL");
-		var tds = linha.getElementsByTagName("TD");
 		
 		//***
 		for(let index=0; index<tds.length; index++) {
@@ -50,12 +50,12 @@ function valida_acao(evento, objeto)
 Pega os produtos da Ação
 ******************/	
 function valida_acao(evento, objeto) {
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var linha = pega_ascendente(objeto,"TR");
-	var divs = linha.getElementsByTagName('DIV');
-	var inputs = linha.getElementsByTagName('INPUT');
-	var labels = linha.getElementsByTagName('LABEL');
-	var dados = []; //Dados que serão enviados para a validação
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let linha = pega_ascendente(objeto,"TR");
+	let divs = linha.getElementsByTagName('DIV');
+	let inputs = linha.getElementsByTagName('INPUT');
+	let labels = linha.getElementsByTagName('LABEL');
+	let dados = []; //Dados que serão enviados para a validação
 	
 	if (evento.button !== 0 && evento.type !== "touchend" ) {
 		evento.preventDefault();
@@ -77,19 +77,20 @@ function valida_acao(evento, objeto) {
 		return false;
 	}
 
-	var dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
-	var retorno = {};
+	let dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
+	let retorno = {};
 	retorno.retorno = true;
 	
 	//Envia a chamada de AJAX para salvar o objeto
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.status == 400) {
 			
 		}
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 				retorno.resposta = resposta;
 			} 
 			catch (err) {
@@ -144,9 +145,9 @@ function desativar_instalacao(evento, objeto, id_acao) {
 		return false;
 	}
 	
-	var linha=pega_ascendente(objeto,"TR");
-	var inputs=linha.getElementsByTagName("INPUT");
-	var divs=linha.getElementsByTagName("DIV");
+	let linha=pega_ascendente(objeto,"TR");
+	let inputs=linha.getElementsByTagName("INPUT");
+	let divs=linha.getElementsByTagName("DIV");
 	//var dados_ajax = "post_type=POST&action=desativar_instalacao";
 
 	range_em_edicao = objeto;
@@ -208,14 +209,14 @@ function efetua_acao(evento, objeto)
 Tenta atualizar os dados
 ******************/	
 function efetua_acao (evento, objeto, valida) {
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var linha = pega_ascendente(objeto,"TR");
-	var divs = linha.getElementsByTagName('DIV');
-	var inputs = linha.getElementsByTagName('INPUT');
-	var labels = linha.getElementsByTagName('LABEL');
-	var dados = []; //Dados que serão enviados para a validação
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let linha = pega_ascendente(objeto,"TR");
+	let divs = linha.getElementsByTagName('DIV');
+	let inputs = linha.getElementsByTagName('INPUT');
+	let labels = linha.getElementsByTagName('LABEL');
+	let dados = []; //Dados que serão enviados para a validação
 	
-	for (index=0;index<inputs.length;index++) {
+	for (let index=0;index<inputs.length;index++) {
 		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
@@ -250,12 +251,12 @@ objeto -- objeto sendo editado
 cancela = false -- Define se é para salvar ou apenas cancelar a edição
 ******************/	
 function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
-	var linha = pega_ascendente(objeto,"TR");
-	var divs = linha.getElementsByTagName('DIV');
-	var inputs = linha.getElementsByTagName('INPUT');
-	var labels = linha.getElementsByTagName('LABEL');
-	var dados = []; //Dados que serão enviados para a validação
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let linha = pega_ascendente(objeto,"TR");
+	let divs = linha.getElementsByTagName('DIV');
+	let inputs = linha.getElementsByTagName('INPUT');
+	let labels = linha.getElementsByTagName('LABEL');
+	let dados = []; //Dados que serão enviados para a validação
 	
 	if (cancela) {
 		//***
@@ -266,9 +267,10 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 		}
 		//***/
 		
+		let index_range_pop = 0;
 		for (let index=0;index<inputs.length;index++) {
 			if (inputs[index].getAttribute('data-atributo') == "pop") {
-				var index_range_pop = index;
+				index_range_pop = index;
 				inputs[index].value = inputs[index].getAttribute("data-valor-original");
 			} else if (inputs[index].getAttribute('data-atributo') == "desativado") {
 				inputs[index].value = inputs[index].getAttribute("data-valor-original");
@@ -288,12 +290,13 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 		return false;
 	}
 
+	let where_clause = "";
 	if (objeto_editado['where_value'] == "") {//Se a o valor do WHERE estiver em branco, significa que estamos criando um objeto novo
-		var where_clause = objeto_editado['where_clause'];
+		where_clause = objeto_editado['where_clause'];
 		objeto_editado['where_value'] = objeto_editado[where_clause].value;
 	}
 
-	for (index=0;index<inputs.length;index++) {
+	for (let index=0;index<inputs.length;index++) {
 		if (inputs[index].getAttribute('data-atributo') == "turno" || inputs[index].getAttribute('data-atributo') == "id_imperio" || inputs[index].getAttribute('data-atributo') == "id_instalacao" || inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes" || inputs[index].getAttribute('data-atributo') == "id_planeta" || inputs[index].getAttribute('data-atributo') == "desativado") {
 			dados[inputs[index].getAttribute('data-atributo')] = inputs[index].value;
 		} else if (inputs[index].getAttribute('data-atributo') == "pop") {
@@ -309,11 +312,12 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 
 	//Envia a chamada de AJAX para salvar o objeto
 
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -324,27 +328,31 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 			if (resposta.resposta_ajax == "SALVO!") {
 				//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
 				//var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var linha = pega_ascendente(objeto,"TR");
-				var objeto_atualizado = atualiza_objeto(linha,resposta[0]); //O objeto salvo está no array resposta[0]
-				var divs = objeto_atualizado.getElementsByTagName("DIV");
-				var inputs = objeto_atualizado.getElementsByTagName("INPUT");
+				let linha = pega_ascendente(objeto,"TR");
+				let objeto_atualizado = atualiza_objeto(linha,resposta[0]); //O objeto salvo está no array resposta[0]
+				let divs = objeto_atualizado.getElementsByTagName("DIV");
+				let inputs = objeto_atualizado.getElementsByTagName("INPUT");
 				//***
-				for (var index=0;index<divs.length;index++) {
+				for (let index=0;index<divs.length;index++) {
 					if (divs[index].getAttribute('data-atributo') == "gerenciar") {
 						divs[index].style.visibility = "hidden";
 					} 
 				}
 				//***/
 				
-				for (index=0;index<inputs.length;index++) {
+				let id_imperio = "";
+				let id_planeta = "";
+				let id_estrela = "";
+				let id_planeta_instalacoes = "";
+				for (let index=0;index<inputs.length;index++) {
 					if(inputs[index].getAttribute('data-atributo') == "id_imperio") {
-						var id_imperio = inputs[index].value;
+						id_imperio = inputs[index].value;
 					} else if(inputs[index].getAttribute('data-atributo') == "id_planeta") {
-						var id_planeta = inputs[index].value;
+						id_planeta = inputs[index].value;
 					} else  if(inputs[index].getAttribute('data-atributo') == "id_estrela") {
-						var id_estrela = inputs[index].value;
+						id_estrela = inputs[index].value;
 					} else if (inputs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
-						var id_planeta_instalacoes = inputs[index].value;
+						id_planeta_instalacoes = inputs[index].value;
 					}
 				}
 				
@@ -377,27 +385,27 @@ Pega os produtos da Ação
 id_imperio -- id do Império
 ******************/	
 function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_instalacoes,resposta) {
-	dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
+	let dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela;
 	
 	//if (resposta.resposta_ajax == "SALVO!") {
-		id_colonias = "lista_colonias_imperio_"+id_imperio;
-		id_produz = "recursos_produzidos_imperio_"+id_imperio;
-		id_consome = "recursos_consumidos_imperio_"+id_imperio;
-		id_balanco = "recursos_balanco_imperio_"+id_imperio;
-		id_balanco_planeta = "balanco_planeta_"+id_planeta;
-		id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
-		nome_mdo_sistema = "mdo_sistema_"+id_estrela;
+		let id_colonias = "lista_colonias_imperio_"+id_imperio;
+		let id_produz = "recursos_produzidos_imperio_"+id_imperio;
+		let id_consome = "recursos_consumidos_imperio_"+id_imperio;
+		let id_balanco = "recursos_balanco_imperio_"+id_imperio;
+		let id_balanco_planeta = "balanco_planeta_"+id_planeta;
+		let id_pop_mdo_planeta = "pop_mdo_planeta_"+id_planeta;
+		let nome_mdo_sistema = "mdo_sistema_"+id_estrela;
 		
-		div_colonias = document.getElementById(id_colonias);
-		div_produz = document.getElementById(id_produz);
-		div_consome = document.getElementById(id_consome);
-		div_balanco = document.getElementById(id_balanco);
-		div_balanco_planeta = document.getElementById(id_balanco_planeta);
-		div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
-		div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
-		div_produz_consome = document.getElementById(id_planeta_instalacoes);
+		let div_colonias = document.getElementById(id_colonias);
+		let div_produz = document.getElementById(id_produz);
+		let div_consome = document.getElementById(id_consome);
+		let div_balanco = document.getElementById(id_balanco);
+		let div_balanco_planeta = document.getElementById(id_balanco_planeta);
+		let div_pop_mdo_planeta = document.getElementById(id_pop_mdo_planeta);
+		let div_mdo_sistema = document.getElementsByName(nome_mdo_sistema);
+		let div_produz_consome = document.getElementById(id_planeta_instalacoes);
 		
-		div_colonias.innerHTML = resposta.lista_colonias
+		div_colonias.innerHTML = resposta.lista_colonias;
 		div_produz.innerHTML = resposta.recursos_produzidos;
 		div_consome.innerHTML = resposta.recursos_consumidos;
 		div_balanco.innerHTML = resposta.recursos_balanco;

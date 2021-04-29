@@ -852,6 +852,7 @@ class imperio
 		$html_sistema = [];
 		$qtd_defesas_sistema = [];
 		$mdo_sistema = [];
+		$mdo_colonia = [];
 		$pop_sistema = [];
 
 		if (!empty($resultados)) {
@@ -871,7 +872,6 @@ class imperio
 			//TODO -- Debug
 		}
 	
-		$mdo = 0;
 		$estrela = [];
 		$planeta = [];
 		$colonia = [];
@@ -882,6 +882,7 @@ class imperio
 			$html_planeta = [];
 			$planeta_id_estrela = [];
 			$mdo_sistema = [];
+			$mdo_colonia = [];
 			$pop_sistema = [];
 			$qtd_defesas_sistema = [];
 		} else {
@@ -892,6 +893,7 @@ class imperio
 			//$html_transfere_pop_planeta_temp = $lista_colonias_db['html_transfere_pop_planeta'];
 			$planeta_id_estrela = $lista_colonias_db['planeta_id_estrela'];
 			$mdo_sistema = $lista_colonias_db['mdo_sistema'];
+			$mdo_colonia = $lista_colonias_db['mdo_colonia'];
 			$pop_sistema = $lista_colonias_db['pop_sistema'];
 			$qtd_defesas_sistema = $lista_colonias_db['qtd_defesas_sistema'];
 			
@@ -900,12 +902,14 @@ class imperio
 					$colonia[$id_colonia[0]] = new colonia($id_colonia[0]);
 					$estrela[$colonia[$id_colonia[0]]->id_estrela] = new estrela($colonia[$id_colonia[0]]->id_estrela);
 					$mdo_sistema[$colonia[$id_colonia[0]]->id_estrela] = "";
+					$mdo_colonia[$id_colonia[0]] = 0;
 				}
 				
 				if (!empty($id_colonia[1])) {
 					$colonia[$id_colonia[1]] = new colonia($id_colonia[1]);
 					$estrela[$colonia[$id_colonia[1]]->id_estrela] = new estrela($colonia[$id_colonia[1]]->id_estrela);
 					$mdo_sistema[$colonia[$id_colonia[1]]->id_estrela] = "";
+					$mdo_colonia[$id_colonia[1]] = 0;
 				}				
 			}
 			
@@ -989,7 +993,7 @@ class imperio
 				$planeta_id_estrela[$colonia[$resultado->id]->id_planeta] = $colonia[$resultado->id]->id_estrela;
 				$pop_colonia = $colonia[$resultado->id]->pop + $colonia[$resultado->id]->pop_robotica;
 				
-				$mdo = $this->acoes->mdo_planeta($colonia[$resultado->id]->id_planeta);
+				$mdo_colonia[$resultado->id] = $this->acoes->mdo_planeta($colonia[$resultado->id]->id_planeta);
 				
 				$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 				$balanco_poluicao_planeta = "";
@@ -1006,7 +1010,7 @@ class imperio
 				foreach ($icones_planeta as $id_instalacao => $html) {
 					$html_icones_planeta .= $html;
 				}
-				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo}/{$colonia[$resultado->id]->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1025,6 +1029,7 @@ class imperio
 			//$dados_html_para_salvar['html_transfere_pop_planeta'] = $html_transfere_pop_planeta_temp;
 			$dados_html_para_salvar['planeta_id_estrela'] = $planeta_id_estrela;
 			$dados_html_para_salvar['mdo_sistema'] = $mdo_sistema;
+			$dados_html_para_salvar['mdo_colonia'] = $mdo_colonia;
 			$dados_html_para_salvar['pop_sistema'] = $pop_sistema;
 			$dados_html_para_salvar['qtd_defesas_sistema'] = $qtd_defesas_sistema;
 
@@ -1082,7 +1087,7 @@ class imperio
 			
 			$mdo_disponivel_sistema = $pop_sistema[$planeta_id_estrela[$id_planeta]] - $mdo_sistema[$planeta_id_estrela[$id_planeta]];
 			$html_transfere_pop = "";
-			$mdo_disponivel_planeta = $colonia[$id_colonia]->pop - $mdo;
+			$mdo_disponivel_planeta = $colonia[$id_colonia]->pop - $mdo_colonia[$id_colonia];
 			$mdo_transfere = min($mdo_disponivel_sistema, $mdo_disponivel_planeta);
 			if ($mdo_disponivel_planeta > $mdo_disponivel_sistema) {
 				$mdo_disponivel_planeta = $mdo_disponivel_sistema;
