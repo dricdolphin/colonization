@@ -365,7 +365,6 @@ class instala_db {
 		DELETE FROM colonization_imperio_recursos WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_instalacoes WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_techs WHERE id_imperio = old.id;
-		DELETE FROM colonization_imperio_transfere_techs WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_colonias WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_frota WHERE id_imperio = old.id;
 		DELETE FROM colonization_imperio_historico_pesquisa WHERE id_imperio = old.id;
@@ -375,9 +374,7 @@ class instala_db {
 		DELETE FROM colonization_balancos_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = old.id;
 		DELETE FROM colonization_acoes_turno WHERE id_imperio = old.id;
-		DELETE FROM colonization_estrelas_historico WHERE id_imperio = old.id;
-		DELETE FROM colonization_imperio_abastecimento WHERE id_imperio = old.id;
-		DELETE FROM colonization_frota_historico_movimentacao WHERE id_imperio = old.id
+		DELETE FROM colonization_frota_historico_movimentacao WHERE id_imperio = old.id;
 		END$$
 		DELIMITER ;");
 		
