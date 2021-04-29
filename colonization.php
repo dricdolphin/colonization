@@ -1225,8 +1225,7 @@ class colonization {
 			
 			$techs = $tech->query_tech("",$imperio->id);
 		} else {
-			
-			$techs = $tech->query_tech(" AND publica = 1");			
+			$techs = $tech->query_tech(" AND ct.publica = 1");
 		}
 		
 		

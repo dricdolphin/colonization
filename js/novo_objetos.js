@@ -519,6 +519,7 @@ function nova_tech_permitida_imperio(evento, id_imperio) {
 	+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 	+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 	+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
+	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_permitida_imperio'></input>"
 	+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 	+"<input type='hidden' data-atributo='where_value' value=''></input>"
 	+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_ocultas_html' data-id-selecionado='' data-valor-original=''>"+lista_tech+"</div>"

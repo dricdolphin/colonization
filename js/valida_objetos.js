@@ -134,12 +134,12 @@ function valida_tech_imperio(objeto)
 Valida os dados da Tech sendo adicionada à um Império
 objeto -- objeto sendo editado
 ******************/	
-function valida_tech_imperio(objeto) {
+function valida_tech_imperio(objeto, somente_valida=false) {
 	let linha = pega_ascendente(objeto,"TR");
 	let celulas = linha.cells;
 	let inputs_linha = linha.getElementsByTagName("INPUT");
 	let select_linha = linha.getElementsByTagName("SELECT");
-	let dados_ajax = "post_type=POST&action=valida_tech_imperio";
+	let dados_ajax = "post_type=POST&action=valida_tech_imperio&somente_valida=" + somente_valida ;
 	let retorno = false;
 	let custo_pago = "";
 
@@ -216,6 +216,18 @@ function valida_tech_imperio(objeto) {
 	});
 
 	return retorno;	
+}
+
+/******************
+function valida_tech_permitida_imperio(objeto)
+--------------------
+Valida os dados da Tech Permitida sendo adicionada à um Império
+objeto -- objeto sendo editado
+******************/	
+function valida_tech_permitida_imperio(objeto) {
+	let somente_valida = true;
+	
+	return valida_tech_imperio(objeto, somente_valida);
 }
 
 /******************

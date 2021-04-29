@@ -743,11 +743,11 @@ class colonization_ajax {
 		$dados_salvos['debug'] = "";
 		if (empty($_POST['id'])) {
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
-			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}";
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']} \n";
 		} else {
 			$tech_imperio = new imperio_techs($_POST['id']);
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}");
-			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}";
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']} \n";
 		}
 		
 		$dados_salvos['confirma'] = "";
@@ -759,7 +759,57 @@ class colonization_ajax {
 		
 
 		$tech = new tech($_POST['id_tech']);
+		$tabela_techs = "colonization_imperio_techs";
+		if ($_POST['somente_valida']) {
+			$tabela_techs = "(SELECT DISTINCT 1 AS id, cit.id_tech, cit.custo_pago, cit.publica, cit.id_imperio
+			FROM (
+			SELECT id_tech, 0 AS custo_pago, 1 AS publica, id_imperio
+			FROM colonization_imperio_techs_permitidas
+			UNION
+			SELECT ct.id AS id_tech, 0 AS custo_pago, ct.publica, {$_POST['id_imperio']} AS id_imperio
+			FROM colonization_tech AS ct
+			WHERE id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$_POST['id_imperio']}) AND ct.publica = 1
+			) AS cit) AS cit";
+		}
 		
+		//Verifica se o Império tem os pré-requisitos da Tech
+		if (!empty($tech->id_tech_parent)) {
+			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
+			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM {$tabela_techs} WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0");
+			$dados_salvos['debug'] .= "SELECT COUNT(id) FROM {$tabela_techs} WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0 \n";
+			
+			if ($tech_parent == 0) {
+				$id_tech_parent = explode(",",$id_tech_parent);
+				$id_tech_parent = $id_tech_parent[0];
+				$tech_parent = new tech($id_tech_parent);
+				$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a Tech '{$tech_parent->nome}'\n";
+			}
+		}
+
+		if (!empty($tech->lista_requisitos)) {
+			foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
+				$tech_requisito = new tech($id_requisito);
+
+				$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM {$tabela_techs} WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago = 0");
+				$dados_salvos['debug'] .= "SELECT COUNT(id) FROM {$tabela_techs} WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa}) AND custo_pago = 0 \n";
+				
+				if ($tech_requisito_query == 0) {
+					if (empty($dados_salvos['resposta_ajax'])) {
+						$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
+					}
+					$dados_salvos['resposta_ajax'] .= "'{$tech_requisito->nome}'\n";
+				}
+			}
+		}
+		
+		if ($_POST['somente_valida']) {
+			if (empty($dados_salvos['resposta_ajax'])) {
+				$dados_salvos['resposta_ajax'] = "OK!";
+			}
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+
 		$dados_salvos['custo_pago'] = $_POST['custo_pago'];
 		if ($_POST['custo_pago'] > $tech->custo) {
 			$dados_salvos['resposta_ajax'] = "O custo pago por essa Tech é maior que o custo da Tech ({$tech->custo})! Favor revisar!";
@@ -768,33 +818,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		} elseif ($tech->custo == $_POST['custo_pago']) {
 			$dados_salvos['custo_pago'] = 0;
-		}
-
-		//Verifica se o Império tem os pré-requisitos da Tech
-		if (!empty($tech->id_tech_parent)) {
-			$id_tech_parent = str_replace(";",",",$tech->id_tech_parent);
-			$tech_parent = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech IN ({$id_tech_parent}) AND custo_pago = 0");
-			if ($tech_parent == 0) {
-				$id_tech_parent = explode(",",$id_tech_parent);
-				$id_tech_parent = $id_tech_parent[0];
-				$tech_parent = new tech($id_tech_parent);
-				$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a Tech '{$tech_parent->nome}'";
-			}
-		}
-
-		if (!empty($tech->lista_requisitos)) {
-			foreach ($tech->id_tech_requisito as $chave => $id_requisito) {
-				$tech_requisito = new tech($id_requisito);
-
-				$tech_requisito_query = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND (id_tech={$tech_requisito->id} OR id_tech={$tech_requisito->id_tech_alternativa})AND custo_pago = 0");
-				if ($tech_requisito_query == 0) {
-					if (empty($dados_salvos['resposta_ajax'])) {
-						$dados_salvos['resposta_ajax'] = "O Império não tem os pré-requisitos necessários! É necessário ter a(s) Tech(s): ";	
-					}
-					$dados_salvos['resposta_ajax'] .= $tech_requisito->nome."; ";
-				}
-			}
-		}
+		}		
 		
 		//Verifica se o Império tem Pesquisa suficiente
 		$id_recurso_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
