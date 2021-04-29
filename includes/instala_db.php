@@ -195,6 +195,7 @@ class instala_db {
 		vassalo BOOLEAN DEFAULT FALSE,
 		pop INT(6) NOT NULL,
 		pop_robotica INT(6) DEFAULT 0,
+		satisfacao INT(6) NOT NULL DEFAULT 100,
 		poluicao INT(6) NOT NULL,
 		turno INT(6) NOT NULL
 		)");

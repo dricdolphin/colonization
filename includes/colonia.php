@@ -21,6 +21,7 @@ class colonia
 	public $pop_robotica;
 	public $mdo;
 	public $poluicao;
+	public $satisfacao;
 	public $turno;
 	public $planeta;
 	public $estrela;
@@ -44,7 +45,7 @@ class colonia
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, vassalo, pop, pop_robotica, poluicao FROM colonization_imperio_colonias WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, vassalo, pop, pop_robotica, poluicao, satisfacao FROM colonization_imperio_colonias WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
@@ -57,6 +58,7 @@ class colonia
 		$this->pop = $resultado->pop;
 		$this->pop_robotica = $resultado->pop_robotica;
 		$this->poluicao = $resultado->poluicao;
+		$this->satisfacao = $resultado->satisfacao;
 		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
@@ -173,6 +175,7 @@ class colonia
 			<td><div data-atributo='pop' data-editavel='true' data-valor-original='{$this->pop}' data-style='width: 60px;'>{$this->pop}</div></td>
 			<td><div data-atributo='pop_robotica' data-editavel='true' data-valor-original='{$this->pop_robotica}' data-style='width: 60px;'>{$this->pop_robotica}</div></td>
 			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>
+			<td><div data-atributo='satisfacao' data-editavel='true' data-valor-original='{$this->satisfacao}' data-style='width: 30px;'>{$this->satisfacao}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno->turno}' data-style='width: 30px;'>{$this->turno->turno}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		

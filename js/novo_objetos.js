@@ -669,6 +669,7 @@ function nova_colonia(evento, id_imperio) {
 	let pop = linha_nova.insertCell(-1);
 	let pop_robotica = linha_nova.insertCell(-1);
 	let poluicao = linha_nova.insertCell(-1);
+	let satisfacao = linha_nova.insertCell(-1);
 	let turno = linha_nova.insertCell(-1);		
 	let gerencia = linha_nova.insertCell(-1);
 	
@@ -691,7 +692,8 @@ function nova_colonia(evento, id_imperio) {
 	vassalo.innerHTML = "<div data-atributo='vassalo' data-type='checkbox' data-editavel='true' data-valor-original=''><input type='checkbox' data-atributo='vassalo' data-ajax='true' value='1'></input></div>";
 	pop.innerHTML = "<div data-atributo='pop' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop' data-ajax='true' style='width: 30px;'></input></div>";
 	pop_robotica.innerHTML = "<div data-atributo='pop_robotica' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='pop_robotica' data-ajax='true' style='width: 30px;' value=0></input></div>";
-	poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;'></input></div>";
+	poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;' value=0></input></div>";
+	satisfacao.innerHTML = "<div data-atributo='satisfacao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='satisfacao' data-ajax='true' style='width: 30px;' value=100></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
 
