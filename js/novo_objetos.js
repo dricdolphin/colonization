@@ -287,7 +287,7 @@ function nova_missao(evento) {
 	sucesso.innerHTML = "<div data-atributo='sucesso' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='sucesso' data-ajax='true'></input></div>";
 	obrigatoria.innerHTML = "<div data-atributo='obrigatoria' data-editavel='true' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='obrigatoria' data-ajax='true'></input></div>";
 	
-	window.scrollTo(0, document.body.scrollHeight);
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	evento.preventDefault();
 	return false;
 }
@@ -441,7 +441,7 @@ function nova_tech_imperio(evento, id_imperio) {
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	tech_inicial.innerHTML = "<td><div data-atributo='tech_inicial' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='tech_inicial' data-ajax='true' value='1'></input></div></td>";
 
-	window.scrollTo(0, document.body.scrollHeight);
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	evento.preventDefault();
 	return false;
 }
@@ -482,7 +482,7 @@ function nova_instalacao_imperio(evento, id_imperio) {
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacao' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	evento.preventDefault();
 	return false;
 }
@@ -525,7 +525,7 @@ function nova_tech_permitida_imperio(evento, id_imperio) {
 	+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_ocultas_html' data-id-selecionado='' data-valor-original=''>"+lista_tech+"</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 
-	window.scrollTo(0, document.body.scrollHeight);
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	evento.preventDefault();
 	return false;
 }
@@ -993,7 +993,7 @@ function nova_acao_admin(evento) {
 	descricao.innerHTML = "<div data-atributo='descricao' data-editavel='true' data-valor-original='' data-style='width: 200px;'><input type='text' data-atributo='descricao' data-ajax='true' data-valor-original='' style='width: 200px;'></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;' data-valor-original=''><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
 	
-	window.scrollTo(0, document.body.scrollHeight);
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	evento.preventDefault();
 	return false;
 }
@@ -1104,7 +1104,7 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio
 	celula_gerenciar.innerHTML = "&nbsp";
 	
 	nova_linha.style.backgroundColor = tr_colonia.style.backgroundColor;
-	nova_linha.scrollIntoView({behavior: "smooth", block: "center"});
+	nova_linha.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	//objeto.style.visibility = "hidden";
 	
 	select_lista_instalacao = celula_instalacao.getElementsByTagName("SELECT")[0];
@@ -1203,7 +1203,7 @@ function nova_tech_jogador(evento, id_imperio) {
 		
 		custo_tech.innerHTML = "<div data-atributo='custo_tech'>"+successMessage.custo+"</div>";
 
-		linha_nova.scrollIntoView({behavior: "smooth", block: "center"});
+		linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	});
 	
 	evento.preventDefault();

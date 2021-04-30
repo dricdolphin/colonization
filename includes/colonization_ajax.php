@@ -760,7 +760,7 @@ class colonization_ajax {
 
 		$tech = new tech($_POST['id_tech']);
 		$tabela_techs = "colonization_imperio_techs";
-		if ($_POST['somente_valida']) {
+		if ($_POST['somente_valida'] === "true") {
 			$tabela_techs = "(SELECT DISTINCT 1 AS id, cit.id_tech, cit.custo_pago, cit.publica, cit.id_imperio
 			FROM (
 			SELECT id_tech, 0 AS custo_pago, 1 AS publica, id_imperio
@@ -802,7 +802,7 @@ class colonization_ajax {
 			}
 		}
 		
-		if ($_POST['somente_valida']) {
+		if ($_POST['somente_valida'] === "true") {
 			if (empty($dados_salvos['resposta_ajax'])) {
 				$dados_salvos['resposta_ajax'] = "OK!";
 			}
@@ -1200,9 +1200,9 @@ class colonization_ajax {
 		if ($_POST['id'] == "") {//Se o valor estiver em branco, é um novo objeto.
 			$query = "SELECT id FROM colonization_instalacao_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_instalacao={$_POST['id_instalacao']} AND consome={$_POST['consome']}";
 		} else {
-			$query = "SELECT id FROM colonization_instalacao_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_instalacao={$_POST['id_instalacao']}  AND consome={$_POST['consome']} AND id != {$_POST['id']}";
+			$query = "SELECT id FROM colonization_instalacao_recursos WHERE id_recurso={$_POST['id_recurso']} AND id_instalacao={$_POST['id_instalacao']} AND consome={$_POST['consome']} AND id != {$_POST['id']}";
 		}
-		
+		$dados_salvos['debug'] = $query;
 		$resposta = $wpdb->query($query);
 
 		if ($resposta === 0) {
@@ -1480,6 +1480,10 @@ class colonization_ajax {
 
 			if ($instalacao->autonoma == 0 && ($planeta->inospito == 1 && $planeta->terraforma == 0)) {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em planetas habitáveis!";
+			}
+			
+			if ($instalacao->somente_gigante_gasoso && $planeta->classe != "Gigante Gasoso") {
+				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um Gigante Gasoso!";
 			}
 
 			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {

@@ -320,15 +320,16 @@ function valida_instalacao_recurso(objeto) {
 		return false;
 	}	
 	
+	let id_recurso = "";
 	if (typeof(select_linha[0]) !== "undefined") {
-		let id_recurso = select_linha[0].value;
+		id_recurso = select_linha[0].value;
 		dados_ajax = dados_ajax +"&id_recurso="+id_recurso;
 	}
 
 	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_instalacao" 
 		|| inputs_linha[index].getAttribute('data-atributo') == "consome" 
-		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") 
+		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && id_recurso == "")
 		|| inputs_linha[index].getAttribute('data-atributo') == "id") {
 			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 		}

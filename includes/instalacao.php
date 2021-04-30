@@ -25,6 +25,7 @@ class instalacao
 	public $nao_extrativo = false;
 	public $bonus_extrativo = 0;
 	public $nivel_maximo = false;
+	public $somente_gigante_gasoso = false;
 	//public $bonus_recurso = false;
 	public $custos;
 	public $id_tech_requisito;
@@ -87,6 +88,15 @@ class instalacao
 		//Especiais
 		$especiais = explode(";",$this->especiais);
 
+		//somente_gigante_gasoso
+		$somente_gigante_gasoso = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'somente_gigante_gasoso') !== false;
+		}));
+		
+		if (!empty($somente_gigante_gasoso)) {
+			$this->somente_gigante_gasoso = true;
+		}
+
 		//espacoporto
 		$espacoporto = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'espacoporto') !== false;
@@ -123,6 +133,16 @@ class instalacao
 		if (!empty($limite)) {
 			$limite_valor = explode("=",$limite[0]);
 			$this->limite = $this->limite + $limite_valor[1];
+		}
+
+		//limite_sistema=qtd -- determina quantas dessa Instalação podem ser construídas no planeta (default 0, para sem limite)
+		$limite_sistema = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'limite_sistema') !== false;
+		}));
+
+		if (!empty($limite_sistema)) {
+			$limite_valor = explode("=",$limite[0]);
+			$this->limite_sistema = $this->limite_sistema + $limite_valor[1];
 		}
 
 		//nivel_maximo=1
