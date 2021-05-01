@@ -1762,6 +1762,8 @@ class colonization_ajax {
 		//ini_set("display_errors", 1);
 		
 		$dados_salvos['debug'] = "";
+		$dados_salvos['resposta_ajax'] = "";
+		$query_consome_recursos = [];
 		$turno = new turno();
 		$colonia_instalacao = new colonia_instalacao($_POST['id']);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$colonia_instalacao->id_planeta} AND turno={$turno->turno}");
@@ -1782,20 +1784,38 @@ class colonization_ajax {
 		if (!empty($colonia_instalacao->turno_destroi)) {
 			if (empty($colonia_instalacao->turno_desmonta)) {
 				if (empty($_POST['desmantelar'])) {//Não está tentando desmantelar uma Instalação, então pode Reparar a Instalação
-					//Reparar uma Instalação custa sempre 1 Industrializável
-					$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+					//Reparar uma Instalação custa o valor de um nível da Instalação
+					$instalacao = new instalacao($colonia_instalacao->id_instalacao);
+					if ($instalacao->custos != "") {
+						$custos = explode(";",$instalacao->custos);
+						foreach ($custos as $chave_recurso => $recurso) {
+							$recursos = explode("=",$recurso);
+							$id_recurso = $recursos[0];
+							$qtd = $recursos[1];
+						
+							$qtd_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+							if ($qtd_imperio < $qtd) {
+								$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para reparar essa Instalação!";
+								break;
+							} else {
+								$query_consome_recursos[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtd} WHERE id_imperio={$id_imperio} AND id_recurso={$id_recurso} AND turno={$turno->turno}";
+							}
+						}
+					}
+
 					//Verifica se o Império tem o suficiente (ou se é o Admin que está fazendo
 					if ($id_imperio != 0) {
-						$qtd_industrializaveis_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$id_imperio} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
-						if ($qtd_industrializaveis_imperio >= 1) {
-							$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-1 WHERE id_imperio={$id_imperio} AND id_recurso={$id_recurso} AND turno={$turno->turno}");
+
+						if ($dados_salvos['resposta_ajax'] == "") {
+							foreach ($query_consome_recursos as $chave => $query) {
+								$wpdb->query($query);
+							}
 						} else {
-							$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para reparar essa Instalação!";
 							echo json_encode($dados_salvos); //Envia a resposta via echo
 							wp_die(); //Termina o script e envia a resposta					
 						}
 					}
-					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";					
+					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";
 				} else {
 					$dados_salvos['resposta_ajax'] = "OK!";
 					echo json_encode($dados_salvos); //Envia a resposta via echo
