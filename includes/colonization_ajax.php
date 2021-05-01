@@ -1779,6 +1779,13 @@ class colonization_ajax {
 		if (!empty($id_colonia)) {
 			$colonia = new colonia($id_colonia);
 			$id_imperio = $colonia->id_imperio;
+			$imperio = new imperio($id_imperio);
+		}
+		
+		if ($id_imperio != $imperio->id && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' ou o Administrador podem reparar/destruír Instalações!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo
+			wp_die(); //Termina o script e envia a resposta
 		}
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
@@ -1805,14 +1812,13 @@ class colonization_ajax {
 
 					//Verifica se o Império tem o suficiente (ou se é o Admin que está fazendo
 					if ($id_imperio != 0) {
-
 						if ($dados_salvos['resposta_ajax'] == "") {
 							foreach ($query_consome_recursos as $chave => $query) {
 								$wpdb->query($query);
 							}
 						} else {
 							echo json_encode($dados_salvos); //Envia a resposta via echo
-							wp_die(); //Termina o script e envia a resposta					
+							wp_die(); //Termina o script e envia a resposta
 						}
 					}
 					$query = "UPDATE colonization_planeta_instalacoes SET turno_destroi = null WHERE id={$_POST['id']}";

@@ -1234,7 +1234,7 @@ function repara_instalacao(evento, objeto, turno, jogador=false)
 Função para chamar o AJAX de desmontar uma instalação
 objeto -- objeto sendo editado
 ******************/
-function repara_instalacao(evento, objeto, turno, jogador=false, destruido=false) {
+function repara_instalacao(evento, objeto) {
 	let linha=pega_ascendente(objeto,"TR");
 	let tabela=pega_ascendente(linha,"TABLE");
 	let inputs = linha.getElementsByTagName("INPUT");
