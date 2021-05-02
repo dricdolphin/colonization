@@ -1449,8 +1449,8 @@ class menu_admin {
 		if ($turno->encerrado == 0) {
 			$diferenca_datas = $data_atual->diff($proxima_semana);
 			
-			//$html .= "<div>{$diferenca_datas->invert} | {$diferenca_datas->h} | {$diferenca_datas->invert} => {$turno->encerrado} </div>";
-			if ($diferenca_datas->invert == 0 && $diferenca_datas->h < 15 && $turno->encerrado == 0) {
+			$html .= "<div>{$diferenca_datas->invert} | {$diferenca_datas->h} | {$diferenca_datas->invert} => {$turno->encerrado} </div>";
+			if (($diferenca_datas->invert == 1 || $diferenca_datas->h < 15) && $turno->encerrado == 0) {
 				$html .= "<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return encerra_turno(event, this);'>Encerrar o Turno</a></div><br><br>";
 			} else {
 				$data_encerra = new DateTime($proxima_semana_string);

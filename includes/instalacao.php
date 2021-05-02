@@ -482,10 +482,18 @@ class instalacao
 		}
 		
 		//Limita a quantidade de Recursos que as instalações Comerciais podem produzir
-		if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*$this->comercio*$nivel_instalacao_atual) {
-			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*$this->comercio*$nivel_instalacao_atual;
-			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*$this->comercio*$nivel_instalacao_atual;
-			$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*$this->comercio*$nivel_instalacao_atual;
+		if ($nivel_instalacao_atual == 1) {
+			if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*$this->comercio*$nivel_instalacao_atual) {
+				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*$this->comercio*$nivel_instalacao_atual;
+				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*$this->comercio*$nivel_instalacao_atual;
+				$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*$this->comercio*$nivel_instalacao_atual;
+			}
+		} else {
+			if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*($nivel_instalacao_atual+1)) {
+				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*($nivel_instalacao_atual+1);
+				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*($nivel_instalacao_atual+1);
+				$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*($nivel_instalacao_atual+1);
+			}			
 		}
 		
 		return true;
