@@ -412,7 +412,12 @@ class colonization_ajax {
 		$id_plasma_dobra = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Plasma de Dobra'");
 		$estrela_origem = $nave->estrela;
 		
-		$distancia_origem_destino = $estrela_origem->distancia_estrela($_POST['id_estrela']);
+		$fator_tamanho = 1;
+		if ($nave->tamanho > 30) {
+			$fator_tamanho = ceil($nave->tamanho/30);
+		}
+		
+		$distancia_origem_destino = $nave->qtd*$estrela_origem->distancia_estrela($_POST['id_estrela'])*$fator_tamanho;
 		$plasma_disponivel = $imperio->pega_qtd_recurso_imperio($id_plasma_dobra);
 
 		if ($plasma_disponivel < $distancia_origem_destino) {
@@ -1131,7 +1136,12 @@ class colonization_ajax {
 		$colonia_origem = new colonia($_POST['id_colonia_origem']);
 		$colonia_destino = new colonia($_POST['id_colonia_destino']);
 		$planeta = new planeta($colonia_destino->id_planeta);
+		$estrela_destino = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
+		
+		if ($estrela_destino->cerco) {
+			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber Pop no momento.";
+		}
 		
 		if (($planeta->inospito == 1 && $planeta->terraforma == 0) && $imperio->coloniza_inospito != 1) {
 			if (($colonia_destino->pop + $_POST['pop']) > $planeta->pop_inospito) {
@@ -1287,6 +1297,7 @@ class colonization_ajax {
 		}
 
 		$planeta = new planeta($_POST['id_planeta']);
+		$estrela = new estrela($planeta->id_estrela);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 		$colonia = new colonia($id_colonia);
 
@@ -1303,6 +1314,13 @@ class colonization_ajax {
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
 		}
+		
+		if ($estrela->cerco) {
+			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nas Instalações nesse momento.";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}	
 		
 		$imperio = new imperio($colonia->id_imperio);
 		$instalacao = new instalacao($_POST['id_instalacao']);
@@ -1778,6 +1796,8 @@ class colonization_ajax {
 		
 		if (!empty($id_colonia)) {
 			$colonia = new colonia($id_colonia);
+			$planeta = new planeta($colonia->id_planeta);
+			$estrela = new estrela($planeta->id_estrela);
 			$id_imperio = $colonia->id_imperio;
 			$imperio = new imperio($id_imperio);
 		}
@@ -1787,6 +1807,13 @@ class colonization_ajax {
 			echo json_encode($dados_salvos); //Envia a resposta via echo
 			wp_die(); //Termina o script e envia a resposta
 		}
+
+		if ($estrela->cerco) {
+			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nas Instalações nesse momento.";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}		
 		
 		if (!empty($colonia_instalacao->turno_destroi)) {
 			if (empty($colonia_instalacao->turno_desmonta)) {

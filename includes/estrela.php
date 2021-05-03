@@ -41,7 +41,7 @@ class estrela
 		}
 		$this->id = $id_estrela;
 
-		$resultados = $wpdb->get_results("SELECT id, nome, descricao, comentarios, X, Y, Z, tipo, ids_estrelas_destino FROM colonization_estrela WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, nome, descricao, comentarios, X, Y, Z, tipo, ids_estrelas_destino, cerco FROM colonization_estrela WHERE id=".$this->id);
 		if (empty($resultados)) {
 			$this->id = 0;
 			$this->X = -1;
@@ -59,6 +59,7 @@ class estrela
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
 		$this->tipo = $resultado->tipo;
+		$this->cerco = $resultado->cerco;
 		$this->ids_estrelas_destino = $resultado->ids_estrelas_destino;
 		$this->destinos_buracos_minhoca = explode(";",$this->ids_estrelas_destino);
 		
@@ -84,6 +85,12 @@ class estrela
 		if ($this->colonias > 0  ) {
 			$estilo_colonias = "style='font-weight: bold;'";
 		}
+
+		if ($this->cerco == 1) {
+			$cerco_checked = "checked";
+		} else {
+			$cerco_checked = "";
+		}		
 		
 		//Exibe os dados do Império
 		$html = "				<td>
@@ -101,6 +108,7 @@ class estrela
 			<td><div data-atributo='Y' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Y}'>{$this->Y}</div></td>
 			<td><div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original='{$this->Z}' >{$this->Z}</div></td>
 			<td><div data-atributo='tipo' data-valor-original='{$this->tipo}' data-editavel='true'>{$this->tipo}</div></td>
+			<td><div data-atributo='cerco' data-type='checkbox' data-editavel='true' data-valor-original='{$this->cerco}'><input type='checkbox' data-atributo='cerco' data-ajax='true' {$cerco_checked} disabled></input></div></td>			
 			<td><div data-atributo='ids_estrelas_destino' data-valor-original='{$this->ids_estrelas_destino}' data-editavel='true' data-branco='true'>{$this->ids_estrelas_destino}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		return $html;

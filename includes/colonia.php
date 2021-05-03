@@ -329,6 +329,20 @@ class colonia
 		return $this->pop + $consumo_extra_inospito + $consumo_extra_pop + $consumo_extra_poluicao;
 	}
 	
+	/***********************
+	function pega_balanco_satisfacao()
+	----------------------
+	Calcula a satisfação de um planeta
+	***********************/	
+	function pega_balanco_satisfacao ($imperio) {
+		if (empty($imperio->acoes)) {//Só faz o balanço se as Ações já tiverem sido processadas
+			return 0;
+		}
+		//Pega as chaves das ações referentes à essa colônia
+		$chaves_acoes = array_keys($imperio->acoes->id_colonia, $this->id);
+		//*** TODO ***//
+		//Definir fatores que afetam a Satisfação
 	
+	}
 }
 ?>
