@@ -9,6 +9,14 @@ Utilizado para operar o banco de dados (normalmente queries para salvar dados)
 class colonization_ajax {
 	
 	function __construct() {
+		global $wpdb, $debug, $start_time; 
+
+		$start_time = hrtime(true);
+		$script_time = time();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$diferenca_server = round($script_time - $_SERVER['REQUEST_TIME']);
+		$debug = "AJAX __construct() {$diferenca}ms \n => SERVER Request Time: {$diferenca_server}\n";
+		
 		//Adiciona as funções que serão utilizadas
 		add_action('wp_ajax_salva_objeto', array ($this, 'salva_objeto'));
 		add_action('wp_ajax_salva_acao', array ($this, 'salva_acao'));
@@ -1139,6 +1147,12 @@ class colonization_ajax {
 		$estrela_destino = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
 		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}		
+		
 		if ($estrela_destino->cerco) {
 			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber Pop no momento.";
 		}
@@ -1996,7 +2010,9 @@ class colonization_ajax {
 		global $wpdb, $debug, $start_time; 
 		$wpdb->hide_errors();		
 		$dados_salvos = [];
-		$debug = "";
+		
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$debug .= "valida_acao() => {$diferenca}ms \n";
 		$dados_salvos['balanco_acao'] = "";		
 		
 		$user = wp_get_current_user();
@@ -2017,7 +2033,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 			
-			$start_time = hrtime(true);
+		//$start_time = hrtime(true);
 		$sem_balanco = true;
 		$acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco); //Como vamos alterar a ação, não calcula os balanços na criação da ação
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

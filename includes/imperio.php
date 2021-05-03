@@ -1071,7 +1071,7 @@ class imperio
 				}
 
 				$html_sistema[$planeta_id_estrela[$id_planeta]] = "
-				<div style='margin-bottom: 5px;'><div><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
+				<div style='margin-bottom: 5px;'><div style='display: inline;'><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
 				{$estrela[$planeta_id_estrela[$id_planeta]]->nome} ({$estrela[$planeta_id_estrela[$id_planeta]]->X};{$estrela[$planeta_id_estrela[$id_planeta]]->Y};{$estrela[$planeta_id_estrela[$id_planeta]]->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
 				{$html_defesas_sistema}
 				</div>";
@@ -1129,6 +1129,12 @@ class imperio
 		$this->debug .= "imperio->exibe_lista_colonias -> foreach() Ordenação do HTML {$diferenca}ms \n";
 		
 		foreach ($html_sistema AS $id_sistema => $html) {
+			$sistema_sob_cerco = $wpdb->get_var("SELECT cerco FROM colonization_estrela WHERE id={$id_sistema}");
+			$icone_cerco = "";
+			if ($sistema_sob_cerco == 1) {
+				$icone_cerco = "<div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div>";
+			}
+			$html = substr_replace($html, $icone_cerco, 39, 0);
 			$html_lista .= "{$html}</div>";
 		}
 		
