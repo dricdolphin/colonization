@@ -379,7 +379,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 }
 
 /******************
-function atualiza_produtos_acao(id_imperio)
+function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_instalacoes,resposta)
 --------------------
 Pega os produtos da Ação
 id_imperio -- id do Império

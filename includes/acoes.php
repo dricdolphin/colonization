@@ -590,7 +590,7 @@ class acoes
 	$id_planeta_instalacoes -- id da instalação do planeta quando estamos alterando apenas um dado (default 0, ou seja, calcula tudo)
 	$salva_balanco -- salva os balanços após ter processado
 	***********************/
-	function pega_balanco_recursos($id_planeta_instalacoes=0, $salva_balanco=false) {
+	function pega_balanco_recursos($id_planeta_instalacoes=0, $salva_balanco=false, $imperio = "") {
 		global $wpdb, $start_time;
 
 		$user = wp_get_current_user();
@@ -607,10 +607,12 @@ class acoes
 
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
-		$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
-		$imperio->acoes = $this;
+		if ($imperio == "") {
+			$imperio = new imperio($this->id_imperio,false,$this->turno->turno);
+			$imperio->acoes = $this;
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms \n";		
+			$this->debug .= "acoes->pega_balanco_recursos() -> new Imperio {$diferenca}ms \n";	
+		}
 
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
@@ -621,7 +623,10 @@ class acoes
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
 		$balancos_db = stripslashes(str_replace(array("\\n", "\\r", "\\t"), "", $wpdb->get_var("SELECT json_balancos FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}")));
-	
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "acoes->pega_balanco_recursos() -> query JSON: SELECT json_balancos FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno} {$diferenca}ms \n";
+		$this->debug .= "acoes->pega_balanco_recursos() -> balancos_db: {$balancos_db} {$diferenca}ms \n";
+		
 		$flag_novo_balanco = true;
 		if (empty($balancos_db)) {
 			$this->recursos_produzidos_planeta_instalacao = [];
@@ -657,6 +662,8 @@ class acoes
 			//$this->recursos_consumidos = (array) $balancos_db->recursos_consumidos;
 			//$this->recursos_balanco = (array) $balancos_db->recursos_balanco;
 			//$this->recursos_balanco_planeta = (array) $balancos_db->recursos_balanco_planeta;
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "acoes->pega_balanco_recursos() -> pegou dados do JSON {$diferenca}ms \n";
 		}
 
 		$this->recursos_produzidos = [];

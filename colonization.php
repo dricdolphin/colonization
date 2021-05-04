@@ -1415,7 +1415,7 @@ if (!empty($imperios[0])) {
 				
 		foreach ($imperios as $imperio) {
 			$colonias = $wpdb->get_results("
-			SELECT cic.id, cp.id_estrela, cic.vassalo
+			SELECT cic.id, cp.id_estrela, cic.vassalo, cic.capital
 			FROM colonization_imperio_colonias AS cic
 			JOIN colonization_planeta AS cp
 			ON cp.id = cic.id_planeta
@@ -1434,7 +1434,7 @@ if (!empty($imperios[0])) {
 				if ($id_colonia->vassalo == 0) {
 					$html_javascript .= "lista_estrelas_colonia[{$imperio->id}][{$id_colonia->id_estrela}]={$id_colonia->id_estrela}; \n";
 					
-					if ($colonia->capital == 1) {
+					if ($id_colonia->capital == 1) {
 						$html_javascript .= "estrela_capital[{$imperio->id}]={$id_colonia->id_estrela}; \n";
 					}
 				} else {
@@ -2195,23 +2195,25 @@ var id_estrela_atual = [];
 var id_imperio_atual = {$imperio->id};
 				";
 				
-		$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno} ORDER BY ID asc");
+		$colonias = $wpdb->get_results("
+		SELECT cic.id, cic.vassalo, cic.capital, cp.id_estrela
+		FROM colonization_imperio_colonias AS cic 
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cic.id_imperio={$imperio->id} AND cic.turno={$turno->turno} 
+		ORDER BY cic.id asc");
 		$html_javascript .= "
 		lista_estrelas_colonia[{$imperio->id}]=[];
 		lista_estrelas_reabastece[{$imperio->id}]=[];
 		";
 		foreach ($colonias as $id_colonia) {
-			$colonia = new colonia($id_colonia->id);
-			$planeta = new planeta($colonia->id_planeta);
-
-				$html_javascript .= "
-				lista_estrelas_colonia[{$imperio->id}][{$planeta->id_estrela}]={$planeta->id_estrela};";
-				
-				if ($colonia->capital == 1) {
-				$html_javascript .= "
-				estrela_capital[{$imperio->id}]={$planeta->id_estrela};";
-				}
+			//$colonia = new colonia($id_colonia->id);
+			//$planeta = new planeta($colonia->id_planeta);
+			$html_javascript .= "lista_estrelas_colonia[{$imperio->id}][{$id_colonia->id_estrela}]={$id_colonia->id_estrela}; \n";
+			if ($id_colonia->capital == 1) {
+				$html_javascript .= "estrela_capital[{$imperio->id}]={$id_colonia->id_estrela}; \n";
 			}
+		}
 
 		$reabastece = $wpdb->get_results("SELECT id_estrela FROM colonization_imperio_abastecimento WHERE id_imperio={$imperio->id}");
 		foreach ($reabastece as $id_estrela) {
@@ -2487,10 +2489,10 @@ var id_imperio_atual = {$imperio->id};
 		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 1 | Duranium: 0</div><br>
 		<div id='chassi'>Chassi: 2 - Categoria: Corveta</div>
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
-		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto' value='1'></input></div>
+		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input></div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
-		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium' value='1'></input></div>
+		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium_blindagem' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium_blindagem' value='1'></input></div>
 		<div id='escudos'>Escudos: Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' max='3' style='width: 50px;'></input></div>
 		<div>---------------------------------------------------</div>
 		<div id='impulso'>Motor de Impulso: Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>

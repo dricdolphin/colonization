@@ -11,7 +11,8 @@ tag -- tag do ascendente
 ******************/
 function pega_ascendente(objeto, tag) {
 	if (objeto.tagName == tag) { return objeto; }
-	var parent_node = objeto.parentNode;
+	let parent_node = objeto.parentNode;
+	
 	//Retroage até achar a linha
 	while(parent_node.tagName != tag) {
 		parent_node = parent_node.parentNode;
@@ -28,18 +29,17 @@ objeto -- objeto sendo atualizado
 dados -- dados atualizados
 ******************/	
 function atualiza_objeto(objeto, dados) {
-	var linha = objeto;
-	var divs = "";
-	var divs = "";
-	var inputs = "";
-	var atributo = "";
-	var where_clause = ""
-	var valor_atributo = "";
+	let linha = objeto;
+	let divs = "";
+	let inputs = "";
+	let atributo = "";
+	let where_clause = ""
+	let valor_atributo = "";
 	
 	divs = linha.getElementsByTagName('DIV');
 	inputs = linha.getElementsByTagName('INPUT'); 
 	
-	for (var index = 0; index < divs.length; index++) {
+	for (let index = 0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-valor-original') !== null) {
 			atributo = divs[index].getAttribute('data-atributo');
 			//HARDCODED -- Adiciona o link para gerenciar os objetos que são gerenciáveis
@@ -62,7 +62,7 @@ function atualiza_objeto(objeto, dados) {
 		}	
 	}
 	
-	for (var index = 0; index < inputs.length; index++) {
+	for (let index = 0; index < inputs.length; index++) {
 		//HARDCODED -- Atualiza o valor do where_value
 		if (inputs[index].getAttribute('data-atributo') == "where_clause") {
 			where_clause = inputs[index].value;
@@ -93,8 +93,8 @@ function cancela_edicao(evento, objeto) {
 	objeto_em_edicao = false;
 	range_em_edicao = false;
 	
-	var tabela_objetos = pega_ascendente(objeto,"TABLE");
-	var linha = pega_ascendente(objeto,"TR");
+	let tabela_objetos = pega_ascendente(objeto,"TABLE");
+	let linha = pega_ascendente(objeto,"TR");
 	//tabela_objetos.deleteRow(-1);
 	linha_acima = linha.previousElementSibling;
 	do {
@@ -129,22 +129,22 @@ function edita_objeto(evento, objeto) {
 	
 	objeto_em_edicao = true;
 
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.cells;
-	var celula = "";
-	var divs = "";
-	var inputs = "";
-	var atributo = "";
-	var valor_atributo = "";
-	var editavel = "";
-	var data_estilo = "";
-	var data_type = "";
-	var data_checked = "";
-	var data_ajax = "";
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.cells;
+	let celula = "";
+	let divs = "";
+	let inputs = "";
+	let atributo = "";
+	let valor_atributo = "";
+	let editavel = "";
+	let data_estilo = "";
+	let data_type = "";
+	let data_checked = "";
+	let data_ajax = "";
 	
 	
 	//Pega cada uma das células e altera para o modo de edição, caso seja editável
-	for (var index = 0; index < celulas.length; index++) {
+	for (let index = 0; index < celulas.length; index++) {
 		celula = celulas[index];
 		divs = celula.getElementsByTagName('div'); //Os dados editáveis ficam sempre dentro de divs
 		if (index == 0) {//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
@@ -158,7 +158,7 @@ function edita_objeto(evento, objeto) {
 		}
 		
 		
-		for (var index_div = 0; index_div < divs.length; index_div++) {
+		for (let index_div = 0; index_div < divs.length; index_div++) {
 			editavel = divs[index_div].getAttribute('data-editavel');
 			data_ajax= "";
 			data_id = "";
@@ -192,7 +192,7 @@ function edita_objeto(evento, objeto) {
 						if (divs[index_div].getAttribute('data-argumentos') != null) {
 							argumentos = divs[index_div].getAttribute('data-argumentos');
 						}
-						var lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'),argumentos);
+						let lista = chama_funcao_validacao(divs[index_div].getAttribute('data-id-selecionado'),divs[index_div].getAttribute('data-funcao'),argumentos);
 						divs[index_div].innerHTML = lista;
 					} else if (divs[index_div].getAttribute('data-type') == "textarea") {
 						divs[index_div].innerHTML = "<textarea data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" "+data_estilo+">"+valor_atributo+"</textarea>";
@@ -216,16 +216,17 @@ funcao -- função a ser chamada
 objeto -- objeto sendo editado
 ******************/	
 function chama_funcao_validacao(objeto, funcao, argumentos="") {
-	var fn = window[funcao];
+	let fn = window[funcao];
 	
+	let retorno = "";
 	if (typeof(fn) === "function") {
 		if (argumentos != "") {
-			var retorno = fn(objeto, argumentos);
+			retorno = fn(objeto, argumentos);
 		} else {
-			var retorno = fn(objeto);
+			retorno = fn(objeto);
 		}
 	} else {//Caso não encontre a função de validação, usa a validação genérica
-		var retorno = valida_generico(objeto);
+		retorno = valida_generico(objeto);
 	}
 
 	return retorno;
@@ -238,17 +239,17 @@ Pega os dados do objeto
 objeto -- objeto sendo editado
 ******************/	
 function pega_dados_objeto(objeto) {
-	var objeto_editado = [];
-	var linha = pega_ascendente(objeto,"TR");
-	var tabela = pega_ascendente(objeto,"TABLE");
-	var celulas = linha.cells;
-	var inputs_linha = linha.getElementsByTagName("INPUT");
-	var textarea_linha = linha.getElementsByTagName("TEXTAREA")
-	var select_linha = linha.getElementsByTagName("SELECT");
-	var checkbox_checked = "";
+	let objeto_editado = [];
+	let linha = pega_ascendente(objeto,"TR");
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let celulas = linha.cells;
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let textarea_linha = linha.getElementsByTagName("TEXTAREA")
+	let select_linha = linha.getElementsByTagName("SELECT");
+	let checkbox_checked = "";
 
-	var inputs_linha_temp = [];
-	for (var index = 0; index < inputs_linha.length; index++) {
+	let inputs_linha_temp = [];
+	for (let index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	
@@ -262,12 +263,12 @@ function pega_dados_objeto(objeto) {
 	
 	inputs_linha = inputs_linha_temp;
 	
-	var funcao_valida_objeto = "";
+	let funcao_valida_objeto = "";
 	objeto_editado['nome_tabela'] = tabela.getAttribute('data-tabela');
 	objeto_editado['dados_ajax'] = "";
 	
 	//Pega cada um dos inputs
-	for (var index = 0; index < inputs_linha.length; index++) {
+	for (let index = 0; index < inputs_linha.length; index++) {
 		if(inputs_linha[index].getAttribute('data-atributo') != null) {
 			objeto_editado[inputs_linha[index].getAttribute('data-atributo')] = inputs_linha[index]; //Salva os inputs como variáveis
 		}
@@ -462,26 +463,28 @@ function excluir_objeto(evento, objeto) {
 		return false;
 	}
 	
-	var linha_objeto = pega_ascendente(objeto,"TR");
-	var objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let linha_objeto = pega_ascendente(objeto,"TR");
+	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	
+	let texto_confirmacao = "";
 	if (typeof(objeto_editado['mensagem_exclui_objeto']) === "undefined") {
-		var texto_confirmacao = "Tem certeza que deseja deletar esse objeto?";
+		texto_confirmacao = "Tem certeza que deseja deletar esse objeto?";
 	} else {
-		var texto_confirmacao = objeto_editado['mensagem_exclui_objeto'].value;
+		texto_confirmacao = objeto_editado['mensagem_exclui_objeto'].value;
 	}
 	
-	var confirma = confirm(texto_confirmacao);
+	let confirma = confirm(texto_confirmacao);
 	
 	objeto_editado['dados_ajax'] = "post_type=POST&action=deleta_objeto&tabela="+objeto_editado['nome_tabela']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 	//Se for mesmo deletar, remove a linha
 	if (confirma) {
 		//Envia a chamada de AJAX para remover o usuário
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} 
 				catch (err) {
 					console.log(this.responseText);
@@ -525,15 +528,15 @@ remove_gerenciar = false -- define se deve remover o div "gerenciar"
 ******************/	
 function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=false) {
 
-	var linha = pega_ascendente(objeto,"TR");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var textarea_linha = linha.getElementsByTagName("TEXTAREA");
-	var selects = linha.getElementsByTagName("SELECT");
-	var div = "";
-	var checkbox_checked = "";
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let textarea_linha = linha.getElementsByTagName("TEXTAREA");
+	let selects = linha.getElementsByTagName("SELECT");
+	let div = "";
+	let checkbox_checked = "";
 
-	var inputs_linha_temp = [];
-	for (var index = 0; index < inputs.length; index++) {
+	let inputs_linha_temp = [];
+	for (let index = 0; index < inputs.length; index++) {
 		inputs_linha_temp[index] = inputs[index];
 	}
 	
@@ -549,8 +552,8 @@ function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=fals
 	
 	let html_deletar = " | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a>"; //HTML com o link para deletar o objeto
 	//Pega cada um dos inputs e tira do modo de edição
-	var tamanho_maximo = inputs.length-1;
-	for (var index = tamanho_maximo; index >-1; index--) {
+	let tamanho_maximo = inputs.length-1;
+	for (let index = tamanho_maximo; index >-1; index--) {
 		if (inputs[index].type == 'text' || inputs[index].tagName =='TEXTAREA') {
 			div = pega_ascendente(inputs[index],"DIV");
 			if (cancela) {
@@ -586,7 +589,7 @@ function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=fals
 	}
 
 	//Além de INPUT, existe a possibilidade dos dados serem passados via SELECT
-	var tamanho_maximo = selects.length-1;
+	tamanho_maximo = selects.length-1;
 	for (let index = tamanho_maximo; index > -1; index--) {
 		div = pega_ascendente(selects[index],"DIV");
 		if (cancela) {
@@ -601,8 +604,8 @@ function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=fals
 	}
 	
 	//A primeira célula NORMALMENTE é especial, pois tem divs com dados como Id e outros, e links de gerenciamento, que no modo edição são alterados para Salvar e Cancelar
-	var celula = linha.cells[0]
-	var divs = celula.getElementsByTagName("DIV");
+	let celula = linha.cells[0]
+	let divs = celula.getElementsByTagName("DIV");
 	for (let index=0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
 			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>"+html_deletar;
@@ -667,15 +670,16 @@ function transfere_pop(evento,objeto,id_imperio,id_colonia_origem,id_planeta,id_
 		//console.log(range_pop.value);
 		//console.log(select_planeta_destino.options[select_planeta_destino.selectedIndex].value);
 		
-		dados_ajax = "post_type=POST&action=transfere_pop&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela+"&id_colonia_origem="+id_colonia_origem
+		let dados_ajax = "post_type=POST&action=transfere_pop&id_imperio="+id_imperio+"&id_planeta="+id_planeta+"&id_estrela="+id_estrela+"&id_colonia_origem="+id_colonia_origem
 		+"&id_colonia_destino="+select_planeta_destino.options[select_planeta_destino.selectedIndex].value+"&pop="+range_pop.value;
 
 		//Envia a chamada de AJAX para salvar o objeto
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
 				try {
-					var resposta = JSON.parse(this.responseText);
+					resposta = JSON.parse(this.responseText);
 				} 
 				catch (err) {
 					console.log(this.responseText);
@@ -720,13 +724,21 @@ function salva_reabastece(evento, objeto, id_imperio, id_estrela, tabela='coloni
 	//console.log(objeto.checked);
 	reabastece_em_edicao = true;
 	
-	var dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela+"&tabela="+tabela;
-	var retorno = false;
+	let dados_ajax = "post_type=POST&action=valida_reabastecimento&id_imperio="+id_imperio+"&id_estrela="+id_estrela+"&tabela="+tabela;
+	let retorno = false;
 
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			let resposta = "";
+			try {
+				resposta = JSON.parse(this.responseText);
+			} catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+				
 			if (resposta.resposta_ajax == "OK!") {
 				retorno = true;
 			} else {
@@ -780,13 +792,20 @@ function salva_diplomacia(evento, objeto, id_imperio_atual, id_imperio_contato, 
 		dados_diplomacia = dados_diplomacia + "&acordo_comercial=" + acordo_comercial;
 	}
 	
-	var dados_ajax = "post_type=POST&action=salva_diplomacia&id_imperio="+id_imperio_atual+"&id_imperio_contato="+id_imperio_contato+"&nome_npc="+nome_npc+"&tabela="+tabela+dados_diplomacia;
-	var retorno = false;
+	let dados_ajax = "post_type=POST&action=salva_diplomacia&id_imperio="+id_imperio_atual+"&id_imperio_contato="+id_imperio_contato+"&nome_npc="+nome_npc+"&tabela="+tabela+dados_diplomacia;
+	let retorno = false;
 
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			let resposta = "";
+			try {
+				resposta = JSON.parse(this.responseText);
+			} catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
 			if (resposta.resposta_ajax == "OK!") {
 				retorno = true;
 				if (tipo_diplomacia == "encontro") {

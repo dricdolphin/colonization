@@ -1166,17 +1166,20 @@ class colonization_ajax {
 		}
 
 		if ($dados_salvos['resposta_ajax'] == "SALVO!") {
-			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop-{$_POST['pop']} WHERE id={$colonia_origem->id}");
-			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
 			$sem_balanco = true;
 			$imperio->acoes = new acoes($_POST['id_imperio'],$_POST['turno'],$sem_balanco);
+			$id_instalacao = 0;
+			$salva_balanco = false;
+			$imperio->acoes->pega_balanco_recursos($id_instalacao, $salva_balanco, $imperio);
+			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop-{$_POST['pop']} WHERE id={$colonia_origem->id}");
+			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
 			
 			$colonias = [];
 			$colonias[0] = $colonia_origem->id;
 			$colonias[1] = $colonia_destino->id;
 			$produtos_acao = $this->produtos_acao($imperio, 0, $colonias);
-			$debug .= $produtos_acao['debug'];
-			$produtos_acao['debug'] = "";
+			//$debug .= $produtos_acao['debug'];
+			$produtos_acao['debug'] = $imperio->acoes->debug . "\n" . $produtos_acao['debug'];
 			$dados_salvos = array_merge($dados_salvos, $produtos_acao);
 		}
 
@@ -2216,7 +2219,7 @@ class colonization_ajax {
 		$dados_salvos['id_planeta_instalacoes_produz_consome'] = "<label>Balanço da produção:</label> {$imperio->acoes->html_producao_consumo_instalacao($chave_acao)}";
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];
 		$dados_salvos['mdo_sistema'] = "({$pop_disponivel_sistema})";
-		
+		$dados_salvos['debug'] .= "debug_imperio: {$imperio->debug} \n";
 		//$dados_salvos['resposta_ajax'] = "OK!";
 		
 		return $dados_salvos; //Envia a resposta via echo, codificado como JSON
