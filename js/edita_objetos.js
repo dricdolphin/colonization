@@ -249,10 +249,12 @@ function pega_dados_objeto(objeto) {
 	let checkbox_checked = "";
 
 	let inputs_linha_temp = [];
-	for (let index = 0; index < inputs_linha.length; index++) {
+	let index = 0;
+	for (index = 0; index < inputs_linha.length; index++) {
 		inputs_linha_temp[index] = inputs_linha[index];
 	}
 	
+	let index_temp = 0;
 	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
 		index_temp = index + index_textarea;
 		if (inputs_linha_temp[index_temp] !== undefined) {
@@ -536,10 +538,12 @@ function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=fals
 	let checkbox_checked = "";
 
 	let inputs_linha_temp = [];
-	for (let index = 0; index < inputs.length; index++) {
+	let index = 0;
+	for (index = 0; index < inputs.length; index++) {
 		inputs_linha_temp[index] = inputs[index];
 	}
 	
+	let index_temp = 0;
 	for (let index_textarea = 0; index_textarea < textarea_linha.length; index_textarea++) {
 		index_temp = index + index_textarea;
 		if (inputs_linha_temp[index_temp] !== undefined) {

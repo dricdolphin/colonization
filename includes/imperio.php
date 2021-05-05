@@ -107,9 +107,21 @@ class imperio
 		FROM colonization_imperio_colonias
 		WHERE id_imperio={$this->id}
 		AND turno={$this->turno->turno}");
-		
-		//A pontuação será: No de Colonias*100 + No de Instalações x Nível x 10 + Pop + Recursos + Custo das Naves + Custo das Techs
-		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*100 FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
+
+		$pontuacao = $wpdb->get_var("
+		SELECT COUNT(ce.id)*100 FROM (
+			SELECT DISTINCT ce.id
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			JOIN colonization_estrela AS ce
+			ON ce.id = cp.id_estrela
+			WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno}
+		) AS ce");
+		$this->pontuacao = $this->pontuacao + $pontuacao;
+		$this->pontuacao_colonia = $this->pontuacao_colonia + $pontuacao;		
+
+		$pontuacao = $wpdb->get_var("SELECT COUNT(id)*20 FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_colonia = $this->pontuacao_colonia + $pontuacao;
 		
@@ -1076,7 +1088,7 @@ class imperio
 				<div style='margin-bottom: 5px;'><div style='display: inline;'><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
 				{$estrela[$planeta_id_estrela[$id_planeta]]->nome} ({$estrela[$planeta_id_estrela[$id_planeta]]->X};{$estrela[$planeta_id_estrela[$id_planeta]]->Y};{$estrela[$planeta_id_estrela[$id_planeta]]->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
 				{$html_defesas_sistema}
-				</div>";
+				</div><br>";
 			}
 
 			//Define se exibe ou não o div de transferência de Pop
