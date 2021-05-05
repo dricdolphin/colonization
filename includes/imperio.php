@@ -1065,7 +1065,8 @@ class imperio
 				$html_defesas_sistema = "";
 				if ($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]] > 0) {
 					if ($this->torpedos_sistema_estelar) {
-						$html_defesas_sistema = "{$this->icone_torpedos_sistema_estelar} x{$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]} (Pdf: {$this->pdf_torpedo})";
+						$pdf_torpedo_sistema_estelar = (($this->pdf_torpedo*2)-1);
+						$html_defesas_sistema = "{$this->icone_torpedos_sistema_estelar} x{$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]} (Pdf: {$pdf_torpedo_sistema_estelar})";
 					}
 					
 					if ($this->torpedeiros_sistema_estelar !== false) {
