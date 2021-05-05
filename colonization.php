@@ -803,17 +803,17 @@ class colonization {
 				if ($roles != "administrator") {
 					if (($imperio->sensores > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
 						$html_naves[$estrela->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
-						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
 					if ($nave->camuflagem > 0 && $nave->visivel == 0) {
 						$html_naves[$estrela->id] .= "<div class='naves'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
-						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
 						$exibiu_nave[$nave->id] = true;
 					} else {
 						$html_naves[$estrela->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
-						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} '{$nave->nome}' ({$imperio_nave->nome})</div>";
+						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
@@ -872,17 +872,17 @@ class colonization {
 					if ($roles != "administrator") {
 						if (($imperio->sensores > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
 							$html_naves[$estrela->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
-							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
 							$html_naves[$estrela->id] .= "<div class='naves'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</i></div>";
-							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</i></div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</i></div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
 							$html_naves[$estrela->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
-							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
+							$html_naves_mini[$estrela->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela->nome})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}
@@ -2148,10 +2148,10 @@ if (!empty($imperios[0])) {
 		ON ce.X=cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
 		WHERE cif.id_imperio={$imperio->id} AND cif.turno_destruido=0
 		ORDER BY (cif.nivel_estacao_orbital>0) DESC, ce.nome");
-		
-		$index = 0;
 		$html_id_estrela_destino = "";
 		$html_buracos_de_minhoca = "";
+		$index = 0;		
+		
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
 
@@ -2161,8 +2161,7 @@ if (!empty($imperios[0])) {
 			id_estrela_destino[{$index}] = {$frota->id_estrela_destino};";
 			
 			if ($frota->estrela->id == 0) {
-				$html_id_estrela_destino .= "
-			id_estrela_atual[{$index}] = 'nave_{$frota->id}';
+				$html_id_estrela_destino .= "id_estrela_atual[{$index}] = 'nave_{$frota->id}';
 			lista_x_estrela['nave_{$frota->id}'] = {$frota->X};
 			lista_y_estrela['nave_{$frota->id}'] = {$frota->Y};
 			lista_z_estrela['nave_{$frota->id}'] = {$frota->Z}; \n";
@@ -2183,6 +2182,23 @@ if (!empty($imperios[0])) {
 			
 			$index++;
 		}
+
+		$lista_estrelas_sem_pesquisa = $wpdb->get_results("
+		SELECT DISTINCT ce.id, cihp.id_estrela
+		FROM colonization_estrela AS ce
+		LEFT JOIN
+		(SELECT id_estrela FROM 
+		colonization_imperio_historico_pesquisa 
+		WHERE id_imperio={$imperio->id} AND sensores >= {$imperio->sensores}
+		) AS cihp
+		ON cihp.id_estrela = ce.id
+		WHERE cihp.id_estrela IS NULL");
+		$html_id_estrela_pesquisa = "";
+		
+		foreach ($lista_estrelas_sem_pesquisa as $ids_estrelas_sem_pesquisa) {
+			$html_id_estrela_pesquisa .= "id_estrela_pesquisa[{$ids_estrelas_sem_pesquisa->id}] = 1; \n";
+		}
+		
 		$html .= "</table>
 		</div>";
 
@@ -2225,9 +2241,11 @@ var id_imperio_atual = {$imperio->id};
 		<script>
 		{$html_javascript}
 		var id_estrela_destino = [];
+		{$html_id_estrela_destino}
+		var id_estrela_pesquisa = [];
+		{$html_id_estrela_pesquisa}
 		var buracos_de_minhoca = [];
 		{$html_buracos_de_minhoca}
-		{$html_id_estrela_destino}
 		var html_lista_estrelas = lista_estrelas_html();
 		
 		let popula = popula_selects_estrelas_frotas(); //Depois de carregar os selects das naves, pode popular

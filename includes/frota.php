@@ -319,7 +319,7 @@ class frota
 		}
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
-		<select data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' {$disabled}>
+		<select class='select_frota' data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' {$disabled}>
 		</select>
 		</div>
 		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a>{$href_calcula_distancia}</div>

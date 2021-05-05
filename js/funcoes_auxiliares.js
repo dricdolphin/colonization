@@ -446,6 +446,7 @@ Popula os selects com as lista das estrelas onde uma nave do Império escolhido 
 ******************/
 function popula_selects_estrelas_frotas() {
 	let selects = document.getElementsByTagName('SELECT');
+	let icone_pesquisa = '';
 	
 	for (let index=0; index < selects.length; index++) {
 		if (selects[index].getAttribute('data-atributo') == 'id_estrela') {
@@ -500,8 +501,14 @@ function popula_selects_estrelas_frotas() {
 					if (valor_destino.id_estrela == id_estrela_destino[index]) {
 					selecionado = 'selected';
 				}
+				if (id_estrela_pesquisa[valor_destino.id_estrela] == 1) {
+					icone_pesquisa = '&#xf002; ';
+				} else {
+					icone_pesquisa = '';
+				}
+				
 				distancia = Math.ceil(calcula_distancia(false, estrela_atual, valor_destino.id_estrela));
-				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela + ' - ' + distancia + 'pc</option>';
+				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ icone_pesquisa + valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela + ' - ' + distancia + 'pc</option>';
 				
 				//distancia[chave_destino] = true;
 			});

@@ -27,6 +27,7 @@ class planeta
 	
 	//Defesas Planetárias oferecidas por Instalações
 	public $instalacoes_ataque = [];
+	public $instalacoes_ataque_nivel = [];
 	public $html_instalacao_ataque = [];
 	public $escudos;
 	
@@ -183,6 +184,7 @@ class planeta
 
 				$index = count($this->instalacoes_ataque);
 				$this->instalacoes_ataque[$index] = $colonia_instalacao->id_instalacao;
+				$this->instalacoes_ataque_nivel[$index] = $colonia_instalacao->nivel;
 			}
 
 			$qtd_instalacao_ataque_id = [];
@@ -195,7 +197,7 @@ class planeta
 				}));				
 				
 				$pdf_instalacoes =  explode("=",$pdf_instalacoes[0]);
-				$pdf_instalacoes =  $pdf_instalacoes[1];
+				$pdf_instalacoes =  $pdf_instalacoes[1]*$this->instalacoes_ataque_nivel[$chave];
 				
 				if (!empty($qtd_instalacao_ataque_id[$id_instalacao])) {
 					$qtd_instalacao_ataque_id[$id_instalacao]++;
@@ -205,7 +207,7 @@ class planeta
 					$qtd_instalacao = "";
 				}
 				
-				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao} <div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span></div> PdF Torpedo: {$pdf_instalacoes}<br>";
+				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao} <div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span></div> PdF Planetário: {$pdf_instalacoes}<br>";
 			}			
 		}
 		
