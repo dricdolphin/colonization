@@ -722,28 +722,43 @@ class colonization {
 			");
 		} else {
 			if ($apenas_recursos) {//Somente naves de pesquisa conseguem ver os recursos dos planetas onde estão
-				$somente_pesquisa = " AND pesquisa=1";
+				//$somente_pesquisa = " AND pesquisa=1";
+				
+				$ids_estrelas = $wpdb->get_results("
+				SELECT DISTINCT ce.id,(CASE WHEN cic.id_imperio = {$imperio->id} THEN {$turno->turno} ELSE MAX(cihp.turno) END) AS turno
+				FROM colonization_imperio_historico_pesquisa AS cihp
+				JOIN colonization_estrela AS ce
+				ON ce.id = cihp.id_estrela
+				LEFT JOIN colonization_planeta AS cp
+				ON cp.id_estrela = ce.id
+				LEFT JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cp.id
+				WHERE cihp.id_imperio = {$imperio->id}{$query_estrela}
+				GROUP BY ce.id, cihp.turno
+				ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+				");									
+			} else {
+				$ids_naves = $wpdb->get_results("
+				SELECT cif.id , {$turno->turno} as turno
+				FROM colonization_imperio_frota AS cif 
+				LEFT JOIN colonization_estrela AS ce
+				ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
+				WHERE cif.id_imperio = {$imperio->id} AND (cif.id_estrela_destino = 0 OR cif.id_estrela_destino IS NULL)
+				AND cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
+				");
+
+				$ids_estrelas = $wpdb->get_results("
+				SELECT DISTINCT ce.id, {$turno->turno} as turno
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio = {$imperio->id}{$query_estrela}
+				AND cic.turno = {$turno->turno} AND cic.vassalo = 0
+				ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+				");						
 			}
-			$ids_naves = $wpdb->get_results("
-			SELECT cif.id 
-			FROM colonization_imperio_frota AS cif 
-			LEFT JOIN colonization_estrela AS ce
-			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
-			WHERE cif.id_imperio = {$imperio->id} AND (cif.id_estrela_destino = 0 OR cif.id_estrela_destino IS NULL)
-			AND cif.turno_destruido=0{$somente_pesquisa}{$query_estrela}
-			");
-			
-			$ids_estrelas = $wpdb->get_results("
-			SELECT DISTINCT ce.id
-			FROM colonization_imperio_colonias AS cic
-			JOIN colonization_planeta AS cp
-			ON cp.id = cic.id_planeta
-			JOIN colonization_estrela AS ce
-			ON ce.id = cp.id_estrela
-			WHERE cic.id_imperio = {$imperio->id}{$query_estrela}
-			AND cic.turno = {$turno->turno} AND cic.vassalo = 0
-			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
-			");			
 		}
 		
 		if (isset($atts['apenas_naves'])) {
@@ -760,7 +775,7 @@ class colonization {
 			$estrela = new estrela($id_estrela->id);
 			
 			$ids_imperios = $wpdb->get_results("
-			SELECT DISTINCT cic.id_imperio, cic.nome_npc
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc, {$turno->turno} as turno
 			FROM colonization_imperio_colonias AS cic
 			JOIN colonization_planeta AS cp
 			ON cp.id = cic.id_planeta
@@ -785,11 +800,15 @@ class colonization {
 			}
 			
 			if (empty($html_estrela[$estrela->id])) {
-				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}</div>";
+				$turno_visitado = "";
+				if ($turno->turno != $id_estrela->turno) {
+					$turno_visitado = " Vistado no Turno {$id_estrela->turno}";
+				}
+				$html_estrela[$estrela->id] = "<div class='nome_estrela'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z}) {$nomes_imperios}{$turno_visitado}</div>";
 				$html_estrela_mini[$estrela->id] = "<div class='nome_estrela_mini'><b>{$estrela->nome}</b> ({$estrela->X};{$estrela->Y};{$estrela->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela->id] = "<div class='naves_no_local'>";
 				$html_naves_mini[$estrela->id] = "<div class='naves_no_local'>";
-				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
+				$html_planetas_na_estrela[$estrela->id] = $estrela->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
