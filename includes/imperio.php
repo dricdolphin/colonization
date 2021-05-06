@@ -440,7 +440,7 @@ class imperio
 			if (!empty($torpedos_sistema_estelar)) {
 				$this->torpedos_sistema_estelar = true;
 				$tech_torpededos = new tech ($id->id);
-				$this->icone_torpedos_sistema_estelar = " <div class='{$tech_torpededos->icone} tooltip'><span class='tooltiptext'>{$tech_torpededos->nome}</span></div>";				
+				$this->icone_torpedos_sistema_estelar = " <div class='{$tech_torpededos->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";				
 			}
 			
 			//Especiais -- torpedeiros_sistema_estelar			
@@ -452,7 +452,7 @@ class imperio
 				$torpedeiros_sistema_estelar_valor = explode("=",$torpedeiros_sistema_estelar[0]);
 				$this->torpedeiros_sistema_estelar = $torpedeiros_sistema_estelar_valor[1];
 				$tech_torpedeiro = new tech ($id->id);
-				$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_torpedeiro->icone} tooltip'><span class='tooltiptext'>{$tech_torpedeiro->nome}</span></div>";
+				$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_torpedeiro->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
 			}
 		}
 		//Depois de pegar o alcance e o bônus de logística, soma os dois
@@ -637,7 +637,8 @@ class imperio
 				$html_defesas .= "PdF Planetário: {$colonia->pdf_planetario}<br>Defesa Invasão: {$colonia->defesa_invasao}";
 				
 				if ($this->torpedos_sistema_estelar) {
-					$html_defesas .= "<br>{$this->icone_torpedos_sistema_estelar} x{$colonia->qtd_defesas} (Pdf: {$this->pdf_torpedo})";
+					$pdf_torpedo_sistema_estelar = (($this->pdf_torpedo*2)-1);
+					$html_defesas .= "<br>{$this->icone_torpedos_sistema_estelar} x{$colonia->qtd_defesas} (Pdf: {$pdf_torpedo_sistema_estelar})";
 				}
 				
 				if ($this->torpedeiros_sistema_estelar !== false) {
@@ -648,7 +649,13 @@ class imperio
 							break;
 						case 2:
 							$nivel = "Mk II";
-							break;					
+							break;
+						case 3:
+							$nivel = "Mk III";
+							break;
+						case 4:
+							$nivel = "Mk IV";
+							break;							
 						default:
 							$nivel = "";
 					}
@@ -1076,7 +1083,13 @@ class imperio
 								break;
 							case 2:
 								$nivel = "Mk II";
-								break;					
+								break;
+							case 3:
+								$nivel = "Mk III";
+								break;
+							case 4:
+								$nivel = "Mk IV";
+								break;							
 							default:
 								$nivel = "";
 						}
