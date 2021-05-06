@@ -1189,6 +1189,7 @@ function nova_tech_jogador(evento, id_imperio) {
 	
 		let nome_tech = linha_nova.insertCell(-1);
 		let custo_tech = linha_nova.insertCell(-1);
+		let turno = linha_nova.insertCell(-1);
 
 		nome_tech.innerHTML = "<td style='width: 300px;'>"
 		+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
@@ -1196,14 +1197,15 @@ function nova_tech_jogador(evento, id_imperio) {
 		+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
 		+"<input type='hidden' data-atributo='where_value' value=''></input>"
-		+"<input type='hidden' data-atributo='turno' value='"+turno_atual+"'></input>"
-		+"<input type='hidden' data-atributo='custo_pago' value='0'></input>"
+		+"<input type='hidden' data-atributo='turno' value='"+turno_atual+"' data-ajax='true'></input>"
+		+"<input type='hidden' data-atributo='custo_pago' value='0' data-ajax='true'></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_imperio'></input>"
 		+"<div data-atributo='nome_tech' data-editavel='true' data-type='select' data-funcao='lista_techs_html' data-id-selecionado='' data-valor-original=''>"+lista_techs+"</div>"
 		+"<div><span style='font-weight: bold;'>Descrição: </span><div data-atributo='descricao_tech' style='display: inline-block;'>"+successMessage.descricao+"</div></div>"
 		+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true, \"colonization_imperio_techs\", true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 		
 		custo_tech.innerHTML = "<div data-atributo='custo_tech'>"+successMessage.custo+"</div>";
+		turno.innerHTML = "<div data-atributo='turno'>"+turno_atual+"</div>";
 
 		linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	});

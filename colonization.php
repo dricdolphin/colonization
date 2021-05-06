@@ -434,7 +434,7 @@ class colonization {
 				if ($imperio_techs->custo_pago == 0) {
 					$imperio_techs->custo_pago = $tech->custo;
 				}
-				$html_techs_imperio .= "<tr><td>{$tech->nome}</td><td>{$imperio_techs->custo_pago}</td></tr>";
+				$html_techs_imperio .= "<tr><td>{$tech->nome}</td><td>{$imperio_techs->custo_pago}</td><td>{$imperio_techs->turno}</td></tr>";
 			}
 		}
 			
@@ -442,7 +442,7 @@ class colonization {
 		<div>
 		<table class='lista_techs_imperio' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 		<thead>
-		<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th></tr>
+		<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th><th style='width: 150px;'>Turno</th></tr>
 		</thead>
 		<tbody>";
 
