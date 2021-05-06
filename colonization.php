@@ -1214,38 +1214,62 @@ class colonization {
 	function colonization_exibe_techtree($atts = [], $content = null) {
 		global $wpdb;
 		$tech = new tech();
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}
 		
 		if (!empty($atts['super'])) {
 			$tech = new tech();
-
 			$techs = $tech->query_tech();
-			
 		} elseif (!empty($atts['id'])) {
 			$imperio = new imperio($atts['id']);
-			
-			$techs = $tech->query_tech("",$imperio->id);
+			$techs = $tech->query_tech(" AND ct.publica = 1", $imperio->id);
 		} else {
 			$techs = $tech->query_tech(" AND ct.publica = 1");
 		}
-		
+
+		if (!empty($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+		}
 		
 		$html_tech = [];
-
+		$html_custo_pago = [];
+		$style_pago = [];
+		$cor_borda = [];
+		
 		foreach ($techs AS $id) {
 			$tech = new tech($id->id);
-			if ($id->custo_pago != 0) {
-				$html_custo_pago = " [{$id->custo_pago}/{$tech->custo}]";
-				$style_pago = "style='font-style: italic;'";
-			} else {
-				$html_custo_pago = "";
-				$style_pago = "";
+			if (!empty($atts['id'])) {
+				$id->custo_pago = $wpdb->get_var("SELECT custo_pago FROM colonization_imperio_techs WHERE id_tech={$tech->id} AND id_imperio={$imperio->id}");
 			}
+			
+			if ($id->custo_pago > 0) {
+				$html_custo_pago[$id->id] = " [{$id->custo_pago}/{$tech->custo}]";
+				$style_pago[$id->id] = "style='font-style: italic;'";
+				$cor_borda[$id->id] = "borda_amarela";
+			} elseif ($id->custo_pago == "0") {
+				$html_custo_pago[$id->id] = "";
+				$style_pago[$id->id] = "";
+				$cor_borda[$id->id] = "borda_preta";
+			} else {
+				$html_custo_pago[$id->id] = "";
+				$style_pago[$id->id] = "";
+				$cor_borda[$id->id] = "borda_vermelha";
+			}
+			
 			if ($tech->nivel == 1) {
 				$html_tech[$id->id] = "
 				<div class='wrapper_principal'>
 					<div class='wrapper_nivel'>
 						<div class='wrapper_tech'>
-							<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
+							<div class='tech tooltip {$cor_borda[$id->id]}' {$style_pago[$id->id]}>{$tech->nome}{$html_custo_pago[$id->id]}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 							</div>
 						</div>";
@@ -1290,7 +1314,7 @@ class colonization {
 					{$wrapper_nivel}
 					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
 						<div class='wrapper_tech'>
-							<div class='tech tooltip' $style_pago>{$tech->nome}{$html_custo_pago}
+							<div class='tech tooltip {$cor_borda[$tech->id]}' {$style_pago[$tech->id]}>{$tech->nome}{$html_custo_pago[$tech->id]}
 							<span class='tooltiptext'>{$tech->descricao}</span>
 							</div>
 						</div>";
@@ -1306,7 +1330,7 @@ class colonization {
 					if ($tech->nivel == 1) {
 						$html_tech[$tech->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+						<div class='tech tech_requisito tooltip {$cor_borda[$tech_requisito->id]}'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 					} else {
@@ -1315,7 +1339,7 @@ class colonization {
 							if (!empty($html_tech[$tech_parent->id])) {						
 								$html_tech[$tech_parent->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
-						<div class='tech tech_requisito tooltip'>{$tech_requisito->nome}
+						<div class='tech tech_requisito tooltip {$cor_borda[$tech_requisito->id]}'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 							}
@@ -1335,7 +1359,6 @@ class colonization {
 					}
 				}
 			}
-	
 		}
 
 		$html = "<div style='background-color: #FFFFFF; overflow-x: visible; max-width: 5000px; margin-right: -50%;'>";

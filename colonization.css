@@ -627,6 +627,18 @@ tr.th_linha_2 th {
 	font-family: 'Font Awesome 5 Pro', Verdana, Tahoma, sans-serif;
 }
 
+.borda_preta {
+	border-color: #000000;
+}
+
+.borda_amarela {
+	border-color: #FFCC00;
+}
+
+.borda_vermelha {
+	border-color: #FF0000;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

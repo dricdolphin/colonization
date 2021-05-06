@@ -130,25 +130,24 @@ class tech
 		
 		$tabela_colonization_tech = "colonization_tech";
 		
-		if ($id_imperio == 0) {
+		if ($where == "") {
 			$custo_pago = ", 0 as custo_pago";
 			$join = "";
-			if ($where == " AND ct.publica = 1") {//Coloca as Techs Públicas E as Techs que o Jogador tem acesso
-				$imperio = new imperio();
-				if ($imperio->id != 0) {
-					$tabela_colonization_tech = "(SELECT DISTINCT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
-					FROM (
-						SELECT citp.id_tech AS id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 AS publica
-						FROM colonization_imperio_techs_permitidas AS citp
-						JOIN colonization_tech AS ct
-						ON ct.id=citp.id_tech
-						WHERE citp.id_imperio = {$imperio->id}
-						UNION
-						SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
-						FROM colonization_tech AS ct
-						WHERE ct.id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$imperio->id})
-						) AS ct)";
-				}
+		} elseif ($where == " AND ct.publica = 1") {//Coloca as Techs Públicas E as Techs que o Jogador tem acesso
+			$imperio = new imperio($id_imperio);
+			if ($imperio->id != 0) {
+				$tabela_colonization_tech = "(SELECT DISTINCT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
+				FROM (
+					SELECT citp.id_tech AS id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 AS publica
+					FROM colonization_imperio_techs_permitidas AS citp
+					JOIN colonization_tech AS ct
+					ON ct.id=citp.id_tech
+					WHERE citp.id_imperio = {$imperio->id}
+					UNION
+					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
+					FROM colonization_tech AS ct
+					WHERE ct.id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$imperio->id})
+					) AS ct)";
 			}
 		} else {
 			$custo_pago = ", cit.custo_pago, cit.id_imperio";
