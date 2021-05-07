@@ -517,3 +517,22 @@ function popula_selects_estrelas_frotas() {
 		}
 	}
 }
+
+/******************
+function destacar_recurso
+--------------------
+Destava todos os DIVs que tenham esse recurso
+******************/
+function destacar_recurso(objeto) {
+	let post_message = objeto.parentNode.parentNode;
+	let divs = post_message.getElementsByTagName("DIV");
+	
+	let recurso_selecionado = objeto.options[objeto.selectedIndex];
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].innerHTML.includes(recurso_selecionado.innerText) && divs[index].getAttribute("data-atributo") == "recurso_planeta" && recurso_selecionado.innerText != "") {
+			divs[index].style.border = "2px solid #FF0000";
+		} else if(divs[index].getAttribute("data-atributo") == "recurso_planeta") {
+			divs[index].style.border = 'none';
+		}
+	}
+}

@@ -910,6 +910,24 @@ class colonization {
 		}
 		
 		$html_final = "";
+		if ($apenas_recursos && $imperio->id != 0) {
+			$id_recursos_conhecidos = $wpdb->get_results("
+			SELECT DISTINCT cir.id_recurso 
+			FROM colonization_imperio_recursos AS cir 
+			JOIN colonization_recurso AS cr
+			ON cr.id = cir.id_recurso
+			WHERE cir.id_imperio={$imperio->id} AND cir.disponivel=true AND cr.extrativo = true
+			ORDER by cr.nome");
+			$html_options = "<option value=''></option>";
+			foreach ($id_recursos_conhecidos as $id_recurso) {
+				$recurso = new recurso($id_recurso->id_recurso);
+				$html_options .= "<option value={$recurso->id}>{$recurso->nome}</option> \n";
+			}
+			$html_final = "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
+			{$html_options}
+			</select>";
+		}
+		
 		$chaves = implode(",",array_keys($html_estrela));
 		$ids_estrelas = [];
 		if (!empty($chaves)) {
