@@ -1377,3 +1377,34 @@ function altera_imperio_colonia(objeto, cancela=false) {
 		}
 	}
 }
+
+/******************
+function muda_nome_colonia(objeto) 
+--------------------
+Muda o nome de uma Colônia (no caso, de um planeta)
+id_planeta = id do planeta sendo editado
+******************/	
+function muda_nome_colonia(id_planeta, evento) {
+	let confirma = confirm('Tem certeza que deseja mudar o nome desse Planeta?');
+	let novo_nome = "";
+	
+	if (confirma) {
+		novo_nome = prompt('Qual será o novo nome do Planeta?');
+	} else {
+		evento.preventDefault();
+		return false;
+	}
+	
+	if (novo_nome !== null && novo_nome != "") {
+		let dados_ajax = "post_type=POST&action=muda_nome_colonia&id_planeta=" + id_planeta + "&novo_nome=" + novo_nome;
+		let resposta = processa_xhttp_basico(dados_ajax);
+		resposta.then((successMessage) => {
+			if (successMessage) {
+				document.location.reload();
+			}
+		});		
+	}
+
+	evento.preventDefault();
+	return false;	
+}

@@ -1792,6 +1792,12 @@ if (!empty($imperios[0])) {
 			$turno = new turno();
 		}
 		
+				$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
 		$resultados = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
 		
 		$html = "
@@ -1808,11 +1814,9 @@ if (!empty($imperios[0])) {
 			
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
-			$html .= "<tr><td>{$colonia->planeta->nome} - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
+			$html .= "<tr><td><a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'>{$colonia->planeta->nome}</a> - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
 			<td>{$lista_recursos}</td>
-			</tr>
-			";
-		
+			</tr>\n";				
 		}
 		
 		$html .= "</tbody></table>";

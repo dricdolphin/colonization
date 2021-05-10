@@ -53,6 +53,46 @@ class colonization_ajax {
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida o CUSTO de uma nave
+		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
+	}
+
+	/***********************
+	function muda_nome_colonia()
+	----------------------
+	Muda o nome de uma colônia
+	***********************/
+	function muda_nome_colonia() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		$turno = new turno();
+		$id_colonia = $wpdb->get_var("SELECT cic.id FROM colonization_imperio_colonias AS cic WHERE cic.id_planeta={$_POST['id_planeta']} AND turno={$turno->turno}");
+		
+		if (empty($id_colonia)) {
+			$dados_salvos['resposta_ajax'] = "Este Planeta não é Colônia de nenhum Império!";
+		} else {
+			$colonia = new colonia($id_colonia);
+			$imperio = new imperio($colonia->id_imperio);
+		}
+		
+		if ($imperio->id != $colonia->id_imperio && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Você precisa ser o proprietário dessa Colônia para poder alterar seu nome!";
+		}
+		
+		if (empty($dados_salvos)) {
+			$resposta = $wpdb->query("UPDATE colonization_planeta SET nome='{$_POST['novo_nome']}' WHERE id={$_POST['id_planeta']}");
+			$dados_salvos['resposta_ajax'] = "OK!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta	
 	}
 
 	/***********************
@@ -1342,7 +1382,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 		
-		if ($estrela->cerco) {
+		if ($estrela->cerco && $roles != "administrator") {
 			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nas Instalações nesse momento.";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -1835,7 +1875,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta
 		}
 
-		if ($estrela->cerco) {
+		if ($estrela->cerco && $roles != "administrator") {
 			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nas Instalações nesse momento.";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
