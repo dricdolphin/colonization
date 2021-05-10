@@ -631,6 +631,10 @@ class imperio
 		
 		foreach ($resultados as $id) {
 			$colonia = new colonia($id->id);
+			if ($colonia->num_instalacoes == 0) {//Se não tiver Instalações na colônia, pula a mesma
+				continue;
+			}
+			
 			$planeta = new planeta($colonia->id_planeta);
 			$estrela = new estrela($planeta->id_estrela);
 

@@ -782,7 +782,7 @@ class colonization {
 				if ($id_imperio->id_imperio == 0) {
 					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
 				} else {
-					$imperio_estrela = new imperio($id_imperio->id_imperio);
+					$imperio_estrela = new imperio($id_imperio->id_imperio, true);
 					$nomes_imperios .= "{$imperio_estrela->nome}; ";
 				}
 			}
@@ -1792,7 +1792,7 @@ if (!empty($imperios[0])) {
 			$turno = new turno();
 		}
 		
-				$user = wp_get_current_user();
+		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
@@ -1809,9 +1809,13 @@ if (!empty($imperios[0])) {
 		
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id, $turno->turno);
+			if ($colonia->num_instalacoes == 0) {//Se não tiver Instalações na colônia, pula a mesma
+				continue;
+			}
+
 			$colonia->planeta = new planeta($colonia->id_planeta);
 			$colonia->estrela = new estrela($colonia->id_estrela);
-			
+
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
 			$html .= "<tr><td><a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'>{$colonia->planeta->nome}</a> - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>

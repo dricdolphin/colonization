@@ -89,6 +89,9 @@ class colonization_ajax {
 		if (empty($dados_salvos)) {
 			$resposta = $wpdb->query("UPDATE colonization_planeta SET nome='{$_POST['novo_nome']}' WHERE id={$_POST['id_planeta']}");
 			$dados_salvos['resposta_ajax'] = "OK!";
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
 		}
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -528,11 +531,18 @@ class colonization_ajax {
 		
 			//Verifica se a Estrela já foi visitada, e se não foi marca como visitada
 			$estrela_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+			$estrela_origem_visitada = $wpdb->get_var("SELECT id FROM colonization_estrelas_historico WHERE id_imperio={$nave->id_imperio} AND id_estrela={$id_estrela_origem}");
 			if (empty($estrela_visitada)) {
 				$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}");
 			} else {
 				$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$turno->turno} WHERE id={$estrela_visitada}");
 			}
+
+			if (empty($estrela_origem_visitada)) {
+				$wpdb->query("INSERT INTO colonization_estrelas_historico SET id_imperio={$nave->id_imperio}, id_estrela={$id_estrela_origem}, turno={$turno->turno}");
+			} else {
+				$wpdb->query("UPDATE colonization_estrelas_historico SET turno={$turno->turno} WHERE id={$estrela_origem_visitada}");
+			}			
 			
 			//Verifica se já pesquisou essa estrela. Se ainda não pesquisou, então fornece 5 pontos de pesquisa automaticamente
 			if ($nave->pesquisa == 1) {
@@ -560,15 +570,17 @@ class colonization_ajax {
 				}
 
 				$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-				$pesquisa_anterior = $wpdb->get_results("SELECT id, sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				$id_pesquisa_estrela_destino = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				$nivel_sensor_estrela_destino = $wpdb->get_var("SELECT sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$estrela->id}");
+				$id_pesquisa_estrela_origem = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$id_estrela_origem}");
 				$nivel_sensor_estrela_origem = $wpdb->get_var("SELECT sensores FROM colonization_imperio_historico_pesquisa WHERE id_imperio={$nave->id_imperio} AND id_estrela={$id_estrela_origem}");
 				
-				if (empty($pesquisa_anterior)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
+				if (empty($id_pesquisa_estrela_destino)) {//O sistema ainda não foi pesquisado, pode adicionar o bônus de pesquisa!
 					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$estrela->id}, turno={$turno->turno}, sensores={$imperio->sensores}");
 					$qtd_pesquisa = 5*($imperio->sensores + 1);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
 					$dados_salvos['debug'] .= "\n nova_pesquisa ||UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";
-				} elseif ($pesquisa_anterior[0]->sensores < $imperio->sensores) {
+				} elseif ($nivel_sensor_estrela_destino < $imperio->sensores) {
 					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores}, turno={$turno->turno} WHERE id_estrela={$estrela->id} AND id_imperio={$nave->id_imperio}");
 					$qtd_pesquisa = 5*($imperio->sensores - $pesquisa_anterior[0]->sensores);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
@@ -576,7 +588,12 @@ class colonization_ajax {
 				}
 				
 				//Pesquisa a estrela_origem se for possível
-				if ($nivel_sensor_estrela_origem < $imperio->sensores) {
+				if (empty($id_pesquisa_estrela_origem)) {
+					$wpdb->query("INSERT INTO colonization_imperio_historico_pesquisa SET id_imperio={$nave->id_imperio}, id_estrela={$id_estrela_origem}, turno={$turno->turno}, sensores={$imperio->sensores}");
+					$qtd_pesquisa = 5*($imperio->sensores + 1);
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
+					$dados_salvos['debug'] .= "\n nova_pesquisa ||UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}";					
+				} elseif ($nivel_sensor_estrela_origem < $imperio->sensores) {
 					$wpdb->query("UPDATE colonization_imperio_historico_pesquisa SET sensores={$imperio->sensores}, turno={$turno->turno} WHERE id_estrela={$id_estrela_origem} AND id_imperio={$nave->id_imperio}");
 					$qtd_pesquisa = 5*($imperio->sensores - $nivel_sensor_estrela_origem);
 					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$qtd_pesquisa} WHERE id_recurso={$id_pesquisa} AND id_imperio={$nave->id_imperio} AND turno={$turno->turno}");
