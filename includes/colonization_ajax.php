@@ -160,13 +160,13 @@ class colonization_ajax {
 		$imperio = new imperio($_POST['id_imperio']);
 		
 		$ids_techs = $wpdb->get_results("
-		SELECT ct.id 
+		SELECT ct.id, ct.custo, cit.custo_pago, cit.id_imperio_techs
 		FROM colonization_tech AS ct
-		LEFT JOIN (SELECT cit.id, cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id}) AS cit
+		LEFT JOIN (SELECT cit.id AS id_imperio_techs, cit.id_tech, cit.custo_pago FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id}) AS cit
 		ON cit.id_tech = ct.id
 		WHERE (ct.publica=1 OR ct.id IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$imperio->id}))
-		AND cit.id_tech IS NULL
-		ORDER BY ct.nome");
+		AND (cit.id_tech IS NULL OR (cit.custo_pago IS NOT NULL AND cit.custo_pago > 0))
+		ORDER BY cit.custo_pago DESC, ct.nome");
 		
 		$dados_salvos['debug'] = "";
 		$html_select = "<select data-atributo='id_tech' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_tech(event, this);'>";
@@ -197,12 +197,19 @@ class colonization_ajax {
 				}
 			}
 			
-			$html_select .= "<option value='{$tech->id}'>{$tech->nome}</option>";
-			$dados_salvos['custos_tech'][$tech->id] = $tech->custo;
+			if (!empty($id_tech->custo_pago)) {
+				$dados_salvos['custos_tech'][$tech->id] = $tech->custo - $id_tech->custo_pago;
+				$html_select .= "<option value='{$tech->id}' data-id-imperio-tech='{$id_tech->id_imperio_techs}'>Concluir Pesquisa '{$tech->nome}'</option>";
+			} else {
+				$dados_salvos['custos_tech'][$tech->id] = $tech->custo;
+				$html_select .= "<option value='{$tech->id}' data-id-imperio-tech=''>{$tech->nome}</option>";
+			}
 			$dados_salvos['descricao_tech'][$tech->id] = $tech->descricao;
+			
 			if (empty($dados_salvos['custo'])) {
-				$dados_salvos['custo'] = $tech->custo;
-				$dados_salvos['descricao'] = $tech->descricao;
+				$dados_salvos['custo'] = $dados_salvos['custos_tech'][$tech->id];
+				$dados_salvos['descricao'] = $dados_salvos['descricao_tech'][$tech->id];
+				$dados_salvos['id_imperio_tech'] = $id_tech->id_imperio_techs;
 			}
 		}
 		
@@ -765,9 +772,12 @@ class colonization_ajax {
 		
 		$dados_salvos['confirma'] = "";
 		if (!empty($id_tech)) {
-			$dados_salvos['resposta_ajax'] = "O Império já possui essa Tech!";
-			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-			wp_die(); //Termina o script e envia a resposta
+			$tech_imperio = new imperio_techs($id_tech);
+			if ($tech_imperio->custo_pago == 0) {
+				$dados_salvos['resposta_ajax'] = "O Império já possui essa Tech!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
 		}
 		
 
@@ -836,7 +846,7 @@ class colonization_ajax {
 		//Verifica se o Império tem Pesquisa suficiente
 		$id_recurso_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		
-		if (!empty($_POST['id'])) {
+		if (!empty($tech_imperio)) {
 			if ($_POST['custo_pago'] == 0 && $tech_imperio->custo_pago != 0) {
 				$custo_a_pagar = $tech->custo - $tech_imperio->custo_pago;
 			} else {

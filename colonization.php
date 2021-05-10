@@ -416,11 +416,7 @@ class colonization {
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false);
 		} else {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio, false);
+			$imperio = new imperio();
 		}		
 			
 		$html_techs_imperio = "";
@@ -477,13 +473,9 @@ class colonization {
 		}
 
 		if (isset($atts['id'])) {
-			$imperio = new imperio($atts['id'],false);
+			$imperio = new imperio($atts['id']);
 		} else {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio, false);
+			$imperio = new imperio();
 		}		
 		
 		$missao_ativa = 1;
@@ -702,7 +694,7 @@ class colonization {
 		
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_naves = $wpdb->get_results("
-			SELECT cif.id 
+			SELECT cif.id, {$turno->turno} AS turno
 			FROM colonization_imperio_frota AS cif 
 			LEFT JOIN colonization_estrela AS ce
 			ON ce.X = cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
@@ -711,7 +703,7 @@ class colonization {
 			");		
 			
 			$ids_estrelas = $wpdb->get_results("
-			SELECT DISTINCT ce.id 
+			SELECT DISTINCT ce.id, {$turno->turno} AS turno
 			FROM colonization_imperio_colonias AS cic
 			JOIN colonization_planeta AS cp
 			ON cp.id = cic.id_planeta
@@ -1022,8 +1014,7 @@ class colonization {
 		}
 		
 		if ($roles != "administrator") {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			$imperio = new imperio($id_imperio, true);
+			$imperio = new imperio();
 		} else {
 			return;
 		}
@@ -1077,8 +1068,7 @@ class colonization {
 		}
 		
 		if ($roles != "administrator") {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			$imperio = new imperio($id_imperio, true);
+			$imperio = new imperio();
 		}
 		
 		if (!empty($imperio->id)) {
@@ -1124,7 +1114,11 @@ class colonization {
 		}
 		
 		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
-		$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+		$resultados = $imperio->contatos_imperio();
+		if ($roles == "administrator") {
+			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+		}
+		
 		foreach ($resultados as $resultado) {
 			if (!empty($imperio->id)) {
 				if ($resultado->id != $imperio->id) {
@@ -1434,8 +1428,7 @@ class colonization {
 		}
 
 		if ($roles != "administrator") {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			$imperios[0] = new imperio($id_imperio, true);
+			$imperios[0] = new imperio();
 			if (!empty($imperios[0])) {
 				$colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperios[0]->id} AND turno={$turno->turno} ORDER BY ID asc");
 			}
@@ -1910,11 +1903,7 @@ if (!empty($imperios[0])) {
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false,$turno);
 		} else {
-			$id_imperio = $wpdb->get_var("SELECT id FROM colonization_imperio WHERE id_jogador={$user->ID}");
-			if (empty($id_imperio)) {
-				$id_imperio = 0;
-			}
-			$imperio = new imperio($id_imperio,false,$turno);
+			$imperio = new imperio(0,false,$turno);
 		}
 		
 		if ($imperio->id == 0) {

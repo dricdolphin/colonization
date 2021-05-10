@@ -938,19 +938,24 @@ function atualiza_custo_tech(evento, objeto) {
 	let id_tech = objeto.options[index_selecionado].value;
 	let tr_tech = pega_ascendente(objeto,"TR");
 	let divs_td_tech = tr_tech.getElementsByTagName("DIV");
-	let div_custo_tech = "";
-	let div_descricao_tech = "";
+	let inputs_td_tech = tr_tech.getElementsByTagName("INPUT");
 	
 	for (let index_divs=0; index_divs<divs_td_tech.length; index_divs++) {
 		if (divs_td_tech[index_divs].getAttribute('data-atributo') == "custo_tech") {
-			div_custo_tech = divs_td_tech[index_divs];
+			divs_td_tech[index_divs].innerHTML = custos_tech[id_tech];
 		} else if (divs_td_tech[index_divs].getAttribute('data-atributo') == "descricao_tech") {
-			div_descricao_tech = divs_td_tech[index_divs];
+			divs_td_tech[index_divs].innerHTML = descricao_tech[id_tech];
 		}
 	}
-	
-	div_custo_tech.innerHTML = custos_tech[id_tech];
-	div_descricao_tech.innerHTML = descricao_tech[id_tech];
+
+	for (let index_inputs=0; index_inputs<inputs_td_tech.length; index_inputs++) {
+		if (inputs_td_tech[index_inputs].getAttribute('data-atributo') == "id" || inputs_td_tech[index_inputs].getAttribute('data-atributo') == "where_value") {
+			inputs_td_tech[index_inputs].value = objeto.options[index_selecionado].getAttribute('data-id-imperio-tech');
+		} else if(inputs_td_tech[index_inputs].getAttribute('data-atributo') == "id_tech") {
+			inputs_td_tech[index_inputs].value = objeto.options[index_selecionado].value;
+			console.log(objeto.options[index_selecionado].value);
+		}
+	}
 }
 
 /******************

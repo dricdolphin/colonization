@@ -538,6 +538,20 @@ class imperio
 		return $html;
 	}
 
+	/***********************
+	function contatos_imperio()
+	----------------------
+	Lista com os Impérios que são conhecidos pelo Império atual
+	***********************/
+	function contatos_imperio() {
+		global $wpdb;
+		
+		return $wpdb->get_results("SELECT DISTINCT ci.id, ci.nome 
+			FROM colonization_imperio AS ci
+			JOIN (SELECT DISTINCT id_imperio_contato FROM colonization_diplomacia WHERE id_imperio={$this->id}) AS cd
+			ON ci.id = cd.id_imperio_contato
+			ORDER BY ci.nome");
+	}
 
 	/***********************
 	function imperio_exibe_imperio()
@@ -1034,7 +1048,15 @@ class imperio
 				$html_pdf_planetario = "";
 				if ($colonia[$resultado->id]->qtd_defesas > 0) {
 					$colonia[$resultado->id]->pdf_planetario = round(($this->pdf_planetario*$colonia[$resultado->id]->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
-					$html_pdf_planetario = " (<div class='far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$colonia[$resultado->id]->pdf_planetario}</div>)";
+					$html_pdf_planetario .= "<div class='far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$colonia[$resultado->id]->pdf_planetario}</div>";
+				}
+				
+				foreach ($planeta[$colonia[$resultado->id]->id_planeta]->mini_html_instalacao_ataque as $chave => $html_instalacao) {
+					$html_pdf_planetario .= $html_instalacao;
+				}
+				
+				if ($html_pdf_planetario != "") {
+					$html_pdf_planetario = " ({$html_pdf_planetario})";
 				}
 				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;

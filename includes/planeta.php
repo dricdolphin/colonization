@@ -29,6 +29,8 @@ class planeta
 	public $instalacoes_ataque = [];
 	public $instalacoes_ataque_nivel = [];
 	public $html_instalacao_ataque = [];
+	public $mini_html_instalacao_ataque = [];
+	
 	public $escudos;
 	
 	//public $pdf_instalacoes = [];
@@ -207,7 +209,8 @@ class planeta
 					$qtd_instalacao = "";
 				}
 				
-				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao} <div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span></div> PdF Planetário: {$pdf_instalacoes}<br>";
+				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span>PdF Planetário:{$pdf_instalacoes}</div><br>";
+				$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
 			}			
 		}
 		
