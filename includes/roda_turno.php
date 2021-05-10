@@ -128,21 +128,29 @@ class roda_turno {
 				//Cria poluição
 				$html .= "<br>POLUINDO as Colônias e Gerando nova MdO...<br>";
 				
+				$colonia = [];
+				$planeta = [];
+				
 				$lista_id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno->turno}");
 				$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 				foreach ($lista_id_colonias as $id_colonia) {
-					$colonia = new colonia($id_colonia->id);
-					$planeta = new planeta($colonia->id_planeta);
+					if (empty($colonia[$id_colonia->id])) {
+						$colonia[$id_colonia->id] = new colonia($id_colonia->id);	
+					}
+					
+					if (empty($planeta[$colonia[$id_colonia->id]->id_planeta])) {
+						$planeta[$colonia[$id_colonia->id]->id_planeta] = new planeta($colonia[$id_colonia->id]->id_planeta);	
+					}
 	
-					if (empty($acoes->recursos_produzidos_planeta[$id_poluicao][$planeta->id])) {
-						$acoes->recursos_produzidos_planeta[$id_poluicao][$planeta->id] = 0;
+					if (empty($acoes->recursos_produzidos_planeta[$id_poluicao][$planeta[$colonia[$id_colonia->id]->id_planeta]->id])) {
+						$acoes->recursos_produzidos_planeta[$id_poluicao][$planeta[$colonia[$id_colonia->id]->id_planeta]->id] = 0;
 					}
 					
-					if (empty($acoes->recursos_consumidos_planeta[$id_poluicao][$planeta->id])) {
-						$acoes->recursos_consumidos_planeta[$id_poluicao][$planeta->id] = 0;
+					if (empty($acoes->recursos_consumidos_planeta[$id_poluicao][$planeta[$colonia[$id_colonia->id]->id_planeta]->id])) {
+						$acoes->recursos_consumidos_planeta[$id_poluicao][$planeta[$colonia[$id_colonia->id]->id_planeta]->id] = 0;
 					}
 					
-					$poluicao = $colonia->poluicao + $acoes->recursos_balanco_planeta[$id_poluicao][$planeta->id];
+					$poluicao = $colonia[$id_colonia->id]->poluicao + $acoes->recursos_balanco_planeta[$id_poluicao][$planeta[$colonia[$id_colonia->id]->id_planeta]->id];
 					
 					if ($poluicao<0) {
 						$poluicao=0;
@@ -151,25 +159,33 @@ class roda_turno {
 					//Aumenta a população
 					//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
 					//No entanto, a poluição reduz o crescimento populacional
-					$nova_pop = $colonia->pop;
-					if ($alimentos > $colonia->pop && $acoes->recursos_balanco[$id_alimento] > 0 && $colonia->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
-						if (($planeta->inospito == 0 && $planeta->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
+					$nova_pop = $colonia[$id_colonia->id]->pop;
+					if ($alimentos > $colonia[$id_colonia->id]->pop && $acoes->recursos_balanco[$id_alimento] > 0 && $colonia[$id_colonia->id]->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
+						if (($planeta[$colonia[$id_colonia->id]->id_planeta]->inospito == 0 && $planeta[$colonia[$id_colonia->id]->id_planeta]->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
 							if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
-								$limite_pop_planeta = $planeta->tamanho*10; 
+								$limite_pop_planeta = $planeta[$colonia[$id_colonia->id]->id_planeta]->tamanho*10; 
 								//Caso o Império tenha uma Tech de Bônus Populacional...
 								if ($imperio->max_pop >0) {
 									$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
-									if ($planeta->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
+									if ($planeta[$colonia[$id_colonia->id]->id_planeta]->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
 										$limite_pop_planeta	= 0; 
 									}									
 								}
 								
-								if ($colonia->pop <= $limite_pop_planeta) {//Tem espaço para crescer
-									if ($colonia->pop <=24) {
-										$nova_pop = $colonia->pop + 5*$imperio->crescimento_pop;
-									} else {
-										$nova_pop = $colonia->pop + 10*$imperio->crescimento_pop;
+								$fator_cresce = 0;
+								if ($colonia[$id_colonia->id]->pop <= $limite_pop_planeta) {//Tem espaço para crescer
+									$fator_cresce = 0.0758*$colonia[$id_colonia->id]->pop + 3.1818;
+									if ($fator_cresce < 5) {
+										$fator_cresce = 5;
+									} elseif ($fator_cresce > 10) {
+										$fator_cresce = 10;
 									}
+									
+									if ($planeta[$colonia[$id_colonia->id]->id_planeta]->subclasse == "Gaia") {
+										$fator_cresce = $fator_cresce*2;
+									}
+									
+									$nova_pop = $colonia[$id_colonia->id]->pop + ceil($fator_cresce*$imperio->crescimento_pop);
 									if ($nova_pop > $limite_pop_planeta) {
 										$nova_pop = $limite_pop_planeta;
 									}
@@ -178,13 +194,13 @@ class roda_turno {
 						}
 					} else {
 						//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%
-						if ($alimentos < $colonia->pop) {
-							$nova_pop = round(0.9*$colonia->pop);
+						if ($alimentos < $colonia[$id_colonia->id]->pop) {
+							$nova_pop = round(0.9*$colonia[$id_colonia->id]->pop);
 						}
 					}
 				
-					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia->id_planeta}, id_imperio={$colonia->id_imperio}, capital={$colonia->capital}, vassalo={$colonia->vassalo}");
+					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}<br>";
+					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}");
 				}
 
 				//Registra a pesquisa das naves
@@ -222,9 +238,11 @@ class roda_turno {
 		$colonias_npcs = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio=0 AND turno={$turno->turno}");
 		
 		foreach ($colonias_npcs as $id_colonia) {
-			$colonia = new colonia($id_colonia->id);
-			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}<br>";	
-			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia->id_imperio}, nome_npc='{$colonia->nome_npc}', id_planeta={$colonia->id_planeta}, capital={$colonia->capital}, pop={$colonia->pop}, pop_robotica={$colonia->pop_robotica}, poluicao={$colonia->poluicao}, turno={$proximo_turno}");
+			if (empty($colonia[$id_colonia->id])) {
+				$colonia[$id_colonia->id] = new colonia($id_colonia->id);
+			}
+			$html.= "INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia[$id_colonia->id]->id_imperio}, nome_npc='{$colonia[$id_colonia->id]->nome_npc}', id_planeta={$colonia[$id_colonia->id]->id_planeta}, capital={$colonia[$id_colonia->id]->capital}, pop={$colonia[$id_colonia->id]->pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, poluicao={$colonia[$id_colonia->id]->poluicao}, turno={$proximo_turno}<br>";	
+			$wpdb->query("INSERT INTO colonization_imperio_colonias SET id_imperio={$colonia[$id_colonia->id]->id_imperio}, nome_npc='{$colonia[$id_colonia->id]->nome_npc}', id_planeta={$colonia[$id_colonia->id]->id_planeta}, capital={$colonia[$id_colonia->id]->capital}, pop={$colonia[$id_colonia->id]->pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, poluicao={$colonia[$id_colonia->id]->poluicao}, turno={$proximo_turno}");
 		}
 		
 		//$html.= "UPDATE wp_postmeta SET meta_value='{$proxima_semana}' WHERE meta_key='_wpcdt_timer_date' AND post_id='419'<br>";

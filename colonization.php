@@ -940,7 +940,7 @@ class colonization {
 			ON cic.id_planeta = cp.id
 			AND cic.turno = {$turno->turno}
 			WHERE ce.id IN ({$chaves})
-			ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
+			ORDER BY (CASE WHEN cic.id_imperio = {$imperio->id} THEN 0 ELSE 1 END), ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
 		}
 
