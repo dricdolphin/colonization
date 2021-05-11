@@ -1052,7 +1052,7 @@ class imperio
 				$html_pdf_planetario = "";
 				if ($colonia[$resultado->id]->qtd_defesas > 0) {
 					$colonia[$resultado->id]->pdf_planetario = round(($this->pdf_planetario*$colonia[$resultado->id]->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
-					$html_pdf_planetario .= "<div class='far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$colonia[$resultado->id]->pdf_planetario}</div>";
+					$html_pdf_planetario .= "<div class='mini_instalacao_ataque far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$colonia[$resultado->id]->pdf_planetario}</div>";
 				}
 				
 				foreach ($planeta[$colonia[$resultado->id]->id_planeta]->mini_html_instalacao_ataque as $chave => $html_instalacao) {

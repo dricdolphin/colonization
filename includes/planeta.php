@@ -210,7 +210,7 @@ class planeta
 				}
 				
 				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span><span style='font-family: Verdana, Tahoma, sans-serif;'>PdF Planetário:{$pdf_instalacoes}</span></div><br>";
-				$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
+				$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='mini_instalacao_ataque {$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
 			}			
 		}
 		
