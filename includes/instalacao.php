@@ -481,19 +481,19 @@ class instalacao
 			}
 		}
 		
+		//O valor produzido é sempre DIVIDIDO pelo nível da Instalação
+		$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ceil($this->recursos_produz_qtd_comercio[$chave_pesquisa]/$nivel_instalacao_atual);
+		$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  ceil($this->recursos_produz_qtd_comercio[$chave_industrializaveis]/$nivel_instalacao_atual);
+		$this->recursos_produz_qtd_comercio[$chave_plasma] = ceil($this->recursos_produz_qtd_comercio[$chave_plasma]/$nivel_instalacao_atual);
+		
 		//Limita a quantidade de Recursos que as instalações Comerciais podem produzir
-		if ($nivel_instalacao_atual == 1) {
-			if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*$this->comercio*$nivel_instalacao_atual) {
-				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*$this->comercio*$nivel_instalacao_atual;
-				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*$this->comercio*$nivel_instalacao_atual;
-				$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*$this->comercio*$nivel_instalacao_atual;
-			}
-		} else {
-			if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > ceil(10*($nivel_instalacao_atual+1)/$nivel_instalacao_atual)) {
-				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ceil(10*($nivel_instalacao_atual+1)/$nivel_instalacao_atual);
-				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = ceil(10*($nivel_instalacao_atual+1)/$nivel_instalacao_atual);
-				$this->recursos_produz_qtd_comercio[$chave_plasma] = ceil(100*($nivel_instalacao_atual+1)/$nivel_instalacao_atual);
-			}			
+		//Mk I - 10*$this->comercio
+		//Mk II - 15*$this->comercio, ou seja, (((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual)
+		
+		if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual)) {
+			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
+			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
+			$this->recursos_produz_qtd_comercio[$chave_plasma] = ceil(((100 + 50*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
 		}
 		
 		return true;
