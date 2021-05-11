@@ -265,7 +265,9 @@ class acoes
 
 			return $resposta;
 		}
-
+		
+		$mdo_sistema = 0;
+		$pop_sistema = 0;
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
 			
@@ -273,14 +275,8 @@ class acoes
 			//$estrela = $colonia->estrela;
 
 			$mdo = $this->mdo_planeta($colonia->id_planeta);
-			
-			if (empty($mdo_sistema)) {
-				$mdo_sistema = $mdo;
-				$pop_sistema = $colonia->pop + $colonia->pop_robotica;
-			} else {
-				$mdo_sistema = $mdo_sistema + $mdo;
-				$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
-			}
+			$mdo_sistema = $mdo_sistema + $mdo;
+			$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
 		}
 
 		$resposta = [];

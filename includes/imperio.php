@@ -1192,6 +1192,9 @@ class imperio
 			$icone_cerco = "";
 			if ($sistema_sob_cerco == 1) {
 				$icone_cerco = "<div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div>";
+				if ($roles == "administrator") {
+					$icone_cerco = "<a href='#' onclick='return tirar_cerco(this,event,{$id_sistema});'><div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div></a>";	
+				}
 			}
 			$html = substr_replace($html, $icone_cerco, 39, 0);
 			$html_lista .= "{$html}</div>";

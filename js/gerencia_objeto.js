@@ -5,14 +5,14 @@ Altera os valores da lista de recursos e suas qtds
 objeto -- objeto sendo editado
 ******************/	
 function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var divs = linha.getElementsByTagName("DIV");
-	var div_lista_recursos_qtd = "";
-	var input_qtd = "";
-	var input_lista_recursos = "";
-	var qtds = [];
-	var recursos = [];
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let divs = linha.getElementsByTagName("DIV");
+	let div_lista_recursos_qtd = "";
+	let input_qtd = "";
+	let input_lista_recursos = "";
+	let qtds = [];
+	let recursos = [];
 	
 	for (let index=0; index<divs.length; index++) { //Encontra o lista_recursos_qtd
 		if (divs[index].getAttribute('data-atributo') == 'lista_recursos_qtd') {
@@ -28,7 +28,7 @@ function altera_lista_recursos_qtd(objeto, cancela=false, valida=false) {
 		}
 	} else if (valida) {
 		//Atualiza o INPUT qtds
-		var index_qtds = 0;
+		let index_qtds = 0;
 		for (let index=0; index<inputs.length; index++) {
 			if (inputs[index].getAttribute('data-atributo') == 'qtd') {
 				input_qtd = inputs[index];
@@ -51,14 +51,14 @@ function inclui_recurso(evento, id_recurso)
 Inclui um recurso na lista_recursos_qtd
 ******************/
 function inclui_recurso(evento, id_recurso) {
-	var inputs = document.getElementsByTagName("INPUT");
-	var div_lista_recursos_qtd = "";
-	var inputs_text = [];
-	var div_recurso = "";
-	var div_recurso_parent = "";
-	var div_recurso_parent_html_original = "";
-	var input_lista_recursos = "";
-	var input_qtd = "";
+	let inputs = document.getElementsByTagName("INPUT");
+	let div_lista_recursos_qtd = "";
+	let inputs_text = [];
+	let div_recurso = "";
+	let div_recurso_parent = "";
+	let div_recurso_parent_html_original = "";
+	let input_lista_recursos = "";
+	let input_qtd = "";
 
 	if (!objeto_em_edicao) {
 		
@@ -66,7 +66,7 @@ function inclui_recurso(evento, id_recurso) {
 		return false;
 	}
 
-	var index_input_text = 0;
+	let index_input_text = 0;
 	for (let index=0; index<inputs.length; index++) { //Pega todos os Inputs do tipo 'text'
 		if (inputs[index].type == "text") {
 			inputs_text[index_input_text] = inputs[index];
@@ -89,19 +89,20 @@ function inclui_recurso(evento, id_recurso) {
 	}
 
 	//Pega os Recursos que já existem. Se o novo recurso também existir, é para REMOVER. Pergunte antes de remover!
+	let lista_lista_recursos = "";
+	let lista_qtds = "";
 	if(input_lista_recursos.value !== undefined) {
-		var lista_lista_recursos = input_lista_recursos.value.split(";");
-		var lista_qtds = input_qtd.value.split(";");
+		lista_lista_recursos = input_lista_recursos.value.split(";");
+		lista_qtds = input_qtd.value.split(";");
 	}
 	
 	for (let index=0; index<lista_lista_recursos.length; index++) {
 		if (lista_lista_recursos[index] == id_recurso) {
 			//inputs_text[index].style.backgroundColor = "#DDDDDD";
 			div_recurso = inputs_text[index].parentNode.parentNode;
+			let resposta = true;
 			if (inputs_text[index].value != 0 && inputs_text[index].value != "") {
-				var resposta = confirm("Deseja mesmo remover o recurso "+lista_recursos[id_recurso]+"?");
-			} else {
-				var resposta = true;
+				resposta = confirm("Deseja mesmo remover o recurso "+lista_recursos[id_recurso]+"?");
 			}
 			
 			if (resposta) {//Remove o item
@@ -161,22 +162,23 @@ redireciona -- Se é para redirecionar para outra página
 ******************/
 function gerenciar_objeto(evento, objeto, redireciona = "") {
 	//alert(typeof objeto);
-	var linha=pega_ascendente(objeto,"TR");
-	var inputs=linha.getElementsByTagName("INPUT");
+	let linha=pega_ascendente(objeto,"TR");
+	let inputs=linha.getElementsByTagName("INPUT");
 	
-	for (var index = 0; index < inputs.length; index++) {
+	let id_objeto = "";
+	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
+			id_objeto = inputs[index].value;
 		}
 	}
 	
-	var vars = window.location.href.split("?");
+	let vars = window.location.href.split("?");
 	
 	if (redireciona == "") {
 		redireciona = vars[1];
 	}
 	
-	var url_gerencia = vars[0]+"?"+redireciona+"&id="+id_objeto;
+	let url_gerencia = vars[0]+"?"+redireciona+"&id="+id_objeto;
 	url_gerencia = url_gerencia.replace("#","");
 	window.location = url_gerencia;
 	
@@ -191,33 +193,31 @@ Copia um objeto na última linha
 objeto -- objeto sendo editado
 ******************/
 function copiar_objeto(evento, objeto, id_imperio) {
-	var tabela = document.getElementsByTagName('TABLE');
+	let tabela = document.getElementsByTagName('TABLE');
 	
-	for (var index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
+	for (let index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
 		if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
 			tabela = tabela[index_tabelas];
 			break;
 		}
 	}
 	
-	var linha = pega_ascendente(objeto,"TR");
-	var celulas = linha.getElementsByTagName("TD");
-	var inputs = [];
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.getElementsByTagName("TD");
+	let inputs = [];
 	
-	var linha_nova = tabela.insertRow(-1);
+	let linha_nova = tabela.insertRow(-1);
 	
 	for (let index = 0; index < celulas.length; index++) {
 		celula = linha_nova.insertCell(index);
 		celula.innerHTML = celulas[index].innerHTML;
 	}
 
-	var retorno = edita_objeto(evento, celula);
+	let retorno = edita_objeto(evento, celula);
 
 	celulas = linha_nova.getElementsByTagName("TD");
-
 	inputs = celulas[0].getElementsByTagName("INPUT");
 	ahrefs = celulas[0].getElementsByTagName("A");
-	
 
 	for (let index_input = 0; index_input < inputs.length; index_input++) {
 		if (inputs[index_input].getAttribute('data-atributo') == "id" || inputs[index_input].getAttribute('data-atributo') == "where_value") {
@@ -225,6 +225,7 @@ function copiar_objeto(evento, objeto, id_imperio) {
 			inputs[index_input].setAttribute('data-valor-original',"");
 		}
 	}
+	
 	for (let index_anchors = 0; index_anchors < ahrefs.length; index_anchors++) {
 		if (ahrefs[index_anchors].text == "Cancelar" ) {
 			ahrefs[index_anchors].setAttribute('onclick','return cancela_edicao(event, this);');
@@ -249,14 +250,13 @@ function desbloquear_turno(evento, objeto) {
 	
 	objeto_em_salvamento = true;
 	
-	var confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
-	
+	let confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
 	if (confirma) {
-		var dados_ajax = "post_type=POST&action=libera_turno";
-		var xhttp = new XMLHttpRequest();
+		let dados_ajax = "post_type=POST&action=libera_turno";
+		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				let resposta = JSON.parse(this.responseText);
 				
 				objeto_em_salvamento = false;
 				
@@ -283,16 +283,16 @@ function atualiza_lista_techs()
 Atualiza a lista de Techs enviadas e recebidas
 ******************/
 function atualiza_lista_techs(objeto, argumentos="") {
-		var dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+		let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
 		id_imperio=dados['id_imperio_origem'].value;
 		id_tech=dados['id_tech'].value;
 
-		var dados_ajax = "post_type=POST&action=dados_transfere_tech&id_imperio="+id_imperio;
+		let dados_ajax = "post_type=POST&action=dados_transfere_tech&id_imperio="+id_imperio;
 		//console.log(dados_ajax);
-		var xhttp_salvou = new XMLHttpRequest();
+		let xhttp_salvou = new XMLHttpRequest();
 		xhttp_salvou.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var resposta = JSON.parse(this.responseText);
+				let resposta = JSON.parse(this.responseText);
 				if (resposta.resposta_ajax == "OK!") {
 					let div_techs_enviadas = document.getElementById("techs_enviadas");
 					let div_techs_recebidas = document.getElementById("techs_recebidas");
@@ -326,12 +326,13 @@ function nave_visivel (objeto, evento, id_nave) {
 	
 	objeto_em_salvamento = true;
 	
-	var dados_ajax = "post_type=POST&action=nave_visivel&id="+id_nave;
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=nave_visivel&id="+id_nave;
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -454,14 +455,10 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 	let celula = pega_ascendente(objeto,"TD");
 	let inputs = linha.getElementsByTagName("INPUT");
 	let labels = linha.getElementsByTagName("LABEL");
-	
 
 	let input_nivel = {};
-	
-	
-	var dados = [];
-	
-	
+	let dados = [];
+	let input_pop = "";
 	for (let index=0; index<inputs.length; index++) {
 		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
@@ -472,7 +469,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
 			input_nivel = inputs[index];
 		} else if (inputs[index].getAttribute("data-atributo") == "pop" ) {
-			var input_pop = inputs[index];
+			input_pop = inputs[index];
 		}
 	}
 
@@ -486,17 +483,18 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 		}
 	}
 	
-	var nivel_upgrade = dados['nivel']*1 + 1;
+	let nivel_upgrade = dados['nivel']*1 + 1;
 	
-	var dados_ajax = "post_type=POST&action=valida_colonia_instalacao&upgrade_acao=true&id="+dados['id_planeta_instalacoes']+"&nivel="+nivel_upgrade+"&tabela=colonization_planeta_instalacoes"
+	let dados_ajax = "post_type=POST&action=valida_colonia_instalacao&upgrade_acao=true&id="+dados['id_planeta_instalacoes']+"&nivel="+nivel_upgrade+"&tabela=colonization_planeta_instalacoes"
 	+"&where_clause=id&where_value="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&id_instalacao="+dados['id_instalacao']+"&id_imperio="+dados['id_imperio'];
 
 	//***
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -611,12 +609,13 @@ function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
 		div_notice = div_notice.parentNode;
 	}
 	
-	var dados_ajax = "post_type=POST&action=aceita_missao&id="+id_missao+"&id_imperio="+id_imperio+"&aceita="+aceita;
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=aceita_missao&id="+id_missao+"&id_imperio="+id_imperio+"&aceita="+aceita;
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -676,12 +675,13 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 		div_notice_panel = div_notice.parentNode;
 	}
 
-	var dados_ajax = "post_type=POST&action=processa_viagem_nave&id="+id_nave;
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=processa_viagem_nave&id="+id_nave;
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -755,12 +755,13 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 	}
 	
 	//Salva também o registro da Transferência da Tech
-	var dados_ajax = "post_type=POST&action=processa_recebimento_tech&tabela=colonization_imperio_transfere_techs&where_clause=id&where_value="+id_tech_transf+"&id="+id_tech_transf+"&processado=1&autorizado="+autoriza;
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=processa_recebimento_tech&tabela=colonization_imperio_transfere_techs&where_clause=id&where_value="+id_tech_transf+"&id="+id_tech_transf+"&processado=1&autorizado="+autoriza;
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -807,15 +808,16 @@ Encerra o Turno
 --------
 ******************/
 function encerra_turno(evento, objeto) {
-	var div_resultados = document.getElementById('resultado_turno');
+	let div_resultados = document.getElementById('resultado_turno');
 	div_resultados.innerHTML = "Encerrando o Turno...";
-	var dados_ajax = "post_type=POST&action=encerra_turno";
+	let dados_ajax = "post_type=POST&action=encerra_turno";
 	
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -844,15 +846,16 @@ Roda o Turno
 --------
 ******************/
 function roda_turno(evento) {
-	var div_resultados = document.getElementById('resultado_turno');
+	let div_resultados = document.getElementById('resultado_turno');
 	div_resultados.innerHTML = "Processando o Turno, aguarde!";
-	var dados_ajax = "post_type=POST&action=roda_turno";
+	let dados_ajax = "post_type=POST&action=roda_turno";
 	
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -976,12 +979,13 @@ function atualiza_recursos_imperio(objeto, argumento=false) {
 	}
 
 	
-	var dados_ajax = "post_type=POST&action=recursos_atuais_imperio&id_imperio="+dados['id_imperio'];
-	var xhttp = new XMLHttpRequest();
+	let dados_ajax = "post_type=POST&action=recursos_atuais_imperio&id_imperio="+dados['id_imperio'];
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
 			try {
-				var resposta = JSON.parse(this.responseText);
+				resposta = JSON.parse(this.responseText);
 			} 
 			catch (err) {
 				console.log(this.responseText);
@@ -1284,11 +1288,11 @@ Remove a opção de excluir um objeto
 objeto -- objeto sendo editado
 ******************/	
 function remove_excluir(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
+	let linha = pega_ascendente(objeto,"TR");
 	
 	//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
-	var celula = linha.cells[0]
-	var divs = celula.getElementsByTagName("DIV");
+	let celula = linha.cells[0]
+	let divs = celula.getElementsByTagName("DIV");
 	divs[1].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>";
 }
 
@@ -1299,29 +1303,29 @@ Pega dados adicionais do Império
 objeto -- objeto sendo editado
 ******************/	
 function mais_dados_imperio(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var dados_ajax = "post_type=POST&action=dados_imperio";
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let dados_ajax = "post_type=POST&action=dados_imperio";
 
-	
+	let id_objeto = "";
 	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "id") {
-			var id_objeto = inputs[index].value;
+			id_objeto = inputs[index].value;
 		}
 	}
 	
 	dados_ajax = dados_ajax + "&id=" + id_objeto;
 	
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4) {
 			objeto_em_edicao = false;
 		}
 		if (this.readyState == 4 && this.status == 200) {
-			var resposta = JSON.parse(this.responseText);
+			let resposta = JSON.parse(this.responseText);
 			if (resposta.resposta_ajax == "OK!") {
-				var objeto_desabilitado = desabilita_edicao_objeto(objeto);
-				var objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+				let objeto_desabilitado = desabilita_edicao_objeto(objeto);
+				let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
 			} else {
 				alert(resposta.resposta_ajax);
 			}
@@ -1339,11 +1343,11 @@ Altera a colônia para outro Império
 objeto -- objeto sendo editado
 ******************/	
 function altera_imperio_colonia(objeto, cancela=false) {
-	var linha = pega_ascendente(objeto,"TR");
-	var tabela = pega_ascendente(objeto,"TABLE");
-	var inputs = linha.getElementsByTagName("INPUT");
-	var selects = linha.getElementsByTagName("SELECT");
-	var divs = linha.getElementsByTagName("DIV");
+	let linha = pega_ascendente(objeto,"TR");
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let inputs = linha.getElementsByTagName("INPUT");
+	let selects = linha.getElementsByTagName("SELECT");
+	let divs = linha.getElementsByTagName("DIV");
 
 	for (let index=0; index<divs.length; index++) {
 		if (divs[index].getAttribute('data-atributo') == "nome_imperio") {
@@ -1404,6 +1408,25 @@ function muda_nome_colonia(id_planeta, evento) {
 			}
 		});		
 	}
+
+	evento.preventDefault();
+	return false;	
+}
+
+/******************
+function tirar_cerco(objeto, evento, id_estrela) 
+--------------------
+Tira uma Estrela do Cerco
+
+******************/	
+function tirar_cerco(objeto, evento, id_estrela) {
+	let dados_ajax = "post_type=POST&action=tirar_cerco&id_estrela=" + id_estrela;
+	let resposta = processa_xhttp_basico(dados_ajax);
+	resposta.then((successMessage) => {
+		if (successMessage) {
+			objeto.remove();
+		}
+	});		
 
 	evento.preventDefault();
 	return false;	

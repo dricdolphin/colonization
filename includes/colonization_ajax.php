@@ -54,7 +54,41 @@ class colonization_ajax {
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida o CUSTO de uma nave
 		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
+		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 	}
+
+	/***********************
+	function muda_nome_colonia()
+	----------------------
+	Muda o nome de uma colônia
+	***********************/
+	function tirar_cerco() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		
+		$dados_salvos['resposta_ajax'] = "Somente o ADMIN pode tirar o Cerco de um sistema!";
+		if ($roles == "administrator") {
+			$wpdb->query("UPDATE colonization_estrela SET cerco=0 WHERE id={$_POST['id_estrela']}");
+			$dados_salvos['resposta_ajax'] = "OK!";
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta	
+	}
+
+
+
 
 	/***********************
 	function muda_nome_colonia()
@@ -935,6 +969,9 @@ class colonization_ajax {
 			if ($_POST['tech_inicial'] != 1) {
 				$consome_pesquisa = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
 			}
+			//Reseta os dados do JSON
+			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");						
 		} 
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
