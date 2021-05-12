@@ -32,6 +32,7 @@ class instalacao
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
 	public $recursos_produz_qtd_comercio = [];	
+	public $comercio_potencial = 0;
 	public $recursos_consome = [];
 	public $recursos_consome_qtd = [];
 	public $consumo_fixo = [];
@@ -68,20 +69,16 @@ class instalacao
 		$this->especiais = $resultado->especiais;
 		$this->custos = $resultado->custos;
 		
-		$index = 0;
 		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = false");
 		foreach ($recursos as $recurso) {
-			$this->recursos_produz[$index] = $recurso->id_recurso;
-			$this->recursos_produz_qtd[$index] = $recurso->qtd_por_nivel;
-			$index++;
+			$this->recursos_produz[] = $recurso->id_recurso;
+			$this->recursos_produz_qtd[] = $recurso->qtd_por_nivel;
 		}
 		
-		$index = 0;
 		$recursos = $wpdb->get_results("SELECT id_recurso, qtd_por_nivel FROM colonization_instalacao_recursos WHERE id_instalacao={$this->id} AND consome = true");
 		foreach ($recursos as $recurso) {
-			$this->recursos_consome[$index] = $recurso->id_recurso;
-			$this->recursos_consome_qtd[$index] = $recurso->qtd_por_nivel;
-			$index++;
+			$this->recursos_consome[] = $recurso->id_recurso;
+			$this->recursos_consome_qtd[] = $recurso->qtd_por_nivel;
 		}
 	
 	
@@ -427,10 +424,6 @@ class instalacao
 		}
 		
 		//$this->recursos_produz_qtd_comercio = [];
-		if ($roles == "administrator") {
-			//echo "\n{$colonia_atual->id}:{$this->id}=>({$this->comercio})||{$colonia_atual->comercio_processou}<br>";
-		}
-		
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");		
 		$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");		
@@ -455,45 +448,56 @@ class instalacao
 		ON cp.id = cic.id_planeta
 		WHERE cic.id_imperio={$imperio->id} AND cic.turno={$imperio->turno->turno}");
 		
+		$qtd_colonias = 0;
 		foreach($ids_colonia_imperio as $ids_colonia) {
 			if ($ids_colonia->id_planeta != $colonia_atual->id_planeta || $colonia_atual->capital == 1) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
 				if ($estrela_atual->distancia_estrela($ids_colonia->id_estrela) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
+					$qtd_colonias++;
 					$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
 					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
 					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + 10*+ $this->comercio;
 				}
 			}
 		}
+		if ($roles == "administrator") {
+			//echo "Colônias contribuindo para o Comércio da Colônia {$colonia_atual->id}: {$qtd_colonias}<br>\n";
+		}
 		
 		//TODO -- bônus para contato com outros Impérios
-		if ($colonia_atual->capital == 1) {//O bônus com outros Impérios só conta na CAPITAL
-			$ids_imperios_contato = $wpdb->get_results("SELECT DISTINCT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
-			foreach ($ids_imperios_contato as $imperios_contato) {
-				//TODO -- no futuro pode haver bloqueios comerciais
-				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
-				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
-				$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;
-				if ($imperios_contato->acordo_comercial == 1) {
-					$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
-					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;
-					$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10;	
-				}
+		$qtd_contatos = 0;
+		$ids_imperios_contato = $wpdb->get_results("SELECT DISTINCT id_imperio_contato, nome_npc, acordo_comercial FROM colonization_diplomacia WHERE id_imperio={$imperio->id}");
+		$fator_comercio = 1;
+		if ($colonia_atual->capital != 1) {//O bônus com outros Impérios é menor fora da capital
+			$fator_comercio = 0.1;
+		} elseif ($this->comercio == 1) {
+			$fator_comercio = 0; //Só Espaçoportos tem bônus de comercialização
+		}
+
+		foreach ($ids_imperios_contato as $imperios_contato) {
+			//TODO -- no futuro pode haver bloqueios comerciais
+			$qtd_contatos++;
+			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio*$fator_comercio;
+			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio*$fator_comercio;
+			$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10*$fator_comercio;
+			if ($imperios_contato->acordo_comercial == 1) {
+				$qtd_contatos++;
+				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio*$fator_comercio;
+				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio*$fator_comercio;
+				$this->recursos_produz_qtd_comercio[$chave_plasma] = $this->recursos_produz_qtd_comercio[$chave_plasma] + $this->comercio*10*$fator_comercio;	
 			}
 		}
 		
 		//O valor produzido é sempre DIVIDIDO pelo nível da Instalação
-		$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ceil($this->recursos_produz_qtd_comercio[$chave_pesquisa]/$nivel_instalacao_atual);
-		$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  ceil($this->recursos_produz_qtd_comercio[$chave_industrializaveis]/$nivel_instalacao_atual);
-		$this->recursos_produz_qtd_comercio[$chave_plasma] = ceil($this->recursos_produz_qtd_comercio[$chave_plasma]/$nivel_instalacao_atual);
-		
+		$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ($this->recursos_produz_qtd_comercio[$chave_pesquisa]/$nivel_instalacao_atual);
+		$this->recursos_produz_qtd_comercio[$chave_industrializaveis] =  ($this->recursos_produz_qtd_comercio[$chave_industrializaveis]/$nivel_instalacao_atual);
+		$this->recursos_produz_qtd_comercio[$chave_plasma] = ($this->recursos_produz_qtd_comercio[$chave_plasma]/$nivel_instalacao_atual);
+
+		$this->comercio_potencial = $this->recursos_produz_qtd_comercio[$chave_pesquisa];
 		//Limita a quantidade de Recursos que as instalações Comerciais podem produzir
-		//Mk I - 10*$this->comercio
-		//Mk II - 15*$this->comercio, ou seja, (((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual)
-		
-		if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual)) {
-			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
-			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = ceil(((10 + 5*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
-			$this->recursos_produz_qtd_comercio[$chave_plasma] = ceil(((100 + 50*($nivel_instalacao_atual-1))*$this->comercio)/$nivel_instalacao_atual);
+		if ($this->recursos_produz_qtd_comercio[$chave_pesquisa] > 10*$this->comercio) {
+			$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 10*$this->comercio;
+			$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 10*$this->comercio;
+			$this->recursos_produz_qtd_comercio[$chave_plasma] = 100*$this->comercio;
 		}
 		
 		return true;

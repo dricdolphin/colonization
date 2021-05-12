@@ -310,7 +310,7 @@ function novo_recurso(evento) {
 	objeto_em_edicao = true; //Bloqueia a edição de outros Impérios
 	let tabela = document.getElementsByTagName('TABLE');
 	for (let index=0; index < tabela.length; index++) {
-		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_recursos") {
+		if (tabela[index].getAttribute("data-tabela") == "colonization_imperio_recursos" || tabela[index].getAttribute("data-tabela") == "colonization_recurso") {
 			tabela = tabela[index];
 			break;
 		}

@@ -559,18 +559,33 @@ class acoes
 	$chave -- chave da ação sendo processada
 	***********************/
 	function html_producao_consumo_instalacao($chave) {
+		global $wpdb;
 		$html_producao_consumo_instalacao = "";
+		
 		if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
-			foreach ($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
-				$recurso = new recurso($id_recurso);
-				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: {$qtd}; ";
+			$id_recursos = implode(",",array_keys($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]]));
+			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
+			FROM colonization_recurso AS cr
+			WHERE cr.id IN ({$id_recursos})
+			ORDER BY cr.nivel, cr.nome
+			");
+			
+			foreach ($id_recursos_ordenados as $id_recurso) {
+				$recurso = new recurso($id_recurso->id);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: {$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$recurso->id]}; ";
 			}
 		}
 
 		if (!empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
-			foreach ($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]] as $id_recurso => $qtd) {
-				$recurso = new recurso($id_recurso);
-			$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$qtd}</span>; ";
+			$id_recursos = implode(",",array_keys($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]]));
+			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
+			FROM colonization_recurso AS cr
+			WHERE cr.id IN ({$id_recursos})
+			ORDER BY cr.nivel, cr.nome
+			");
+			foreach ($id_recursos_ordenados as $id_recurso) {
+				$recurso = new recurso($id_recurso->id);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$recurso->id]}</span>; ";
 			}				
 		}
 		return $html_producao_consumo_instalacao;				
@@ -615,6 +630,8 @@ class acoes
 		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+		$id_comercio = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Capacidade de Comércio'");
+		$id_comercio_maximo = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Comércio Máximo'");
 
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");
@@ -678,6 +695,10 @@ class acoes
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
 
+			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
+				continue;
+			}
+			
 			//Se a instalação já foi processada, não precisa ser processada novamente, EXCETO se for uma instalação que está sendo ALTERADA ($id_planeta_instalacoes != 0)
 			if (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] != $id_planeta_instalacoes) {
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -696,10 +717,6 @@ class acoes
 					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_consumida_instalacao;
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
 				}
-			}
-
-			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
-				continue;
 			}
 			
 			if (empty($colonia[$this->id_colonia[$chave]])) {
@@ -757,11 +774,17 @@ class acoes
 				}
 				
 				//Se for uma instalação Comercial, já atualiza os valores de produção
-				$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]], $this->nivel_instalacao[$chave]);
-				if (empty($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])) {
-					$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
-					//$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] = $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos];
+				//$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_comercio]
+				if (empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_comercio]) && $instalacao[$this->id_instalacao[$chave]]->comercio !== false) {
+					$instalacao[$this->id_instalacao[$chave]]->produz_comercio($colonia[$this->id_colonia[$chave]], $this->nivel_instalacao[$chave]);
+					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_comercio] = floor($instalacao[$this->id_instalacao[$chave]]->comercio_potencial*$this->nivel_instalacao[$chave]);
+					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_comercio_maximo] = 10*$instalacao[$this->id_instalacao[$chave]]->comercio*$this->nivel_instalacao[$chave];
 				}
+				
+				//if (empty($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])) {
+				//	$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
+				//	//$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] = $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos];
+				//}
 				
 				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
