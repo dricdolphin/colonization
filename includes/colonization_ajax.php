@@ -320,10 +320,12 @@ class colonization_ajax {
 		$imperio = new imperio($id_imperio);
 		
 		$ids_instalacao = $wpdb->get_results("
-		SELECT ci.id 
+		SELECT ci.id , ct.nome AS nome_tech
 		FROM colonization_instalacao AS ci
 		JOIN colonization_imperio_techs AS cit
 		ON cit.id_tech = ci.id_tech
+		JOIN colonization_tech AS ct
+		ON ct.id = ci.id_tech
 		WHERE cit.id_imperio={$imperio->id} AND cit.custo_pago=0 
 		AND (ci.publica=1 OR ci.id IN (SELECT cii.id_instalacao FROM colonization_imperio_instalacoes AS cii WHERE cii.id_imperio={$imperio->id}))
 		ORDER BY ci.nome");
@@ -359,6 +361,8 @@ class colonization_ajax {
 			
 			$html_select_instalacoes .= "<option value='{$instalacao->id}'>{$instalacao->nome}</option>";
 			$dados_salvos['custos_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
+			$dados_salvos['descricao_instalacao'][$id_instalacao->id] = $instalacao->descricao;
+			$dados_salvos['tech_instalacao'][$id_instalacao->id] = $id_instalacao->nome_tech;
 		}
 		
 		$html_select_instalacoes .= "</select>";
@@ -636,10 +640,13 @@ class colonization_ajax {
 			}
 
 			$naves_no_local = $wpdb->get_results("
-			SELECT DISTINCT id_imperio, nome_npc FROM colonization_imperio_frota WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}' AND (turno_destruido IS NULL OR turno_destruido = '')");
+			SELECT DISTINCT id_imperio, nome_npc, 'Naves' as categoria
+			FROM colonization_imperio_frota 
+			WHERE X='{$estrela->X}' AND Y='{$estrela->Y}' AND Z='{$estrela->Z}' AND (turno_destruido IS NULL OR turno_destruido = '') AND id_imperio != {$imperio->id}
+			AND (camuflagem < {$imperio->sensores} OR visivel == 1)");
 			//Também vale quando há uma COLÔNIA no local
 			$ids_imperios_colonias = $wpdb->get_results("
-			SELECT DISTINCT cic.id_imperio, cic.nome_npc 
+			SELECT DISTINCT cic.id_imperio, cic.nome_npc, 'Colônia' as categoria
 			FROM colonization_imperio_colonias AS cic
 			JOIN colonization_planeta AS cp
 			ON cp.id = cic.id_planeta
@@ -690,7 +697,7 @@ class colonization_ajax {
 				if ($imperio->id == 0) {
 					$imperio->nome = $ids_imperio->nome_npc;
 				}
-				$dados_salvos['alerta'] .= "{$imperio->nome}\n";
+				$dados_salvos['alerta'] .= "{$ids_imperio->categoria}: {$imperio->nome}\n";
 			}
 			
 			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela->X}, Y={$estrela->Y}, Z={$estrela->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}"); //Atualiza a posição da nave
@@ -1623,6 +1630,8 @@ class colonization_ajax {
 			
 			if ($instalacao->somente_gigante_gasoso && $planeta->classe != "Gigante Gasoso") {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um Gigante Gasoso!";
+			} elseif ($planeta->classe == "Gigante Gasoso" && empty($instalacao->somente_gigante_gasoso) && $instalacao->slots > 0) {
+				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação não pode ser construído num Gigante Gasoso!";
 			}
 
 			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {

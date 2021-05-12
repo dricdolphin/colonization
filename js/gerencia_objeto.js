@@ -920,15 +920,22 @@ function atualiza_custo_instalacao(evento, objeto) {
 	let td_instalacao = pega_ascendente(objeto,"TD");
 	let divs_td_instalacao = td_instalacao.getElementsByTagName("DIV");
 	let div_custo_instalacao = "";
+	let div_descricao_instalacao = "";
+	let div_tech_instalacao = "";
 	
 	for (let index_divs=0; index_divs<divs_td_instalacao.length; index_divs++) {
 		if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "custo_instalacao") {
 			div_custo_instalacao = divs_td_instalacao[index_divs];
-			break;
+		} else if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "descricao_instalacao") {
+			div_descricao_instalacao = divs_td_instalacao[index_divs];
+		} else if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "tech_instalacao") {
+			div_tech_instalacao = divs_td_instalacao[index_divs];
 		}
 	}
 	
 	div_custo_instalacao.innerHTML = "Custo por nível: " + custos_instalacao[id_instalacao];
+	div_descricao_instalacao.innerHTML = "<b>Descrição:</b> " + descricao_instalacao[id_instalacao];
+	div_tech_instalacao.innerHTML = "<b>Tech Requisito:</b> " + tech_instalacao[id_instalacao];
 }
 
 /******************

@@ -888,12 +888,12 @@ class acoes
 				}
 
 
-				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo();
+				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo()/100;
 				if ($recurso[$id_recurso]->extrativo == 1 && $bonus_extrativo > 0) {
 					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
 						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
-					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo;
+					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo/100;
 					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
 					//$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)))*$bonus_extrativo;
 					
