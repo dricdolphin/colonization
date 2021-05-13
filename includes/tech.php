@@ -130,6 +130,8 @@ class tech
 		
 		$tabela_colonization_tech = "colonization_tech";
 		
+		$custo_pago = ", 0 as custo_pago";
+		$join = "";
 		if ($where == "") {
 			$custo_pago = ", 0 as custo_pago";
 			$join = "";

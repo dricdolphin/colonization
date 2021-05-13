@@ -1358,6 +1358,9 @@ class colonization {
 			if ($tech->lista_requisitos != '') {
 				foreach ($tech->id_tech_requisito AS $chave => $id_tech_requisito) {
 					$tech_requisito = new tech($id_tech_requisito);
+					if (empty($cor_borda[$tech_requisito->id])) {
+						$cor_borda[$tech_requisito->id] = "borda_vermelha";
+					}
 					if ($tech->nivel == 1) {
 						$html_tech[$tech->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>

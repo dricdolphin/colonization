@@ -376,7 +376,6 @@ function envia_nave (objeto, evento, id_nave) {
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
 	
 	let linha = pega_ascendente(objeto,"TR");
 	let divs = linha.getElementsByTagName("DIV");
@@ -389,11 +388,20 @@ function envia_nave (objeto, evento, id_nave) {
 				if (divs[index].childNodes[index_child].tagName == "SELECT") {
 					id_estrela = divs[index].childNodes[index_child].value;
 					destinos_select = divs[index].childNodes[index_child];
-					destinos_select.disabled = true;
+					break;
 				}
 			}
 		}
 	}
+
+	let confirma = confirm('Tem certeza que deseja despachar a nave para ' + lista_nome_estrela[id_estrela] + ' ('+lista_x_estrela[id_estrela]+';'+lista_y_estrela[id_estrela]+';'+lista_z_estrela[id_estrela]+')?');
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
 	
 	let dados_ajax = "post_type=POST&action=envia_nave&id="+id_nave+"&id_estrela="+id_estrela;
 	let xhttp = new XMLHttpRequest();
@@ -418,6 +426,7 @@ function envia_nave (objeto, evento, id_nave) {
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 				alert('Nave despachada com sucesso!');
+				destinos_select.disabled = true;
 			} else {
 				alert(resposta.resposta_ajax);
 				destinos_select.disabled = false;
