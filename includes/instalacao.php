@@ -22,6 +22,7 @@ class instalacao
 	public $icone;
 	public $especiais;
 	public $limite = 0;
+	public $limite_sistema = 0;
 	public $nao_extrativo = false;
 	public $bonus_extrativo = 0;
 	public $nivel_maximo = false;

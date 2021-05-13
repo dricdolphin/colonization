@@ -1274,15 +1274,17 @@ class colonization {
 		$html_custo_pago = [];
 		$style_pago = [];
 		$cor_borda = [];
+		$tech = [];
+		$tech_parent = [];
 		
-		foreach ($techs AS $id) {
-			$tech = new tech($id->id);
+		foreach ($techs AS $id) {//Primeiro popula os custos pagos e também as cores das Techs
+			$tech[$id->id] = new tech($id->id);
 			if (!empty($atts['id'])) {
-				$id->custo_pago = $wpdb->get_var("SELECT custo_pago FROM colonization_imperio_techs WHERE id_tech={$tech->id} AND id_imperio={$imperio->id}");
+				$id->custo_pago = $wpdb->get_var("SELECT custo_pago FROM colonization_imperio_techs WHERE id_tech={$tech[$id->id]->id} AND id_imperio={$imperio->id}");
 			}
 			
 			if ($id->custo_pago > 0) {
-				$html_custo_pago[$id->id] = " [{$id->custo_pago}/{$tech->custo}]";
+				$html_custo_pago[$id->id] = " [{$id->custo_pago}/{$tech[$id->id]->custo}]";
 				$style_pago[$id->id] = "style='font-style: italic;'";
 				$cor_borda[$id->id] = "borda_amarela";
 			} elseif ($id->custo_pago == "0") {
@@ -1294,32 +1296,38 @@ class colonization {
 				$style_pago[$id->id] = "";
 				$cor_borda[$id->id] = "borda_vermelha";
 			}
-			
-			if ($tech->nivel == 1) {
+		}
+		
+		foreach ($techs AS $id) {
+			if ($tech[$id->id]->nivel == 1) {
 				$html_tech[$id->id] = "
 				<div class='wrapper_principal'>
 					<div class='wrapper_nivel'>
 						<div class='wrapper_tech'>
-							<div class='tech tooltip {$cor_borda[$id->id]}' {$style_pago[$id->id]}>{$tech->nome}{$html_custo_pago[$id->id]}
-							<span class='tooltiptext'>{$tech->descricao}</span>
+							<div class='tech tooltip {$cor_borda[$id->id]}' {$style_pago[$id->id]}>{$tech[$id->id]->nome}{$html_custo_pago[$id->id]}
+							<span class='tooltiptext'>{$tech[$id->id]->descricao}</span>
 							</div>
 						</div>";
 			}
 			
-			if (!empty($tech->id_tech_parent)) {
+			if (!empty($tech[$id->id]->id_tech_parent)) {
 				$ids_tech_parent = [];
-				$nivel = $tech->nivel-1;
-				$ids_tech_parent[$nivel] = explode(";",$tech->id_tech_parent);
+				$nivel = $tech[$id->id]->nivel-1;
+				$ids_tech_parent[$nivel] = explode(";",$tech[$id->id]->id_tech_parent);
 				
 				while ($nivel > 1) {
 					foreach ($ids_tech_parent[$nivel] as $chave => $id_tech_parent) {
-						$tech_parent = new tech($id_tech_parent);
-						$nivel_anterior = $tech_parent->nivel-1;
-						if (!empty($tech_parent->id_tech_parent)) {//Tem um pré-requisito, que é de nível inferior
+						if (empty($tech[$id_tech_parent])) {
+							$tech_parent[$id_tech_parent] = new tech($id_tech_parent);	
+						} else {
+							$tech_parent[$id_tech_parent] = $tech[$id_tech_parent];
+						}
+						$nivel_anterior = $tech_parent[$id_tech_parent]->nivel-1;
+						if (!empty($tech_parent[$id_tech_parent]->id_tech_parent)) {//Tem um pré-requisito, que é de nível inferior
 							if (empty($ids_tech_parent[$nivel_anterior])) {
-								$ids_tech_parent[$nivel_anterior] = explode(";",$tech_parent->id_tech_parent);
+								$ids_tech_parent[$nivel_anterior] = explode(";",$tech_parent[$id_tech_parent]->id_tech_parent);
 							} else {
-								$ids_tech_parent[$nivel_anterior] = array_merge($ids_tech_parent[$nivel_anterior],explode(";",$tech_parent->id_tech_parent));
+								$ids_tech_parent[$nivel_anterior] = array_merge($ids_tech_parent[$nivel_anterior],explode(";",$tech_parent[$id_tech_parent]->id_tech_parent));
 							}
 						}
 						$nivel = $nivel_anterior;
@@ -1328,50 +1336,58 @@ class colonization {
 
 				$nivel = 1;
 				if (empty($ids_tech_parent[1])) {
-					echo "id_tech:".$tech->id."<br>";
+					echo "id_tech:".$tech[$id->id]->id."<br>";
 				}
 					$ids_tech_parent = $ids_tech_parent[1];
 				
 				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
-					$tech_parent = new tech($id_tech_parent);
+					if (empty($tech[$id_tech_parent])) {
+						$tech_parent[$id_tech_parent] = new tech($id_tech_parent);	
+					} else {
+						$tech_parent[$id_tech_parent] = $tech[$id_tech_parent];
+					}
 					
-					if (!empty($html_tech[$tech_parent->id])) {
+					if (!empty($html_tech[$tech_parent[$id_tech_parent]->id])) {
 						$wrapper_nivel = "<div class='wrapper_nivel'>";
-						if (!empty($nivel_preenchido[$tech_parent->id][$tech->nivel]) && $tech->nivel > 1) {
+						if (!empty($nivel_preenchido[$tech_parent[$id_tech_parent]->id][$tech[$id->id]->nivel]) && $tech[$id->id]->nivel > 1) {
 							$wrapper_nivel = "";
-							$html_tech[$tech_parent->id] = substr($html_tech[$tech_parent->id],0,-6); //Reabre o DIV do "wrapper_nivel"
+							$html_tech[$tech_parent[$id_tech_parent]->id] = substr($html_tech[$tech_parent[$id_tech_parent]->id],0,-6); //Reabre o DIV do "wrapper_nivel"
 						}
-						$html_tech[$tech_parent->id] .= "
+						$html_tech[$tech_parent[$id_tech_parent]->id] .= "
 					{$wrapper_nivel}
 					<div class='fas fa-long-arrow-alt-right wrapper_tech' style='padding-top: 12px;'>&nbsp;</div>
 						<div class='wrapper_tech'>
-							<div class='tech tooltip {$cor_borda[$tech->id]}' {$style_pago[$tech->id]}>{$tech->nome}{$html_custo_pago[$tech->id]}
-							<span class='tooltiptext'>{$tech->descricao}</span>
+							<div class='tech tooltip {$cor_borda[$tech[$id->id]->id]}' {$style_pago[$tech[$id->id]->id]}>{$tech[$id->id]->nome}{$html_custo_pago[$tech[$id->id]->id]}
+							<span class='tooltiptext'>{$tech[$id->id]->descricao}</span>
 							</div>
 						</div>";
 					
-					$nivel_preenchido[$tech_parent->id][$tech->nivel] = true;
+					$nivel_preenchido[$tech_parent[$id_tech_parent]->id][$tech[$id->id]->nivel] = true;
 					}
 				}
 			}
 			
-			if ($tech->lista_requisitos != '') {
-				foreach ($tech->id_tech_requisito AS $chave => $id_tech_requisito) {
+			if ($tech[$id->id]->lista_requisitos != '') {
+				foreach ($tech[$id->id]->id_tech_requisito AS $chave => $id_tech_requisito) {
 					$tech_requisito = new tech($id_tech_requisito);
 					if (empty($cor_borda[$tech_requisito->id])) {
 						$cor_borda[$tech_requisito->id] = "borda_vermelha";
 					}
-					if ($tech->nivel == 1) {
-						$html_tech[$tech->id] .= "
+					if ($tech[$id->id]->nivel == 1) {
+						$html_tech[$tech[$id->id]->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
 						<div class='tech tech_requisito tooltip {$cor_borda[$tech_requisito->id]}'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
 						</div>";
 					} else {
 						foreach ($ids_tech_parent as $chave => $id_tech_parent) {
-							$tech_parent = new tech($id_tech_parent);
-							if (!empty($html_tech[$tech_parent->id])) {						
-								$html_tech[$tech_parent->id] .= "
+							if (empty($tech[$id_tech_parent])) {
+								$tech_parent[$id_tech_parent] = new tech($id_tech_parent);	
+							} else {
+								$tech_parent[$id_tech_parent] = $tech[$id_tech_parent];
+							}
+							if (!empty($html_tech[$tech_parent[$id_tech_parent]->id])) {						
+								$html_tech[$tech_parent[$id_tech_parent]->id] .= "
 						<div class='fas fa-ellipsis-v tech tech_requisito_ellipsis' >&nbsp;</div>
 						<div class='tech tech_requisito tooltip {$cor_borda[$tech_requisito->id]}'>{$tech_requisito->nome}
 							<span class='tooltiptext'>{$tech_requisito->descricao}</span>
@@ -1382,14 +1398,18 @@ class colonization {
 				}
 			}
 			
-			if ($tech->nivel == 1) {
-				$html_tech[$tech->id] .= "</div>";
+			if ($tech[$id->id]->nivel == 1) {
+				$html_tech[$tech[$id->id]->id] .= "</div>";
 			} else {
 				foreach ($ids_tech_parent as $chave => $id_tech_parent) {
-					$tech_parent = new tech($id_tech_parent);
-					if (!empty($html_tech[$tech_parent->id])) {						
+					if (empty($tech[$id_tech_parent])) {
+						$tech_parent[$id_tech_parent] = new tech($id_tech_parent);	
+					} else {
+						$tech_parent[$id_tech_parent] = $tech[$id_tech_parent];
+					}
+					if (!empty($html_tech[$tech_parent[$id_tech_parent]->id])) {						
 						
-						$html_tech[$tech_parent->id] .= "</div>";
+						$html_tech[$tech_parent[$id_tech_parent]->id] .= "</div>";
 					}
 				}
 			}
@@ -1398,9 +1418,12 @@ class colonization {
 		$html = "<div style='background-color: #FFFFFF; overflow-x: visible; max-width: 5000px; margin-right: -50%;'>";
 		$belica = 0;
 		foreach ($html_tech as $chave => $html_valor) {
-			$tech = new tech($chave);
-			if ($belica == 0 and $tech->belica == 1) {
-				$html .= "<br><div class='wrapper_principal'><span style='font-weight: bold'>Tecnologias Bélicas</span></div>";
+			if (empty($tech[$chave])) {
+				$tech[$chave] = new tech($chave);
+			}
+			
+			if ($belica == 0 and $tech[$chave]->belica == 1) {
+				$html .= "<br><div><span style='font-weight: bold'>Tecnologias Bélicas</span></div>";
 				$belica = 1;
 			} 
 			$html .= $html_valor . "

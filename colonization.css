@@ -164,7 +164,17 @@ select.nome_instalacao {
 
 .wrapper_principal {
 	padding: 2px;
+	margin: 2px;
 }
+
+.wrapper_principal:nth-of-type(odd) {
+	background: #DFDFDF;
+}
+
+.wrapper_principal:nth-of-type(even) {
+	background: #F5F5F5;
+}
+
 
 .wrapper_tech {
 	padding: 2px;
