@@ -659,8 +659,9 @@ class colonization_ajax {
 				$naves_no_local = array_merge($naves_no_local, $ids_imperios_colonias);
 			}
 				
+			$nave_detectada = false;
 			if (!empty($naves_no_local)) {
-				$dados_salvos['alerta'] .= "Foram encontradas naves no local: \n";
+				$dados_salvos['alerta'] .= "Foram encontrados outros Impérios no local: \n";
 				foreach ($naves_no_local as $nave_no_local) {
 					//Atualiza a tabela de Diplomacia com Primeiro Contato, caso não tenha
 					$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$nave_no_local->id_imperio} and nome_npc='{$nave_no_local->nome_npc}'");
@@ -694,6 +695,12 @@ class colonization_ajax {
 				
 			foreach ($naves_no_local as $ids_imperio) {
 				$imperio = new imperio($ids_imperio->id_imperio);
+				if ($nave->camuflagem > 0 && !$nave_detectada) {
+					if ($imperio->sensores > $nave->camuflagem) {
+						$nave_detectada = true;
+						$dados_salvos['alerta'] .= "A nave camuflada foi DETECTADA!!!\n";
+					}
+				}
 				if ($imperio->id == 0) {
 					$imperio->nome = $ids_imperio->nome_npc;
 				}

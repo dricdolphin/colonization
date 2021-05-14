@@ -819,7 +819,11 @@ class colonization {
 					}
 				} else {
 					if ($nave->camuflagem > 0 && $nave->visivel == 0) {
-						$html_naves[$estrela->id] .= "<div class='naves'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
+						$nave_visivel = "";
+						if ($imperio->id != 0 && ($imperio->sensores > $nave->camuflagem)) {
+							$nave_visivel = "(Visível) ";	
+						}
+						$html_naves[$estrela->id] .= "<div class='naves'>{$nave_visivel}<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
 						$html_naves_mini[$estrela->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave->nome})</i></div>";
 						$exibiu_nave[$nave->id] = true;
 					} else {
