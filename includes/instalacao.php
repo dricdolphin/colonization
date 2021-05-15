@@ -23,6 +23,7 @@ class instalacao
 	public $especiais;
 	public $limite = 0;
 	public $limite_sistema = 0;
+	public $pop_inospito = false;
 	public $nao_extrativo = false;
 	public $bonus_extrativo = 0;
 	public $nivel_maximo = false;
@@ -85,6 +86,15 @@ class instalacao
 	
 		//Especiais
 		$especiais = explode(";",$this->especiais);
+
+		//Especiais: pop_inospito=qtd
+		$pop_inospito = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'pop_inospito') !== false;
+		}));
+			
+		if (!empty($pop_inospito)) {
+			$this->pop_inospito = true;
+		}
 
 		//somente_gigante_gasoso
 		$somente_gigante_gasoso = array_values(array_filter($especiais, function($value) {

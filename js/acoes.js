@@ -84,9 +84,6 @@ function valida_acao(evento, objeto) {
 	//Envia a chamada de AJAX para salvar o objeto
 	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
-		if (this.status == 400) {
-			
-		}
 		if (this.readyState == 4 && this.status == 200) {
 			let resposta = "";
 			try {
@@ -115,6 +112,9 @@ function valida_acao(evento, objeto) {
 		
 			//Chama o call-back "efetua ação"
 			efetua_acao(evento, objeto, retorno);
+		} else if(this.status == 500) {
+			console.log(this.responseText);
+			console.log(this.statusText);
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

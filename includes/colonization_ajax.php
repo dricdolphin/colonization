@@ -643,7 +643,8 @@ class colonization_ajax {
 			SELECT DISTINCT id_imperio, nome_npc, 'Naves' as categoria
 			FROM colonization_imperio_frota 
 			WHERE X='{$estrela_destino->X}' AND Y='{$estrela_destino->Y}' AND Z='{$estrela_destino->Z}' AND (turno_destruido IS NULL OR turno_destruido = '') AND id_imperio != {$imperio->id}
-			AND (camuflagem < {$imperio->sensores} OR visivel == 1)");
+			AND (camuflagem < {$imperio->sensores} OR visivel = 1)");
+			
 			//Também vale quando há uma COLÔNIA no local
 			$ids_imperios_colonias = $wpdb->get_results("
 			SELECT DISTINCT cic.id_imperio, cic.nome_npc, 'Colônia' as categoria
@@ -691,7 +692,12 @@ class colonization_ajax {
 					$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$imperios_colonia->id_imperio} and nome_npc='{$imperios_colonia->nome_npc}'");	
 					}					
 			}
-			$dados_salvos['debug'] .= "\n naves_no_local:" . count($naves_no_local);
+			$dados_salvos['debug'] .= "\n 
+			SELECT DISTINCT id_imperio, nome_npc, 'Naves' as categoria
+			FROM colonization_imperio_frota 
+			WHERE X='{$estrela_destino->X}' AND Y='{$estrela_destino->Y}' AND Z='{$estrela_destino->Z}' AND (turno_destruido IS NULL OR turno_destruido = '') AND id_imperio != {$imperio->id}
+			AND (camuflagem < {$imperio->sensores} OR visivel = 1)\n		
+			naves_no_local:" . count($naves_no_local);
 				
 			foreach ($naves_no_local as $ids_imperio) {
 				$imperio = new imperio($ids_imperio->id_imperio);
@@ -2139,8 +2145,12 @@ class colonization_ajax {
 	***********************/	
 	function valida_acao() {
 		global $wpdb, $debug, $start_time; 
-		$wpdb->hide_errors();		
+		$wpdb->hide_errors();
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
 		$dados_salvos = [];
+		$dados_salvos['debug'] = "";
 		
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$debug .= "valida_acao() => {$diferenca}ms \n";
@@ -2276,6 +2286,8 @@ class colonization_ajax {
 			$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
 			if ($chave_recurso !== false && $dados_salvos['balanco_acao'] != "") {
 				$dados_salvos['balanco_acao'] .= ". \n\nUma geradora de Energia só pode ser desativada se o balanço de Energia estiver zerado ou positivo!";
+			} elseif ($planeta->inospito == 1 && $instalacao->pop_inospito && $colonia->pop != 0) {
+				$dados_salvos['balanco_acao'] = "\n\nNão é possível desativar uma Instalação que serve de suporte de vida em Planetas Inóspitos enquanto houver habitantes no local!";
 			} else {
 				$dados_salvos['balanco_acao'] = "";
 			}

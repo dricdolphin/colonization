@@ -130,7 +130,7 @@ class acoes
 				$this->id_instalacao[$chave] = $valor->id_instalacao;
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
-				$this->pop[$chave] = $valor->pop;
+				$this->pop[$chave] = intval($valor->pop);
 				$this->desativado[$chave] = $valor->desativado;
 				$this->turno_destroi[$chave] = "";
 				$this->turno_desmonta[$chave] = $valor->turno_desmonta;
@@ -206,7 +206,7 @@ class acoes
 		
 		for ($chave=0; $chave < count($this->id_planeta); $chave++) {
 			if ($this->id_planeta[$chave] == $id_planeta) {
-				$mdo = $mdo + $this->pop[$chave];
+				$mdo = $mdo + intval($this->pop[$chave]);
 			}
 		}
 
