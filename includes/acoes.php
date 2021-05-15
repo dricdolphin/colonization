@@ -781,10 +781,9 @@ class acoes
 					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_comercio_maximo] = 10*$instalacao[$this->id_instalacao[$chave]]->comercio*$this->nivel_instalacao[$chave];
 				}
 				
-				//if (empty($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])) {
-				//	$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
-				//	//$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] = $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos];
-				//}
+				if (empty($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])) {
+					$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
+				}
 				
 				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
