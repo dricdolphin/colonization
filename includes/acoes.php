@@ -352,6 +352,10 @@ class acoes
 			}
 		}
 
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$imperio = new imperio($this->id_imperio, $this->turno->turno);
+		$imperio_recursos = new imperio_recursos($imperio->id, $this->turno->turno);
+		$imperio->acoes = $this;
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
@@ -393,14 +397,23 @@ class acoes
 				$balanco_planeta = "";
 				
 				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
-				
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
+				$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
+				$alimentos = $this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento];
+				$nova_pop = $colonia->crescimento_colonia($imperio, $alimentos, $this->recursos_balanco[$id_alimento]);
+				
+				$html_nova_pop = "";
+				if ($nova_pop > 0) {
+					$html_nova_pop = " (<span style='color: green;'>+{$nova_pop}</span>)";	
+				} elseif ($nova_pop < 0) {
+					$html_nova_pop = " (<span style='color: red;'>{$nova_pop}</span>)";	
+				}
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
 				<div data-atributo='nome_planeta'>
 					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
 					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
-					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
+					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}{$html_nova_pop}</div>
 					<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
 					<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
 				{$html_nova_instalacao_jogador}

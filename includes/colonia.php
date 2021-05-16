@@ -344,5 +344,81 @@ class colonia
 		//Definir fatores que afetam a Satisfação
 	
 	}
+	
+	/***********************
+	function crescimento_colonia()
+	----------------------
+	Calcula o Crescimentos da colônia
+	***********************/	
+	function crescimento_colonia ($imperio, $alimentos, $balanco_alimentos) {
+		global $wpdb;
+		
+		if (empty($imperio->acoes)) {//Só faz o balanço se as Ações já tiverem sido processadas
+			return 0;
+		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];	
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				$banido = true;
+			} else {
+				$banido = false;
+			}
+		}
+		
+		//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
+		//No entanto, a poluição reduz o crescimento populacional
+		$nova_pop = 0;
+		$planeta = new planeta($this->id_planeta);
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		if ($roles == "administrator") {
+			//echo "Alimentos: {$alimentos} | pop: {$this->pop} | colonia: {$this->id} | balanco_alimentos: {$balanco_alimentos}<br>";
+		}		
+		if ($alimentos > $this->pop && $balanco_alimentos > 0 && $this->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
+			if (($planeta->inospito == 0 && $planeta->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
+				if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
+					$limite_pop_planeta = $planeta->tamanho*10; 
+					//Caso o Império tenha uma Tech de Bônus Populacional...
+					if ($imperio->max_pop >0) {
+						$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
+						if ($planeta->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
+							$limite_pop_planeta	= 0; 
+						}									
+					}
+					
+					$fator_cresce = 0;
+					if ($this->pop <= $limite_pop_planeta) {//Tem espaço para crescer
+						$fator_cresce = 0.0758*$this->pop + 3.1818;
+						if ($fator_cresce < 5) {
+							$fator_cresce = 5;
+						} elseif ($fator_cresce > 10) {
+							$fator_cresce = 10;
+						}
+						
+						if ($planeta->subclasse == "Gaia") {
+							$fator_cresce = $fator_cresce*2;
+						}
+						
+						$nova_pop = $this->pop + ceil($fator_cresce*$imperio->crescimento_pop);
+						if ($nova_pop > $limite_pop_planeta) {
+							$nova_pop = $limite_pop_planeta;
+						}
+					}
+				} 
+			}
+			$nova_pop = $nova_pop - $this->pop;
+		} else {
+			//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%
+			if ($alimentos < $this->pop) {
+				$nova_pop = round(0.9*$this->pop) - $this->pop;
+			}
+		}
+	
+	return $nova_pop;
+	}
+	
 }
 ?>

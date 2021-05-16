@@ -106,14 +106,14 @@ class roda_turno {
 				$html .= "<br>FAZENDO O BALANÇO dos Recursos do {$imperio->nome}:<br>";
 				
 				//Faz o balanço dos resultados
+				$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 				foreach ($imperio_recursos->id_recurso as $chave => $id_recurso) {
 					$recurso = new recurso($id_recurso);
 					if (empty($acoes->recursos_balanco[$id_recurso])) {
 						$acoes->recursos_balanco[$id_recurso] = 0;
 					}
 					//$chave = array_search($resultado->id_recurso,$imperio_recursos->id_recurso);
-
-					$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+					
 					if ($id_recurso == $id_alimento) {
 						$alimentos = $imperio_recursos->qtd[$chave] + $acoes->recursos_balanco[$id_recurso];
 					}
@@ -157,50 +157,10 @@ class roda_turno {
 					}
 					
 					//Aumenta a população
-					//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
-					//No entanto, a poluição reduz o crescimento populacional
-					$nova_pop = $colonia[$id_colonia->id]->pop;
-					if ($alimentos > $colonia[$id_colonia->id]->pop && $acoes->recursos_balanco[$id_alimento] > 0 && $colonia[$id_colonia->id]->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
-						if (($planeta[$colonia[$id_colonia->id]->id_planeta]->inospito == 0 && $planeta[$colonia[$id_colonia->id]->id_planeta]->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
-							if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
-								$limite_pop_planeta = $planeta[$colonia[$id_colonia->id]->id_planeta]->tamanho*10; 
-								//Caso o Império tenha uma Tech de Bônus Populacional...
-								if ($imperio->max_pop >0) {
-									$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
-									if ($planeta[$colonia[$id_colonia->id]->id_planeta]->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
-										$limite_pop_planeta	= 0; 
-									}									
-								}
-								
-								$fator_cresce = 0;
-								if ($colonia[$id_colonia->id]->pop <= $limite_pop_planeta) {//Tem espaço para crescer
-									$fator_cresce = 0.0758*$colonia[$id_colonia->id]->pop + 3.1818;
-									if ($fator_cresce < 5) {
-										$fator_cresce = 5;
-									} elseif ($fator_cresce > 10) {
-										$fator_cresce = 10;
-									}
-									
-									if ($planeta[$colonia[$id_colonia->id]->id_planeta]->subclasse == "Gaia") {
-										$fator_cresce = $fator_cresce*2;
-									}
-									
-									$nova_pop = $colonia[$id_colonia->id]->pop + ceil($fator_cresce*$imperio->crescimento_pop);
-									if ($nova_pop > $limite_pop_planeta) {
-										$nova_pop = $limite_pop_planeta;
-									}
-								}
-							} 
-						}
-					} else {
-						//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%
-						if ($alimentos < $colonia[$id_colonia->id]->pop) {
-							$nova_pop = round(0.9*$colonia[$id_colonia->id]->pop);
-						}
-					}
-				
-					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}<br>";
-					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, turno={$proximo_turno}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}");
+					$nova_pop = $colonia[$id_colonia->id]->crescimento_colonia($imperio, $alimentos);
+					
+					$html.= "INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$colonia[$id_colonia->id]->pop}+{$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}, turno={$proximo_turno}<br>";
+					$wpdb->query("INSERT INTO colonization_imperio_colonias SET poluicao={$poluicao}, pop={$colonia[$id_colonia->id]->pop}+{$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo}, turno={$proximo_turno}");
 				}
 
 				//Registra a pesquisa das naves

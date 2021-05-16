@@ -956,6 +956,8 @@ class imperio
 			}
 		}
 
+		$imperio_recursos = new imperio_recursos($this->id, $this->turno->turno);
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		foreach ($resultados as $resultado) {
 			if (!$flag_nova_lista && $id_colonia[0] != $resultado->id && $id_colonia[1] != $resultado->id) { //Só processa se houve alguma alteração
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1062,7 +1064,19 @@ class imperio
 				if ($html_pdf_planetario != "") {
 					$html_pdf_planetario = " ({$html_pdf_planetario})";
 				}
-				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+
+				$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
+				$alimentos = $this->acoes->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento];
+				$nova_pop = $colonia[$resultado->id]->crescimento_colonia($this, $alimentos, $this->acoes->recursos_balanco[$id_alimento]);
+				
+				$html_nova_pop = "";
+				if ($nova_pop > 0) {
+					$html_nova_pop = " (<span style='color: green;'>+{$nova_pop}</span>)";	
+				} elseif ($nova_pop < 0) {
+					$html_nova_pop = " (<span style='color: red;'>{$nova_pop}</span>)";	
+				}
+				
+				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_nova_pop}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
