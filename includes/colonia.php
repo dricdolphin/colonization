@@ -28,6 +28,7 @@ class colonia
 	public $id_estrela;
 	public $instalacoes;
 	public $instalacoes_planeta = [];
+	public $nivel_instalacoes_planeta = [];
 	public $num_instalacoes;
 	public $pdf_planetario;
 	public $defesa_invasao = 0;
@@ -226,18 +227,20 @@ class colonia
 		global $wpdb;
 		
 		$instalacoes_colonia = $wpdb->get_results("SELECT 
-		cpi.id, cpi.id_instalacao
+		cpi.id, cpi.id_instalacao, cpi.nivel
 		FROM colonization_planeta_instalacoes AS cpi
 		WHERE cpi.id_planeta={$this->id_planeta} AND cpi.turno<={$this->turno->turno}
 		");
 		
-		foreach ($instalacoes_colonia as $id_instalacao) {
-			$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao->id} AND turno > {$this->turno->turno}");
+		foreach ($instalacoes_colonia as $id_instalacao_colonia) {
+			$turno_upgrade = $wpdb->get_var("SELECT MIN(turno) FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao_colonia->id} AND turno > {$this->turno->turno}");
 			if ($turno_upgrade > $this->turno->turno) {
-				$id_instalacao->id_instalacao = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao->id} AND turno = {$turno_upgrade}");
+				$id_instalacao_colonia->id_instalacao = $wpdb->get_var("SELECT id_instalacao_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao_colonia->id} AND turno = {$turno_upgrade}");
+				$id_instalacao_colonia->nivel = $wpdb->get_var("SELECT nivel_anterior FROM colonization_planeta_instalacoes_upgrade WHERE id_planeta_instalacoes={$id_instalacao_colonia->id} AND turno = {$turno_upgrade}");
 			}				
 
-			$this->instalacoes_planeta[$id_instalacao->id] = $id_instalacao->id_instalacao;
+			$this->instalacoes_planeta[$id_instalacao_colonia->id] = $id_instalacao_colonia->id_instalacao;
+			$this->nivel_instalacoes_planeta[$id_instalacao_colonia->id] = $id_instalacao_colonia->nivel;
 		}
 	}
 	
@@ -257,7 +260,6 @@ class colonia
 			$this->bonus_extrativo = 0;
 			
 			foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {
-				
 				$instalacao = new instalacao($id_instalacao);
 				$this->bonus_extrativo = $this->bonus_extrativo + $instalacao->bonus_extrativo;
 			}
@@ -408,17 +410,38 @@ class colonia
 						}
 					}
 				} 
+				$nova_pop = $nova_pop - $this->pop;
 			}
-			$nova_pop = $nova_pop - $this->pop;
 		} else {
 			//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%
 			if ($alimentos < $this->pop) {
 				$nova_pop = round(0.9*$this->pop) - $this->pop;
 			}
 		}
-	
-	return $nova_pop;
+		return $nova_pop;
 	}
 	
+	/***********************
+	function bonus_torpedeiros()
+	----------------------
+	Pega o bônus de Torpedeiros provenientes de Instalações
+	***********************/	
+	function bonus_torpedeiros() {
+		global $wpdb;
+		
+		$bonus_torpedeiros = 0;
+		if (empty($this->instalacoes_planeta)) {
+			$this->popula_instalacoes_planeta();
+		}
+		
+		foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {
+			$instalacao = new instalacao($id_instalacao);
+			if ($instalacao->torpedeiros_sistema_estelar != 0) {
+				$bonus_torpedeiros = $bonus_torpedeiros + $instalacao->torpedeiros_sistema_estelar*$this->nivel_instalacoes_planeta[$id_planeta_instalacoes];
+			}
+		}
+	
+		return $bonus_torpedeiros;
+	}
 }
 ?>

@@ -44,6 +44,7 @@ class instalacao
 	public $requer_instalacao_sistema = false;
 	public $espacoporto = false;
 	public $base_colonial = false;
+	public $torpedeiros_sistema_estelar = 0;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -95,6 +96,17 @@ class instalacao
 		if (!empty($pop_inospito)) {
 			$this->pop_inospito = true;
 		}
+
+		//torpedeiros_sistema_estelar
+		$torpedeiros_sistema_estelar = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'torpedeiros_sistema_estelar') !== false;
+		}));
+
+		if (!empty($torpedeiros_sistema_estelar)) {
+			$torpedeiros_sistema_estelar_valor = explode("=",$torpedeiros_sistema_estelar[0]);
+			$this->torpedeiros_sistema_estelar = $torpedeiros_sistema_estelar_valor[1];
+		}
+		
 
 		//somente_gigante_gasoso
 		$somente_gigante_gasoso = array_values(array_filter($especiais, function($value) {

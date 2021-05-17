@@ -293,6 +293,19 @@ class acoes
 	***********************/	
 	function defesa_sistema($id_estrela) {
 		global $wpdb;
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];	
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				$banido = true;
+			} else {
+				$banido = false;
+			}
+		}
+
 		
 		$resultados = $wpdb->get_results("
 		SELECT cic.id AS id_colonia
@@ -307,7 +320,8 @@ class acoes
 		ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
 		");
 
-		$defesa_sistema = 0;
+		$defesa_sistema['torpedos'] = 0;
+		$defesa_sistema['torpedeiros'] = 0;
 		if (empty($resultados)) {
 			return $defesa_sistema ;
 		}
@@ -315,8 +329,10 @@ class acoes
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
 			
-			$defesa_sistema = $defesa_sistema + $colonia->qtd_defesas;
+			$defesa_sistema['torpedos'] = $defesa_sistema['torpedos'] + $colonia->qtd_defesas;
+			$defesa_sistema['torpedeiros'] = $defesa_sistema['torpedeiros'] + $colonia->bonus_torpedeiros();
 		}
+		$defesa_sistema['torpedeiros'] = $defesa_sistema['torpedeiros'] + $defesa_sistema['torpedos'];
 
 		return $defesa_sistema;
 	}
@@ -404,9 +420,9 @@ class acoes
 				
 				$html_nova_pop = "";
 				if ($nova_pop > 0) {
-					$html_nova_pop = " (<span style='color: green;'>+{$nova_pop}</span>)";	
+					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: green; font-family: Verdana, Tahoma, sans-serif;'>+{$nova_pop}</span></span>)";	
 				} elseif ($nova_pop < 0) {
-					$html_nova_pop = " (<span style='color: red;'>{$nova_pop}</span>)";	
+					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
 				}
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
