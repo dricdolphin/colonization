@@ -1080,8 +1080,6 @@ class colonization {
 		
 		if ($roles != "administrator") {
 			$imperio = new imperio();
-		} elseif ($roles == "administrator") {
-			$imperio = new imperio(1);
 		}
 		
 		if (!empty($imperio->id)) {

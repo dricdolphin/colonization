@@ -61,8 +61,7 @@ class transfere_tech
 			SELECT id 
 			FROM colonization_imperio_transfere_techs 
 			WHERE id_imperio_destino = {$imperio->id}
-			AND processado = true
-			AND autorizado = true");
+			AND processado = true");
 		} elseif ($roles == "administrator") {
 			$id_techs_envio = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs");
 			$id_techs_recebidas = [];
@@ -94,7 +93,11 @@ class transfere_tech
 		foreach ($id_techs_recebidas as $id) {
 			$transfere_tech = new transfere_tech($id->id);
 			if ($transfere_tech->processado == 1) {
-				$processado = "<span style='color: #0E8836'>PROCESSADA!</span>";
+				$aceitou = "";
+				if (!$transfere_tech->autorizado) {
+					$aceitou = " REJEITADA!";
+				}
+				$processado = "<span style='color: #0E8836'>PROCESSADA!{$aceitou}</span>";
 			} else {
 				$processado = "<span style='color: #E0BA44'>EM PROCESSAMENTO!</span>";
 			}
