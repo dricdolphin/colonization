@@ -56,7 +56,7 @@ class transfere_recurso
 		if ($id_imperio != 0) {
 			$imperio = new imperio($id_imperio);
 			$id_techs_envio = $wpdb->get_results("
-			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
+			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.turno, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
 			FROM colonization_imperio_transfere_recurso AS citr
 			LEFT JOIN colonization_imperio AS ci_origem
 			ON ci_origem.id = citr.id_imperio_origem
@@ -65,7 +65,7 @@ class transfere_recurso
 			WHERE citr.id_imperio_origem = {$imperio->id}");
 
 			$id_techs_recebidas = $wpdb->get_results("
-			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
+			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.turno, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
 			FROM colonization_imperio_transfere_recurso AS citr
 			LEFT JOIN colonization_imperio AS ci_origem
 			ON ci_origem.id = citr.id_imperio_origem
@@ -75,7 +75,7 @@ class transfere_recurso
 			AND citr.processado = true");
 		} elseif ($roles == "administrator") {
 			$id_techs_envio = $wpdb->get_results("			
-			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
+			SELECT citr.id, citr.id_recurso, citr.qtd, citr.processado, citr.turno, citr.nome_npc, citr.id_imperio_origem, citr.id_imperio_destino, ci_origem.nome AS nome_imperio_origem, ci_destino.nome AS nome_imperio_destino
 			FROM colonization_imperio_transfere_recurso AS citr
 			LEFT JOIN colonization_imperio AS ci_origem
 			ON ci_origem.id = citr.id_imperio_origem
@@ -137,8 +137,8 @@ class transfere_recurso
 		}
 		
 		$recurso = new recurso($this->id_recurso);
-		$html = "<div>O {$imperio_origem->nome} lhe enviou {$this->qtd} '{$recurso->nome}'.<br> 
-		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_recurso(this, event,{$this->id});'>OK, entendido!</a></div>";
+		$html = "<div>O Império '{$imperio_origem->nome}' lhe enviou {$this->qtd} '{$recurso->nome}'.<br>
+		<a href='#' style='font-weight: bold !important;' onclick='return processa_recebimento_recurso(this, event,{$this->id});'>OK, entendido!</a></div>";
 
 		return $html;
 	}
