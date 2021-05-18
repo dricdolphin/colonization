@@ -36,7 +36,8 @@ var nave_template = {
 	'mk_blindagem' : 0,
 	'mk_escudos' : 0,
 	'mk_impulso' : 0,
-	'mk_dobra' : 0
+	'mk_dobra' : 0,
+	'camuflagem' : 0
 };
 
 /******************
@@ -333,7 +334,8 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'pesquisa' : nave.qtd_pesquisa,
 		'nivel_estacao_orbital' : nave.qtd_estacao_orbital,
 		'qtd_bombas' : nave.qtd_bombas,
-		'qtd_tropas': nave.qtd_tropas
+		'qtd_tropas': nave.qtd_tropas,
+		'camuflagem' : nave.camuflagem
 	}
 
 	let custos = {
@@ -569,6 +571,7 @@ function processa_string_admin (evento, objeto) {
 		'nivel_estacao_orbital' : document.getElementById('nivel_estacao_orbital'),
 		'qtd_bombas' : document.getElementById('qtd_bombas'),
 		'qtd_tropas' : document.getElementById('qtd_tropas'),
+		'camuflagem' : document.getElementById('camuflagem'),
 		'custo' : document.getElementById('custo')
 	};
 
