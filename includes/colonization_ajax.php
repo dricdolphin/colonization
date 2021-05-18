@@ -145,7 +145,7 @@ class colonization_ajax {
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 
-		if (!empty($_POST['id'])) {
+		if (!empty($_POST['id'])) {//Só é necessário validar naves que sejam novas
 			$dados_salvos['resposta_ajax'] = "OK!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
@@ -155,7 +155,9 @@ class colonization_ajax {
 		//$custo = json_decode(stripslashes($_POST['custo']));
 		$semslashes = stripslashes($_POST['custo']);
 		$custo = json_decode($semslashes,true);
-		$dados_salvos['debug'] = "POST: {$semslashes} \nCusto: {$custo}";
+		$semslashes = stripslashes($_POST['string_nave']);
+		$string_nave = json_decode($semslashes,true);
+		$dados_salvos['debug'] = "POST: {$semslashes} \nCusto: {$string_nave}";
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		$queries = [];
@@ -207,6 +209,9 @@ class colonization_ajax {
 			'mk_dobra' : 0
 		};
 		//***/
+		foreach ($string_nave as $chave_tech => $valor) {
+			
+		}
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {
 			foreach ($queries as $chave => $query) {
