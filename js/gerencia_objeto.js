@@ -276,6 +276,15 @@ function desbloquear_turno(evento, objeto) {
 	}
 }
 
+/******************
+function atualiza_lista_recursos()
+--------------------
+Atualiza a lista de Recursos enviados e recebidos
+******************/
+function atualiza_lista_recursos(objeto, argumentos="") {
+	document.location.reload();
+}
+
 
 /******************
 function atualiza_lista_techs()
@@ -722,6 +731,7 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 	return false;
 }
 
+//processa_recebimento_recurso
 /******************
 function processa_recebimento_tech()
 --------------------
@@ -800,6 +810,83 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 				atualiza_lista_techs(envia_tech);
 			}		
 
+		}
+	};
+	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dados_ajax);	
+
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
+function processa_recebimento_recurso()
+--------------------
+Processa o recebimento de um recurso
+******************/
+function processa_recebimento_recurso (objeto, evento, id_tech_transf) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
+	let div_notice = objeto;
+	
+	try {
+		while (div_notice.getAttribute("class") != "notice") {
+			div_notice = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice.remove = function () {return;};
+	}
+
+	let div_notice_panel = div_notice;
+	try {
+		while (div_notice_panel.getAttribute("class") != "notices-panel") {
+			div_notice_panel = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice_panel.childElementCount = false;
+	}
+
+	let dados_ajax = "post_type=POST&action=processa_recebimento_recurso&id="+id_tech_transf;
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let resposta = "";
+			try {
+				resposta = JSON.parse(this.responseText);
+			} 
+			catch (err) {
+				console.log(this.responseText);
+				retorno = false;
+				return false;
+			}
+			
+			objeto_em_salvamento = false;
+			if (resposta.resposta_ajax == "SALVO!") {
+				retorno = true;
+			} else {
+				alert(resposta.resposta_ajax);
+				retorno = false;
+			}
+			
+			if (resposta.debug != undefined) {
+				console.log(resposta.debug);
+			}
+
+			div_notice.remove();
+			if (div_notice_panel.childElementCount == 0) {
+				div_notice_panel.remove();
+			}
+			document.location.reload();
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

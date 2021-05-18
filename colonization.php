@@ -29,6 +29,7 @@ include_once('includes/imperio_techs.php');
 include_once('includes/imperio_instalacoes.php');
 include_once('includes/techs_permitidas_imperio.php');
 include_once('includes/transfere_tech.php');
+include_once('includes/transfere_recurso.php');
 include_once('includes/acoes.php');
 include_once('includes/acoes_admin.php');
 include_once('includes/turno.php');
@@ -70,6 +71,7 @@ class colonization {
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
 		add_shortcode('colonization_exibe_tech_transfere',array($this,'colonization_exibe_tech_transfere')); //Exibe a transferência de Techs e o histórico
+		add_shortcode('colonization_exibe_recurso_transfere',array($this,'colonization_exibe_recurso_transfere')); //Exibe a transferência de Recursos e o histórico
 		add_shortcode('colonization_exibe_mapa_naves',array($this,'colonization_exibe_mapa_naves')); //Exibe o mapa com a posição das naves
 		add_shortcode('colonization_exibe_dados_estrelas',array($this,'colonization_exibe_dados_estrelas')); //Exibe os dados de uma estrela ou de todas as estrelas que um Jogador já visitou
 		add_shortcode('colonization_exibe_diplomacia',array($this,'colonization_exibe_diplomacia')); //Exibe as condições diplomáticas do Império
@@ -1056,6 +1058,7 @@ class colonization {
 	function colonization_exibe_tech_transfere_pendente()
 	-----------
 	Exibe no painel principal se existem transferências de Tech pendentes
+	* Também exibe os recebimentos de Recursos pendentes
 	******************/	
 	function colonization_exibe_tech_transfere_pendente() {
 		global $asgarosforum, $wpdb;
@@ -1076,10 +1079,11 @@ class colonization {
 		}
 		
 		if (!empty($imperio->id)) {
-			$ids_pendentes = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
+			$ids_pendentes_techs = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
+			$ids_pendentes_recurso = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_recurso WHERE id_imperio_destino={$imperio->id} AND processado=0");
 		}
 		
-		foreach ($ids_pendentes as $id) {
+		foreach ($ids_pendentes_techs as $id) {
 			$transfere_tech = new transfere_tech($id->id);
 			
 			$notice = $transfere_tech->exibe_autoriza();
@@ -1087,9 +1091,17 @@ class colonization {
 			$asgarosforum->add_notice($notice);
 		}
 		
+		foreach ($ids_pendentes_recurso as $id) {
+			$transfere_recurso = new transfere_recurso($id->id);
+			
+			$notice = $transfere_recurso->exibe_autoriza();
+			$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+			$asgarosforum->add_notice($notice);
+		}
+		
 		return;
 	}
-	
+
 	/******************
 	function colonization_exibe_tech_transfere()
 	-----------
@@ -1140,8 +1152,8 @@ class colonization {
 		}
 		
 		$estilo_npc = "style='display: none;'";
-		if ($roles == 'administrator') {
-			$input_imperio_origem = "<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''><select data-atributo='id_imperio_origem' style='width: 100%; margin-bottom: 5px;' onchange='return libera_npc(event, this);'></div>";
+		if ($roles == 'administrator' && empty($atts['id'])) {
+			$input_imperio_origem = "<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''><select data-atributo='id_imperio_origem' style='width: 100%; margin-bottom: 5px;' onchange='return libera_npc(event, this);'>";
 			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
 				$input_imperio_origem .= "<option value='0'>NPC</option>";
 			foreach ($resultados as $resultado) {
@@ -1239,6 +1251,146 @@ class colonization {
 		
 		return $html;
 	}
+	
+	/******************
+	function colonization_exibe_recurso_transfere()
+	-----------
+	Exibe a opção de transferir Recursos para outro Império
+	******************/	
+	function colonization_exibe_recurso_transfere($atts = [], $content = null) {
+		global $wpdb;
+
+		$turno = new turno();
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);
+			if ($banido === "banned") {
+				return;
+			} 
+		}
+		
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id'],false);
+			$roles = "";
+		} else {
+			$imperio = new imperio();
+		}
+		
+		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
+		$resultados = $imperio->contatos_imperio();
+		if ($roles == "administrator") {
+			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+		}
+		
+		foreach ($resultados as $resultado) {
+			if (!empty($imperio->id)) {
+				if ($resultado->id != $imperio->id) {
+					$html_lista_imperios .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+				}
+			} else {
+				$html_lista_imperios .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+			}
+		}
+		$html_lista_imperios .= "</select>";
+
+		if (!empty($imperio->id)) {
+			$input_imperio_origem = "<input type='hidden' data-ajax='true' data-atributo='id_imperio_origem' data-valor-original='{$imperio->id}' value='{$imperio->id}'></input>
+			<div data-atributo='id_imperio_origem' value='{$imperio->id}'>{$imperio->nome}</div>";
+		}
+		
+		$estilo_npc = "style='display: none;'";
+		
+		$resultados = $wpdb->get_results("SELECT id_recurso FROM colonization_imperio_recursos WHERE turno={$turno->turno} AND disponivel=true AND id_imperio={$imperio->id}");
+		if ($roles == 'administrator' && empty($atts['id'])) {
+			$input_imperio_origem = "<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''>
+			<select data-atributo='id_imperio_origem' style='width: 100%; margin-bottom: 5px;' onchange='return libera_npc(event, this);'>";
+			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
+			$input_imperio_origem .= "<option value='0'>NPC</option>";
+			foreach ($resultados as $resultado) {
+				$input_imperio_origem .= "<option value='{$resultado->id}'>{$resultado->nome}</option>";
+			}
+			$input_imperio_origem .= "</select></div>";
+			$estilo_npc = "";
+			$resultados = $wpdb->get_results("SELECT id AS id_recurso FROM colonization_recurso WHERE acumulavel=true");
+		}
+		
+		
+		$html_lista_techs = "<select data-atributo='id_recurso' data-ajax='true' style='width: 100%'>";		
+		foreach ($resultados as $resultado) {
+			$recurso = new recurso($resultado->id_recurso);
+			$html_lista_techs .= "<option value='{$recurso->id}'>{$recurso->nome}</option>";
+		}
+		$html_lista_techs .= "</select>";
+
+		$html = "
+		<h4>Transferência de Recursos</h4>
+		<table class='lista_transferencia_techs' data-tabela='colonization_imperio_transfere_recurso' style='width: 700px;'>
+		<thead>
+		<tr><th style='width: 20%;'>Império Origem</th><th style='width: 20%;'>Império Destino</th><th style='width: 20%;'>Recurso</th><th style='width: 10%;'>Qtd</th><th style='width: 15%;'>&nbsp;</th></tr>
+		</thead>
+		<tr>
+		<td>
+			<input type='hidden' data-atributo='id' value=''></input>
+			<input type='hidden' data-atributo='where_clause' value='id'></input>
+			<input type='hidden' data-atributo='where_value' data-inalteravel='true' value=''></input>
+			<input type='hidden' data-atributo='turno' data-ajax='true' data-valor-original='{$turno->turno}' value='{$turno->turno}'></input>
+			<input type='hidden' data-atributo='funcao_validacao' value='valida_transfere_recurso'></input>
+			<input type='hidden' data-atributo='funcao_pos_processamento' value='atualiza_lista_recursos'></input>
+			{$input_imperio_origem}
+			<div data-atributo='nome_npc' data-ajax='true' data-editavel='true' data-valor-original='' data-branco='true' {$estilo_npc} id='nome_npc' data-desabilita='false'>
+			<input type='text' data-atributo='nome_npc' data-ajax='true' data-editavel='true' data-valor-original='' data-branco='true'></input>
+			</div>
+		</td>
+		<td>
+			<div data-atributo='nome_imperio' data-id-selecionado='' data-valor-original=''>{$html_lista_imperios}</div>
+		</td>
+		<td>
+			<div data-atributo='nome_recurso' data-id-selecionado='' data-valor-original=''>{$html_lista_techs}</div>
+		</td>
+		<td>
+			<div data-atributo='qtd' data-valor-original=''><input type='number' data-atributo='qtd' data-ajax='true' min=0 value=0 style='width: 50px;'></input></div>
+		</td>		
+		<td><div><a href='#' id='envia_recurso' onclick='return salva_objeto(event, this);'>Enviar Recursos</a></div></td>
+		</tr>
+		</table>";
+		
+		$transfere_recurso = new transfere_recurso();
+		$listas = $transfere_recurso->exibe_listas($imperio->id);
+		
+		if (!empty($listas)) {
+			$lista_techs_enviadas = $listas['lista_techs_enviadas'];
+			$lista_techs_recebidas = $listas['lista_techs_recebidas'];			
+		}
+		
+		if (empty($lista_techs_enviadas)) {
+			$lista_techs_enviadas = "&nbsp;";
+		}
+		if (empty($lista_techs_recebidas)) {
+			$lista_techs_recebidas = "&nbsp;";
+		}
+		
+		$html .= "<hr>
+		<div><b>Recursos Transferidos</b></div>
+		<table>
+		<thead>
+		<tr><td>Recurso</td><td>Qtd</td><td>Origem</td><td>Destino</td><td>Turno</td><td>Status</td></tr>
+		</thead>
+		<tbody id='techs_enviadas'>{$lista_techs_enviadas}</tbody>
+		</table>
+		<br><div><b>Recursos Recebidos</b></div>
+		<table>
+		<thead>
+		<tr><td>Recurso</td><td>Qtd</td><td>Origem</td><td>Destino</td><td>Turno</td><td>Status</td></tr>
+		</thead>
+		<tbody id='techs_recebidas'>{$lista_techs_recebidas}</tbody>
+		</table>
+		";
+		
+		return $html;
+	}	
 	
 	
 	/******************

@@ -381,7 +381,7 @@ class colonia
 		}		
 		if ($alimentos > $this->pop && $balanco_alimentos > 0 && $this->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
 			if (($planeta->inospito == 0 && $planeta->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
-				if ($poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
+				if ($this->poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
 					$limite_pop_planeta = $planeta->tamanho*10; 
 					//Caso o Império tenha uma Tech de Bônus Populacional...
 					if ($imperio->max_pop >0) {
@@ -408,9 +408,9 @@ class colonia
 						if ($nova_pop > $limite_pop_planeta) {
 							$nova_pop = $limite_pop_planeta;
 						}
+						$nova_pop = $nova_pop - $this->pop;
 					}
-				} 
-				$nova_pop = $nova_pop - $this->pop;
+				}
 			}
 		} else {
 			//Caso os Alimentos sejam menores que a Pop da colônia, a população CAI em 10%

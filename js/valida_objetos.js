@@ -571,6 +571,25 @@ function valida_transfere_tech(objeto){
 }
 
 /******************
+function valida_transfere_recurso(objeto) 
+--------------------
+Valida uma transferência de recursos
+******************/	
+function valida_transfere_recurso(objeto){
+	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
+	let dados_ajax = "post_type=POST&action=valida_transfere_recurso&turno="+dados['turno'].value+"&id_imperio_origem="+dados['id_imperio_origem'].value
+	+"&id_imperio_destino="+dados['id_imperio_destino'].value+"&id_recurso="+dados['id_recurso'].value+"&qtd"+dados['qtd'].value;
+	
+	if (dados['qtd'].value <= 0 || isNaN(dados['qtd'].value)) {
+		alert('A quantidade a ser transferida é inválida!');
+		return false;
+	}
+	
+	return processa_xhttp_basico (dados_ajax);
+}
+
+
+/******************
 function valida_nave(objeto) 
 --------------------
 Valida uma nave (inicialmente somente os custos)

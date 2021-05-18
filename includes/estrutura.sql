@@ -169,6 +169,18 @@ processado BOOLEAN DEFAULT FALSE,
 turno INT(6) NOT NULL
 )
 
+--Tabela com Transferência de Recursos
+CREATE TABLE IF NOT EXISTS colonization_imperio_transfere_recurso (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio_origem INT(6) NOT NULL,
+nome_npc VARCHAR(255) DEFAULT '',
+id_imperio_destino INT(6) NOT NULL,
+id_recurso INT(6) NOT NULL,
+qtd INT(6) NOT NULL,
+processado BOOLEAN DEFAULT FALSE,
+turno INT(6) NOT NULL
+)
+
 --Tabela com as colonias do Império
 CREATE TABLE colonization_imperio_colonias (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,

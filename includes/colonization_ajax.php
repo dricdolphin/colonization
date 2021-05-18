@@ -39,8 +39,10 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_reabastecimento', array ($this, 'valida_reabastecimento'));
 		add_action('wp_ajax_valida_tech_imperio', array ($this, 'valida_tech_imperio'));
 		add_action('wp_ajax_valida_transfere_tech', array ($this, 'valida_transfere_tech'));//valida_transfere_tech
+		add_action('wp_ajax_valida_transfere_recurso', array ($this, 'valida_transfere_recurso'));//valida_transfere_recurso
 		add_action('wp_ajax_dados_transfere_tech', array ($this, 'dados_transfere_tech'));//dados_transfere_tech
 		add_action('wp_ajax_processa_recebimento_tech', array ($this, 'processa_recebimento_tech'));//salva_transfere_tech
+		add_action('wp_ajax_processa_recebimento_recurso', array ($this, 'processa_recebimento_recurso'));
 		add_action('wp_ajax_processa_viagem_nave', array ($this, 'processa_viagem_nave'));//processa_viagem_nave
 		add_action('wp_ajax_envia_nave', array ($this, 'envia_nave'));//envia_nave
 		add_action('wp_ajax_nave_visivel', array ($this, 'nave_visivel'));//nave_visivel
@@ -749,6 +751,27 @@ class colonization_ajax {
 	}
 
 
+	//processa_recebimento_recurso
+	/***********************
+	function processa_recebimento_recurso ()
+	----------------------
+	Processa o recebimento de recursos
+	***********************/		
+	function processa_recebimento_recurso() {
+		global $wpdb;
+		
+		$transfere_recurso = new transfere_recurso($_POST['id']);
+		$imperio = new imperio($transfere_recurso->id_imperio_destino, true);
+		
+		$turno = new turno();
+		$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+{$transfere_recurso->qtd} WHERE turno={$turno->turno} AND id_imperio={$transfere_recurso->id_imperio_destino} AND id_recurso={$transfere_recurso->id_recurso}");
+		$wpdb->query("UPDATE colonization_imperio_transfere_recurso SET processado=true, turno={$turno->turno} WHERE id={$_POST['id']}");
+		
+		$dados_salvos['resposta_ajax'] = "SALVO!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die();
+	}
+	
 	/***********************
 	function processa_recebimento_tech ()
 	----------------------
@@ -806,6 +829,51 @@ class colonization_ajax {
 	----------------------
 	Valida o objeto desejado
 	***********************/	
+	function valida_transfere_recurso() {
+		global $wpdb; 
+
+		$id_imperio_destino = $wpdb->get_var("SELECT citr.id_imperio_destino FROM
+		colonization_imperio_transfere_recurso AS citr
+		WHERE citr.id_imperio_origem = {$_POST['id_imperio_origem']}
+		AND citr.id_imperio_destino = {$_POST['id_imperio_destino']}
+		AND citr.processado = false
+		");
+		
+		if(!empty($id_imperio_destino)) {
+			$imperio = new imperio($id_imperio_destino, true);
+			$dados_salvos['resposta_ajax'] = "Já existe uma operação pendente! Aguarde o aceite ou declínio do {$imperio->nome}";
+		}
+		
+		if ($_POST['id_imperio_origem'] != 0) { //Não é um NPC! Tem que validar!
+			$imperio = new imperio($_POST['id_imperio_origem']);
+			if ($imperio->id != $_POST['id_imperio_origem']) {
+				$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império pode realizar essa ação!";
+			} else {
+				$turno = new turno();
+				$recursos_disponivel = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$_POST['id_recurso']} AND turno={$turno->turno}");
+				if ($recursos_disponivel >= $_POST['qtd']) {
+					$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$_POST['qtd']} WHERE id_imperio={$imperio->id} AND id_recurso={$_POST['id_recurso']} AND turno={$turno->turno}");
+					$dados_salvos['resposta_ajax'] = "OK!";
+					$dados_salvos['mensagem'] = "Recursos transferidos!";					
+				} else {
+					$dados_salvos['resposta_ajax'] = "Não há recursos suficientes para realizar essa ação!";
+				}
+			}
+		} else {//É um NPC!
+			$dados_salvos['resposta_ajax'] = "OK!";
+			$dados_salvos['mensagem'] = "Recursos transferidos!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta		
+	}
+
+
+	/***********************
+	function valida_transfere_tech ()
+	----------------------
+	Valida o objeto desejado
+	***********************/	
 	function valida_transfere_tech() {
 		global $wpdb; 
 	
@@ -817,7 +885,7 @@ class colonization_ajax {
 		");
 		
 		if(!empty($id_imperio_destino)) {
-			$imperio = new imperio($id_imperio_destino);
+			$imperio = new imperio($id_imperio_destino, true);
 			$dados_salvos['resposta_ajax'] = "Já existe uma operação pendente! Aguarde o aceite ou declínio do {$imperio->nome}";
 		}
 		
