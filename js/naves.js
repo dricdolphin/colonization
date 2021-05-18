@@ -337,11 +337,11 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 	let custos = {
-		'industrializaveis': industrializaveis,
-		'energium': energium,
+		'Industrializáveis': industrializaveis,
+		'Enérgium': energium,
 		'Dillithium': dillithium,
 		'Duranium': duranium,
-		'nor_duranium': nor_duranium,
+		'Nor-Duranium': nor_duranium,
 		'Trillithium': trillithium,
 		'Corasita': corasita,
 		'Tritanium': tritanium,

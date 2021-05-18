@@ -54,7 +54,7 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_techs_imperio', array ($this, 'lista_techs_imperio'));//Retorna uma lista com todas as Techs que o Império pode pesquisar
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
-		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida o CUSTO de uma nave
+		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida os dados de uma nave
 		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 	}
@@ -145,18 +145,6 @@ class colonization_ajax {
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 
-		/***
-		{"industrializaveis":6,
-		"energium":2,
-		"dillithium":1,
-		"duranium":2,
-		"nor_duranium":0,
-		"trillithium":0,
-		"corasita":0,
-		"tritanium":0,
-		"neutronium":0,
-		"tricobalto":0}
-		***/
 		if (!empty($_POST['id'])) {
 			$dados_salvos['resposta_ajax'] = "OK!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -193,6 +181,32 @@ class colonization_ajax {
 			}
 			$queries[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtd} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}";
 		}
+
+		//Valida os dados da Nave de acordo com a Tech do Império
+		/***
+		var nave_template = {
+			'qtd_laser' : 0,
+			'qtd_torpedo' : 0,
+			'qtd_projetil' :0,
+			'tritanium_blindagem' : 0,
+			'neutronium_blindagem' : 0,
+			'tricobalto_torpedo' : 0,
+			'qtd_combustivel' : 0,
+			'qtd_pesquisa' : 0,
+			'qtd_estacao_orbital' : 0,
+			'qtd_tropas' : 0,
+			'qtd_bombas' : 0,
+			'qtd_slots_extra' : 0,
+			'qtd_hp_extra' : 0,
+			'mk_laser' : 0,
+			'mk_torpedo' : 0,
+			'mk_projetil' : 0,
+			'mk_blindagem' : 0,
+			'mk_escudos' : 0,
+			'mk_impulso' : 0,
+			'mk_dobra' : 0
+		};
+		//***/
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {
 			foreach ($queries as $chave => $query) {
@@ -825,7 +839,7 @@ class colonization_ajax {
 
 
 	/***********************
-	function valida_transfere_tech ()
+	function valida_transfere_recurso ()
 	----------------------
 	Valida o objeto desejado
 	***********************/	
@@ -842,8 +856,12 @@ class colonization_ajax {
 		if(!empty($id_imperio_destino)) {
 			$imperio = new imperio($id_imperio_destino, true);
 			$dados_salvos['resposta_ajax'] = "Já existe uma operação pendente! Aguarde o aceite ou declínio do {$imperio->nome}";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta				
 		}
 		
+		$dados_salvos['debug'] = "";
 		if ($_POST['id_imperio_origem'] != 0) { //Não é um NPC! Tem que validar!
 			$imperio = new imperio($_POST['id_imperio_origem']);
 			if ($imperio->id != $_POST['id_imperio_origem']) {
@@ -864,6 +882,7 @@ class colonization_ajax {
 			$dados_salvos['mensagem'] = "Recursos transferidos!";
 		}
 		
+		$dados_salvos['debug'] .= "imperio_origem: {$imperio->id} | imperio_destino: {$_POST['id_imperio_destino']} || {$recursos_disponivel} >= {$_POST['qtd']}";
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta		
 	}

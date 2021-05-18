@@ -372,6 +372,10 @@ class colonization {
 			if ($asgarosforum->content->get_topic_title($topic_id) == "Simulador de Naves") {
 				echo "<div class='icone_topico'><i class='fal fa-space-shuttle' style='font-size: 32px; color: #a2a2a2;'></i></div>";
 			}
+
+			if ($asgarosforum->content->get_topic_title($topic_id) == "Gerenciamento da Frota") {
+				echo "<div class='icone_topico'><i class='fal fa-rocket' style='font-size: 32px; color: #a2a2a2;'></i></div>";
+			}
 			
 			//Gerenciamento das Techs			
 		//}
@@ -2162,7 +2166,36 @@ if (!empty($imperios[0])) {
 			$html_estacao_orbital = "";
 			$html_danos = "";
 			if ($nave->nivel_estacao_orbital > 0) {
-				$html_estacao_orbital = "<div class='fas fa-drone tooltip'><span class='tooltiptext'>Estação Orbital</span></div>";	
+				switch ($nave->nivel_estacao_orbital) {
+					case 1:
+					$html_mk = " Mk I";
+					break;
+					case 2:
+					$html_mk = " Mk II";
+					break;
+					case 3:
+					$html_mk = " Mk III";
+					break;
+					case 4:
+					$html_mk = " Mk IV";
+					break;
+					case 5:
+					$html_mk = " Mk V";
+					break;
+					case 6:
+					$html_mk = " Mk VI";
+					break;
+					case 7:
+					$html_mk = " Mk VII";
+					break;
+					case 8:
+					$html_mk = " Mk VIII";
+					break;
+					default:
+					$html_mk = "";
+				}
+				
+				$html_estacao_orbital = "<div class='fas fa-drone tooltip'><span class='tooltiptext'>Estação Orbital{$html_mk}</span></div>";	
 			}
 			
 			$link_visivel = "";
