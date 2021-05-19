@@ -265,7 +265,7 @@ class colonization_ajax {
 				FROM colonization_imperio_frota AS cif
 				WHERE cif.X={$estrela_capital->X} AND cif.Y={$estrela_capital->Y} AND cif.Z={$estrela_capital->Z}
 				AND cif.nivel_estacao_orbital >= {$qtd_estacao_orbital_requerida}
-				AND (cif.turno_destroi IS NULL OR cif.turno_destroi = 0)");
+				AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
 				
 				if ($estacao_orbital_na_capital == 0) {
 					$html_mk = $plugin_colonization->html_mk($qtd_estacao_orbital_requerida);

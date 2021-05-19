@@ -91,11 +91,13 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 		
 		//Recalcula os valores da Nave
-		for (const property in nave_template) {
-			if (document.getElementById(property).type == "checkbox") {
-				nave[property] = document.getElementById(property).checked;
-			} else {
-				nave[property] = document.getElementById(property).value;
+		if (exibe_resultados) {
+			for (const property in nave_template) {
+				if (document.getElementById(property).type == "checkbox") {
+					nave[property] = document.getElementById(property).checked;
+				} else {
+					nave[property] = document.getElementById(property).value;
+				}
 			}
 		}
 	
