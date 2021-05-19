@@ -377,6 +377,7 @@ function nova_tech(evento) {
 	let id_tech_parent = linha_nova.insertCell(-1);
 	let lista_requisitos = linha_nova.insertCell(-1);
 	let belica = linha_nova.insertCell(-1);
+	let parte_nave = linha_nova.insertCell(-1);
 	let publica = linha_nova.insertCell(-1);
 	let especiais = linha_nova.insertCell(-1);
 	let icone = linha_nova.insertCell(-1);
@@ -394,6 +395,7 @@ function nova_tech(evento) {
 	id_tech_parent.innerHTML = "<div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='id_tech_parent' data-ajax='true' style='width: 30px;'></input></div>";
 	lista_requisitos.innerHTML = "<div data-atributo='lista_requisitos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='lista_requisitos' data-ajax='true' data-branco='true'></input></div>";
 	belica.innerHTML = "<div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='belica' data-ajax='true'></input></div>";
+	parte_nave.innerHTML = "<div data-atributo='parte_nave' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='parte_nave' data-ajax='true'></input></div>";
 	publica.innerHTML = "<div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='publica' data-ajax='true' checked></input></div>";
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
@@ -844,7 +846,7 @@ Insere uma nova Nave (Frota)
 --------
 id_imperio -- id do Império que receberá a nave
 ******************/
-function nova_nave(evento, id_imperio) {
+function nova_nave(evento, id_imperio, X_estrela=0, Y_estrela=0, Z_estrela=0) {
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
 		
@@ -875,9 +877,9 @@ function nova_nave(evento, id_imperio) {
 	categoria.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original='' data-style='width: 100px;' data-id='categoria'><input type='text' data-atributo='tipo' data-ajax='true' style='width: 100px;' id='categoria'></input></div>";
 	
 	qtd.innerHTML = "<div data-atributo='qtd' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='qtd' data-ajax='true' style='width: 30px;'></input></div>";
-	X.innerHTML = "<div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' style='width: 30px;'></input></div>";
-	Y.innerHTML = "<div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' style='width: 30px;'></input></div>";
-	Z.innerHTML = "<div data-atributo='Z' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Z' data-ajax='true' style='width: 30px;'></input></div>";
+	X.innerHTML = "<div data-atributo='X' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='X' data-ajax='true' value='"+X_estrela+"' style='width: 30px;'></input></div>";
+	Y.innerHTML = "<div data-atributo='Y' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Y' data-ajax='true' value='"+Y_estrela+"' style='width: 30px;'></input></div>";
+	Z.innerHTML = "<div data-atributo='Z' data-editavel='true' data-valor-original='' data-style='width: 30px;'><input type='text' data-atributo='Z' data-ajax='true' value='"+Z_estrela+"' style='width: 30px;'></input></div>";
 
 
 	if (id_imperio != 0) {
@@ -891,7 +893,7 @@ function nova_nave(evento, id_imperio) {
 		let pdf_projetil = linha_nova.insertCell(-1);
 		let blindagem = linha_nova.insertCell(-1);
 		let escudos = linha_nova.insertCell(-1);
-		let qtd_bombas = linha_nova.insertCell(-1);
+		let qtd_bombardeamento = linha_nova.insertCell(-1);
 		let qtd_tropas = linha_nova.insertCell(-1);
 		let pesquisa = linha_nova.insertCell(-1);
 		let camuflagem = linha_nova.insertCell(-1);
@@ -922,7 +924,7 @@ function nova_nave(evento, id_imperio) {
 		pdf_projetil.innerHTML = "<div data-atributo='pdf_projetil' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='pdf_projetil'><input type='text' data-atributo='pdf_projetil' data-ajax='true' style='width: 50px;' id='pdf_projetil'></input></div>";
 		blindagem.innerHTML = "<div data-atributo='blindagem' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='blindagem'><input type='text' data-atributo='blindagem' data-ajax='true' style='width: 50px;' id='blindagem'></input></div>";
 		escudos.innerHTML = "<div data-atributo='escudos' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='escudos'><input type='text' data-atributo='escudos' data-ajax='true' style='width: 50px;' id='escudos'></input></div>";
-		qtd_bombas.innerHTML = "<div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombas'><input type='text' data-atributo='pdf_bombardeamento' data-ajax='true' style='width: 50px;' id='qtd_bombas'></input></div>";
+		qtd_bombardeamento.innerHTML = "<div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_bombardeamento'><input type='text' data-atributo='pdf_bombardeamento' data-ajax='true' style='width: 50px;' id='pdf_bombardeamento'></input></div>";
 		qtd_tropas.innerHTML = "<div data-atributo='poder_invasao' data-editavel='true' data-valor-original='' data-style='width: 50px;' data-id='qtd_tropas'><input type='text' data-atributo='poder_invasao' data-ajax='true' style='width: 50px;' id='qtd_tropas'></input></div>";
 		pesquisa.innerHTML = "<div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' id='pesquisa'></input></div>";
 		camuflagem.innerHTML = "<div data-atributo='camuflagem' data-editavel='true' data-valor-original='' data-id='camuflagem' data-style='width: 50px;'><input type='text' data-atributo='camuflagem' data-ajax='true' id='camuflagem' style='width: 50px;' value=0></input></div>";

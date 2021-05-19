@@ -39,6 +39,7 @@ class imperio
 	public $bonus_pesquisa_naves = 0;
 	public $crescimento_pop = 1;
 	public $sensores = 0;
+	public $anti_camuflagem = 0;
 	public $coloniza_inospito = 0;
 	public $alimento_inospito = 0;
 	public $consome_poluicao = 0;
@@ -243,7 +244,17 @@ class imperio
 			if (!empty($sensores)) {
 				$sensores_valor = explode("=",$sensores[0]);
 				$this->sensores = $this->sensores	+ $sensores_valor[1];
-			}		
+			}	
+
+			//Especiais -- anti_camuflagem
+			$anti_camuflagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'anti_camuflagem') !== false;
+			}));
+			
+			if (!empty($anti_camuflagem)) {
+				$anti_camuflagem_valor = explode("=",$anti_camuflagem[0]);
+				$this->anti_camuflagem = $this->anti_camuflagem + $anti_camuflagem_valor[1];
+			}
 			
 			//Especiais -- logistica
 			$logistica = array_values(array_filter($especiais, function($value) {
@@ -585,7 +596,7 @@ class imperio
 	Exibe os dados do Império
 	***********************/
 	function imperio_exibe_colonias_imperio() {
-		global $wpdb;
+		global $wpdb, $plugin_colonization;
 		
 		if ($this->id == 0) {
 			return;
@@ -660,24 +671,7 @@ class imperio
 				}
 				
 				if ($this->torpedeiros_sistema_estelar !== false) {
-
-					switch($this->torpedeiros_sistema_estelar) {
-						case 1:
-							$nivel = "Mk I";
-							break;
-						case 2:
-							$nivel = "Mk II";
-							break;
-						case 3:
-							$nivel = "Mk III";
-							break;
-						case 4:
-							$nivel = "Mk IV";
-							break;							
-						default:
-							$nivel = "";
-					}
-
+					$nivel = $plugin_colonization->html_mk($this->torpedeiros_sistema_estelar);
 					$html_defesas .= "<br>{$this->icone_torpedeiros_sistema_estelar} {$nivel} x{$colonia->qtd_defesas} ";
 				}
 			}
@@ -834,7 +828,7 @@ class imperio
 	$salva_lista -- salva os dados da lista (após um reprocessamento)
 	***********************/
 	function exibe_lista_colonias($id_colonia=array(0,0), $salva_lista=false) {
-		global $wpdb, $start_time;
+		global $wpdb, $start_time, $plugin_colonization;
 		
 		if ($this->id == 0) {
 			return;
@@ -1123,23 +1117,7 @@ class imperio
 					}
 					
 					if ($this->torpedeiros_sistema_estelar !== false) {
-						switch($this->torpedeiros_sistema_estelar) {
-							case 1:
-								$nivel = "Mk I";
-								break;
-							case 2:
-								$nivel = "Mk II";
-								break;
-							case 3:
-								$nivel = "Mk III";
-								break;
-							case 4:
-								$nivel = "Mk IV";
-								break;							
-							default:
-								$nivel = "";
-						}
-
+						$nivel = $plugin_colonization->html_mk($this->torpedeiros_sistema_estelar);
 						$html_defesas_sistema .= " {$this->icone_torpedeiros_sistema_estelar} {$nivel} x{$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedeiros']}";
 					}
 				}

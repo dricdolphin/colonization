@@ -144,7 +144,7 @@ class colonization_ajax {
 		// Report all PHP errors
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
-
+		
 		if (!empty($_POST['id'])) {//Só é necessário validar naves que sejam novas
 			$dados_salvos['resposta_ajax'] = "OK!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -197,7 +197,7 @@ class colonization_ajax {
 			'qtd_pesquisa' : 0,
 			'qtd_estacao_orbital' : 0,
 			'qtd_tropas' : 0,
-			'qtd_bombas' : 0,
+			'qtd_bombardeamento' : 0,
 			'qtd_slots_extra' : 0,
 			'qtd_hp_extra' : 0,
 			'mk_laser' : 0,
@@ -206,12 +206,76 @@ class colonization_ajax {
 			'mk_blindagem' : 0,
 			'mk_escudos' : 0,
 			'mk_impulso' : 0,
-			'mk_dobra' : 0
+			'mk_dobra' : 0,
+			'mk_bombardeamento' : 0,
+			'camuflagem' : 0
 		};
 		//***/
-		foreach ($string_nave as $chave_tech => $valor) {
+		
+		if ($_POST['id_imperio'] != 0) {//Só valida se for um Jogador
+			//Todas as novas naves surgem na Capital, EXCETO Estações Orbitais
+			//Primeiro verifica se tem uma Estação Orbital na CAPITAL do Império...
+			//Naves acima de CORVETAS requerem uma Estação Orbital de nível adequado...
+			$qtd_estacao_orbital_requerida = 0;
+			if ($_POST['tamanho'] > 10 && $_POST['nivel_estacao_orbital'] == 0) {//Estações Orbitais podem ter qualquer tamanho...
+				if ($_POST['tamanho'] > 1000) {
+					$qtd_estacao_orbital_requerida = 10;
+				} elseif ($_POST['tamanho'] > 500) {
+					$qtd_estacao_orbital_requerida = 8;
+				} elseif ($_POST['tamanho'] > 300) {
+					$qtd_estacao_orbital_requerida = 7;
+				} elseif ($_POST['tamanho'] > 300) {
+					$qtd_estacao_orbital_requerida = 6;
+				} elseif ($_POST['tamanho'] > 200) {
+					$qtd_estacao_orbital_requerida = 5;
+				} elseif ($_POST['tamanho'] > 100) {
+					$qtd_estacao_orbital_requerida = 4;
+				} elseif ($_POST['tamanho'] > 50) {
+					$qtd_estacao_orbital_requerida = 3;
+				} elseif ($_POST['tamanho'] > 20) {
+					$qtd_estacao_orbital_requerida = 2;
+				} else {
+					$qtd_estacao_orbital_requerida = 1;
+				}
+				
+				//Verifica se tem uma Estação Orbital, e se a Estação tem qtd_estacao_orbital suficiente para construir a nave
+				$id_estrela_capital = $wpdb->get_var("
+				SELECT cp.id_estrela
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cic.id_imperio={$imperio->id}
+				AND cic.turno={$imperio->turno->turno}
+				AND cic.capital=true");
+				
+				$estrela_capital = new estrela($id_estrela_capital);
+
+				$estacao_orbital_na_capital = $wpdb->get_var("
+				SELECT COUNT(cif.id) 
+				FROM colonization_imperio_frota AS cif
+				WHERE cif.X={$estrela_capital->X} AND cif.Y={$estrela_capital->Y} AND cif.Z={$estrela_capital->Z}
+				AND cif.nivel_estacao_orbital >= {$qtd_estacao_orbital_requerida}
+				AND (cif.turno_destroi IS NULL OR cif.turno_destroi = 0)");
+				
+				if ($estacao_orbital_na_capital == 0) {
+					$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital na Capital com Mk {} ou melhor para poder construir essa nave!";
+					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+					wp_die(); //Termina o script e envia a resposta					
+				}
+				
+			}
 			
+			foreach ($string_nave as $chave_tech => $valor) {
+				if (str_contains($chave_tech, "mk_")) {//Todas as chaves "mk_" representam alguma Tech
+				//TODO -- verifica qual seria a Tech necessária e se o Império tem essa Tech
+				} elseif (str_contains($chave_tech, "qtd_")) {//Os dados de QTD não definem necessidade de Tech, EXCETO para a qtd_estacao_orbital
+				
+				} elseif (str_contains($chave_tech, "qtd_estacao_orbital")) {
+				
+				}
+			}
 		}
+			
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {
 			foreach ($queries as $chave => $query) {
@@ -664,7 +728,7 @@ class colonization_ajax {
 			SELECT DISTINCT id_imperio, nome_npc, 'Naves' as categoria
 			FROM colonization_imperio_frota 
 			WHERE X='{$estrela_destino->X}' AND Y='{$estrela_destino->Y}' AND Z='{$estrela_destino->Z}' AND (turno_destruido IS NULL OR turno_destruido = '') AND id_imperio != {$imperio->id}
-			AND (camuflagem < {$imperio->sensores} OR visivel = 1)");
+			AND (camuflagem < ({$imperio->sensores} + {$imperio->anti_camuflagem}) OR visivel = 1)");
 			
 			//Também vale quando há uma COLÔNIA no local
 			$ids_imperios_colonias = $wpdb->get_results("
@@ -717,13 +781,13 @@ class colonization_ajax {
 			SELECT DISTINCT id_imperio, nome_npc, 'Naves' as categoria
 			FROM colonization_imperio_frota 
 			WHERE X='{$estrela_destino->X}' AND Y='{$estrela_destino->Y}' AND Z='{$estrela_destino->Z}' AND (turno_destruido IS NULL OR turno_destruido = '') AND id_imperio != {$imperio->id}
-			AND (camuflagem < {$imperio->sensores} OR visivel = 1)\n		
+			AND (camuflagem < ({$imperio->sensores} + {$imperio->anti_camuflagem}) OR visivel = 1)\n		
 			naves_no_local:" . count($naves_no_local);
 				
 			foreach ($naves_no_local as $ids_imperio) {
 				$imperio = new imperio($ids_imperio->id_imperio);
 				if ($nave->camuflagem > 0 && !$nave_detectada) {
-					if ($imperio->sensores > $nave->camuflagem) {
+					if (($imperio->sensores + $imperio->anti_camuflagem) > $nave->camuflagem) {
 						$nave_detectada = true;
 						$dados_salvos['alerta'] .= "A nave camuflada foi DETECTADA!!!\n";
 					}

@@ -755,7 +755,7 @@ class menu_admin {
 		<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_tech'>
 		<thead>
 		<tr class='th_linha_1'>
-		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th style='width: 200px;'>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 120px;'>Lista Requisitos</th><th style='width: 80px;'>Bélica</th><th style='width: 80px;'>Pública</th><th style='width: 200px;'>Especiais</th><th style='width: 200px;'>Ícone</th>
+		<th style='width: 200px;'>ID</th><th style='width: 260px;'>Nome</th><th style='width: 200px;'>Descrição</th><th style='width: 60px;'>Nível</th><th style='width: 60px;'>Custo</th><th style='width: 80px;'>Tech Parente</th><th style='width: 120px;'>Lista Requisitos</th><th style='width: 80px;'>Bélica</th><th style='width: 80px;'>Parte Nave</th><th style='width: 80px;'>Pública</th><th style='width: 200px;'>Especiais</th><th style='width: 200px;'>Ícone</th>
 		</tr>
 		</thead>
 		<tbody>";
@@ -1194,6 +1194,16 @@ class menu_admin {
 			
 			
 			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
+			$id_estrela_capital = $wpdb->get_var("
+			SELECT cp.id_estrela
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			WHERE cic.id_imperio={$imperio->id}
+			AND cic.turno={$turno->turno}
+			AND cic.capital=true");
+			$estrela_capital =  new estrela($id_estrela_capital);
+			
 			foreach ($lista_id_frota as $id_frota) {
 				$frota = new frota($id_frota->id);
 				
@@ -1208,7 +1218,7 @@ class menu_admin {
 			
 			$html_lista .= "</tbody>
 			</table>
-			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_nave(event, {$imperio->id});'>Adicionar nova Nave</a></div>";
+			<div><a href='#' class='page-title-action colonization_admin_botao' onclick='return nova_nave(event, {$imperio->id},{$estrela_capital->X},{$estrela_capital->Y},{$estrela_capital->Z});'>Adicionar nova Nave</a></div>";
 		}
 
 		$html .= $html_lista;

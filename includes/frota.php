@@ -175,7 +175,7 @@ class frota
 				<td><div data-atributo='pdf_projetil' data-editavel='true' data-valor-original='{$this->pdf_projetil}' data-style='width: 50px;' data-id='pdf_projetil'>{$this->pdf_projetil}</div></td>
 				<td><div data-atributo='blindagem' data-editavel='true' data-valor-original='{$this->blindagem}' data-style='width: 50px;' data-id='blindagem'>{$this->blindagem}</div></td>
 				<td><div data-atributo='escudos' data-editavel='true' data-valor-original='{$this->escudos}' data-style='width: 50px;' data-id='escudos'>{$this->escudos}</div></td>
-				<td><div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='{$this->pdf_bombardeamento}' data-style='width: 50px;' data-id='qtd_bombas'>{$this->pdf_bombardeamento}</div></td>
+				<td><div data-atributo='pdf_bombardeamento' data-editavel='true' data-valor-original='{$this->pdf_bombardeamento}' data-style='width: 50px;' data-id='pdf_bombardeamento'>{$this->pdf_bombardeamento}</div></td>
 				<td><div data-atributo='poder_invasao' data-editavel='true' data-valor-original='{$this->poder_invasao}' data-style='width: 50px;' data-id='qtd_tropas'>{$this->poder_invasao}</div></td>
 				<td><div data-atributo='pesquisa' data-type='checkbox' data-editavel='true' data-valor-original='{$this->pesquisa}' data-id='pesquisa'><input type='checkbox' data-atributo='pesquisa' data-ajax='true' {$pesquisa_checked} disabled></input></div></td>
 				<td><div data-atributo='camuflagem' data-editavel='true' data-valor-original='{$this->camuflagem}' data-id='camuflagem' data-style='width: 50px;'>{$this->camuflagem}</div></td>

@@ -93,6 +93,7 @@ class instala_db {
 		id_tech_parent VARCHAR(255) DEFAULT 0,
 		lista_requisitos VARCHAR(255) DEFAULT '',
 		belica BOOLEAN DEFAULT FALSE,
+		parte_nave BOOLEAN DEFAULT FALSE,
 		publica BOOLEAN DEFAULT TRUE,
 		especiais VARCHAR(255) DEFAULT '',
 		icone VARCHAR(255) DEFAULT ''

@@ -345,7 +345,7 @@ class acoes
 	$turno_atual = somente libera para edição se o Turno exibido for o Turno atual
 	***********************/
 	function lista_dados($turno_atual=true) {
-		global $wpdb;
+		global $wpdb, $plugin_colonization;
 		
 		$html = "";
 		$ultimo_planeta = 0;
@@ -460,40 +460,7 @@ class acoes
 				}
 			}
 			
-			switch($this->nivel_instalacao[$chave]) {
-			case 1:
-				$nivel = "Mk I";
-				break;
-			case 2:
-				$nivel = "Mk II";
-				break;
-			case 3:
-				$nivel = "Mk III";
-				break;
-			case 4:
-				$nivel = "Mk IV";
-				break;
-			case 5:
-				$nivel = "Mk V";
-				break;
-			case 6:
-				$nivel = "Mk VI";
-				break;
-			case 7:
-				$nivel = "Mk VII";
-				break;
-			case 8:
-				$nivel = "Mk VIII";
-				break;
-			case 9:
-				$nivel = "Mk IX";
-				break;
-			case 10:
-				$nivel = "Mk X";
-				break;				
-			default:
-				$nivel = "";
-			}
+			$nivel = $plugin_colonization->html_mk($this->nivel_instalacao[$chave]);
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 0) {
 				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";

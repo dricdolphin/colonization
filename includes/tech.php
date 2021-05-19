@@ -19,6 +19,7 @@ class tech
 	public $id_tech_requisito = [];
 	public $id_tech_alternativa;
 	public $belica;
+	public $parte_nave;
 	public $publica;
 	public $especiais;
 	public $icone;
@@ -35,7 +36,7 @@ class tech
 			return;
 		}
 
-		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, lista_requisitos, belica, publica, especiais, icone 
+		$resultados = $wpdb->get_results("SELECT nome, descricao, custo, nivel, id_tech_parent, lista_requisitos, belica, parte_nave, publica, especiais, icone 
 		FROM colonization_tech WHERE id=".$this->id);
 		$resultado = $resultados[0];
 		
@@ -47,6 +48,7 @@ class tech
 		$this->lista_requisitos = $resultado->lista_requisitos;
 		$this->id_tech_requisito = explode(";",$resultado->lista_requisitos);
 		$this->belica = $resultado->belica;
+		$this->parte_nave = $resultado->parte_nave;
 		$this->publica = $resultado->publica;
 		$this->especiais = $resultado->especiais;
 		$this->icone = $resultado->icone;
@@ -73,16 +75,19 @@ class tech
 	function lista_dados() {
 		global $wpdb;
 
+		$belica_checked = "";
 		if ($this->belica == 1) {
 			$belica_checked = "checked";
-		} else {
-			$belica_checked = "";
 		}
 
+		$parte_nave_checked = "";
+		if ($this->parte_nave == 1) {
+			$parte_nave_checked = "checked";
+		} 
+
+		$publica_checked = "";
 		if ($this->publica == 1) {
 			$publica_checked = "checked";
-		} else {
-			$publica_checked = "";
 		}
 
 		//Exibe os dados do Objeto
@@ -101,6 +106,7 @@ class tech
 			<td><div data-atributo='id_tech_parent' data-editavel='true' data-valor-original='{$this->id_tech_parent}' data-style='width: 30px;'>{$this->id_tech_parent}</div></td>
 			<td><div data-atributo='lista_requisitos' data-editavel='true' data-branco='true' data-valor-original='{$this->lista_requisitos}' data-style='width: 100px;'>{$this->lista_requisitos}</div></td>
 			<td><div data-atributo='belica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->belica}'><input type='checkbox' data-atributo='belica' data-ajax='true' {$belica_checked} disabled></input></div></td>			
+			<td><div data-atributo='parte_nave' data-type='checkbox' data-editavel='true' data-valor-original='{$this->parte_nave}'><input type='checkbox' data-atributo='parte_nave' data-ajax='true' {$parte_nave_checked} disabled></input></div></td>			
 			<td><div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='{$this->publica}'><input type='checkbox' data-atributo='publica' data-ajax='true' {$publica_checked} disabled></input></div></td>			
 			<td><div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original='{$this->especiais}'>{$this->especiais}</div></td>
 			<td><div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original='{$this->icone}'>{$this->icone}</div></td>
