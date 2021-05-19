@@ -140,7 +140,7 @@ class colonization_ajax {
 	Valida uma nova nave
 	***********************/
 	function valida_nave() {
-		global $wpdb;
+		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
@@ -157,7 +157,9 @@ class colonization_ajax {
 		$custo = json_decode($semslashes,true);
 		$semslashes = stripslashes($_POST['string_nave']);
 		$string_nave = json_decode($semslashes,true);
-		$dados_salvos['debug'] = "POST: {$semslashes} \nCusto: {$string_nave}";
+		$dados_salvos['debug'] = "POST: {$semslashes} \n
+		string_nave: {$string_nave} \n
+		tamanho: {$_POST['tamanho']} nivel_estacao_orbital: {$_POST['nivel_estacao_orbital']} \n";
 		$dados_salvos['resposta_ajax'] = "OK!";
 		
 		$queries = [];
@@ -247,6 +249,14 @@ class colonization_ajax {
 				WHERE cic.id_imperio={$imperio->id}
 				AND cic.turno={$imperio->turno->turno}
 				AND cic.capital=true");
+				$dados_salvos['debug'] .= "\n
+				SELECT cp.id_estrela
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cic.id_imperio={$imperio->id}
+				AND cic.turno={$imperio->turno->turno}
+				AND cic.capital=true\n";
 				
 				$estrela_capital = new estrela($id_estrela_capital);
 
@@ -258,7 +268,8 @@ class colonization_ajax {
 				AND (cif.turno_destroi IS NULL OR cif.turno_destroi = 0)");
 				
 				if ($estacao_orbital_na_capital == 0) {
-					$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital na Capital com Mk {} ou melhor para poder construir essa nave!";
+					$html_mk = $plugin_colonization->html_mk($qtd_estacao_orbital_requerida);
+					$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital{$html_mk} ou melhor na Capital para poder construir essa nave!";
 					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 					wp_die(); //Termina o script e envia a resposta					
 				}
