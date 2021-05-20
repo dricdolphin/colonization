@@ -57,6 +57,43 @@ class colonization_ajax {
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida os dados de uma nave
 		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
+		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
+	}
+
+
+	//lista_techs_ocultas
+	function lista_techs_ocultas() {
+		global $wpdb;
+		
+		$tech = new tech();
+		
+		/***
+		$resultados = $wpdb->get_results(
+		"SELECT id, nome
+		FROM colonization_tech
+		WHERE publica=0
+		ORDER BY nome");
+		//***/
+		
+		$resultados = $tech->query_tech(); //Pega TODAS as Techs, em ordem
+		
+		$lista_nome = [];
+		$lista_id = [];
+		$index = 0;
+		foreach ($resultados as $resultado) {
+			$tech = new tech($resultado->id);
+			if ($tech->publica == 0) {
+				$lista_nome[] = $tech->nome;
+				$lista_id[] = $tech->id;
+				$index++;
+			}
+		}
+
+		$dados_salvos['lista_nome'] = $lista_nome;
+		$dados_salvos['lista_id'] = $lista_id;
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta			
 	}
 
 	/***********************
@@ -1053,6 +1090,15 @@ class colonization_ajax {
 			$tech_imperio = new imperio_techs($id_tech);
 			if ($tech_imperio->custo_pago == 0) {
 				$dados_salvos['resposta_ajax'] = "O Império já possui essa Tech!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
+		}
+		
+		if ($_POST['tech_permitida'] == "true") {
+			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs_permitidas WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
+			if (!empty($id_tech)) {
+				$dados_salvos['resposta_ajax'] = "O Império já está autorizado à pesquisar essa Tech!";
 				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 				wp_die(); //Termina o script e envia a resposta
 			}

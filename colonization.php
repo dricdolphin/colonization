@@ -1107,7 +1107,8 @@ class colonization {
 		global $asgarosforum, $wpdb;
 		
 		$user = wp_get_current_user();
-		$ids_pendentes = [];
+		$ids_pendentes_techs = [];
+		$ids_pendentes_recurso = [];
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];

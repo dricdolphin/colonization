@@ -531,12 +531,12 @@ class lista_instalacoes
 		
 		$this->html_lista .= "
 		/******************
-		function lista_techs_ocultas_html(id=0)
+		function lista_techs_ocultas_html_old(id=0)
 		--------------------
 		Cria a lista de Techs
 		id -- qual ID está selecionado
 		******************/
-		function lista_techs_ocultas_html(id=0) {
+		function lista_techs_ocultas_html_old(id=0) {
 			
 			var lista=[];
 			var lista_valores=[];

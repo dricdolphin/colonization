@@ -538,7 +538,9 @@ class instala_db {
 		AFTER UPDATE
 		ON colonization_imperio_recursos FOR EACH ROW
 		BEGIN
-
+		IF OLD.qtd <> new.qtd THEN
+			INSERT INTO colonization_log_recursos_imperio SET id_imperio=new.id_imperio, id_recurso=new.id_recurso, qtd=old.qtd-new.qtd, turno=new.turno;
+		END IF;
 		END$$
 		DELIMITER ;");
 		

@@ -47,6 +47,46 @@ function processa_xhttp_basico(dados_ajax)	{
 	});
 }
 
+/******************
+function processa_xhttp_resposta(dados_ajax)
+--------------------
+Processa um AJAX genérico e devolve os dados no RESOLVE
+******************/	
+function processa_xhttp_resposta(dados_ajax)	{
+	
+	return new Promise((resolve, reject) => {
+		//Envia a chamada de AJAX para salvar o objeto
+		let xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let resposta = "";
+				try {
+					resposta = JSON.parse(this.responseText);
+				} catch (err) {
+					console.log(this.responseText);
+					console.log(err);
+					reject('JSON_PARSE');
+					return false;
+				}
+
+				if (resposta.debug !== undefined) {
+					console.log(resposta.debug);
+				}
+
+				if (resposta.mensagem !== undefined) {
+					alert(resposta.mensagem);	
+				}
+				resolve(resposta);
+			} else if (this.status == 500) {
+				console.log(this.responseText);
+				console.log(this.statusText);
+			}
+		};
+		xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhttp.send(dados_ajax);
+	});
+}
 
 /******************
 function valida_generico(objeto)
@@ -134,12 +174,15 @@ function valida_tech_imperio(objeto)
 Valida os dados da Tech sendo adicionada à um Império
 objeto -- objeto sendo editado
 ******************/	
-function valida_tech_imperio(objeto, somente_valida=false) {
+function valida_tech_imperio(objeto, somente_valida=false, tech_permitida=false) {
 	let linha = pega_ascendente(objeto,"TR");
 	let celulas = linha.cells;
 	let inputs_linha = linha.getElementsByTagName("INPUT");
 	let select_linha = linha.getElementsByTagName("SELECT");
 	let dados_ajax = "post_type=POST&action=valida_tech_imperio&somente_valida=" + somente_valida ;
+	if (tech_permitida) {
+		dados_ajax = dados_ajax + "&tech_permitida=true";
+	}
 	let retorno = false;
 	let custo_pago = "";
 
@@ -226,8 +269,8 @@ objeto -- objeto sendo editado
 ******************/	
 function valida_tech_permitida_imperio(objeto) {
 	let somente_valida = true;
-	
-	return valida_tech_imperio(objeto, somente_valida);
+	let tech_permitida = true;
+	return valida_tech_imperio(objeto, somente_valida, tech_permitida);
 }
 
 /******************

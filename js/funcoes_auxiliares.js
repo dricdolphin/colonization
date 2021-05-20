@@ -536,3 +536,35 @@ function destacar_recurso(objeto) {
 		}
 	}
 }
+
+/******************
+function lista_techs_ocultas_html_old(id=0)
+--------------------
+Cria a lista de Techs
+id -- qual ID está selecionado
+******************/
+function lista_techs_ocultas_html(id=0) {
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=lista_techs_ocultas";
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
+	
+	return retorno.then((successMessage) => {
+		let lista_nome=successMessage.lista_nome;
+		let lista_id=successMessage.lista_id;
+		
+		let lista_select = document.createElement("select");
+		for (let index = 0; index < lista_nome.length; index++) {
+			let select_option = document.createElement("option");
+			select_option.value = lista_id[index]; 
+			select_option.text = lista_nome[index];
+			if (lista_id[index] == id) {
+				select_option.selected = true;
+			}
+			lista_select.appendChild(select_option);
+		}
+		return lista_select;
+	});
+
+	//return retorno;
+}
