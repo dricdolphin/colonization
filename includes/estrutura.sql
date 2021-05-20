@@ -347,3 +347,13 @@ id_post INT(6) DEFAULT NULL,
 page_id BOOLEAN DEFAULT FALSE,
 deletavel BOOLEAN DEFAULT TRUE
 )
+
+--Tabela com os logs de alteração de recursos
+CREATE TABLE IF NOT EXISTS colonization_log_recursos_imperio (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) DEFAULT 0,
+id_recurso INT(6) NOT NULL,
+qtd INT(6) NOT NULL,
+turno INT(6) NOT NULL,
+data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+)

@@ -365,6 +365,16 @@ class instala_db {
 		deletavel BOOLEAN DEFAULT TRUE
 		)");
 		
+		//Tabela com as Referências do Fórum
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_referencia_forum (CREATE TABLE IF NOT EXISTS colonization_log_recursos_imperio (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) DEFAULT 0,
+		id_recurso INT(6) NOT NULL,
+		qtd INT(6) NOT NULL,
+		turno INT(6) NOT NULL,
+		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+		)");
+		
 		//Cria as duas configurações que NÃO podem ser deletadas
 		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=1, descricao='Page ID do Fórum', id_post=357, page_id=1, deletavel=0");
 		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=2, descricao='ID do Tópico de Missões', id_post=321, page_id=0, deletavel=0");
@@ -521,7 +531,16 @@ class instala_db {
 		DELETE FROM colonization_balancos_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
 		DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = new.id_imperio AND turno=new.turno;
 		END$$
-		DELIMITER ;");		
+		DELIMITER ;");
+		
+		$wpdb->query("DELIMITER $$
+		CREATE TRIGGER atualiza_recursos_imperio
+		AFTER UPDATE
+		ON colonization_imperio_recursos FOR EACH ROW
+		BEGIN
+
+		END$$
+		DELIMITER ;");
 		
 	}
 }
