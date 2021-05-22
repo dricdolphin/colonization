@@ -56,25 +56,21 @@ class colonization_ajax {
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida os dados de uma nave
 		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
+		add_action('wp_ajax_muda_nome_nave', array ($this, 'muda_nome_nave')); //Muda o nome de uma nave
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
 	}
 
 
-	//lista_techs_ocultas
+	/***********************
+	function lista_techs_ocultas()
+	----------------------
+	Exibe a lista com as Techs ocultas
+	***********************/
 	function lista_techs_ocultas() {
 		global $wpdb;
 		
 		$tech = new tech();
-		
-		/***
-		$resultados = $wpdb->get_results(
-		"SELECT id, nome
-		FROM colonization_tech
-		WHERE publica=0
-		ORDER BY nome");
-		//***/
-		
 		$resultados = $tech->query_tech(); //Pega TODAS as Techs, em ordem
 		
 		$lista_nome = [];
@@ -97,9 +93,9 @@ class colonization_ajax {
 	}
 
 	/***********************
-	function muda_nome_colonia()
+	function tirar_cerco()
 	----------------------
-	Muda o nome de uma colônia
+	Tira uma estrela do cerco
 	***********************/
 	function tirar_cerco() {
 		global $wpdb;
@@ -170,6 +166,39 @@ class colonization_ajax {
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta	
 	}
+	
+	/***********************
+	function muda_nome_nave()
+	----------------------
+	Muda o nome de uma nave
+	***********************/
+	function muda_nome_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		$turno = new turno();
+		$imperio = new imperio();
+		$nave = new frota($_POST['id']);
+		
+		if ($imperio->id != $nave->id_imperio && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Você precisa ser o proprietário dessa Nave para poder alterar seu nome!";
+		}
+		
+		if (empty($dados_salvos)) {
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET nome='{$_POST['novo_nome']}' WHERE id={$_POST['id']}");
+			$dados_salvos['resposta_ajax'] = "OK!";
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta	
+	}	
 
 	/***********************
 	function valida_nave()
@@ -1448,7 +1477,7 @@ class colonization_ajax {
 				}
 			}
 			
-			if (!$colonia_dentro_logistica) {
+			if (!$colonia_dentro_logistica && $_POST['vassalo'] != 1) {
 				$dados_salvos['resposta_ajax'] = "Esta estrela está além do Alcance Logístico do Império!";
 			}
 		}

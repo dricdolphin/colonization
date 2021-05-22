@@ -706,7 +706,7 @@ function nova_colonia(evento, id_imperio) {
 	+"<input type='hidden' data-atributo='funcao_validacao' value='valida_colonia'></input>"
 	+"<input type='hidden' data-atributo='mensagem_exclui_objeto' value='Tem certeza que deseja remover esta colônia?'></input>"
 	+"<div data-atributo='id' data-valor-original=''>#</div>"
-	+"<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='"+id_imperio+"' data-argumentos='\"id_remove\":\"0\", \"npcs\":\"0\"}' data-valor-original='"+nome_imperio+"'>"+lista_imperios+"</div>"
+	+"<div data-atributo='nome_imperio' data-editavel='true' data-type='select' data-funcao='lista_imperios_html' data-id-selecionado='"+id_imperio+"' data-argumentos='{\"id_remove\":\"0\", \"npcs\":\"0\"}' data-valor-original='"+nome_imperio+"'>"+lista_imperios+"</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 	nome_planeta.innerHTML = "<div data-atributo='nome_planeta' data-editavel='true' data-type='select' data-funcao='lista_planetas_html' data-id-selecionado='' data-valor-original=''>"+lista_planetas+"</div>";
 	capital.innerHTML = "<div data-atributo='capital' data-type='checkbox' data-editavel='true' data-valor-original=''><input type='checkbox' data-atributo='capital' data-ajax='true' value='1'></input></div>";

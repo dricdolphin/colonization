@@ -333,9 +333,12 @@ function valida_colonia(objeto) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id" 
 		|| inputs_linha[index].getAttribute('data-atributo') == "turno" 
 		|| inputs_linha[index].getAttribute('data-atributo') == "nome_npc" 
-		|| inputs_linha[index].getAttribute('data-atributo') == "pop") {
+		|| inputs_linha[index].getAttribute('data-atributo') == "pop"
+		|| inputs_linha[index].getAttribute('data-atributo') == "vassalo") {
 			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
+			} else if(inputs_linha[index].type == "checkbox" && inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
 			} else {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 			}

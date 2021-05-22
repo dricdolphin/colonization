@@ -294,7 +294,7 @@ class frota
 		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 		<input type='hidden' data-atributo='where_clause' value='id'></input>
 		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
-		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} \"{$this->nome}\"</b></div>
+		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} '<a href='#' onclick='return muda_nome_nave({$this->id}, event);'>{$this->nome}</a>'</b></div>
 		<div data-atributo='atributos'>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
 
 		$html .= $html_armas;

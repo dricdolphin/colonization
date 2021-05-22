@@ -141,6 +141,7 @@ function edita_objeto(evento, objeto) {
 	let data_type = "";
 	let data_checked = "";
 	let data_ajax = "";
+	let data_id = "";
 	
 	
 	//Pega cada uma das células e altera para o modo de edição, caso seja editável

@@ -1517,6 +1517,37 @@ function muda_nome_colonia(id_planeta, evento) {
 }
 
 /******************
+function muda_nome_nave(objeto) 
+--------------------
+Muda o nome de uma Nave
+id_nave = id da nave
+******************/	
+function muda_nome_nave(id_nave, evento) {
+	let confirma = confirm('Tem certeza que deseja mudar o nome dessa Nave?');
+	let novo_nome = "";
+	
+	if (confirma) {
+		novo_nome = prompt('Qual será o novo nome do Nave?');
+	} else {
+		evento.preventDefault();
+		return false;
+	}
+	
+	if (novo_nome !== null && novo_nome != "") {
+		let dados_ajax = "post_type=POST&action=muda_nome_nave&id=" + id_nave + "&novo_nome=" + novo_nome;
+		let resposta = processa_xhttp_basico(dados_ajax);
+		resposta.then((successMessage) => {
+			if (successMessage) {
+				document.location.reload();
+			}
+		});		
+	}
+
+	evento.preventDefault();
+	return false;	
+}
+
+/******************
 function tirar_cerco(objeto, evento, id_estrela) 
 --------------------
 Tira uma Estrela do Cerco

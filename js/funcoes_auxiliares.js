@@ -538,7 +538,7 @@ function destacar_recurso(objeto) {
 }
 
 /******************
-function lista_techs_ocultas_html_old(id=0)
+function lista_techs_ocultas_html_(id=0)
 --------------------
 Cria a lista de Techs
 id -- qual ID está selecionado
@@ -554,6 +554,8 @@ function lista_techs_ocultas_html(id=0) {
 		let lista_id=successMessage.lista_id;
 		
 		let lista_select = document.createElement("select");
+		lista_select.setAttribute("data-atributo","id_tech");
+		lista_select.style.width = "100%";
 		for (let index = 0; index < lista_nome.length; index++) {
 			let select_option = document.createElement("option");
 			select_option.value = lista_id[index]; 
