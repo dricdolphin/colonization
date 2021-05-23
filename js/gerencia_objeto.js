@@ -967,6 +967,9 @@ function roda_turno(evento) {
 				div_dados_acoes_imperios.innerHTML = resposta.dados_acoes_imperios;
 				div_turno.innerHTML = resposta.turno_novo;
 			}
+		} else if (this.status == 500) {
+				console.log(this.responseText);
+				console.log(this.statusText)
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

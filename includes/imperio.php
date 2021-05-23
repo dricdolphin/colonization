@@ -43,6 +43,7 @@ class imperio
 	public $coloniza_inospito = 0;
 	public $alimento_inospito = 0;
 	public $consome_poluicao = 0;
+	public $bonus_invasao = 1;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -201,10 +202,21 @@ class imperio
 		WHERE cit.id_imperio={$this->id} 
 		AND cit.custo_pago = 0
 		AND ct.especiais != ''
+		AND ct.parte_nave = false
 		AND turno <= {$this->turno->turno}");
 		
 		foreach ($especiais_lista AS $id) {
 			$especiais = explode(";",$id->especiais);
+			
+			//bonus_invasao
+			$bonus_invasao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_invasao') !== false;
+			}));
+			
+			if (!empty($bonus_invasao)) {
+				$bonus_invasao_valor = explode("=",$bonus_invasao[0]);
+				$this->bonus_invasao = $this->bonus_invasao	+ $bonus_invasao_valor[1];
+			}
 			
 			//Especiais -- max_pop
 			$max_pop = array_values(array_filter($especiais, function($value) {

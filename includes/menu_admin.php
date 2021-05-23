@@ -1475,6 +1475,7 @@ class menu_admin {
 		$html .= "<br>
 		<div id='resultado_turno'>&nbsp;</div>";
 		//$html = $roda_turno->executa_roda_turno();
+		//$html .= $roda_turno->aumenta_pop_colonias();
 		
 		echo $html;
 	}

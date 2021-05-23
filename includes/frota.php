@@ -303,7 +303,16 @@ class frota
 
 		$html .= " HP: {$this->HP}/{$this->HP_max};";
 		
+		if ($this->poder_invasao > 0) {
+			$poder_invasao_total = $this->poder_invasao;
+			if (empty($imperio)) {
+				$imperio = new imperio($this->id_imperio);
+			}
+			$poder_invasao_total = $this->poder_invasao * $imperio->bonus_invasao;
 
+			$html .= " Poder de Invasão: {$poder_invasao_total};";	
+		}
+		
 		if ($this->especiais != "") {
 		$html .= " Especiais: {$this->especiais};";
 		} 
@@ -324,7 +333,6 @@ class frota
 		</div>
 		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a>{$href_calcula_distancia}</div>
 		</td>";			
-
 
 		return $html;
 	}		
@@ -468,6 +476,55 @@ class frota
 		$distancia = sqrt(($estrela_origem->X - $estrela_destino->X)**2 + ($estrela_origem->Y - $estrela_destino->Y)**2 + ($estrela_origem->Z - $estrela_destino->Z)**2);
 		
 		return $distancia;
+	}
+	
+	/***********************
+	function exibe_frota()
+	----------------------
+	Exibe uma Nave
+	***********************/
+	function html_nave($imperio) {
+		//HP: fas fa-heart
+		//Velocidade: far fa-tachometer-alt
+		//Blindagem: fas fa-hard-hat
+		//Escudos: fas fa-shield
+		//PdF Laser: far fa-sword-laser
+		//PdF Torpedo: far fa-bahai
+		//PdF Projétil: far fa-asterisc
+		
+		$tipo = "";
+		if ($this->tipo != "Estação Orbital") {
+			$tipo = "<span style='font-weight: normal; font-size: 0.9em;'>{$this->tipo}</span>&nbsp;";
+		}
+		
+		$html_nave = "{$tipo}<div class='fas fa-heart' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->HP_max}</span></div>";
+		$html_nave .= "<div class='far fa-tachometer-alt' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->velocidade}</span></div>";
+		
+		if ($this->blindagem >0) {
+			$html_nave .= "<div class='fas fa-hard-hat' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>{&nbsp;$this->blindagem}</span></div>";
+		}
+		
+		if ($this->escudos >0) {
+			$html_nave .= "<div class='fas fa-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->escudos}</span></div>";
+		}
+
+		if ($this->pdf_laser >0) {
+			$html_nave .= "<div class='far fa-sword-laser' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_laser}</span></div>";
+		}
+
+		if ($this->pdf_torpedo >0) {
+			$html_nave .= "<div class='far fa-bahai' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_torpedo}</span></div>";
+		}
+		
+		if ($this->pdf_projetil >0) {
+			$html_nave .= "<div class='far fa-asterisk' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_projetil}</span></div>";
+		}
+		
+		if ($this->poder_invasao >0) {
+			$poder_invasao_total = $this->poder_invasao * $imperio->bonus_invasao;
+			$html_nave .= "<div class='fas fa-users' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_invasao_total}</span></div>";
+		}
+		return $html_nave;
 	}
 
 }

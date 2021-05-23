@@ -2253,8 +2253,14 @@ if (!empty($imperios[0])) {
 				$html_nave_estrela_atual = "{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})";
 			}
 			
+			$html_nome_nave = $nave->nome;
+			if ($nave->id_imperio != 0) {
+				$html_nave = $nave->html_nave($imperio);
+				$html_nome_nave = "<span class='tooltip'><span class='tooltiptext'>{$html_nave}</span>{$nave->nome}</span>";
+			}
+			
 			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
-			{$html_estacao_orbital}<b>{$html_qtd}{$nave->nome}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
+			{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
 			</div>";
 		}
 		
@@ -2266,6 +2272,8 @@ if (!empty($imperios[0])) {
 		<div id='recursos_consumidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_consumidos}</div>
 		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
+		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
+		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis <i class='fas fa-users'></i>Poder de Invasão</div>
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
@@ -2810,7 +2818,7 @@ var id_imperio_atual = {$imperio->id};
 		<div>---------------------------------------------------</div>
 		<div id='especiais'>
 		<div><label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' value='1'></input><br></div>
-		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input></div>
+		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input></div>
 		<div><label>Transporte de Tropas: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_tropas' value='0' min='0' style='width: 50px;'></input></div>
 		<div><label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombardeamento' value='0' min='0' style='width: 50px;'></input>Mk: <input type='number' id='mk_bombardeamento' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
 		<div><label>Camuflagem: </label><input type='number' id='camuflagem' onchange='return calcula_custos(event, this);' value='0' max='3' min='0' style='width: 50px;'></input></div>
@@ -2820,8 +2828,6 @@ var id_imperio_atual = {$imperio->id};
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
 		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>
 		";
-		//{"laser":{"qtd":0,"mk":1},"torpedo":{"qtd":0,"mk":1},"projetil":{"qtd":0,"mk":1},"blindagem":{"qtd":0,"mk":1},"escudos":{"qtd":0,"mk":1}}
-		//"0":{"0":1,"1":2,"2":3}
 		
 		return $html;
 	}
