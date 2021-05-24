@@ -237,6 +237,8 @@ class roda_turno {
 		$turno = new turno();
 		$turno_anterior = $turno->turno - 1;
 		$id_imperios = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$colonia = [];
 		
 		foreach ($id_imperios as $id_imperio) {
@@ -246,14 +248,17 @@ class roda_turno {
 			$imperio_recursos = new imperio_recursos($imperio->id, $turno_anterior);				
 			
 			$chave_alimento = array_search($id_alimento,$imperio_recursos->id_recurso);
-			$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 			$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$imperio->id} AND turno={$turno_anterior}");
 			$alimentos = $imperio_recursos->qtd[$chave_alimento] + $acoes->recursos_balanco[$id_alimento];
 			//$html .= "<br><br>qtd_alimentos: {$imperio_recursos->qtd[$chave_alimento]} + balanco_alimentos: {$acoes->recursos_balanco[$id_alimento]}<br>";
 			foreach ($ids_colonias as $id_colonia) {
 				$colonia[$id_colonia->id] = new colonia($id_colonia->id);
 				$nova_pop = $colonia[$id_colonia->id]->crescimento_colonia($imperio, $alimentos, $imperio->acoes->recursos_balanco[$id_alimento]);
-				$html .= "UPDATE colonization_imperio_colonias SET poluicao={$colonia[$id_colonia->id]->poluicao}, pop={$colonia[$id_colonia->id]->pop}+{$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo} WHERE id_planeta={$colonia[$id_colonia->id]->id_planeta} AND id_imperio={$colonia[$id_colonia->id]->id_imperio} AND turno={$turno->turno};<br>";
+				$poluicao = $colonia[$id_colonia->id]->poluicao + $acoes->recursos_balanco_planeta[$id_poluicao][$colonia[$id_colonia->id]->id_planeta];
+				if ($poluicao < 0) {
+					$poluicao = 0;
+				}
+				$html .= "UPDATE colonization_imperio_colonias SET poluicao={$poluicao} WHERE id_planeta={$colonia[$id_colonia->id]->id_planeta} AND id_imperio={$colonia[$id_colonia->id]->id_imperio} AND turno={$turno->turno};<br>";
 				//$wpdb->query("UPDATE colonization_imperio_colonias SET poluicao={$colonia[$id_colonia->id]->poluicao}, pop={$colonia[$id_colonia->id]->pop}+{$nova_pop}, pop_robotica={$colonia[$id_colonia->id]->pop_robotica}, id_planeta={$colonia[$id_colonia->id]->id_planeta}, id_imperio={$colonia[$id_colonia->id]->id_imperio}, capital={$colonia[$id_colonia->id]->capital}, vassalo={$colonia[$id_colonia->id]->vassalo} WHERE id_planeta={$colonia[$id_colonia->id]->id_planeta} AND id_imperio={$colonia[$id_colonia->id]->id_imperio} AND turno={$turno->turno}");	
 			}
 		}

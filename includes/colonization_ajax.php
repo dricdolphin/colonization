@@ -1105,6 +1105,7 @@ class colonization_ajax {
 		
 		//Verifica se o Império já tem essa Tech
 		$dados_salvos['debug'] = "";
+		$imperio = new imperio($_POST['id_imperio']);
 		if (empty($_POST['id'])) {
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
 			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']} \n";
@@ -1217,7 +1218,6 @@ class colonization_ajax {
 		$pesquisas_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
 		
 		if ($pesquisas_imperio < $custo_a_pagar && $_POST['tech_inicial'] != 1) {
-			$imperio = new imperio($_POST['id_imperio']);
 			if (empty($dados_salvos['resposta_ajax'])) {
 				$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). {$_POST['tech_inicial']}";
 				$dados_salvos['custo_pago'] = $pesquisas_imperio;

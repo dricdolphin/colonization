@@ -699,6 +699,7 @@ class colonization {
 			$query_estrela = " AND ce.id={$atts['id_estrela']}";
 		}		
 		
+		$ids_naves = [];
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_naves = $wpdb->get_results("
 			SELECT cif.id, {$turno->turno} AS turno

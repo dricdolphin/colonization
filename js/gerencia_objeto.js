@@ -192,7 +192,7 @@ function copia_objeto(objeto)
 Copia um objeto na última linha
 objeto -- objeto sendo editado
 ******************/
-function copiar_objeto(evento, objeto, id_imperio) {
+function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	let tabela = document.getElementsByTagName('TABLE');
 	
 	for (let index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {

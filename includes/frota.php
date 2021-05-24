@@ -206,7 +206,9 @@ class frota
 				<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
-				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div></td>";			
+				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a>
+				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio},true);'>Criar cópia</a>
+				<br></div></td>";			
 		}
 		
 		return $html;
@@ -501,7 +503,7 @@ class frota
 		$html_nave .= "<div class='far fa-tachometer-alt' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->velocidade}</span></div>";
 		
 		if ($this->blindagem >0) {
-			$html_nave .= "<div class='fas fa-hard-hat' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>{&nbsp;$this->blindagem}</span></div>";
+			$html_nave .= "<div class='fas fa-hard-hat' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->blindagem}</span></div>";
 		}
 		
 		if ($this->escudos >0) {
