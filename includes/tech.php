@@ -152,9 +152,16 @@ class tech
 					ON ct.id=citp.id_tech
 					WHERE citp.id_imperio = {$imperio->id}
 					UNION
+					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 as publica
+					FROM colonization_imperio_techs AS cit
+					JOIN colonization_tech AS ct
+					ON ct.id = cit.id_tech
+					WHERE cit.id_imperio = {$imperio->id}
+					UNION
 					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
 					FROM colonization_tech AS ct
 					WHERE ct.id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$imperio->id})
+					AND ct.id NOT IN (SELECT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$imperio->id})
 					) AS ct)";
 			}
 		} else {
@@ -180,7 +187,7 @@ class tech
 			ORDER BY ct.belica, ct.lista_requisitos, ct.nome");
 
 			/*** DEBUG ***
-			if ($roles == "administrator" || $imperio->id == 7) {
+			if ($roles == "administrator") {
 				echo "
 				SELECT ct.id, ct.id_tech_parent{$custo_pago} 
 				FROM {$tabela_colonization_tech} AS ct
