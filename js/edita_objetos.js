@@ -378,7 +378,7 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 		}
 	});
 	
-	valida_dados.then((successMessage) => {
+	let retorno = valida_dados.then((successMessage) => {
 		if (!successMessage) {
 			objeto_em_salvamento = false;
 		} else {
@@ -394,53 +394,57 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 			objeto_editado['dados_ajax'] = "post_type=POST&action=salva_objeto&tabela="+nome_tabela+objeto_editado['dados_ajax']+"&where_clause="+objeto_editado['where_clause']+"&where_value="+objeto_editado['where_value'];
 
 			//Envia a chamada de AJAX para salvar o objeto
-			let xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					let resposta="";
-					try {
-						resposta = JSON.parse(this.responseText);
-					} 
-					catch (err) {
-						console.log(this.responseText);
-						retorno = false;
-						return false;
-					}
-					
-					if (resposta.debug !== undefined) {
-						console.log(resposta.debug);
-					}					
-					
-					objeto_em_salvamento = false;
-					objeto_em_edicao = false; //Libera a edição de outros objetos
-					range_em_edicao = false;
-					
-					if (resposta.resposta_ajax == "SALVO!") {
-						//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
-						let objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
-						console.log(resposta[0]);
-						let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
-						if (typeof(funcao_pos_processamento) !== "undefined") {
-							if (resposta.pos_processamento != undefined) {
-								let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
-							} else {
-								let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
-							}
+			return new Promise((resolve, reject) => {
+				let xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						let resposta="";
+						try {
+							resposta = JSON.parse(this.responseText);
+						} 
+						catch (err) {
+							console.log(this.responseText);
+							retorno = false;
+							return false;
 						}
-					if (jogador) {
-						document.location.reload();
+						
+						if (resposta.debug !== undefined) {
+							console.log(resposta.debug);
+						}					
+						
+						objeto_em_salvamento = false;
+						objeto_em_edicao = false; //Libera a edição de outros objetos
+						range_em_edicao = false;
+						
+						if (resposta.resposta_ajax == "SALVO!") {
+							//Após salvar os dados, remove os "inputs" e transforma a linha em texto, deixando o Império passível de ser editado
+							let objeto_desabilitado = desabilita_edicao_objeto(objeto, cancela, remove_gerenciar);
+							console.log(resposta[0]);
+							let objeto_atualizado = atualiza_objeto(objeto_desabilitado,resposta[0]); //O objeto salvo está no array resposta[0]
+							if (typeof(funcao_pos_processamento) !== "undefined") {
+								if (resposta.pos_processamento != undefined) {
+									let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento, resposta.pos_processamento);	
+								} else {
+									let processa = chama_funcao_validacao(objeto_desabilitado, funcao_pos_processamento);
+								}
+							}
+							if (jogador) {
+								document.location.reload();
+							}
+							resolve(true);
+						} else {
+							alert(resposta.resposta_ajax);
+							resolve(false);
+						}
+					} else if (this.status == 500) {
+						console.log(this.responseText);
+						console.log(this.statusText);			
 					}
-					} else {
-						alert(resposta.resposta_ajax);
-					}
-				} else if (this.status == 500) {
-					console.log(this.responseText);
-					console.log(this.statusText);			
-				}
-			};
-			xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
-			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhttp.send(objeto_editado['dados_ajax']);
+				};
+				xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xhttp.send(objeto_editado['dados_ajax']);
+			});
 			/********************************************
 				PARTE QUE EFETIVAMENTE SALVA O OBJETO
 			*********************************************/	
@@ -456,7 +460,7 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 
 	objeto_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
 	evento.preventDefault();
-	return false;
+	return retorno;
 }
 
 /******************

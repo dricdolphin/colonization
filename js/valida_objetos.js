@@ -644,7 +644,7 @@ function valida_nave(objeto){
 	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
 	let dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&string_nave="+dados['string_nave'].value
 	+"&id_imperio="+dados['id_imperio'].value+"&tamanho="+dados['tamanho'].value+"&nivel_estacao_orbital="+dados['nivel_estacao_orbital'].value
-	+"&id="+dados['id'].value;
+	+"&id="+dados['id'].value+"&turno_destruido="+dados['turno_destruido'].value;
 
 	if (!valida_generico(objeto)) {
 		return false;

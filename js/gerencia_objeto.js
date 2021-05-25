@@ -205,9 +205,61 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	let linha = pega_ascendente(objeto,"TR");
 	let celulas = linha.getElementsByTagName("TD");
 	let inputs = [];
+
+	if (upgrade) {
+		let objeto_editado = edita_objeto(evento, objeto);
+		inputs = linha.getElementsByTagName("INPUT");
+		let input_custo = "";
+		let input_turno_destruido = "";
+		for (let index_input = 0; index_input < inputs.length; index_input++) {
+			if (inputs[index_input].getAttribute('data-atributo') == "custo") {
+				input_custo = inputs[index_input];
+			} else if (inputs[index_input].getAttribute('data-atributo') == "turno_destruido") {
+				input_turno_destruido = inputs[index_input];
+			}
+		}
+		
+		let custo_nave = JSON.parse(input_custo.value);
+		if (input_turno_destruido.value != 0) {
+			alert('Não é possível realizar o upgrade de uma nave que já tenha sido destruída!');
+			salva_objeto(evento, objeto, true);
+			
+			evento.preventDefault();
+			return false;
+		}
+		
+		custo_nave['upgrade'] = true;
+		input_custo.value = JSON.stringify(custo_nave);
+		input_turno_destruido.value = turno_atual;
+		
+		objeto_em_edicao = false;
+		objeto_em_salvamento = false;
+		
+		let retorno_salva_objeto = new Promise((resolve, reject) =>	{
+			resolve(salva_objeto(evento, objeto));
+		});
+		
+		retorno_salva_objeto.then((successMessage) => {
+			//console.log("Nave foi destruída e custos devolvidos!");
+			
+			let nave_upgrade = copiar_objeto(evento, objeto, id_imperio);
+			let inputs_nave_upgrade = nave_upgrade.getElementsByTagName("INPUT");
+			
+			for (let index_input = 0; index_input < inputs_nave_upgrade.length; index_input++) {
+				if (inputs_nave_upgrade[index_input].getAttribute('data-atributo') == "turno") {
+					inputs_nave_upgrade[index_input].value = turno_atual;
+				} else if (inputs_nave_upgrade[index_input].getAttribute('data-atributo') == "turno_destruido") {
+					inputs_nave_upgrade[index_input].value = 0;
+				}
+			}
+		});
+		
+		return false;
+	}
 	
 	let linha_nova = tabela.insertRow(-1);
 	
+	let celula = "";
 	for (let index = 0; index < celulas.length; index++) {
 		celula = linha_nova.insertCell(index);
 		celula.innerHTML = celulas[index].innerHTML;
@@ -216,13 +268,17 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	let retorno = edita_objeto(evento, celula);
 
 	celulas = linha_nova.getElementsByTagName("TD");
-	inputs = celulas[0].getElementsByTagName("INPUT");
-	ahrefs = celulas[0].getElementsByTagName("A");
+	inputs = linha_nova.getElementsByTagName("INPUT");
+	ahrefs = linha_nova.getElementsByTagName("A");
 
 	for (let index_input = 0; index_input < inputs.length; index_input++) {
 		if (inputs[index_input].getAttribute('data-atributo') == "id" || inputs[index_input].getAttribute('data-atributo') == "where_value") {
 			inputs[index_input].value = "";
 			inputs[index_input].setAttribute('data-valor-original',"");
+		} else if(inputs[index_input].getAttribute('data-atributo') == "custo") {
+			let custo_nave = JSON.parse(inputs[index_input].value);
+			delete custo_nave.upgrade;
+			inputs[index_input].value = JSON.stringify(custo_nave);
 		}
 	}
 	
@@ -233,7 +289,7 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	}		
 	
 	evento.preventDefault();
-	return false;
+	return linha_nova;
 }
 
 /******************

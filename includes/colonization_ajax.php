@@ -211,24 +211,24 @@ class colonization_ajax {
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		
-		if (!empty($_POST['id'])) {//Só é necessário validar naves que sejam novas
+		$custo = json_decode(stripslashes($_POST['custo']),true);
+		$upgrade = array_key_exists("upgrade", $custo);
+		
+		if (!empty($_POST['id']) && !$upgrade) {//Só é necessário validar naves que sejam novas OU não seja um upgrade
 			$dados_salvos['resposta_ajax'] = "OK!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
+		} elseif ($upgrade && $_POST['turno_destruido'] == 0) {
+			$dados_salvos['resposta_ajax'] = "O atributo 'UPGRADE' é reservado somente para naves sendo atualizadas!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
 		}
 		
 		$imperio = new imperio($_POST['id_imperio']);
-		//$custo = json_decode(stripslashes($_POST['custo']));
-		$semslashes = stripslashes($_POST['custo']);
-		$custo = json_decode($semslashes,true);
-		$semslashes = stripslashes($_POST['string_nave']);
-		$string_nave = json_decode($semslashes,true);
-		$dados_salvos['debug'] = "POST: {$semslashes} \n
-		string_nave: {$string_nave} \n
-		tamanho: {$_POST['tamanho']} nivel_estacao_orbital: {$_POST['nivel_estacao_orbital']} \n";
+		$string_nave = json_decode(stripslashes($_POST['string_nave']),true);
 		$dados_salvos['resposta_ajax'] = "OK!";
-		
 		$queries = [];
+		
 		foreach ($custo as $nome_recurso => $qtd) {
 			if ($qtd == 0) {
 				continue;
@@ -240,16 +240,23 @@ class colonization_ajax {
 				$nome_recurso = "Enérgium";
 			} elseif ($nome_recurso == "nor_duranium") {
 				$nome_recurso = "Nor-Duranium";
+			} elseif ($nome_recurso == "upgrade") {
+				continue;
 			}
 			
 			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
 			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
-			if ($qtd_recurso_imperio < $qtd) {
+			if ($qtd_recurso_imperio < $qtd && !$upgrade) {
 				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes!";
 				break;
 			}
-			$queries[] = "UPDATE colonization_imperio_recursos SET qtd=qtd-{$qtd} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}";
+			
+			$soma_ou_subtrai = "-";
+			if ($upgrade) {//Devolve os recursos da nave
+				$soma_ou_subtrai = "+";
+			}
+			$queries[] = "UPDATE colonization_imperio_recursos SET qtd=qtd{$soma_ou_subtrai}{$qtd} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}";
 		}
 
 		//Valida os dados da Nave de acordo com a Tech do Império
@@ -344,15 +351,16 @@ class colonization_ajax {
 			
 			foreach ($string_nave as $chave_tech => $valor) {
 				if (str_contains($chave_tech, "mk_")) {//Todas as chaves "mk_" representam alguma Tech
-				//TODO -- verifica qual seria a Tech necessária e se o Império tem essa Tech
+					//TODO -- verifica qual seria a Tech necessária e se o Império tem essa Tech
 				} elseif (str_contains($chave_tech, "qtd_")) {//Os dados de QTD não definem necessidade de Tech, EXCETO para a nivel_estacao_orbital
-				
+					//TODO -- verifica o que fazer
 				} elseif (str_contains($chave_tech, "nivel_estacao_orbital")) {
-				
+					//TODO -- verifica o que fazer
+				} else {
+					//TODO -- verifica o que fazer
 				}
 			}
 		}
-			
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {
 			foreach ($queries as $chave => $query) {

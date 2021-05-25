@@ -183,7 +183,10 @@ class frota
 				<td><div data-atributo='especiais' data-editavel='true' data-type='textarea' data-valor-original='{$this->especiais}' data-branco='true' data-style='width: 120px; height: 100px;' data-id='especiais'>{$this->especiais}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
-				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div>
+				<td><div data-atributo='gerenciar'>
+				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a><br>
+				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio},true);'>Upgrade</a>
+				</div>
 				</td>";
 		
 		} else {
@@ -206,9 +209,7 @@ class frota
 				<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
-				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a>
-				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio},true);'>Criar cópia</a>
-				<br></div></td>";			
+				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div></td>";			
 		}
 		
 		return $html;
