@@ -1161,10 +1161,19 @@ class menu_admin {
 		//Naves dos Jogadores
 		foreach ($lista_id_imperio as $id) {
 			$imperio = new imperio($id->id,true);
-
+			$id_estrela_capital = $wpdb->get_var("
+			SELECT cp.id_estrela
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			WHERE cic.id_imperio={$imperio->id}
+			AND cic.turno={$turno->turno}
+			AND cic.capital=true");
+			$estrela_capital =  new estrela($id_estrela_capital);
+			
 			$html_lista	.= "
 			<div><h4>COLONIZATION - Frotas do Império '{$imperio->nome}' - Turno {$turno->turno}</h4></div>
-			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$id->id}' data-tabela='colonization_imperio_frota' data-X='{$estrela_capital->X}' data-Y='{$estrela_capital->Y}' data-Z='{$estrela_capital->Z}'>
 			<thead>
 			<tr class='th_linha_1'><th rowspan='2' style='width: 140px;'>Nome da nave</th>
 			<th rowspan='2' style='width: 100px;'>Categoria</th>
@@ -1192,17 +1201,7 @@ class menu_admin {
 			</thead>
 			<tbody>";
 			
-			
 			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
-			$id_estrela_capital = $wpdb->get_var("
-			SELECT cp.id_estrela
-			FROM colonization_imperio_colonias AS cic
-			JOIN colonization_planeta AS cp
-			ON cp.id = cic.id_planeta
-			WHERE cic.id_imperio={$imperio->id}
-			AND cic.turno={$turno->turno}
-			AND cic.capital=true");
-			$estrela_capital =  new estrela($id_estrela_capital);
 			
 			foreach ($lista_id_frota as $id_frota) {
 				$frota = new frota($id_frota->id);

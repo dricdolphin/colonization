@@ -207,30 +207,37 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	let inputs = [];
 
 	if (upgrade) {
+		//O upgrade só pode ser feito na Capital
 		let objeto_editado = edita_objeto(evento, objeto);
+		let input = [];
+		
 		inputs = linha.getElementsByTagName("INPUT");
-		let input_custo = "";
-		let input_turno_destruido = "";
+		
 		for (let index_input = 0; index_input < inputs.length; index_input++) {
-			if (inputs[index_input].getAttribute('data-atributo') == "custo") {
-				input_custo = inputs[index_input];
-			} else if (inputs[index_input].getAttribute('data-atributo') == "turno_destruido") {
-				input_turno_destruido = inputs[index_input];
+			if (inputs[index_input].getAttribute('data-atributo') == "custo" || inputs[index_input].getAttribute('data-atributo') == "turno_destruido"
+				|| inputs[index_input].getAttribute('data-atributo') == "X" || inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
+				input[inputs[index_input].getAttribute('data-atributo')] = inputs[index_input];
 			}
 		}
 		
-		let custo_nave = JSON.parse(input_custo.value);
-		if (input_turno_destruido.value != 0) {
+		let custo_nave = JSON.parse(input['custo'].value);
+		if (input['turno_destruido'].value != 0) {
 			alert('Não é possível realizar o upgrade de uma nave que já tenha sido destruída!');
 			salva_objeto(evento, objeto, true);
 			
 			evento.preventDefault();
 			return false;
+		} else if(input['X'] != tabela.getAttribute("data-X") || input['Y'] != tabela.getAttribute("data-Y") || input['Z'] != tabela.getAttribute("data-Z")) {
+			alert('Só é possível fazer o upgrade de uma nave que esteja na Capital!');
+			salva_objeto(evento, objeto, true);
+			
+			evento.preventDefault();
+			return false;			
 		}
 		
 		custo_nave['upgrade'] = true;
-		input_custo.value = JSON.stringify(custo_nave);
-		input_turno_destruido.value = turno_atual;
+		input['custo'].value = JSON.stringify(custo_nave);
+		input['turno_destruido'].value = turno_atual;
 		
 		objeto_em_edicao = false;
 		objeto_em_salvamento = false;
@@ -252,6 +259,7 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 					inputs_nave_upgrade[index_input].value = 0;
 				}
 			}
+			//nave_upgrade.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 		});
 		
 		return false;
@@ -279,6 +287,14 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 			let custo_nave = JSON.parse(inputs[index_input].value);
 			delete custo_nave.upgrade;
 			inputs[index_input].value = JSON.stringify(custo_nave);
+		}  else if (id_imperio !=0) {
+			if (inputs[index_input].getAttribute('data-atributo') == "X" 
+				|| inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
+				let string_data = 'data-' + inputs[index_input].getAttribute('data-atributo');
+				inputs[index_input].value = tabela.getAttribute(string_data);
+			} else if (inputs[index_input].getAttribute('data-atributo') == "turno") {
+				inputs[index_input].value = turno_atual;
+			}
 		}
 	}
 	
@@ -289,6 +305,7 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 	}		
 	
 	evento.preventDefault();
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	return linha_nova;
 }
 

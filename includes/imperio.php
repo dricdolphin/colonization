@@ -1122,6 +1122,13 @@ class imperio
 				}
 				
 				$html_defesas_sistema = "";
+				if (!is_array($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]])) {
+					$torpedos = $qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]];
+					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]] = [];
+					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedos'] = $torpedos;
+					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedeiros'] = $torpedos;
+				}
+				
 				if ($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedos'] > 0) {
 					if ($this->torpedos_sistema_estelar) {
 						$pdf_torpedo_sistema_estelar = (($this->pdf_torpedo*2)-1);

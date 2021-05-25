@@ -252,7 +252,12 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let custo_escudos = (Math.trunc(chassi/5,0)+1)*nave.mk_escudos;
 
 	let qtd_blindagem = custo_blindagem;
-	let qtd_escudos = custo_escudos;	
+	let qtd_escudos = custo_escudos;
+	
+	if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
+		qtd_blindagem = (Math.trunc(50/10,0)+1)*nave.mk_blindagem + Math.trunc(Math.pow(chassi-50,(1/3)))*nave.mk_blindagem;
+		qtd_escudos = (Math.trunc(50/5,0)+1)*nave.mk_escudos + Math.trunc(Math.pow(chassi-50,(1/3)))*nave.mk_escudos;
+	}
 	
 	blindagem = Math.ceil(Math.pow(nave.mk_blindagem*2-1,1.5));
 	escudos = Math.ceil(Math.pow(nave.mk_escudos*2-1,1.5));
@@ -277,6 +282,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let texto_tritanium= "";
 	if (nave.tritanium_blindagem) {
 		tritanium = 1*qtd_blindagem;
+		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
+			tritanium = (Math.trunc(50/10,0)+1)*nave.mk_blindagem + Math.trunc(Math.pow(chassi-50,(1/3)))*nave.mk_blindagem;
+		}
 		blindagem = blindagem*3;
 		texto_tritanium = " | Tritanium: "+tritanium;
 	}
@@ -285,6 +293,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let texto_neutronium = "";
 	if (nave.neutronium_blindagem) {
 		neutronium = 1*qtd_blindagem;
+		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
+			neutronium = (Math.trunc(50/10,0)+1)*nave.mk_blindagem + Math.trunc(Math.pow(chassi-50,(1/3)))*nave.mk_blindagem;
+		}
 		texto_neutronium = " | Neutronium: "+neutronium;
 		if (tritanium) {
 			blindagem = blindagem*5;
@@ -317,6 +328,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let texto_corasita = "";
 	if (nave.mk_escudos*1 > 2) {
 		corasita = energium_escudos;
+		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
+			corasita = (Math.trunc(50/5,0)+1)*nave.mk_escudos + Math.trunc(Math.pow((chassi-50)/2,(1/3)))*nave.mk_escudos;
+		}		
 		energium_escudos = 0;
 		texto_corasita = " | Corasita: "+corasita;
 	}	
@@ -356,6 +370,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	if (nave.nivel_estacao_orbital != 0) {
 		categoria = "Estação Orbital";
 		velocidade = 0;
+		alcance = 0;
 	}
 
 

@@ -222,11 +222,19 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = "O atributo 'UPGRADE' é reservado somente para naves sendo atualizadas!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta			
+		} elseif (!empty($_POST['id']) && $upgrade) {
+			$nave = new frota($_POST['id']);
+			if ($nave->turno_destruido != 0) {//Não é um upgrade, está apenas salvando
+				$dados_salvos['resposta_ajax'] = "OK!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
 		}
 		
 		$imperio = new imperio($_POST['id_imperio']);
 		$string_nave = json_decode(stripslashes($_POST['string_nave']),true);
 		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['debug'] = "";
 		$queries = [];
 		
 		foreach ($custo as $nome_recurso => $qtd) {
@@ -245,6 +253,7 @@ class colonization_ajax {
 			}
 			
 			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
+			$dados_salvos['debug'] .= "SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}' => id_recurso: {$id_recurso}\n";
 			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
 			if ($qtd_recurso_imperio < $qtd && !$upgrade) {
@@ -666,6 +675,12 @@ class colonization_ajax {
 		global $wpdb;
 		
 		$nave = new frota($_POST['id']);
+		if ($nave->alcance == 0 || $nave->nivel_estacao_orbital != 0) {
+			$dados_salvos['resposta_ajax'] = "Não é possível despachar a nave até o destino desejado.";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die();			
+		}
+		
 		
 		$imperio = new imperio($nave->id_imperio);
 		$user = wp_get_current_user();
@@ -706,7 +721,6 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Essa nave já foi despachada para {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})!";
 			}
 		}
-		
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die();
