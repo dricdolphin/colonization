@@ -2781,6 +2781,7 @@ var id_imperio_atual = {$imperio->id};
 	$atts = [] - lista de atributos dentro do shortcode 
 	***********************/	
 	function colonization_exibe_constroi_naves($atts = [], $content = null) {
+		global $wpdb;
 		$user = wp_get_current_user();
 		
 		$roles = "";
@@ -2789,12 +2790,58 @@ var id_imperio_atual = {$imperio->id};
 		}
 
 		$estilo = "";
+		
+		$imperio = new imperio();
 		if ($roles != "administrator") {
-			$estilo = "style='visibility: hidden;'";
+			$estilo = "style='display: none;'";
+			$imperio = new imperio();
 		}
 		
-		$html = "<h3>Construção de Naves</h3>
+		$outras_partes_nave = "";
+		$html_javascript = "";
+		$tech = new tech();
+		if ($imperio->id != 0) {
+			/***
+			$ids_techs = $wpdb->get_results("SELECT ct.id
+			FROM colonization_imperio_techs AS cit
+			JOIN colonization_tech AS ct
+			ON ct.id = cit.id_tech 
+			WHERE cit.id_imperio = {$imperio->id} AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+			//***/
+			
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
+		} else {
+			/***
+			$ids_techs = $wpdb->get_results("SELECT ct.id
+			FROM colonization_tech AS ct
+			WHERE ct.parte_nave = true AND ct.especiais LIKE '%id=%'");			
+			//***/
+			
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+		}
+		
+		//$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+		foreach ($ids_techs AS $id_tech) {
+			$tech = new tech($id_tech->id);
+			
+			$especiais = explode(";",$tech->especiais);
+			foreach ($especiais as $chave => $especial) {
+				if (str_contains($especial,"id=")) {
+					$valor_especial = explode("=",$especial);
+					$outras_partes_nave .= "		<div><label>{$tech->nome}: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='{$valor_especial[1]}' data-descricao='{$tech->nome}' value='1'></input><br></div>\n";
+					$html_javascript .= "descricao_parte['{$valor_especial[1]}'] = \"{$tech->nome}\";\n";
+					break;
+				}
+			}
+		}
+		
+		$html = "<script type='text/javascript'>
+		{$html_javascript}
+		</script>
+		<h3>Construção de Naves</h3>
+		<div id='simulador_nave'>
 		<div id='string_construcao' {$estilo}><label>String da Nave: </label><input type='text' value='' id='input_string_construcao' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return processa_string(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Processa a String</a></div>
+		<div id='nome_nave' {$estilo}><label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return salvar_nave(event, this, {$imperio->id_imperio});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a></div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
 		<h4>Custos</h4>
@@ -2822,12 +2869,14 @@ var id_imperio_atual = {$imperio->id};
 		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input></div>
 		<div><label>Transporte de Tropas: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_tropas' value='0' min='0' style='width: 50px;'></input></div>
 		<div><label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombardeamento' value='0' min='0' style='width: 50px;'></input>Mk: <input type='number' id='mk_bombardeamento' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
-		<div><label>Camuflagem: </label><input type='number' id='camuflagem' onchange='return calcula_custos(event, this);' value='0' max='3' min='0' style='width: 50px;'></input></div>
+		<div><label>Camuflagem: </label><input type='number' id='mk_camuflagem' onchange='return calcula_custos(event, this);' value='0' max='3' min='0' style='width: 50px;'></input></div>
 		<div {$estilo}><label>Slots Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_slots_extra' value='0' min='0' style='width: 50px;'></input></div>
 		<div {$estilo}><label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input></div>
+		{$outras_partes_nave}
 		</div>
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
 		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>
+		</div>
 		";
 		
 		return $html;

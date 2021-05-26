@@ -39,8 +39,10 @@ var nave_template = {
 	'qtd_slots_extra' : 0,
 	'qtd_hp_extra' : 0,
 	'mk_bombardeamento' : 0,
-	'camuflagem' : 0
+	'mk_camuflagem' : 0
 };
+
+var descricao_parte = [];
 
 /******************
 function calcula_custos(evento, objeto)
@@ -49,10 +51,10 @@ Calcula os custos de uma nave
 ******************/	
 function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	if (Object.keys(nave).length == 0) {//Se não tem uma nave em JSON, então pega os dados da nave do Formulário
-		let partes_nave = document.getElementsByTagName("INPUT");
+		let partes_nave = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
 		let objeto_nave = {};
 		let input_string_construcao = document.getElementById("input_string_construcao");
-		if (input_string_construcao.length == 1) {
+		if (input_string_construcao !== undefined) {
 			for(let index = 0; index < partes_nave.length; index++) {
 				if (partes_nave[index].id != "input_string_construcao") {
 					objeto_nave[partes_nave[index].id] = 0;
@@ -87,7 +89,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			let div_especiais = document.getElementById('especiais');
 			let inputs_div_especiais = div_especiais.getElementsByTagName("INPUT");
 			for (let index=0; index < inputs_div_especiais.length; index++) {
-				if (inputs_div_especiais[index].id != "nivel_estacao_orbital") {
+				if (inputs_div_especiais[index].id != "nivel_estacao_orbital" && inputs_div_especiais[index].getAttribute("data-descricao") == undefined) {
 					if (inputs_div_especiais[index].type == "checkbox") {
 						inputs_div_especiais[index].checked = false;
 					} else if(inputs_div_especiais[index].id .search("mk_") === -1) {
@@ -152,7 +154,6 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 	}	
 
-
 	if (nave.qtd_pesquisa) {
 		texto_especiais = "(1) - Pode realizar Pesquisas";
 		qtd_pesquisa = 1;
@@ -170,7 +171,6 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			especiais++;
 		}
 	}
-
 	
 	chassi = nave.qtd_bombardeamento*10 + nave.qtd_tropas*7 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + qtd_pesquisa*1;
 	
@@ -381,6 +381,18 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
 
+	for (let property in nave) {
+		if (descricao_parte[property] !== undefined && nave[property]) {
+			if (especiais == 1) {
+				texto_especiais = "(1) - " + descricao_parte[property];
+				especiais++;
+			} else {
+				texto_especiais = texto_especiais + "; ("+especiais+") - " + descricao_parte[property];
+				especiais++;
+			}
+		}
+	}	
+
 	let dados_nave = {
 		'tamanho' : chassi,
 		'velocidade' : velocidade,
@@ -397,7 +409,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'pesquisa' : nave.qtd_pesquisa,
 		'nivel_estacao_orbital' : nave.nivel_estacao_orbital,
 		'qtd_tropas': nave.qtd_tropas,
-		'camuflagem' : nave.camuflagem
+		'mk_camuflagem' : nave.mk_camuflagem
 	}
 
 	let custos = {
@@ -594,7 +606,6 @@ function processa_string_admin (evento, objeto) {
 		}
 	}
 
-
 	let calcula_nave = calcula_custos(evento, objeto, nave, false);
 	
 	/**********
@@ -634,7 +645,7 @@ function processa_string_admin (evento, objeto) {
 		'pesquisa' : document.getElementById('pesquisa'),
 		'nivel_estacao_orbital' : document.getElementById('nivel_estacao_orbital'),
 		'qtd_tropas' : document.getElementById('qtd_tropas'),
-		'camuflagem' : document.getElementById('camuflagem'),
+		'mk_camuflagem' : document.getElementById('mk_camuflagem'),
 		'custo' : document.getElementById('custo')
 	};
 
@@ -647,6 +658,96 @@ function processa_string_admin (evento, objeto) {
 	}
 	
 	nave_elementos.custo.value = JSON.stringify(calcula_nave.custo);
+	
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
+function salvar_nave
+--------------------
+Salva uma nave
+******************/
+function salvar_nave(evento, objeto, id_imperio) {
+	//let inputs = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
+	let nome_modelo = document.getElementById("nome_modelo").value;
+	let string_nave = document.getElementById("texto_partes_nave").value;
+	let texto_nave = document.getElementById("dados").value;
+	let texto_custo = document.getElementById("custo").value;
+	
+	let data_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+nome_modelo
+	+"&string_nave="+string_nave+"&texto_nave="+texto_nave+"&texto_custo="+texto_custo;
+	
+	let resposta = new Promise((resolve, reject) => {
+		resolve(processa_xhttp_resposta(data_ajax));
+	});
+	
+	resposta.then((successMessage) => {
+		if (successMessage != "SALVO!") {
+			alert(successMessage);
+		} else {
+			document.location.reload();
+		}
+	});
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function deletar_nave
+--------------------
+Deleta uma nave
+******************/
+function deletar_nave(evento, objeto, id_nave) {
+	let confirma = confirm("Tem certeza que deseja excluir essa nave?");
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;		
+	}
+	
+	let dados_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
+	
+	let resposta = new Promise((resolve, reject) => {
+		resolve(processa_xhttp_resposta(data_ajax));
+	});
+	
+	resposta.then((successMessage) => {
+		if (successMessage != "OK!") {
+			alert(successMessage);
+		} else {
+			let linha = pega_ascendente(objeto,"TR");
+			linha.remove();
+		}
+	});
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function carregar_nave
+--------------------
+Carrega a string de uma nave salva e a processa
+******************/
+function carregar_nave(evento, objeto) {
+	let tabela = pega_ascendente(objeto,"TABLE");
+	let linha = pega_ascendente(objeto,"TR");
+	let inputs_linha = linha.getElementsByTagName("INPUT");
+	let string_nave = "";
+	
+	for (let index=0; index<inputs_linha.length; index++) {
+		if (inputs_linha[index].getAttribute("data-atributo") == "string_nave") {
+			string_nave = inputs_linha[index].value;
+			break;
+		}
+	}
+	
+	let input_string_nave = document.getElementById('input_string_construcao');
+	input_string_nave = string_nave;
+	calcula_custos(evento, objeto);
 	
 	evento.preventDefault();
 	return false;

@@ -164,7 +164,7 @@ class tech
 					AND ct.id NOT IN (SELECT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$imperio->id})
 					) AS ct)";
 			}
-		} else {
+		} elseif ($id_imperio != 0) {
 			$custo_pago = ", cit.custo_pago, cit.id_imperio";
 
 			$join = "			

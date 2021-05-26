@@ -365,14 +365,24 @@ class instala_db {
 		deletavel BOOLEAN DEFAULT TRUE
 		)");
 		
-		//Tabela com as Referências do Fórum
-		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_referencia_forum (CREATE TABLE IF NOT EXISTS colonization_log_recursos_imperio (
+		//Tabela com os logs de recursos
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_log_recursos_imperio (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		id_imperio INT(6) DEFAULT 0,
 		id_recurso INT(6) NOT NULL,
 		qtd INT(6) NOT NULL,
 		turno INT(6) NOT NULL,
 		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+		)");
+		
+		//Tabela com os modelos de naves
+		$wpdb->query("CREATE TABLE IF NOT EXISTS colonization_modelo_naves (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		id_imperio INT(6) DEFAULT 0,
+		nome_modelo VARCHAR(255) NOT NULL,
+		string_nave TEXT DEFAULT '',
+		texto_nave TEXT DEFAULT '',
+		texto_custo TEXT DEFAULT ''
 		)");
 		
 		//Cria as duas configurações que NÃO podem ser deletadas

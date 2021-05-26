@@ -292,7 +292,7 @@ class colonization_ajax {
 			'mk_impulso' : 0,
 			'mk_dobra' : 0,
 			'mk_bombardeamento' : 0,
-			'camuflagem' : 0
+			'mk_camuflagem' : 0
 		};
 		//***/
 		
@@ -357,6 +357,8 @@ class colonization_ajax {
 				}
 				
 			}
+			
+			
 			
 			foreach ($string_nave as $chave_tech => $valor) {
 				if (str_contains($chave_tech, "mk_")) {//Todas as chaves "mk_" representam alguma Tech

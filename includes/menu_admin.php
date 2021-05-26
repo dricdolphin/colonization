@@ -1111,9 +1111,28 @@ class menu_admin {
 		$turno = new turno();
 		
 		$html = $this->html_header;
+
+		//Códigos das Techs Auxiliares
+		$tech = new tech();
+		$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+		$html_javascript = "";
+		foreach ($ids_techs AS $id_tech) {
+			$tech = new tech($id_tech->id);
+			
+			$especiais = explode(";",$tech->especiais);
+			foreach ($especiais as $chave => $especial) {
+				if (str_contains($especial,"id=")) {
+					$valor_especial = explode("=",$especial);
+					$html_javascript .= "descricao_parte['{$valor_especial[1]}'] = \"{$tech->nome}\";\n";
+					break;
+				}
+			}
+		}
 		
-		$html .= "<div><h2>COLONIZATION - Frotas dos Impérios</h2></div>";
-		
+		$html .= "<script type='text/javascript'>
+		{$html_javascript}
+		</script>
+		<div><h2>COLONIZATION - Frotas dos Impérios</h2></div>";
 		
 		//Pega a lista de impérios
 		$lista_id_imperio = $wpdb->get_results("SELECT id FROM colonization_imperio");
