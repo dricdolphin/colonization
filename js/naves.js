@@ -690,15 +690,13 @@ function salvar_nave(evento, objeto, id_imperio) {
 		}
 	}
 	
-	let data_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+dados['nome_modelo']
-	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo'];
-	
-	
+	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+dados['nome_modelo']
+	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual;
 	
 	let resposta = new Promise((resolve, reject) => {
 		objeto_em_salvamento = true;
-		resolve(processa_xhttp_resposta(data_ajax));
-		//resolve(data_ajax);
+		resolve(processa_xhttp_resposta(dados_ajax));
+		//resolve(dados_ajax);
 	});
 	
 	resposta.then((successMessage) => {
@@ -727,10 +725,10 @@ function deleta_nave(evento, objeto, id_nave) {
 		return false;		
 	}
 	
-	let data_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
+	let dados_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
 	
 	let resposta = new Promise((resolve, reject) => {
-		resolve(processa_xhttp_resposta(data_ajax));
+		resolve(processa_xhttp_resposta(dados_ajax));
 	});
 	
 	resposta.then((successMessage) => {

@@ -2879,9 +2879,9 @@ var id_imperio_atual = {$imperio->id};
 		
 		$html .= "<br><hr><br><div><h4>Modelos de Naves</h4></div>
 		<div>
-		<table class='lista_techs_imperio' style='width: 700px;'>
+		<table class='lista_techs_imperio' style='width: 800px;'>
 		<thead>
-		<tr><th style='width: 200px;'>Nome do Modelo</th><th style='width: 200px;'>Dados da Nave</th><th style='width: 150px;'>Custo</th><th>&nbsp;</th></tr>
+		<tr><th style='width: 200px;'>Nome do Modelo</th><th style='width: 200px;'>Dados da Nave</th><th style='width: 150px;'>Custo</th><th style='width: 70px;'>Turno</th><th>&nbsp;</th></tr>
 		</thead>
 		<tbody>";
 

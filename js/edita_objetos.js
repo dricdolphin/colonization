@@ -140,7 +140,7 @@ function edita_objeto(evento, objeto) {
 	let data_estilo = "";
 	let data_type = "";
 	let data_checked = "";
-	let data_ajax = "";
+	let dados_ajax = "";
 	let data_id = "";
 	
 	
@@ -161,7 +161,7 @@ function edita_objeto(evento, objeto) {
 		
 		for (let index_div = 0; index_div < divs.length; index_div++) {
 			editavel = divs[index_div].getAttribute('data-editavel');
-			data_ajax= "";
+			dados_ajax= "";
 			data_id = "";
 			if (editavel) {
 				atributo = divs[index_div].getAttribute('data-atributo');
@@ -172,9 +172,9 @@ function edita_objeto(evento, objeto) {
 				}
 				
 				if (divs[index_div].getAttribute('data-ajax') == "false") {
-					data_ajax = "data-ajax='false'";
+					dados_ajax = "data-ajax='false'";
 				} else {
-					data_ajax = "data-ajax='true'";
+					dados_ajax = "data-ajax='true'";
 				}
 				
 				if (divs[index_div].getAttribute('data-id') !== null) {
@@ -204,10 +204,10 @@ function edita_objeto(evento, objeto) {
 						}
 					
 					} else if (divs[index_div].getAttribute('data-type') == "textarea") {
-						divs[index_div].innerHTML = "<textarea data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" "+data_estilo+">"+valor_atributo+"</textarea>";
+						divs[index_div].innerHTML = "<textarea data-atributo='"+atributo+"' "+data_id+" "+dados_ajax+" "+data_estilo+">"+valor_atributo+"</textarea>";
 					}
 				} else {
-					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' "+data_id+" "+data_ajax+" value='"+valor_atributo+"'"+data_estilo+"></input>";
+					divs[index_div].innerHTML = "<input type='text' data-atributo='"+atributo+"' "+data_id+" "+dados_ajax+" value='"+valor_atributo+"'"+data_estilo+"></input>";
 				}
 			}
 		}

@@ -15,6 +15,7 @@ class modelo_naves
 	public $string_nave;
 	public $texto_nave;
 	public $texto_custo;
+	public $turno;
 	
 	/***********************
 	function __construct()
@@ -30,7 +31,7 @@ class modelo_naves
 			return;
 		}			
 			
-		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_modelo, string_nave, texto_nave, texto_custo FROM colonization_modelo_naves WHERE id={$id}");
+		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_modelo, string_nave, texto_nave, texto_custo, turno FROM colonization_modelo_naves WHERE id={$id}");
 		$resultado = $resultados[0];
 		
 		$this->id = $id;
@@ -39,12 +40,13 @@ class modelo_naves
 		$this->string_nave = $resultado->string_nave;
 		$this->texto_nave = $resultado->texto_nave;
 		$this->texto_custo = $resultado->texto_custo;
+		$this->turno = $resultado->turno;
 	}
 	
 	function lista_dados() {
 		global $wpdb;
 		
-		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td>
+		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td><td>{$this->turno}</td>
 		<td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
 	
 		return $html;
