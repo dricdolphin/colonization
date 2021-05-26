@@ -59,8 +59,40 @@ class colonization_ajax {
 		add_action('wp_ajax_muda_nome_nave', array ($this, 'muda_nome_nave')); //Muda o nome de uma nave
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
+		add_action('wp_ajax_deletar_nave', array ($this, 'deletar_nave'));//Deleta uma nave MODELO
 	}
 
+
+	/***********************
+	function deletar_nave()
+	----------------------
+	Deleta uma nave
+	***********************/
+	function deletar_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		$modelo_nave = new modelo_naves($_POST['id']);
+		$imperio = new imperio($modelo_nave->id_imperio);
+	
+		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '' pode deletar um modelo de nave que ele criou!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
+		}
+	
+		$wpdb->query("DELETE FROM colonization_modelo_naves WHERE id={$_POST['id']}");
+		$dados_salvos['resposta_ajax'] = "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta			
+	}
 
 	/***********************
 	function lista_techs_ocultas()
@@ -357,8 +389,6 @@ class colonization_ajax {
 				}
 				
 			}
-			
-			
 			
 			foreach ($string_nave as $chave_tech => $valor) {
 				if (str_contains($chave_tech, "mk_")) {//Todas as chaves "mk_" representam alguma Tech

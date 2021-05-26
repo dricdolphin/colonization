@@ -671,21 +671,40 @@ Salva uma nave
 ******************/
 function salvar_nave(evento, objeto, id_imperio) {
 	//let inputs = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
-	let nome_modelo = document.getElementById("nome_modelo").value;
-	let string_nave = document.getElementById("texto_partes_nave").value;
-	let texto_nave = document.getElementById("dados").value;
-	let texto_custo = document.getElementById("custo").value;
+	if (objeto_em_salvamento) {
+		evento.preventDefault();
+		return false;
+	}
 	
-	let data_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+nome_modelo
-	+"&string_nave="+string_nave+"&texto_nave="+texto_nave+"&texto_custo="+texto_custo;
+	let dados = {};
+	dados['nome_modelo'] = encodeURIComponent(document.getElementById("nome_modelo").value);
+	dados['string_nave'] = document.getElementById("texto_partes_nave").innerText;
+	dados['texto_nave'] = document.getElementById("dados").innerText;
+	dados['texto_custo'] = document.getElementById("custos").innerText;
+	
+	for (const property in dados) {
+		console.log(dados[property]);
+		if (dados[property] == "") {
+			alert('Nenhum dado pode ser deixado em branco!');
+			return false;
+		}
+	}
+	
+	let data_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+dados['nome_modelo']
+	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo'];
+	
+	
 	
 	let resposta = new Promise((resolve, reject) => {
+		objeto_em_salvamento = true;
 		resolve(processa_xhttp_resposta(data_ajax));
+		//resolve(data_ajax);
 	});
 	
 	resposta.then((successMessage) => {
-		if (successMessage != "SALVO!") {
-			alert(successMessage);
+		console.log(successMessage);
+		if (successMessage.resposta_ajax != "SALVO!") {
+			alert(successMessage.resposta_ajax);
 		} else {
 			document.location.reload();
 		}
@@ -696,11 +715,11 @@ function salvar_nave(evento, objeto, id_imperio) {
 }
 
 /******************
-function deletar_nave
+function deleta_nave
 --------------------
 Deleta uma nave
 ******************/
-function deletar_nave(evento, objeto, id_nave) {
+function deleta_nave(evento, objeto, id_nave) {
 	let confirma = confirm("Tem certeza que deseja excluir essa nave?");
 	
 	if (!confirma) {
@@ -708,14 +727,14 @@ function deletar_nave(evento, objeto, id_nave) {
 		return false;		
 	}
 	
-	let dados_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
+	let data_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
 	
 	let resposta = new Promise((resolve, reject) => {
 		resolve(processa_xhttp_resposta(data_ajax));
 	});
 	
 	resposta.then((successMessage) => {
-		if (successMessage != "OK!") {
+		if (successMessage.resposta_ajax != "OK!") {
 			alert(successMessage);
 		} else {
 			let linha = pega_ascendente(objeto,"TR");
@@ -728,11 +747,11 @@ function deletar_nave(evento, objeto, id_nave) {
 }
 
 /******************
-function carregar_nave
+function carrega_nave
 --------------------
 Carrega a string de uma nave salva e a processa
 ******************/
-function carregar_nave(evento, objeto) {
+function carrega_nave(evento, objeto) {
 	let tabela = pega_ascendente(objeto,"TABLE");
 	let linha = pega_ascendente(objeto,"TR");
 	let inputs_linha = linha.getElementsByTagName("INPUT");
@@ -740,14 +759,16 @@ function carregar_nave(evento, objeto) {
 	
 	for (let index=0; index<inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute("data-atributo") == "string_nave") {
-			string_nave = inputs_linha[index].value;
+			string_nave = inputs_linha[index].value.replaceAll("\\","");
 			break;
 		}
 	}
 	
 	let input_string_nave = document.getElementById('input_string_construcao');
-	input_string_nave = string_nave;
+	input_string_nave.value = string_nave;
 	calcula_custos(evento, objeto);
+	processa_string(evento, objeto);
+	input_string_nave.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	
 	evento.preventDefault();
 	return false;

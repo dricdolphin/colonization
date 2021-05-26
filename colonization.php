@@ -39,6 +39,7 @@ include_once('includes/reabastece_imperio.php');
 include_once('includes/configuracao.php');
 include_once('includes/missoes.php');
 include_once('includes/estrelas_historico.php');
+include_once('includes/modelo_naves.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -2800,24 +2801,12 @@ var id_imperio_atual = {$imperio->id};
 		$outras_partes_nave = "";
 		$html_javascript = "";
 		$tech = new tech();
-		if ($imperio->id != 0) {
-			/***
-			$ids_techs = $wpdb->get_results("SELECT ct.id
-			FROM colonization_imperio_techs AS cit
-			JOIN colonization_tech AS ct
-			ON ct.id = cit.id_tech 
-			WHERE cit.id_imperio = {$imperio->id} AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
-			//***/
-			
-			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
-		} else {
-			/***
-			$ids_techs = $wpdb->get_results("SELECT ct.id
-			FROM colonization_tech AS ct
-			WHERE ct.parte_nave = true AND ct.especiais LIKE '%id=%'");			
-			//***/
-			
+		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio");
+		} else {
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
+			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id}");
 		}
 		
 		//$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
@@ -2841,7 +2830,7 @@ var id_imperio_atual = {$imperio->id};
 		<h3>Construção de Naves</h3>
 		<div id='simulador_nave'>
 		<div id='string_construcao' {$estilo}><label>String da Nave: </label><input type='text' value='' id='input_string_construcao' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return processa_string(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Processa a String</a></div>
-		<div id='nome_nave' {$estilo}><label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return salvar_nave(event, this, {$imperio->id_imperio});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a></div>
+		<div id='nome_nave'><label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return salvar_nave(event, this, {$imperio->id});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a></div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
 		<h4>Custos</h4>
@@ -2878,6 +2867,28 @@ var id_imperio_atual = {$imperio->id};
 		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>
 		</div>
 		";
+		
+		//Pega todas os modelos de nave do Império e mostra
+		$html_modelos_nave = "";
+		foreach ($ids_modelos_nave as $id_modelo) {
+			$modelo_nave = new modelo_naves($id_modelo->id);
+			$html_modelos_nave .= $modelo_nave->lista_dados() . "\n";
+		}
+
+		//$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
+		
+		$html .= "<br><hr><br><div><h4>Modelos de Naves</h4></div>
+		<div>
+		<table class='lista_techs_imperio' style='width: 700px;'>
+		<thead>
+		<tr><th style='width: 200px;'>Nome do Modelo</th><th style='width: 200px;'>Dados da Nave</th><th style='width: 150px;'>Custo</th><th>&nbsp;</th></tr>
+		</thead>
+		<tbody>";
+
+		$html .= $html_modelos_nave;
+
+		$html .= "\n</tbody>
+		</table></div>";
 		
 		return $html;
 	}

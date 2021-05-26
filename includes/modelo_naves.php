@@ -26,10 +26,11 @@ class modelo_naves
 
 		if ($id == 0) {
 			$this->id = 0;
+			$this->id_imperio = 0;
 			return;
 		}			
 			
-		$resultados = $wpdb->get_results("SELECT id, descricao, id_tech, slots, autonoma, desguarnecida, sempre_ativa, oculta, publica, icone, especiais, custos FROM colonization_instalacao WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_modelo, string_nave, texto_nave, texto_custo FROM colonization_modelo_naves WHERE id={$id}");
 		$resultado = $resultados[0];
 		
 		$this->id = $id;
@@ -43,7 +44,8 @@ class modelo_naves
 	function lista_dados() {
 		global $wpdb;
 		
-		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
+		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td>
+		<td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
 	
 		return $html;
 	}
