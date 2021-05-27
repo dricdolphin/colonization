@@ -305,7 +305,7 @@ class colonization {
 				}
 				$results_temp_temp[] = $results_temp[$i];
 			}
-			$results_temp = $results_temp_temp;
+			//$results_temp = $results_temp_temp;
 		}
 
 		$results = $results_temp;
@@ -2830,7 +2830,11 @@ var id_imperio_atual = {$imperio->id};
 		<h3>Construção de Naves</h3>
 		<div id='simulador_nave'>
 		<div id='string_construcao' {$estilo}><label>String da Nave: </label><input type='text' value='' id='input_string_construcao' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return processa_string(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Processa a String</a></div>
-		<div id='nome_nave'><label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 50%; display: inline-block; margin: 5px;'></input><a href='#' onclick='return salvar_nave(event, this, {$imperio->id});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a></div>
+		<div id='nome_nave'>
+			<label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 30%; display: inline-block; margin: 5px;'></input>
+			<input type='hidden' value='' id='id'></input>
+			<a href='#' onclick='return salvar_nave(event, this, {$imperio->id});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
+		</div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
 		<h4>Custos</h4>

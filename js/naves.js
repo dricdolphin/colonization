@@ -690,8 +690,19 @@ function salvar_nave(evento, objeto, id_imperio) {
 		}
 	}
 	
+	
 	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+dados['nome_modelo']
 	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual;
+	
+	dados_nave = JSON.parse(dados['string_nave']);
+	if (dados_nave['id'] != undefined) {
+		//let salva_edicao = "&where_clause=id&where_value="+dados_nave['id'];
+		//console.log(salva_edicao);
+		let confirma = confirm("Para SOBRESCREVER o modelo carregado, clique em OK.\nPara salvar um NOVO modelo, clique em CANCELAR.");
+		if (confirma) {
+			dados_ajax = dados_ajax + "&where_clause=id&where_value="+dados_nave['id'];
+		}
+	}
 	
 	let resposta = new Promise((resolve, reject) => {
 		objeto_em_salvamento = true;

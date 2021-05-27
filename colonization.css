@@ -663,6 +663,10 @@ tr.th_linha_2 th {
 	margin-right: 2px;
 }
 
+.id_nave {
+	width: 50px;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/

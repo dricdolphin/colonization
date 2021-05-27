@@ -46,7 +46,24 @@ class modelo_naves
 	function lista_dados() {
 		global $wpdb;
 		
-		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td><td>{$this->turno}</td>
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}		
+
+		$html_nome_imperio = "";
+		if ($this->id_imperio != 0 && $roles == "administrator") {
+			$imperio = new imperio($this->id_imperio);
+			$html_nome_imperio = "Império '{$imperio->nome}'<br>";
+		}
+		
+		$string_nave = json_decode(stripslashes($this->string_nave),true, JSON_UNESCAPED_UNICODE);
+		$string_nave['nome_modelo'] = $this->nome_modelo;
+		$string_nave['id'] = $this->id;
+		$this->string_nave = json_encode($string_nave, JSON_UNESCAPED_UNICODE);
+		
+		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td><td>{$this->turno}</td>
 		<td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
 	
 		return $html;
