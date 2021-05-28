@@ -227,7 +227,7 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 			
 			evento.preventDefault();
 			return false;
-		} else if(input['X'] != tabela.getAttribute("data-X") || input['Y'] != tabela.getAttribute("data-Y") || input['Z'] != tabela.getAttribute("data-Z")) {
+		} else if(input['X'].value != tabela.getAttribute("data-X") || input['Y'].value != tabela.getAttribute("data-Y") || input['Z'].value != tabela.getAttribute("data-Z")) {
 			alert('Só é possível fazer o upgrade de uma nave que esteja na Capital!');
 			salva_objeto(evento, objeto, true);
 			

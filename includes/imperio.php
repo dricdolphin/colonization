@@ -931,6 +931,9 @@ class imperio
 		} else {
 			$flag_nova_lista = false;
 			$lista_colonias_db = json_decode($lista_colonias_db, true, 512, JSON_UNESCAPED_UNICODE);
+			if (empty($lista_colonias_db['mdo_colonia'])) {
+				$lista_colonias_db['mdo_colonia'] = [];
+			}
 			
 			$html_planeta_temp = $lista_colonias_db['html_planeta'];
 			//$html_transfere_pop_planeta_temp = $lista_colonias_db['html_transfere_pop_planeta'];
@@ -1154,6 +1157,9 @@ class imperio
 				$colonia[$id_colonia] = new colonia($id_colonia);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Colonia {$diferenca}ms \n";
+				if (empty($mdo_colonia[$id_colonia])) {
+					$mdo_colonia[$id_colonia] = 0;
+				}
 			}
 			
 			$mdo_disponivel_sistema = $pop_sistema[$planeta_id_estrela[$id_planeta]] - $mdo_sistema[$planeta_id_estrela[$id_planeta]];
