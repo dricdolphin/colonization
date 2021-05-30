@@ -1579,8 +1579,8 @@ function muda_nome_colonia(id_planeta, evento) {
 	}
 	
 	if (novo_nome !== null && novo_nome != "") {
-		novo_nome = encodeURIComponent(novo_nome);
-		let dados_ajax = "post_type=POST&action=muda_nome_colonia&id_planeta=" + id_planeta + "&novo_nome=" + novo_nome;
+		//novo_nome = encodeURIComponent(novo_nome);
+		let dados_ajax = "post_type=POST&action=muda_nome_colonia&id_planeta=" + id_planeta + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
 			if (successMessage) {
@@ -1611,8 +1611,8 @@ function muda_nome_nave(id_nave, evento) {
 	}
 	
 	if (novo_nome !== null && novo_nome != "") {
-		novo_nome = encodeURIComponent(novo_nome);
-		let dados_ajax = "post_type=POST&action=muda_nome_nave&id=" + id_nave + "&novo_nome=" + novo_nome;
+		//novo_nome = encodeURIComponent(novo_nome);
+		let dados_ajax = "post_type=POST&action=muda_nome_nave&id=" + id_nave + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
 			if (successMessage) {

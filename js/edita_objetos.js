@@ -302,7 +302,7 @@ function pega_dados_objeto(objeto) {
 					}
 					objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+checkbox_checked;
 				} else {
-					objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+					objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 				}
 			}
 		}
@@ -310,7 +310,7 @@ function pega_dados_objeto(objeto) {
 	
 	//Além de INPUT, existe a possibilidade dos dados serem passados via SELECT
 	for (index = 0; index < select_linha.length; index++) {
-		objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+select_linha[index].getAttribute('data-atributo')+"="+select_linha[index].options[select_linha[index].selectedIndex].value;
+		objeto_editado['dados_ajax'] = objeto_editado['dados_ajax']+"&"+select_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(select_linha[index].options[select_linha[index].selectedIndex].value);
 		objeto_editado[select_linha[index].getAttribute('data-atributo')] = select_linha[index];
 	}
 

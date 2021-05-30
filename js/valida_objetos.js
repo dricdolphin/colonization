@@ -193,13 +193,13 @@ function valida_tech_imperio(objeto, somente_valida=false, tech_permitida=false)
 			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
 			} else {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 			}
 		}
 		
 		if (inputs_linha[index].getAttribute('data-atributo') == "custo_pago") {
 			custo_pago = inputs_linha[index];
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 		}
 	}
 
@@ -320,7 +320,7 @@ function valida_colonia(objeto) {
 
 	for (let index = 0; index < select_linha.length; index++) {
 		if (typeof(select_linha[0]) !== "undefined") {
-			dados_ajax = dados_ajax + "&" + select_linha[index].getAttribute('data-atributo') + "="+ select_linha[index].value;
+			dados_ajax = dados_ajax + "&" + select_linha[index].getAttribute('data-atributo') + "="+ encodeURIComponent(select_linha[index].value);
 		}
 	}
 
@@ -340,7 +340,7 @@ function valida_colonia(objeto) {
 			} else if(inputs_linha[index].type == "checkbox" && inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=1";
 			} else {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 			}
 		}
 	}
@@ -377,7 +377,7 @@ function valida_instalacao_recurso(objeto) {
 		|| inputs_linha[index].getAttribute('data-atributo') == "consome" 
 		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && id_recurso == "")
 		|| inputs_linha[index].getAttribute('data-atributo') == "id") {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 		}
 	}
 	
@@ -413,7 +413,7 @@ function valida_planeta_recurso(objeto) {
 		|| (inputs_linha[index].getAttribute('data-atributo') == "id_recurso" && typeof(id_recurso) === "undefined") 
 		|| inputs_linha[index].getAttribute('data-atributo') == "id" 
 		|| inputs_linha[index].getAttribute('data-atributo') == "turno") {
-			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+			dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 		}
 	}
 
@@ -481,7 +481,7 @@ function valida_colonia_instalacao(objeto) {
 			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
 			} else {
-				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 			}
 		}
 	}
@@ -541,8 +541,9 @@ function valida_acao_admin(objeto) {
 
 	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	
-	let dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+objeto_editado['turno'].value+"&id_imperio="+objeto_editado['id_imperio'].value
-	+"&lista_recursos="+objeto_editado['lista_recursos'].value+"&qtd="+objeto_editado['qtd'].value+"&descricao="+objeto_editado['descricao'].value+"&id="+objeto_editado['id'].value
+	let dados_ajax = "post_type=POST&action=valida_acao_admin&turno="+encodeURIComponent(objeto_editado['turno'].value)+"&id_imperio="+encodeURIComponent(objeto_editado['id_imperio'].value)
+	+"&lista_recursos="+encodeURIComponent(objeto_editado['lista_recursos'].value)+"&qtd="+encodeURIComponent(objeto_editado['qtd'].value)+"&descricao="+encodeURIComponent(objeto_editado['descricao'].value)
+	+"&id="+encodeURIComponent(objeto_editado['id'].value)
 	+"&lista_recursos_original="+objeto_editado['lista_recursos'].parentNode.getAttribute('data-valor-original')+"&qtd_original="+objeto_editado['qtd'].parentNode.getAttribute('data-valor-original');
 	
 	let retorno = new Promise((resolve, reject) =>	{
@@ -596,7 +597,7 @@ function altera_recursos_planeta(objeto) {
 		if (divs[index].getAttribute("data-atributo") == "nome_recurso") {
 			if (divs[index].getAttribute("data-id-selecionado") != divs[index].childNodes[1].value) {
 				console.log("MUDOU! De "+divs[index].getAttribute("data-id-selecionado")+" para "+divs[index].childNodes[1].value);
-				dados_ajax = "post_type=POST&action=altera_recursos_planeta&id_planeta="+dados['id_planeta'].value+"&id_recurso_original="+divs[index].getAttribute("data-id-selecionado")+"&id_recurso="+divs[index].childNodes[1].value;				
+				dados_ajax = "post_type=POST&action=altera_recursos_planeta&id_planeta="+encodeURIComponent(dados['id_planeta'].value)+"&id_recurso_original="+divs[index].getAttribute("data-id-selecionado")+"&id_recurso="+encodeURIComponent(divs[index].childNodes[1].value);
 			}
 		}
 	}
@@ -642,7 +643,7 @@ Valida uma nave (inicialmente somente os custos)
 ******************/	
 function valida_nave(objeto){
 	let dados = pega_dados_objeto(objeto);//Pega os dados do objeto
-	let dados_ajax = "post_type=POST&action=valida_nave&custo="+dados['custo'].value+"&string_nave="+dados['string_nave'].value
+	let dados_ajax = "post_type=POST&action=valida_nave&custo="+encodeURIComponent(dados['custo'].value)+"&string_nave="+encodeURIComponent(dados['string_nave'].value)
 	+"&id_imperio="+dados['id_imperio'].value+"&tamanho="+dados['tamanho'].value+"&nivel_estacao_orbital="+dados['nivel_estacao_orbital'].value
 	+"&id="+dados['id'].value+"&turno_destruido="+dados['turno_destruido'].value;
 

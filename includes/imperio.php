@@ -19,6 +19,7 @@ class imperio
 	public $pontuacao_colonia = 0;
 	public $pontuacao_desenvolvimento = 0;
 	public $pontuacao_belica = 0;
+	public $espalhamento = 0;
 	public $html_header;
 	public $turno;
 	public $acoes;
@@ -174,6 +175,26 @@ class imperio
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_tech = $this->pontuacao_tech + $pontuacao;
 
+		$this->espalhamento = $wpdb->get_var("SELECT CEIL(SUM(POW(POW(estrela_capital.X - estrelas_colonias.X,2) + POW(estrela_capital.Y - estrelas_colonias.Y,2) + POW(estrela_capital.Z - estrelas_colonias.Z,2),0.5))) AS espalhamento
+		FROM (SELECT ce.X, ce.Y, ce.Z, cit.id_imperio, cit.turno
+		FROM colonization_imperio_colonias AS cit
+		JOIN colonization_planeta AS cp
+		ON cp.id = cit.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cit.turno = (SELECT MAX(id) FROM colonization_turno_atual)
+		AND cit.capital=true AND id_imperio = {$this->id}) AS estrela_capital
+		JOIN 
+		(SELECT DISTINCT ce.X, ce.Y, ce.Z, cit.id_imperio, cit.turno
+		FROM colonization_imperio_colonias AS cit
+		JOIN colonization_planeta AS cp
+		ON cp.id = cit.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cit.turno = (SELECT MAX(id) FROM colonization_turno_atual)
+		AND cit.capital=false AND cit.vassalo=false AND id_imperio = {$this->id}) AS estrelas_colonias
+		ON estrelas_colonias.id_imperio = estrela_capital.id_imperio AND estrelas_colonias.turno = estrela_capital.turno");
+		
 		//***********************************
 		// ALTERAÇÕES DE TECH (ESPECIAIS)
 		//***********************************

@@ -229,8 +229,21 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 	//alcance = Math.ceil(10 + fator_a*Math.pow(nave.qtd_combustivel,2) + fator_b*nave.qtd_combustivel);
+	let chassi_especial = 0;
+	for (let property in nave) {
+		if (descricao_parte[property] !== undefined && nave[property]) {
+			chassi_especial++;
+			if (especiais == 1) {
+				texto_especiais = "(1) - " + descricao_parte[property];
+				especiais++;
+			} else {
+				texto_especiais = texto_especiais + "; ("+especiais+") - " + descricao_parte[property];
+				especiais++;
+			}
+		}
+	}
 	
-	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + nave.qtd_combustivel*1 + nave.nivel_estacao_orbital*20;
+	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + nave.qtd_combustivel*1 + nave.nivel_estacao_orbital*20 + chassi_especial*1;
 	hp = chassi*10 + nave.qtd_hp_extra*1;
 	
 	pdf_laser = nave.qtd_laser*(nave.mk_laser*2-1);
@@ -333,7 +346,12 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}		
 		energium_escudos = 0;
 		texto_corasita = " | Corasita: "+corasita;
-	}	
+	}
+	
+	if (nave.mk_camuflagem*1 > 3) {
+		corasita = nave.mk_camuflagem;
+		texto_corasita = " | Corasita: "+corasita;
+	};
 	
 	if (chassi <= 10) {
 		categoria = "Corveta";
@@ -374,24 +392,12 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 
-	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil 
-	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1;
+	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil
+	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1  + nave.mk_camuflagem*1;
 	
 	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
-
-	for (let property in nave) {
-		if (descricao_parte[property] !== undefined && nave[property]) {
-			if (especiais == 1) {
-				texto_especiais = "(1) - " + descricao_parte[property];
-				especiais++;
-			} else {
-				texto_especiais = texto_especiais + "; ("+especiais+") - " + descricao_parte[property];
-				especiais++;
-			}
-		}
-	}	
 
 	let dados_nave = {
 		'tamanho' : chassi,
@@ -479,10 +485,23 @@ function processa_string(evento, objeto)
 Processa a string com os dados da nave
 ******************/	
 function processa_string(evento, objeto) {
-	let input_string_nave = document.getElementById('input_string_construcao').value;
+	let partes_nave = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
+	let objeto_nave = {};
+	let input_string_construcao = document.getElementById("input_string_construcao");
+	if (input_string_construcao !== undefined) {
+		for(let index = 0; index < partes_nave.length; index++) {
+			if (partes_nave[index].id != "input_string_construcao") {
+				objeto_nave[partes_nave[index].id] = 0;
+				if (partes_nave[index].type == "checkbox") {
+					partes_nave[index].checked = false;
+				}
+			}
+		}
+		nave_template = objeto_nave;
+	}
 
 	try {
-		var nave = JSON.parse(input_string_nave);
+		var nave = JSON.parse(input_string_construcao.value);
 	} catch (err) {
 		alert('Erro! JSON inválido!');
 		
@@ -681,6 +700,7 @@ function salvar_nave(evento, objeto, id_imperio) {
 	dados['string_nave'] = document.getElementById("texto_partes_nave").innerText;
 	dados['texto_nave'] = document.getElementById("dados").innerText;
 	dados['texto_custo'] = document.getElementById("custos").innerText;
+	dados['id_imperio'] = objeto.getAttribute("data-id_imperio");
 	
 	for (const property in dados) {
 		console.log(dados[property]);
@@ -690,8 +710,7 @@ function salvar_nave(evento, objeto, id_imperio) {
 		}
 	}
 	
-	
-	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+id_imperio+"&nome_modelo="+dados['nome_modelo']
+	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
 	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual;
 	
 	dados_nave = JSON.parse(dados['string_nave']);
@@ -760,11 +779,14 @@ function carrega_nave
 --------------------
 Carrega a string de uma nave salva e a processa
 ******************/
-function carrega_nave(evento, objeto) {
+function carrega_nave(evento, objeto, id_imperio) {
 	let tabela = pega_ascendente(objeto,"TABLE");
 	let linha = pega_ascendente(objeto,"TR");
 	let inputs_linha = linha.getElementsByTagName("INPUT");
 	let string_nave = "";
+	
+	let link_salvar_nave = document.getElementById("link_salvar_nave");
+	link_salvar_nave.setAttribute("data-id_imperio",id_imperio);
 	
 	for (let index=0; index<inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute("data-atributo") == "string_nave") {

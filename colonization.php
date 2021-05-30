@@ -2803,10 +2803,10 @@ var id_imperio_atual = {$imperio->id};
 		$tech = new tech();
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
-			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio");
+			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio, turno, id");
 		} else {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
-			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id}");
+			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id} ORDER BY id_imperio, turno, id");
 		}
 		
 		//$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
@@ -2833,7 +2833,7 @@ var id_imperio_atual = {$imperio->id};
 		<div id='nome_nave'>
 			<label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 30%; display: inline-block; margin: 5px;'></input>
 			<input type='hidden' value='' id='id'></input>
-			<a href='#' onclick='return salvar_nave(event, this, {$imperio->id});' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
+			<a href='#' id='link_salvar_nave' data-id_imperio='{$imperio->id}' onclick='return salvar_nave(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
 		</div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>

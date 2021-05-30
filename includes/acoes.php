@@ -415,7 +415,7 @@ class acoes
 				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
 				$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
-				$alimentos = $this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento];
+				$alimentos = floor($this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento]);
 				$nova_pop = $colonia->crescimento_colonia($imperio, $alimentos, $this->recursos_balanco[$id_alimento]);
 				
 				$html_nova_pop = "";
@@ -690,7 +690,9 @@ class acoes
 		$colonia_sendo_alterada = false;
 		foreach ($this->id AS $chave => $valor) {
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-
+			if ($roles == "administrator") {
+				//echo "ação {$chave} || Instalação: {$this->id_instalacao[$chave]} => turno_destroi {$this->turno_destroi[$chave]} / turno_desmonta: {$this->turno_desmonta[$chave]} / desativado: {$this->desativado[$chave]}<br>";
+			}
 			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
 				continue;
 			}
@@ -1146,7 +1148,7 @@ class acoes
 			}
 				
 			if ($recurso[$id_recurso]->local == 0) {
-				$this->recursos_balanco[$id_recurso] = $this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso];
+				$this->recursos_balanco[$id_recurso] = floor($this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso]);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso {$this->recursos_balanco_nome[$id_recurso]}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
 			}
