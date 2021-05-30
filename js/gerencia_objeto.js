@@ -654,6 +654,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				}
 				
 				objeto_em_salvamento = false;
+				document.location.reload();
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

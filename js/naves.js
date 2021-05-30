@@ -317,12 +317,6 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 	}
 
-	let texto_trillithium = "";
-	let trillithium = 0;
-	if (nave.mk_dobra*1 > 2) {
-		trillithium = dillithium;
-		texto_trillithium = " | Trillithium: "+ trillithium;
-	}
 	
 	let tricobalto = 0;
 	let texto_tricobalto = "";
@@ -349,7 +343,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 	
 	if (nave.mk_camuflagem*1 > 3) {
-		corasita = nave.mk_camuflagem;
+		corasita = corasita + nave.mk_camuflagem;
 		texto_corasita = " | Corasita: "+corasita;
 	};
 	
@@ -391,13 +385,19 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		alcance = 0;
 	}
 
-
 	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil
 	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1  + nave.mk_camuflagem*1;
 	
 	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
+	
+	let texto_trillithium = "";
+	let trillithium = 0;
+	if (nave.mk_dobra*1 > 2) {
+		trillithium = dillithium;
+		texto_trillithium = " | Trillithium: "+ trillithium;
+	}	
 
 	let dados_nave = {
 		'tamanho' : chassi,
@@ -799,6 +799,7 @@ function carrega_nave(evento, objeto, id_imperio) {
 	input_string_nave.value = string_nave;
 	calcula_custos(evento, objeto);
 	processa_string(evento, objeto);
+	calcula_custos(evento, objeto);
 	input_string_nave.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 	
 	evento.preventDefault();

@@ -2111,7 +2111,7 @@ class colonization_ajax {
 		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
 		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes'], true); //Recalcula os balanços
-		$resposta['debug'] .= "Salvando os Balanços... \n";
+		$resposta['debug'] .= "\nSalvando os Balanços... \n";
 		//$resposta['debug'] = "{$_POST['id_imperio']},{$_POST['turno']} \n";
 		$resposta['resposta_ajax'] = "SALVO!";
 		
@@ -2491,6 +2491,9 @@ class colonization_ajax {
 		//Para fazer isso, temos que RECALCULAR o objeto Ações, alterando o MdO para o MdO correto
  		$acoes->pop[$chave_id_planeta_instalacoes] = $_POST['pop'];
 		$acoes->desativado[$chave_id_planeta_instalacoes] = $_POST['desativado'];
+		if ($_POST['desativado'] == 1) {
+			$acoes->pop[$chave_id_planeta_instalacoes] = 0;
+		}
 		$ajax_valida = true;
 		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes']); //Recalcula os balanços
 			$debug .= $acoes->debug;
@@ -2644,7 +2647,7 @@ class colonization_ajax {
 		$dados_salvos['balanco_planeta'] = $imperio->acoes->exibe_balanco_planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_balanco_planeta() {$diferenca}ms \n";		
-		$dados_salvos['pop_mdo_planeta'] = $imperio->acoes->exibe_pop_mdo_planeta($_POST['id_planeta']);
+		$dados_salvos['pop_mdo_planeta'] = $imperio->acoes->exibe_pop_mdo_planeta($_POST['id_planeta'], $imperio);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= "produtos_acao() -> \$imperio->acoes->exibe_pop_mdo_planeta() {$diferenca}ms \n";		
 		$pop_sistema = $imperio->acoes->pop_mdo_sistema($planeta->id_estrela);

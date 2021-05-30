@@ -122,7 +122,6 @@ class acoes
 				$this->turno_destroi[$chave] = "";
 				$this->turno_desmonta[$chave] = "";
 				$this->data_modifica[$chave] = $this->turno->data_turno;
-				
 			} else {
 				$this->id[$chave] = $valor->id;
 				$this->id_planeta[$chave] = $valor->id_planeta;
@@ -132,6 +131,9 @@ class acoes
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = intval($valor->pop);
 				$this->desativado[$chave] = $valor->desativado;
+				if ($this->desativado[$chave] == 1) {
+					$this->pop[$chave] = 0;
+				}
 				$this->turno_destroi[$chave] = "";
 				$this->turno_desmonta[$chave] = $valor->turno_desmonta;
 				$this->data_modifica[$chave] = $valor->data_modifica;
@@ -233,8 +235,24 @@ class acoes
 		
 		$pop_sistema = $this->pop_mdo_sistema($planeta->id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
+
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$imperio = new imperio($this->id_imperio, $this->turno->turno);
+		$imperio_recursos = new imperio_recursos($imperio->id, $this->turno->turno);
+		$imperio->acoes = $this;				
 		
-		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}";
+		$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
+		$alimentos = floor($this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento]);
+		$nova_pop = $colonia->crescimento_colonia($imperio, $alimentos, $this->recursos_balanco[$id_alimento]);
+				
+		$html_nova_pop = "";
+		if ($nova_pop > 0) {
+			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: green; font-family: Verdana, Tahoma, sans-serif;'>+{$nova_pop}</span></span>)";	
+		} elseif ($nova_pop < 0) {
+			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
+		}
+
+		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}{$html_nova_pop}";
 	}
 
 	/***********************
@@ -368,10 +386,6 @@ class acoes
 			}
 		}
 
-		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
-		$imperio = new imperio($this->id_imperio, $this->turno->turno);
-		$imperio_recursos = new imperio_recursos($imperio->id, $this->turno->turno);
-		$imperio->acoes = $this;
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
@@ -414,22 +428,12 @@ class acoes
 				
 				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
 				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
-				$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
-				$alimentos = floor($this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento]);
-				$nova_pop = $colonia->crescimento_colonia($imperio, $alimentos, $this->recursos_balanco[$id_alimento]);
-				
-				$html_nova_pop = "";
-				if ($nova_pop > 0) {
-					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: green; font-family: Verdana, Tahoma, sans-serif;'>+{$nova_pop}</span></span>)";	
-				} elseif ($nova_pop < 0) {
-					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
-				}
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
 				<div data-atributo='nome_planeta'>
 					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
 					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
-					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}{$html_nova_pop}</div>
+					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
 					<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
 					<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>
 				{$html_nova_instalacao_jogador}
@@ -689,14 +693,6 @@ class acoes
 		//Pega a produção e o consumo relativo a cada Ação e sua respectiva Instalação
 		$colonia_sendo_alterada = false;
 		foreach ($this->id AS $chave => $valor) {
-			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-			if ($roles == "administrator") {
-				//echo "ação {$chave} || Instalação: {$this->id_instalacao[$chave]} => turno_destroi {$this->turno_destroi[$chave]} / turno_desmonta: {$this->turno_desmonta[$chave]} / desativado: {$this->desativado[$chave]}<br>";
-			}
-			if (!empty($this->turno_destroi[$chave]) || $this->desativado[$chave] == 1) {//Se a Instalação está destruída OU desativada, ela não produz nem consome nada
-				continue;
-			}
-			
 			//Se a instalação já foi processada, não precisa ser processada novamente, EXCETO se for uma instalação que está sendo ALTERADA ($id_planeta_instalacoes != 0)
 			if (!$flag_novo_balanco && $this->id_planeta_instalacoes[$chave] != $id_planeta_instalacoes) {
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -715,6 +711,10 @@ class acoes
 					$this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso_instalacao_planeta][$this->id_planeta[$chave]] - $qtd_consumida_instalacao;
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso_instalacao_planeta] = 0;
 				}
+			}
+			
+			if (!empty($this->turno_destroi[$chave])) {//Se a Instalação está destruída, ela não produz nem consome nada
+				continue;
 			}
 			
 			if (empty($colonia[$this->id_colonia[$chave]])) {
@@ -783,7 +783,7 @@ class acoes
 					$instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos] = 0;
 				}
 				
-				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
+				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
 					//$this->recursos_produzidos[$id_recurso] = $this->recursos_produzidos[$id_recurso] + floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10);
@@ -926,7 +926,7 @@ class acoes
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = 0;
 				}
 				
-				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1) {
+				if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
 					//$this->recursos_consumidos[$id_recurso] = $this->recursos_consumidos[$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_consumidos_planeta[$id_recurso][$this->id_planeta[$chave]] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);
 					$this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + floor($instalacao[$this->id_instalacao[$chave]]->recursos_consome_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*10/10);

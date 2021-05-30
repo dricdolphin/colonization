@@ -88,7 +88,7 @@ class planeta
 		$id_instalacoes = $wpdb->get_results("
 		SELECT cpi.id, cpi.id_instalacao
 		FROM colonization_planeta_instalacoes AS cpi
-		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno}");
+		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno} AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)");
 		
 		//Precisa verificar se não houve upgrade da instalação
 		foreach ($id_instalacoes as $id) {
