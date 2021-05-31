@@ -40,6 +40,7 @@ class frota
 	public $turno;
 	public $turno_destruido;
 	public $id_estrela_destino;
+	public $anti_dobra;
 	public $visivel;
 	public $destinos_buracos_minhoca;
 	
@@ -57,7 +58,7 @@ class frota
 		pdf_laser, pdf_projetil, pdf_torpedo,
 		blindagem, escudos, 
 		pdf_bombardeamento, poder_invasao, pesquisa, nivel_estacao_orbital,
-		camuflagem, especiais, turno, turno_destruido, id_estrela_destino, visivel
+		camuflagem, especiais, turno, turno_destruido, id_estrela_destino, visivel, anti_dobra
 		FROM colonization_imperio_frota 
 		WHERE id={$this->id}");
 		
@@ -100,6 +101,10 @@ class frota
 		$this->turno = $resultado->turno;
 		$this->turno_destruido = $resultado->turno_destruido;
 		$this->id_estrela_destino = $resultado->id_estrela_destino;
+		$this->anti_dobra = $resultado->anti_dobra;
+		if ($this->anti_dobra) {
+			$this->alcance = 0;
+		}
 		$this->visivel = $resultado->visivel;
 	}
 	
@@ -297,7 +302,7 @@ class frota
 		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 		<input type='hidden' data-atributo='where_clause' value='id'></input>
 		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
-		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} '<a href='#' onclick='return muda_nome_nave({$this->id}, event);'>{$this->nome}</a>'</b></div>
+		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} '<a href='#' onclick='return muda_nome_nave({$this->id}, event);'><span class='tooltip'>{$this->nome}<span class='tooltiptext'>Alterar o nome da Nave</span></span></a>'</b></div>
 		<div data-atributo='atributos'>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
 
 		$html .= $html_armas;
@@ -502,7 +507,7 @@ class frota
 		
 		$html_HP = "";
 		if ($this->HP < $this->HP_max) {
-			$html_HP = "{$this_HP}/";
+			$html_HP = "{$this->HP}/";
 		}
 		
 		$html_nave = "{$tipo}<div class='fas fa-heart' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$html_HP}{$this->HP_max}</span></div>";

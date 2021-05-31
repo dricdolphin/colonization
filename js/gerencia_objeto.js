@@ -316,7 +316,6 @@ Desbloqueia o Turno
 ******************/
 function desbloquear_turno(evento, objeto) {
 	if (objeto_em_salvamento) {
-		
 		evento.preventDefault();
 		return false;
 	}
@@ -1092,23 +1091,20 @@ function atualiza_custo_instalacao(evento, objeto) {
 	let id_instalacao = objeto.options[index_selecionado].value;
 	let td_instalacao = pega_ascendente(objeto,"TD");
 	let divs_td_instalacao = td_instalacao.getElementsByTagName("DIV");
-	let div_custo_instalacao = "";
-	let div_descricao_instalacao = "";
-	let div_tech_instalacao = "";
+	let div = [];
+
 	
 	for (let index_divs=0; index_divs<divs_td_instalacao.length; index_divs++) {
-		if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "custo_instalacao") {
-			div_custo_instalacao = divs_td_instalacao[index_divs];
-		} else if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "descricao_instalacao") {
-			div_descricao_instalacao = divs_td_instalacao[index_divs];
-		} else if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "tech_instalacao") {
-			div_tech_instalacao = divs_td_instalacao[index_divs];
-		}
+		if (divs_td_instalacao[index_divs].getAttribute('data-atributo') == "custo_instalacao" || divs_td_instalacao[index_divs].getAttribute('data-atributo') == "descricao_instalacao"
+			|| divs_td_instalacao[index_divs].getAttribute('data-atributo') == "tech_instalacao" || divs_td_instalacao[index_divs].getAttribute('data-atributo') == "produz_instalacao") {
+			div[divs_td_instalacao[index_divs].getAttribute('data-atributo')] = divs_td_instalacao[index_divs];
+		} 
 	}
 	
-	div_custo_instalacao.innerHTML = "Custo por nível: " + custos_instalacao[id_instalacao];
-	div_descricao_instalacao.innerHTML = "<b>Descrição:</b> " + descricao_instalacao[id_instalacao];
-	div_tech_instalacao.innerHTML = "<b>Tech Requisito:</b> " + tech_instalacao[id_instalacao];
+	div['custo_instalacao'].innerHTML = "Custo por nível: " + custos_instalacao[id_instalacao];
+	div['descricao_instalacao'].innerHTML = "<b>Descrição:</b> " + descricao_instalacao[id_instalacao];
+	div['produz_instalacao'].innerHTML = "<b>Produção/Consumo:</b> " + produz_instalacao[id_instalacao];
+	div['tech_instalacao'].innerHTML = "<b>Tech Requisito:</b> " + tech_instalacao[id_instalacao];
 }
 
 /******************
@@ -1638,6 +1634,40 @@ function tirar_cerco(objeto, evento, id_estrela) {
 	resposta.then((successMessage) => {
 		if (successMessage) {
 			objeto.remove();
+		}
+	});		
+
+	evento.preventDefault();
+	return false;	
+}
+
+/******************
+function muda_nome_nave(objeto) 
+--------------------
+Muda o nome de uma Nave
+id_nave = id da nave
+******************/	
+function coloniza_planeta (objeto, evento, id_planeta, id_imperio) {
+	if (objeto_em_salvamento) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	let confirma = confirm('Tem certeza que deseja Colonizar esse planeta?');
+	let novo_nome = "";
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+
+	objeto_em_salvamento = true;	
+	let dados_ajax = "post_type=POST&action=coloniza_planeta&id_planeta=" + id_planeta + "&id_imperio=" + id_imperio;
+	let resposta = processa_xhttp_basico(dados_ajax);
+	resposta.then((successMessage) => {
+		if (successMessage) {
+			document.location.reload();
+			//alert("Salvou!");
 		}
 	});		
 

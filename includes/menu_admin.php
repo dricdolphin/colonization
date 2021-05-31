@@ -1369,7 +1369,7 @@ class menu_admin {
 		$html = "<div><h2>COLONIZATION - Ações do Admin</h2></div>
 		<div><h3>Lista de Recursos:</h3>";
 	
-		$lista_recursos = $wpdb->get_results("SELECT id FROM colonization_recurso ORDER BY nivel, nome");
+		$lista_recursos = $wpdb->get_results("SELECT id FROM colonization_recurso WHERE acumulavel=true AND local=false ORDER BY nivel, nome");
 		$html_lista = "";
 		$html_lista_recursos = "";
 		

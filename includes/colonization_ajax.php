@@ -60,6 +60,114 @@ class colonization_ajax {
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_deletar_nave', array ($this, 'deletar_nave'));//Deleta uma nave MODELO
+		add_action('wp_ajax_coloniza_planeta', array ($this, 'coloniza_planeta'));//coloniza_planeta
+	}
+
+	/***********************
+	function coloniza_planeta()
+	----------------------
+	Coloniza um Planeta e cria uma Base Colonial no mesmo
+	***********************/
+	function coloniza_planeta() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		$planeta = new planeta($_POST['id_planeta']);
+		$estrela = new estrela($planeta->id_estrela);
+		$imperio = new imperio($_POST['id_imperio']);
+		$turno = new turno();
+		$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
+		
+		if ($imperio->id != $_POST['id_imperio'] && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode colonizar um planeta nesse sistema estelar!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
+		}
+		
+		if ($estrela->cerco) {
+			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nesse momento.";
+		
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta
+		}
+	
+		//Valida a colônia
+		$_POST['id'] = "";
+		$_POST['where_clause'] = "id";
+		$_POST['where_value'] = "";
+		$_POST['tabela'] = "colonization_imperio_colonias";		
+		$_POST['capital'] = 0;
+		$_POST['vassalo'] = 0;
+		$_POST['pop'] = 0;
+		$_POST['pop_robotica'] = 0;
+		$_POST['poluicao'] = 0;
+		$_POST['satisfacao'] = 100;
+		$_POST['turno'] = $turno->turno;
+		$dados_salvos['resposta_ajax'] = $this->valida_colonia(false);
+		
+		if ($dados_salvos['resposta_ajax'] == "OK!") {//Validou, agora verifica se a Colônia tem uma Base Colonial. 
+			$base_colonial = $wpdb->get_var("
+			SELECT DISTINCT cpi.id_planeta 
+			FROM colonization_planeta_instalacoes AS cpi
+			WHERE cpi.id_planeta = {$_POST['id_planeta']} AND cpi.id_instalacao = {$id_base_colonial}
+			");
+			
+			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_industrializaveis} AND id_imperio={$imperio->id} AND turno={$turno->turno}");
+			
+			if (empty($base_colonial) && $qtd_recurso_imperio == 0) {//Se não tiver uma Base Colonial, verifica se o Império tem 1 Industrializável.
+				$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para construir uma nova Base Colonial.\nNão é possível colonizar esse Planeta devido a falta de recursos";
+				
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta						
+			}
+
+			$dados_salvos = $this->salva_objeto(false);
+		}
+		
+		if ($dados_salvos['resposta_ajax'] == "SALVO!") {
+			//Se chegamos até aqui, pode criar a Base Colonial na nova Colônia
+			$id_colonia = $wpdb->get_var("
+			SELET cic.id
+			FROM colonization_imperio_colonias AS cic
+			WHERE cic.id_planeta = {$_POST['id_planeta']} AND cic.turno = {$_POST['turno']} AND cic.id_imperio = {$_POST['id_imperio']}
+			");
+
+			unset($_POST['capital']);
+			unset($_POST['vassalo']);
+			unset($_POST['pop']);
+			unset($_POST['pop_robotica']);
+			unset($_POST['poluicao']);
+			unset($_POST['satisfacao']);
+
+			$_POST['nivel'] = 1;
+			$_POST['instalacao_inicial'] = 0;
+			$_POST['turno_desmonta'] = 0;
+			$_POST['turno_destroi'] = 0;
+			$_POST['id'] = "";
+			$_POST['id_instalacao'] = $id_base_colonial;
+			$_POST['where_clause'] = "id";
+			$_POST['where_value'] = "";
+			$_POST['tabela'] = "colonization_planeta_instalacoes";
+			
+			$dados_salvos = $this->valida_colonia_instalacao(false);
+			if ($dados_salvos['resposta_ajax'] == "OK!") {
+				unset($_POST['id_imperio']);
+				$dados_salvos = $this->salva_objeto();
+			}
+		}
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta			
 	}
 
 
@@ -82,7 +190,7 @@ class colonization_ajax {
 		$imperio = new imperio($modelo_nave->id_imperio);
 	
 		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
-			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '' pode deletar um modelo de nave que ele criou!";
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode deletar um modelo de nave que ele criou!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta			
@@ -145,17 +253,11 @@ class colonization_ajax {
 		if ($roles == "administrator") {
 			$wpdb->query("UPDATE colonization_estrela SET cerco=0 WHERE id={$_POST['id_estrela']}");
 			$dados_salvos['resposta_ajax'] = "OK!";
-			//Reseta os dados do JSON
-			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
-			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
 		}
 		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta	
 	}
-
-
-
 
 	/***********************
 	function muda_nome_colonia()
@@ -573,6 +675,7 @@ class colonization_ajax {
 			$html_select_instalacoes .= "<option value='{$instalacao->id}'>{$instalacao->nome}</option>";
 			$dados_salvos['custos_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
 			$dados_salvos['descricao_instalacao'][$id_instalacao->id] = $instalacao->descricao;
+			$dados_salvos['produz_instalacao'][$id_instalacao->id] = $instalacao->html_producao_consumo_instalacao();
 			$dados_salvos['tech_instalacao'][$id_instalacao->id] = $id_instalacao->nome_tech;
 		}
 		
@@ -1479,7 +1582,7 @@ class colonization_ajax {
 	----------------------
 	Valida o objeto desejado
 	***********************/	
-	function valida_colonia() {
+	function valida_colonia($resposta_ajax = true) {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
@@ -1490,7 +1593,7 @@ class colonization_ajax {
 		$imperio = new imperio($_POST['id_imperio']);
 		
 		$id_existe = "";
-		if ($_POST['id'] !== "") {//Se o valor estiver em branco, é um novo objeto.
+		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			$id_existe = " AND id != {$_POST['id']}";			
 		}
 		
@@ -1552,6 +1655,10 @@ class colonization_ajax {
 			if ($_POST['pop'] > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
 			}
+		}
+		
+		if ($resposta_ajax === false) {
+			return $dados_salvos['resposta_ajax'];		
 		}
 
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -1727,7 +1834,7 @@ class colonization_ajax {
 	----------------------
 	Valida o objeto desejado
 	***********************/	
-	function valida_colonia_instalacao() {
+	function valida_colonia_instalacao($resposta_ajax = true) {
 		global $wpdb; 
 		$wpdb->hide_errors();
 		
@@ -1765,7 +1872,7 @@ class colonization_ajax {
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta
-		}	
+		}
 		
 		$imperio = new imperio($colonia->id_imperio);
 		$instalacao = new instalacao($_POST['id_instalacao']);
@@ -2082,7 +2189,11 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "SALVO!";
 			}
 		}
-
+		
+		if ($resposta_ajax === false) {
+			return $dados_salvos;
+		}
+		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}

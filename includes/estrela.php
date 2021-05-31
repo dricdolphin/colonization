@@ -139,6 +139,13 @@ class estrela
 	******************/	
 	function pega_html_planetas_estrela($detalhes_planetas = true, $exibe_recursos_planetas=false, $turno_visitado=0) {
 		global $wpdb;
+
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		//Pega os planetas que orbitam a estrela
 		$ids_planetas_estrela = $wpdb->get_results("
@@ -148,6 +155,14 @@ class estrela
 		");
 
 		$turno = new turno($turno_visitado);
+		$imperio = new imperio();
+		$id_imperio_colonizador = $wpdb->get_var("
+		SELECT DISTINCT cic.id_imperio
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cp.id_estrela = {$this->id} AND cic.turno = {$turno->turno}");
+
 		$html_planetas = "<div class='lista_planetas'>";
 		foreach ($ids_planetas_estrela as $id_planeta) {
 			$planeta = new planeta($id_planeta->id, $turno->turno);
@@ -164,7 +179,12 @@ class estrela
 				$icone_colonia = "<div class='far fa-flag tooltip'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado</span></div>";;;
 			}
 			
-			$html_planetas .= "<div class='planeta_na_lista'>{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$planeta->nome}"; 
+			$link_nome_planeta = $planeta->nome;
+			if ($imperio->id == $id_imperio_colonizador && $icone_colonia == "" && $detalhes_planetas && $exibe_recursos_planetas && $id_imperio_colonizador != 0) {
+				$link_nome_planeta = "<a href='#' onclick='return coloniza_planeta(this, event, {$planeta->id}, {$id_imperio_colonizador});'><span class='tooltip'>{$planeta->nome}<span class='tooltiptext'>Criar Colônia</span></span></a>";
+			}
+			
+			$html_planetas .= "<div class='planeta_na_lista'>{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$link_nome_planeta}"; 
 			if ($detalhes_planetas) {
 				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho})";
 			}

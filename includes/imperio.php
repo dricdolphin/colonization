@@ -1036,6 +1036,7 @@ class imperio
 				JOIN colonization_instalacao AS ci
 				ON ci.id = cpi.id_instalacao
 				WHERE cpi.id_planeta = {$colonia[$resultado->id]->id_planeta} AND cpi.turno <= {$this->turno->turno}
+				AND (cpi.turno_destroi IS NULL or cpi.turno_destroi = 0)
 				ORDER BY ci.nome");
 				
 				$icones_planeta = [];

@@ -244,6 +244,7 @@ class instala_db {
 		turno INT(6) NOT NULL,
 		turno_destruido INT(6) DEFAULT 0,
 		id_estrela_destino INT(6) DEFAULT 0,
+		anti_dobra BOOLEAN DEFAULT FALSE,
 		visivel BOOLEAN DEFAULT FALSE
 		)");
 

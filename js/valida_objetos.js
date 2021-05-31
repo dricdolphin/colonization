@@ -30,7 +30,7 @@ function processa_xhttp_basico(dados_ajax)	{
 					alert(resposta.mensagem);	
 				}
 
-				if (resposta.resposta_ajax != "OK!") {
+				if (resposta.resposta_ajax != "OK!" && resposta.resposta_ajax != "SALVO!") {
 					alert(resposta.resposta_ajax);
 					resolve(false);
 				} else {

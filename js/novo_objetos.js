@@ -2,6 +2,7 @@ var custos_tech = [];
 var descricao_tech = [];
 var custos_instalacao = [];
 var descricao_instalacao = [];
+var produz_instalacao = [];
 var tech_instalacao = [];
 
 /******************
@@ -1052,8 +1053,9 @@ function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
 			}				
 			if (resposta.resposta_ajax == "OK!") {
 				custos_instalacao = resposta.custos_instalacao; //Precisa ser uma VAR por ser uma variável global
-				descricao_instalacao = resposta.descricao_instalacao; //Precisa ser uma VAR por ser uma variável global
-				tech_instalacao = resposta.tech_instalacao; //Precisa ser uma VAR por ser uma variável global
+				descricao_instalacao = resposta.descricao_instalacao; 
+				tech_instalacao = resposta.tech_instalacao;
+				produz_instalacao = resposta.produz_instalacao;
 				//console.log(custos_instalacao);
 				processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio, resposta.html);
 			} else {
@@ -1121,6 +1123,7 @@ function processa_nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio
 	+"<div data-atributo='nome_instalacao' data-editavel='true' data-type='select' data-funcao='lista_instalacoes_html' data-id-selecionado='' data-valor-original=''>"+lista_instalacao+"</div>"
 	+"<div data-atributo='custo_instalacao' class='custo_instalacao'>&nbsp;</div>"
 	+"<div data-atributo='descricao_instalacao' class='custo_instalacao'>&nbsp;</div>"
+	+"<div data-atributo='produz_instalacao' class='custo_instalacao'>&nbsp;</div>"
 	+"<div data-atributo='tech_instalacao' class='custo_instalacao'>&nbsp;</div>"
 	+"<div data-atributo='gerenciar'><a href='#' onclick='return salva_objeto(event, this, false, true,\"colonization_planeta_instalacoes\", true);'>Salvar</a> | <a href='#' onclick='return cancela_edicao(event, this);'>Cancelar</a></div>";
 

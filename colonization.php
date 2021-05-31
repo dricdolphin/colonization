@@ -2046,7 +2046,7 @@ if (!empty($imperios[0])) {
 
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
-			$html .= "<tr><td><a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'>{$colonia->planeta->nome}</a> - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
+			$html .= "<tr><td><a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'><span style='tooltip'>{$colonia->planeta->nome}<span style='tooltiptext'>Alterar nome da Colônia</span></span></a> - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
 			<td>{$lista_recursos}</td>
 			</tr>\n";				
 		}

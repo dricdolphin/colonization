@@ -525,5 +525,61 @@ class instalacao
 		
 		return true;
 	}
+
+	/***********************
+	function html_producao_consumo_instalacao($chave)
+	----------------------
+	Pega o HTML com a produção de uma Instalação
+	***********************/
+	function html_producao_consumo_instalacao() {
+		global $wpdb;
+		$html_producao_consumo_instalacao = "";
+		
+		if (!empty($this->recursos_produz)) {
+			$id_recursos = implode(",",$this->recursos_produz);
+			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
+			FROM colonization_recurso AS cr
+			WHERE cr.id IN ({$id_recursos})
+			ORDER BY cr.nivel, cr.nome
+			");
+			
+			foreach ($id_recursos_ordenados as $id_recurso) {
+				$recurso = new recurso($id_recurso->id);
+				$chave = array_search($recurso->id,$this->recursos_produz);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: {$this->recursos_produz_qtd[$chave]}; ";
+			}
+		}
+
+		if (!empty($this->recursos_consome)) {
+			$id_recursos = implode(",",$this->recursos_consome);
+			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
+			FROM colonization_recurso AS cr
+			WHERE cr.id IN ({$id_recursos})
+			ORDER BY cr.nivel, cr.nome
+			");
+			foreach ($id_recursos_ordenados as $id_recurso) {
+				$recurso = new recurso($id_recurso->id);
+				$chave = array_search($recurso->id,$this->recursos_consome);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$this->recursos_consome_qtd[$chave]}</span>; ";
+			}
+		}
+
+		if (!empty($this->consumo_fixo)) {
+			$id_recursos = implode(",",$this->consumo_fixo);
+			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
+			FROM colonization_recurso AS cr
+			WHERE cr.id IN ({$id_recursos})
+			ORDER BY cr.nivel, cr.nome
+			");
+			foreach ($id_recursos_ordenados as $id_recurso) {
+				$recurso = new recurso($id_recurso->id);
+				$chave = array_search($recurso->id,$this->consumo_fixo);
+				$html_producao_consumo_instalacao .= "{$recurso->html_icone()}: <span style='color: #FF2222;'>-{$this->consumo_fixo_qtd[$chave]}</span>; ";
+			}
+		}		
+		
+		return $html_producao_consumo_instalacao;				
+	}
+
 }
 ?>
