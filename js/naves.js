@@ -343,7 +343,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 	
 	if (nave.mk_camuflagem*1 > 3) {
-		corasita = corasita + nave.mk_camuflagem;
+		corasita = corasita + nave.mk_camuflagem*1;
 		texto_corasita = " | Corasita: "+corasita;
 	};
 	
@@ -419,16 +419,16 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 	let custos = {
-		'Industrializáveis': industrializaveis,
-		'Enérgium': energium,
-		'Dillithium': dillithium,
-		'Duranium': duranium,
-		'Nor-Duranium': nor_duranium,
-		'Trillithium': trillithium,
-		'Corasita': corasita,
-		'Tritanium': tritanium,
-		'Neutronium': neutronium,
-		'Tricobalto': tricobalto
+		'Industrializáveis': industrializaveis*1,
+		'Enérgium': energium*1,
+		'Dillithium': dillithium*1,
+		'Duranium': duranium*1,
+		'Nor-Duranium': nor_duranium*1,
+		'Trillithium': trillithium*1,
+		'Corasita': corasita*1,
+		'Tritanium': tritanium*1,
+		'Neutronium': neutronium*1,
+		'Tricobalto': tricobalto*1
 	};
 
 	//Remove os itens em branco ou zerados
