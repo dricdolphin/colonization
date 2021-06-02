@@ -251,7 +251,7 @@ class colonization_ajax {
 		
 		$dados_salvos['resposta_ajax'] = "Somente o ADMIN pode tirar o Cerco de um sistema!";
 		if ($roles == "administrator") {
-			$wpdb->query("UPDATE colonization_estrela SET cerco=0 WHERE id={$_POST['id_estrela']}");
+			$wpdb->query("UPDATE colonization_estrela SET cerco={$_POST['coloca_cerco']} WHERE id={$_POST['id_estrela']}");
 			$dados_salvos['resposta_ajax'] = "OK!";
 		}
 		
@@ -493,14 +493,40 @@ class colonization_ajax {
 			}
 			
 			foreach ($string_nave as $chave_tech => $valor) {
-				if (str_contains($chave_tech, "mk_")) {//Todas as chaves "mk_" representam alguma Tech
-					//TODO -- verifica qual seria a Tech necessária e se o Império tem essa Tech
-				} elseif (str_contains($chave_tech, "qtd_")) {//Os dados de QTD não definem necessidade de Tech, EXCETO para a nivel_estacao_orbital
-					//TODO -- verifica o que fazer
-				} elseif (str_contains($chave_tech, "nivel_estacao_orbital")) {
-					//TODO -- verifica o que fazer
+				if (str_contains($chave_tech, "mk_") || str_contains($chave_tech, "nivel_estacao_orbital")) {//Todas as chaves "mk_" representam alguma Tech
+					$tem_tech = $wpdb->get_var("
+					SELECT cit.id
+					FROM colonization_imperio_techs AS cit
+					JOIN colonization_tech AS ct
+					ON ct.id = cit.id_tech
+					WHERE cit.id_imperio = {$imperio->id}
+					AND cit.custo_pago = 0
+					AND ct.especiais LIKE '%{$chave_tech}={$valor}%'
+					");
+					
+					if (empty($tem_tech)) {
+						$nome_tech = $wpdb->get_var("SELECT nome FROM colonization_tech WHERE especiais LIKE '%{$chave_tech}={$valor}%'");
+						$dados_salvos['resposta_ajax'] = "{$chave_tech}\nÉ necessário ter a Tech '{$nome_tech}' para poder construir essa nave!";
+						break;
+					}
+				} elseif (str_contains($chave_tech, "qtd_") || str_contains($chave_tech, "nome_modelo") || str_contains($chave_tech, "id")) {//Pula chaves de qtd, nome_modelo e id
+					continue;
 				} else {
-					//TODO -- verifica o que fazer
+					$tem_tech = $wpdb->get_var("
+					SELECT cit.id
+					FROM colonization_imperio_techs AS cit
+					JOIN colonization_tech AS ct
+					ON ct.id = cit.id_tech
+					WHERE cit.id_imperio = {$imperio->id}
+					AND cit.custo_pago = 0
+					AND ct.especiais LIKE '%id={$chave_tech}%'
+					");
+					
+					if (empty($tem_tech)) {
+						$nome_tech = $wpdb->get_var("SELECT nome FROM colonization_tech WHERE especiais LIKE '%id={$chave_tech}%'");
+						$dados_salvos['resposta_ajax'] = "{$chave_tech}\nÉ necessário ter a Tech '{$nome_tech}' para poder construir essa nave!";
+						break;
+					}
 				}
 			}
 		}
@@ -915,6 +941,10 @@ class colonization_ajax {
 				");
 				
 				$dados_salvos['alerta'] = "";
+				
+				if ($nave->camuflagem > 0) {
+					$dados_salvos['alerta'] .= "Nave camuflada!\n";
+				}
 				
 				if (!empty($id_recursos_desconhecidos)) {
 					$dados_salvos['alerta'] .= "O Império descobriu os seguintes recursos novos: \n";

@@ -2275,7 +2275,9 @@ if (!empty($imperios[0])) {
 		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
 		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
-		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis <i class='fas fa-users'></i>Poder de Invasão</div>
+		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis 
+		<i class='fas fa-users'></i>Poder de Invasão <i class='fas fa-running'></i>Poder de Abordagem <i class='fas fa-user-shield'></i>Defesa de Abordagem
+		</div>
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
 		<table class='wp-list-table widefat fixed striped users' data-tabela='colonization_acoes_turno'>
 		<thead>
@@ -2824,6 +2826,12 @@ var id_imperio_atual = {$imperio->id};
 			}
 		}
 		
+		$html_mk_plasma = "";
+		
+		if ($roles == "administrator" || $imperio->mk_plasma > 0) {
+			$html_mk_plasma = "<div id='plasma'>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>";
+		}
+		
 		$html = "<script type='text/javascript'>
 		{$html_javascript}
 		</script>
@@ -2844,6 +2852,7 @@ var id_imperio_atual = {$imperio->id};
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
 		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input></div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
+		{$html_mk_plasma}
 		</div>
 		<div>---------------------------------------------------</div>
 		<div id='defesas'>

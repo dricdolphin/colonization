@@ -42,6 +42,9 @@ class frota
 	public $id_estrela_destino;
 	public $anti_dobra;
 	public $visivel;
+	public $poder_abordagem;
+	public $bonus_abordagem = 0;
+	public $bonus_invasao = 0;
 	public $destinos_buracos_minhoca;
 	
 	function __construct($id=0) {
@@ -102,10 +105,44 @@ class frota
 		$this->turno_destruido = $resultado->turno_destruido;
 		$this->id_estrela_destino = $resultado->id_estrela_destino;
 		$this->anti_dobra = $resultado->anti_dobra;
+		$this->visivel = $resultado->visivel;
+		
+		if ($this->HP_max > 0) {
+			if (round((($this->HP)/($this->HP_max))*5,0) < 2) {
+				$this->alcance = 0;
+			}
+		}
+		
 		if ($this->anti_dobra) {
 			$this->alcance = 0;
 		}
-		$this->visivel = $resultado->visivel;
+		
+		
+		$partes_nave = JSON_decode($this->string_nave);
+		foreach ($partes_nave as $parte_nave => $valor) {
+			$especiais_tech = $wpdb->get_var("SELECT ct.especiais FROM colonization_tech AS ct WHERE especiais LIKE '%id={$parte_nave}%'");
+			$especiais = explode(";",$especiais_tech);
+			
+			//bonus_abordagem
+			$bonus_abordagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_abordagem') !== false;
+			}));
+			
+			if (!empty($bonus_abordagem)) {
+				$bonus_abordagem_valor = explode("=",$bonus_abordagem[0]);
+				$this->bonus_abordagem = $this->bonus_abordagem	+ $bonus_abordagem_valor[1];
+			}
+
+			//bonus_invasao
+			$bonus_invasao = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_invasao') !== false;
+			}));
+			
+			if (!empty($bonus_invasao)) {
+				$bonus_invasao_valor = explode("=",$bonus_invasao[0]);
+				$this->bonus_invasao = $this->bonus_invasao	+ $bonus_invasao_valor[1];
+			}
+		}
 	}
 	
 	/***********************
@@ -492,14 +529,6 @@ class frota
 	Exibe uma Nave
 	***********************/
 	function html_nave($imperio) {
-		//HP: fas fa-heart
-		//Velocidade: far fa-tachometer-alt
-		//Blindagem: fas fa-hard-hat
-		//Escudos: fas fa-shield
-		//PdF Laser: far fa-sword-laser
-		//PdF Torpedo: far fa-bahai
-		//PdF Projétil: far fa-asterisc
-		
 		$tipo = "";
 		if ($this->tipo != "Estação Orbital") {
 			$tipo = "<span style='font-weight: normal; font-size: 0.9em;'>{$this->tipo}</span>&nbsp;";
@@ -534,9 +563,16 @@ class frota
 		}
 		
 		if ($this->poder_invasao >0) {
-			$poder_invasao_total = $this->poder_invasao * $imperio->bonus_invasao;
+			$poder_invasao_total = $this->poder_invasao * ($imperio->bonus_invasao + $this->bonus_invasao);
 			$html_nave .= "<div class='fas fa-users' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_invasao_total}</span></div>";
 		}
+		
+		$poder_abordagem = $this->tamanho + floor((($imperio->bonus_abordagem + $this->bonus_abordagem)*$this->tamanho)/100);
+		$html_nave .= "<div class='fas fa-running' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_abordagem}</span></div>";
+		
+		$defesa_abordagem = $this->tamanho + floor((($imperio->defesa_abordagem)*$this->tamanho)/100);
+		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
+
 		return $html_nave;
 	}
 

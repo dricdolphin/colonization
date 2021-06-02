@@ -45,6 +45,8 @@ class imperio
 	public $alimento_inospito = 0;
 	public $consome_poluicao = 0;
 	public $bonus_invasao = 1;
+	public $bonus_abordagem = 0;
+	public $defesa_abordagem=0;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -229,6 +231,26 @@ class imperio
 		foreach ($especiais_lista AS $id) {
 			$especiais = explode(";",$id->especiais);
 			
+			//defesa_abordagem
+			$defesa_abordagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'defesa_abordagem') !== false;
+			}));
+			
+			if (!empty($defesa_abordagem)) {
+				$defesa_abordagem_valor = explode("=",$defesa_abordagem[0]);
+				$this->defesa_abordagem = $this->defesa_abordagem	+ $defesa_abordagem_valor[1];
+			}
+			
+			//bonus_abordagem
+			$bonus_abordagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'bonus_abordagem') !== false;
+			}));
+			
+			if (!empty($bonus_abordagem)) {
+				$bonus_abordagem_valor = explode("=",$bonus_abordagem[0]);
+				$this->bonus_abordagem = $this->bonus_abordagem	+ $bonus_abordagem_valor[1];
+			}
+
 			//bonus_invasao
 			$bonus_invasao = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'bonus_invasao') !== false;
@@ -1166,9 +1188,15 @@ class imperio
 					}
 				}
 
+				$html_nome_estrela = "{$estrela[$planeta_id_estrela[$id_planeta]]->nome} ({$estrela[$planeta_id_estrela[$id_planeta]]->X};{$estrela[$planeta_id_estrela[$id_planeta]]->Y};{$estrela[$planeta_id_estrela[$id_planeta]]->Z})";
+				if ($roles == "administrator") {
+					$html_nome_estrela = "<a href='#' onclick='return tirar_cerco(this, event, {$estrela[$planeta_id_estrela[$id_planeta]]->id}, true)'>{$html_nome_estrela}</a>";
+				}
+				
+				
 				$html_sistema[$planeta_id_estrela[$id_planeta]] = "
 				<div style='margin-bottom: 5px;'><div style='display: inline;'><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
-				{$estrela[$planeta_id_estrela[$id_planeta]]->nome} ({$estrela[$planeta_id_estrela[$id_planeta]]->X};{$estrela[$planeta_id_estrela[$id_planeta]]->Y};{$estrela[$planeta_id_estrela[$id_planeta]]->Z})</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
+				{$html_nome_estrela}</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
 				{$html_defesas_sistema}
 				</div><br>";
 			}

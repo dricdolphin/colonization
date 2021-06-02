@@ -1623,17 +1623,27 @@ function muda_nome_nave(id_nave, evento) {
 }
 
 /******************
-function tirar_cerco(objeto, evento, id_estrela) 
+function tirar_cerco(objeto, evento, id_estrela, coloca_cerco=false) 
 --------------------
 Tira uma Estrela do Cerco
 
 ******************/	
-function tirar_cerco(objeto, evento, id_estrela) {
-	let dados_ajax = "post_type=POST&action=tirar_cerco&id_estrela=" + id_estrela;
+function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
+	let dados_ajax = "post_type=POST&action=tirar_cerco&id_estrela=" + id_estrela + "&coloca_cerco=" + coloca_cerco;
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
 		if (successMessage) {
-			objeto.remove();
+			if (coloca_cerco) {
+				let div_parent = pega_ascendente(objeto, "DIV");
+				
+				let icone_cerco = document.createElement("A");
+				icone_cerco.href = "#";
+				icone_cerco.innerHTML = "<div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div>";
+				icone_cerco.addEventListener("click", function () {tirar_cerco(this,event,id_estrela)});
+				div_parent.insertBefore(icone_cerco, div_parent.firstChild);
+			} else {
+				objeto.remove();
+			}
 		}
 	});		
 
