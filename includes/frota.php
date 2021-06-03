@@ -575,7 +575,11 @@ class frota
 			$poder_invasao_total = $this->poder_invasao * ($imperio->bonus_invasao + $this->bonus_invasao);
 			$html_nave .= "<div class='fas fa-users' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_invasao_total}</span></div>";
 		}
-		
+
+		if ($this->pdf_bombardeamento >0) {
+			$html_nave .= "<div class='fas fa-bomb' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_bombardeamento}</span></div>";
+		}
+
 		$poder_abordagem = $this->tamanho + floor((($imperio->bonus_abordagem + $this->bonus_abordagem)*$this->tamanho)/100);
 		$html_nave .= "<div class='fas fa-running' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_abordagem}</span></div>";
 		
@@ -584,6 +588,7 @@ class frota
 			$defesa_abordagem = $defesa_abordagem*10;
 		}
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
+
 
 		return $html_nave;
 	}

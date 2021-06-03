@@ -2300,7 +2300,7 @@ if (!empty($imperios[0])) {
 		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
 		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
-		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis 
+		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis <i class='fas fa-bomb'></i>PdF Bombardeamento
 		<i class='fas fa-users'></i>Poder de Invasão <i class='fas fa-running'></i>Poder de Abordagem <i class='fas fa-user-shield'></i>Defesa de Abordagem
 		</div>
 		<div id='frota_imperio_{$imperio->id}'>{$html_frota}</div><br>
