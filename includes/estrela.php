@@ -193,10 +193,14 @@ class estrela
 				$html_recursos_planeta = $planeta->exibe_recursos_planeta(true);
 				$html_planetas .= "<div class='recursos_planeta'>{$html_recursos_planeta}</div>";
 			}
+
 			$html_planetas .= "</div>";
 		}
 	
-	return $html_planetas."</div>";
+		if (empty($ids_planetas_estrela)) {
+			$html_planetas .= "Espaço Profundo em {$this->nome}";
+		}
+		return $html_planetas."</div>";
 	}
 }
 ?>

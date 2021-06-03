@@ -942,8 +942,12 @@ class colonization_ajax {
 				
 				$dados_salvos['alerta'] = "";
 				
+				if ($estrela_destino->comentarios != "") {
+					$dados_salvos['alerta'] .= "{$estrela_destino->comentarios}\n";
+				}
+				
 				if ($nave->camuflagem > 0) {
-					$dados_salvos['alerta'] .= "Nave camuflada!\n";
+					$dados_salvos['alerta'] .= "A nave está camuflada!\n";
 				}
 				
 				if (!empty($id_recursos_desconhecidos)) {

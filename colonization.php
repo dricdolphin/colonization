@@ -2265,9 +2265,17 @@ if (!empty($imperios[0])) {
 			if (!empty($nave->id_estrela_destino) && $turno == $turno_atual->turno) {
 				$html_nave_estrela_atual = "<div class='nave_em_transito'>Nave em trânsito</div>";
 			} else {
+				$id_imperio_colonizador = $wpdb->get_var("
+				SELECT DISTINCT cic.id_imperio
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cp.id_estrela = {$nave->estrela->id} AND cic.turno = {$imperio->turno->turno}");
+				
 				$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
-				$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas({$nave->estrela->id});'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
-				if ($nave->pesquisa==1) {
+				$html_nave_estrela_atual = "<div>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
+				if ($nave->pesquisa==1 || $imperio->id == $id_imperio_colonizador) {
+					$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas({$nave->estrela->id});'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
 					$html_nave_estrela_atual .=	"<div class='lista_planetas_nave' id='id_estrela_{$nave->estrela->id}'>{$html_planetas_na_estrela}</div>";
 				}
 			}

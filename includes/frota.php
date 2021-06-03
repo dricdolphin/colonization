@@ -121,28 +121,30 @@ class frota
 		
 		
 		$partes_nave = JSON_decode($this->string_nave);
-		foreach ($partes_nave as $parte_nave => $valor) {
-			$especiais_tech = $wpdb->get_var("SELECT ct.especiais FROM colonization_tech AS ct WHERE especiais LIKE '%id={$parte_nave}%'");
-			$especiais = explode(";",$especiais_tech);
-			
-			//bonus_abordagem
-			$bonus_abordagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_abordagem') !== false;
-			}));
-			
-			if (!empty($bonus_abordagem)) {
-				$bonus_abordagem_valor = explode("=",$bonus_abordagem[0]);
-				$this->bonus_abordagem = $this->bonus_abordagem	+ $bonus_abordagem_valor[1];
-			}
+		if (!empty($partes_nave)) {
+			foreach ($partes_nave as $parte_nave => $valor) {
+				$especiais_tech = $wpdb->get_var("SELECT ct.especiais FROM colonization_tech AS ct WHERE especiais LIKE '%id={$parte_nave}%'");
+				$especiais = explode(";",$especiais_tech);
+				
+				//bonus_abordagem
+				$bonus_abordagem = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'bonus_abordagem') !== false;
+				}));
+				
+				if (!empty($bonus_abordagem)) {
+					$bonus_abordagem_valor = explode("=",$bonus_abordagem[0]);
+					$this->bonus_abordagem = $this->bonus_abordagem	+ $bonus_abordagem_valor[1];
+				}
 
-			//bonus_invasao
-			$bonus_invasao = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_invasao') !== false;
-			}));
-			
-			if (!empty($bonus_invasao)) {
-				$bonus_invasao_valor = explode("=",$bonus_invasao[0]);
-				$this->bonus_invasao = $this->bonus_invasao	+ $bonus_invasao_valor[1];
+				//bonus_invasao
+				$bonus_invasao = array_values(array_filter($especiais, function($value) {
+					return strpos($value, 'bonus_invasao') !== false;
+				}));
+				
+				if (!empty($bonus_invasao)) {
+					$bonus_invasao_valor = explode("=",$bonus_invasao[0]);
+					$this->bonus_invasao = $this->bonus_invasao	+ $bonus_invasao_valor[1];
+				}
 			}
 		}
 	}
