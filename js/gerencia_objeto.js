@@ -514,6 +514,9 @@ function envia_nave (objeto, evento, id_nave) {
 				objeto.style.display='inline';
 				retorno = false;
 			}
+		} else if (this.status == 500) {
+				console.log(this.responseText);
+				console.log(this.statusText)
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

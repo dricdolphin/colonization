@@ -2046,10 +2046,10 @@ if (!empty($imperios[0])) {
 			}
 
 			$colonia->planeta = new planeta($colonia->id_planeta);
-			if (empty(estrela[$colonia->id_estrela])) {
+			if (empty($estrela[$colonia->id_estrela])) {
 				$estrela[$colonia->id_estrela] = new estrela($colonia->id_estrela);
 			}
-			$colonia->estrela = estrela[$colonia->id_estrela];
+			$colonia->estrela = $estrela[$colonia->id_estrela];
 
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			

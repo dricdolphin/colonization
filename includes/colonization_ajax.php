@@ -834,6 +834,9 @@ class colonization_ajax {
 	***********************/	
 	function envia_nave() {
 		global $wpdb;
+		// Report all PHP errors
+		error_reporting(E_ALL);
+		ini_set("display_errors", 1);
 		
 		$nave = new frota($_POST['id']);
 		if ($nave->alcance == 0 || $nave->nivel_estacao_orbital != 0) {
@@ -852,7 +855,7 @@ class colonization_ajax {
 		
 		//Verificar se tem Combustível suficiente para mandar a nave.
 		$id_plasma_dobra = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Plasma de Dobra'");
-		$estrela_origem = $nave->estrela;
+		$estrela_origem = new estrela($nave->id_estrela);
 		
 		$fator_tamanho = 1;
 		if ($nave->tamanho > 30) {
