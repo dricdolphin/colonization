@@ -17,6 +17,7 @@ class frota
 	public $X;
 	public $Y;
 	public $Z;
+	public $id_estrela;
 	public $estrela;
 	public $string_nave;
 	public $custo;
@@ -81,7 +82,8 @@ class frota
 		$this->Z = $resultado->Z;
 		
 		$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$this->X} AND Y={$this->Y} AND Z={$this->Z}");
-		$this->estrela = new estrela($id_estrela);
+		$this->id_estrela = $id_estrela;
+		//$this->estrela = new estrela($id_estrela);
 		
 		$this->string_nave = stripslashes($resultado->string_nave);
 		$this->custo = stripslashes($resultado->custo);
@@ -264,7 +266,9 @@ class frota
 	***********************/
 	function exibe_frota() {
 		global $wpdb;
-		
+		if (empty($this->estrela)) {
+			$this->estrela = new estrela($this->id_estrela);
+		}
 		$turno = new turno();
 		
 		$html_armas = "";
@@ -402,6 +406,9 @@ class frota
 		$id_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id_imperio} and turno={$turno->turno}");
 		foreach ($id_colonias as $id) {
 			$colonia = new colonia($id->id);
+			if (empty($colonia->estrela)) {
+				$colonia->estrela = new estrela($colonia->id_estrela);
+			}
 			$ids_estrelas_imperio[$colonia->estrela->id] = $colonia->estrela->id;
 		}
 		
@@ -571,6 +578,9 @@ class frota
 		$html_nave .= "<div class='fas fa-running' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_abordagem}</span></div>";
 		
 		$defesa_abordagem = $this->tamanho + floor((($imperio->defesa_abordagem)*$this->tamanho)/100);
+		if ($this->nivel_estacao_orbital > 0) {
+			$defesa_abordagem = $defesa_abordagem*10;
+		}
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
 
 		return $html_nave;

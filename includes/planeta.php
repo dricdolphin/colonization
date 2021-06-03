@@ -67,7 +67,7 @@ class planeta
 		ON ci.id = cpi.id_instalacao
 		WHERE cpi.id_planeta={$this->id} AND turno<={$this->turno->turno} AND (turno_desmonta = 0 OR turno_desmonta IS NULL)");
 	
-		$this->estrela = new estrela($this->id_estrela);
+		//$this->estrela = new estrela($this->id_estrela);
 
 		//Atualiza os recursos do Planeta para o Turno atual, se necessário
 		$max_turnos = $wpdb->get_results("SELECT cpr.id_recurso, MAX(cpr.turno) as turno 
@@ -240,6 +240,10 @@ class planeta
 	***********************/
 	function lista_dados($id_estrela = 0) {
 		global $wpdb;
+		if (empty($this->estrela)) {
+			$this->estrela = new estrela($this->id_estrela);
+		}
+		
 		if ($this->inospito == 1) {
 			$inospito_checked = "checked";
 		} else {

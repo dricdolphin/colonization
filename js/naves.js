@@ -21,8 +21,10 @@ var nave_template = {
 	'qtd_laser' : 0,
 	'qtd_torpedo' : 0,
 	'qtd_projetil' :0,
+	'qtd_plasma' :0,
 	'mk_laser' : 0,
 	'mk_torpedo' : 0,
+	'mk_plasma' : 0,
 	'tricobalto_torpedo' : 0,
 	'mk_projetil' : 0,
 	'mk_blindagem' : 0,
@@ -172,7 +174,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 	}
 	
-	chassi = nave.qtd_bombardeamento*10 + nave.qtd_tropas*7 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + qtd_pesquisa*1;
+	chassi = nave.qtd_bombardeamento*10 + nave.qtd_tropas*7 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + nave.qtd_plasma*nave.mk_plasma + qtd_pesquisa*1;
 	
 	let capacidade_dobra = nave.mk_dobra*5;
 	let capacidade_impulso = nave.mk_impulso*5;
@@ -246,7 +248,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	chassi = chassi + qtd_dobra*1 + qtd_impulso*1 + nave.qtd_combustivel*1 + nave.nivel_estacao_orbital*20 + chassi_especial*1;
 	hp = chassi*10 + nave.qtd_hp_extra*1;
 	
-	pdf_laser = nave.qtd_laser*(nave.mk_laser*2-1);
+	pdf_laser = nave.qtd_laser*(nave.mk_laser*2-1) + nave.qtd_plasma*(nave.mk_plasma*2-1);
 	pdf_torpedo = nave.qtd_torpedo*(nave.mk_torpedo*2-1);
 	pdf_projetil = nave.qtd_projetil*(nave.mk_projetil*2-1);
 	pdf_bombardeamento = nave.qtd_bombardeamento*(nave.mk_bombardeamento*2-1);
@@ -257,6 +259,16 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			especiais++;
 		} else {
 			texto_especiais = texto_especiais + "; ("+especiais+") - Pode realizar Bombardeamento Planetário (PdF "+pdf_bombardeamento+")";
+			especiais++;
+		}
+	}
+	
+	if (nave.qtd_plasma*nave.mk_plasma > 0) {
+		if (especiais == 1) {
+			texto_especiais = "(1) - Armas de Plasma";
+			especiais++;
+		} else {
+			texto_especiais = texto_especiais + "; ("+especiais+") - Armas de Plasma";
 			especiais++;
 		}
 	}
@@ -385,10 +397,10 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		alcance = 0;
 	}
 
-	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil
+	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + nave.qtd_plasma*nave.mk_plasma
 	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1  + nave.mk_camuflagem*1;
 	
-	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
+	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_plasma*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
 	
@@ -546,7 +558,9 @@ function processa_string(evento, objeto) {
 				nave["mk_torpedo"] = 1;
 			} else if (property.search("qtd_projetil") !== -1) {
 				nave["mk_projetil"] = 1;
-			}		
+			} else if (property.search("qtd_plasma") !== -1) {
+				nave["mk_plasma"] = 1;
+			}	
 		}
 		if (typeof(nave[property]) == "boolean") {
 			nave_elementos[property].checked = nave[property];

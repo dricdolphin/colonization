@@ -458,6 +458,11 @@ tr.th_linha_2 th {
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
+.nome_estrela_nave {
+	text-decoration: underline;
+	cursor: pointer; 
+}
+
 .lista_planetas {
 	background-color: rgba(0, 0, 0, 0.03);
 }
@@ -665,6 +670,10 @@ tr.th_linha_2 th {
 
 .id_nave {
 	width: 50px;
+}
+
+.lista_planetas_nave {
+	display: none;
 }
 
 @media only screen and (max-width: 1209px) {

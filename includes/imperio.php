@@ -51,6 +51,7 @@ class imperio
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
 	public $pdf_torpedo = 0;
+	public $pdf_plasma = 0;
 	public $defesa_invasao = 1;
 	public $torpedos_sistema_estelar = false;
 	public $icone_torpedos_sistema_estelar = "";
@@ -486,6 +487,16 @@ class imperio
 			if (!empty($pdf_torpedo)) {
 				$pdf_torpedo_valor = explode("=",$pdf_torpedo[0]);
 				$this->pdf_torpedo = $this->pdf_torpedo	+ $pdf_torpedo_valor[1];
+			}
+			
+			//Especiais -- pdf_plasma
+			$pdf_plasma = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pdf_plasma') !== false;
+			}));
+			
+			if (!empty($pdf_plasma)) {
+				$pdf_plasma_valor = explode("=",$pdf_plasma[0]);
+				$this->pdf_plasma = $this->pdf_plasma	+ $pdf_plasma_valor[1];
 			}			
 
 			//Especiais -- defesa_invasao

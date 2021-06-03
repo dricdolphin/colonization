@@ -945,7 +945,7 @@ class colonization {
 		}
 	
 		$html_final = "";
-		if ($apenas_recursos && $imperio->id != 0) {
+		if ($apenas_recursos && $imperio->id != 0 && $id_estrela) {
 			$id_recursos_conhecidos = $wpdb->get_results("
 			SELECT DISTINCT cir.id_recurso 
 			FROM colonization_imperio_recursos AS cir 
@@ -958,9 +958,11 @@ class colonization {
 				$recurso = new recurso($id_recurso->id_recurso);
 				$html_options .= "<option value={$recurso->id}>{$recurso->nome}</option> \n";
 			}
-			$html_final = "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
-			{$html_options}
-			</select>";
+			if (!isset($atts['id_estrela'])) {
+				$html_final = "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
+				{$html_options}
+				</select>";
+			}
 		}
 		
 		$chaves = implode(",",array_keys($html_estrela));
@@ -2035,6 +2037,8 @@ if (!empty($imperios[0])) {
 		</thead>
 		<tbody>";
 		
+		
+		$estrela = [];
 		foreach ($resultados as $resultado) {
 			$colonia = new colonia($resultado->id, $turno->turno);
 			if ($colonia->num_instalacoes == 0) {//Se não tiver Instalações na colônia, pula a mesma
@@ -2042,7 +2046,10 @@ if (!empty($imperios[0])) {
 			}
 
 			$colonia->planeta = new planeta($colonia->id_planeta);
-			$colonia->estrela = new estrela($colonia->id_estrela);
+			if (empty(estrela[$colonia->id_estrela])) {
+				$estrela[$colonia->id_estrela] = new estrela($colonia->id_estrela);
+			}
+			$colonia->estrela = estrela[$colonia->id_estrela];
 
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
@@ -2166,7 +2173,7 @@ if (!empty($imperios[0])) {
 		WHERE (cif.turno_destruido = 0 OR cif.turno_destruido > {$turno}) AND cif.id_imperio = {$imperio->id} AND cif.turno <= {$turno}
 		AND (cfhm.turno = {$turno} OR cfhm.turno IS NULL)
 		GROUP BY cif.id
-		ORDER BY cif.nivel_estacao_orbital DESC	
+		ORDER BY cif.nivel_estacao_orbital DESC, cif.id_estrela_destino, cif.nome
 		");
 		//***/
 		
@@ -2178,6 +2185,7 @@ if (!empty($imperios[0])) {
 		ORDER BY cif.nivel_estacao_orbital DESC");
 		//***/
 		
+		$estrela = [];
 		foreach ($ids_frota as $ids) {
 			$nave = new frota($ids->id);
 			$html_qtd = "";
@@ -2195,7 +2203,12 @@ if (!empty($imperios[0])) {
 			$pesquisa_anterior = "";
 			if (!empty($id_estrela)) {
 				$pesquisa_anterior = $wpdb->get_var("SELECT id FROM colonization_imperio_historico_pesquisa  WHERE id_imperio={$imperio->id} AND id_estrela={$id_estrela}");
-				$nave->estrela = new estrela($id_estrela);
+				if (empty($estrela[$id_estrela])) {
+					$estrela[$id_estrela] = new estrela($id_estrela);
+				}
+				if (empty($nave->estrela)) {
+					$nave->estrela = $estrela[$id_estrela];
+				}
 			}
 			
 			$html_pesquisa_nave = "";
@@ -2250,9 +2263,13 @@ if (!empty($imperios[0])) {
 			}
 			
 			if (!empty($nave->id_estrela_destino) && $turno == $turno_atual->turno) {
-				$html_nave_estrela_atual = "<span class='nave_em_transito'>Nave em trânsito</span>";
+				$html_nave_estrela_atual = "<div class='nave_em_transito'>Nave em trânsito</div>";
 			} else {
-				$html_nave_estrela_atual = "{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})";
+				$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
+				$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas({$nave->estrela->id});'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
+				if ($nave->pesquisa==1) {
+					$html_nave_estrela_atual .=	"<div class='lista_planetas_nave' id='id_estrela_{$nave->estrela->id}'>{$html_planetas_na_estrela}</div>";
+				}
 			}
 			
 			$html_nome_nave = $nave->nome;
@@ -2449,9 +2466,16 @@ if (!empty($imperios[0])) {
 		$html_buracos_de_minhoca = "";
 		$index = 0;		
 		
+		$estrela = [];
 		foreach ($lista_frota_imperio as $id) {
 			$frota = new frota($id->id);
-
+			if (empty($estrela[$frota->id_estrela])) {
+				$estrela[$frota->id_estrela] = new estrela($frota->id_estrela);
+			}
+			if (empty($frota->estrela)) {
+				$frota->estrela = $estrela[$frota->id_estrela];
+			}
+			
 			$html .= "<tr>". $frota->exibe_frota() . "</tr>";
 			
 			$html_id_estrela_destino .= "
@@ -2826,10 +2850,10 @@ var id_imperio_atual = {$imperio->id};
 			}
 		}
 		
-		$html_mk_plasma = "";
-		
-		if ($roles == "administrator" || $imperio->mk_plasma > 0) {
-			$html_mk_plasma = "<div id='plasma'>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>";
+
+		$estilo_plasma = $estilo;
+		if ($roles == "administrator" || $imperio->pdf_plasma > 0) {
+			$estilo_plasma = "";
 		}
 		
 		$html = "<script type='text/javascript'>
@@ -2852,7 +2876,7 @@ var id_imperio_atual = {$imperio->id};
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
 		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input></div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
-		{$html_mk_plasma}
+		<div id='plasma' {$estilo_plasma}>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
 		</div>
 		<div>---------------------------------------------------</div>
 		<div id='defesas'>
