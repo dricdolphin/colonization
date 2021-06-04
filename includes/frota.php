@@ -43,6 +43,7 @@ class frota
 	public $id_estrela_destino;
 	public $anti_dobra;
 	public $visivel;
+	public $partes_nave;
 	public $poder_abordagem;
 	public $bonus_abordagem = 0;
 	public $bonus_invasao = 0;
@@ -120,9 +121,9 @@ class frota
 		}
 		
 		
-		$partes_nave = JSON_decode($this->string_nave);
-		if (!empty($partes_nave)) {
-			foreach ($partes_nave as $parte_nave => $valor) {
+		$this->partes_nave = JSON_decode($this->string_nave);
+		if (!empty($this->partes_nave)) {
+			foreach ($this->partes_nave as $parte_nave => $valor) {
 				$especiais_tech = $wpdb->get_var("SELECT ct.especiais FROM colonization_tech AS ct WHERE especiais LIKE '%id={$parte_nave}%'");
 				$especiais = explode(";",$especiais_tech);
 				
@@ -560,15 +561,15 @@ class frota
 		}
 
 		if ($this->pdf_laser >0) {
-			$html_nave .= "<div class='far fa-sword-laser' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_laser}</span></div>";
+			$html_nave .= "<div class='far fa-sword-laser' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_laser}({$this->partes_nave->qtd_laser})</span></div>";
 		}
 
 		if ($this->pdf_torpedo >0) {
-			$html_nave .= "<div class='far fa-bahai' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_torpedo}</span></div>";
+			$html_nave .= "<div class='far fa-bahai' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_torpedo}({$this->partes_nave->qtd_torpedo})</span></div>";
 		}
 		
 		if ($this->pdf_projetil >0) {
-			$html_nave .= "<div class='far fa-asterisk' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_projetil}</span></div>";
+			$html_nave .= "<div class='far fa-asterisk' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->pdf_projetil}({$this->partes_nave->qtd_projetil})</span></div>";
 		}
 		
 		if ($this->poder_invasao >0) {
@@ -589,6 +590,9 @@ class frota
 		}
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
 
+		if ($this->especiais != "") {
+			$html_nave .= "<div class='especiais'>{$this->especiais}</div>";
+		}
 
 		return $html_nave;
 	}

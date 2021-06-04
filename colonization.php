@@ -2231,7 +2231,7 @@ if (!empty($imperios[0])) {
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*5,0);
-				$icone_dano = "fal fa-claw-marks";
+				$icone_dano = "fas fa-claw-marks";
 				switch ($nivel_dano) {
 					case 5:
 					$estilo_dano = "style='color: #124612;'";
