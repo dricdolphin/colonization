@@ -24,6 +24,7 @@ class frota
 	public $tamanho;
 	public $velocidade;
 	public $alcance;
+	public $alcance_temp = 0;
 	public $pdf_laser;
 	public $pdf_projetil;
 	public $pdf_torpedo;
@@ -111,12 +112,18 @@ class frota
 		$this->visivel = $resultado->visivel;
 		
 		if ($this->HP_max > 0) {
-			if (round((($this->HP)/($this->HP_max))*5,0) < 2) {
+			if (round((($this->HP)/($this->HP_max))*10,0) == 1) {
+				if ($this->alcance_temp == 0) {
+					$this->alcance_temp = $this->alcance;
+				}
 				$this->alcance = 0;
 			}
 		}
 		
 		if ($this->anti_dobra) {
+			if ($this->alcance_temp == 0) {
+				$this->alcance_temp = $this->alcance;
+			}
 			$this->alcance = 0;
 		}
 		
@@ -192,7 +199,9 @@ class frota
 		}		
 		
 		if ($this->id_imperio != 0) {
-		
+			if ($this->alcance_temp != 0) {
+				$this->alcance = $this->alcance_temp;
+			}
 			$html = "<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
@@ -588,6 +597,9 @@ class frota
 		if ($this->nivel_estacao_orbital > 0) {
 			$defesa_abordagem = $defesa_abordagem*10;
 		}
+		if ($this->poder_invasao > 0) {
+			$defesa_abordagem = $defesa_abordagem*$this->poder_invasao;
+		}		
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
 
 		if ($this->especiais != "") {

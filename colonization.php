@@ -2230,33 +2230,28 @@ if (!empty($imperios[0])) {
 			}
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
-				$nivel_dano = round((($nave->HP)/($nave->HP_max))*5,0);
+				$nivel_dano = round((($nave->HP)/($nave->HP_max))*10,0);
 				$icone_dano = "fas fa-claw-marks";
-				switch ($nivel_dano) {
-					case 5:
+				if ($nivel_dano == 10) {
+					//Sem danos!
+				} elseif ($nivel_dano >= 9) {
 					$estilo_dano = "style='color: #124612;'";
-					$nivel_dano = "Danos Mínimos";
-					break;
-					case 4:
+					$nivel_dano = "Danos Mínimos";					
+				} elseif ($nivel_dano >= 7) {
 					$estilo_dano = "style='color: #A47200;'";
-					$nivel_dano = "Danos Moderados";
-					break;
-					case 3:
+					$nivel_dano = "Danos Moderados";					
+				} elseif ($nivel_dano >= 5) {
 					$estilo_dano = "style='color: #FFBF00;'";
-					$nivel_dano = "Danos Severos";
-					break;
-					case 2:
+					$nivel_dano = "Danos Severos";					
+				} elseif ($nivel_dano >= 3) {
 					$estilo_dano = "style='color: #D2222D;'";
-					$nivel_dano = "Danos Críticos";
-					break;
-					case 1:
+					$nivel_dano = "Danos Críticos";					
+				} elseif ($nivel_dano >= 1) {
 					$estilo_dano = "style='color: #4A0808;'";
-					$nivel_dano = "Incapacitada!";
-					break;
-					default:
-					$estilo_dano = "";
+					$nivel_dano = "Incapacitada!";					
+				} else {
 					$icone_dano = "fas fa-skull-crossbones";
-					$nivel_dano = "DESTRUÍDA!!!";
+					$nivel_dano = "DESTRUÍDA!!!";					
 				}
 				
 				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
