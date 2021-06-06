@@ -534,56 +534,6 @@ class imperio
 		}
 		//Depois de pegar o alcance e o bônus de logística, soma os dois
 		$this->alcance_logistica = $this->alcance_logistica + $this->bonus_alcance_logistica;
-
-		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
-		$tech = new tech();
-		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
-
-		$user = wp_get_current_user();
-		$roles = "";
-		if (!empty($user->ID)) {
-			$roles = $user->roles[0];
-		}
-
-		$icone_html = [];
-		
-		foreach ($icones AS $icone) {
-			$tech_icone = new tech($icone->id);
-			
-			if ($icone->custo_pago == 0) {
-				$mostra_logistica = "";
-				if (strpos($tech_icone->especiais,"logistica") !== false && strpos($tech_icone->especiais,"bonus_logistica") === false) {
-					$mostra_logistica = " ".$this->alcance_logistica."pc";
-				}
-				if ($tech_icone->id_tech_parent != 0) {
-					$tech_parent = new tech ($tech_icone->id_tech_parent);
-					$icone_colocado = false;
-					do {
-						if (!empty($icone_html[$tech_parent->id])) {
-							$icone_html[$tech_parent->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-							$icone_colocado = true;
-							break;
-						} 
-						$tech_parent = new tech ($tech_parent->id_tech_parent);
-					} while ($tech_parent->id != 0);
-					if (!$icone_colocado) {
-						$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-					}
-				} else {
-					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-				}
-				//$this->icones_html .= " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
-			}
-		}
-		
-		foreach ($icone_html as $chave => $html) {
-			$this->icones_html .= $html;
-		}
-
-		
-		if ($this->max_pop >0) {
-			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
-		}
 	}
 
 	/***********************
@@ -1282,5 +1232,65 @@ class imperio
 		return $html_lista;
 	}
 	
+	
+	/***********************
+	function icones_html()
+	----------------------
+	Popula a variável $icones_html e retorna a mesma
+	************************/	
+	function icones_html() {
+		global $wpdb;
+		//Algumas Techs tem ícones, que devem ser mostrados do lado do nome do jogador
+		$tech = new tech();
+		$icones = $tech->query_tech(" AND ct.icone != ''", $this->id);
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		$icone_html = [];
+		
+		foreach ($icones AS $icone) {
+			$tech_icone = new tech($icone->id);
+			
+			if ($icone->custo_pago == 0) {
+				$mostra_logistica = "";
+				if (strpos($tech_icone->especiais,"logistica") !== false && strpos($tech_icone->especiais,"bonus_logistica") === false) {
+					$mostra_logistica = " ".$this->alcance_logistica."pc";
+				}
+				if ($tech_icone->id_tech_parent != 0) {
+					$tech_parent = new tech ($tech_icone->id_tech_parent);
+					$icone_colocado = false;
+					do {
+						if (!empty($icone_html[$tech_parent->id])) {
+							$icone_html[$tech_parent->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+							$icone_colocado = true;
+							break;
+						} 
+						$tech_parent = new tech ($tech_parent->id_tech_parent);
+					} while ($tech_parent->id != 0);
+					if (!$icone_colocado) {
+						$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+					}
+				} else {
+					$icone_html[$tech_icone->id] = " <div class='{$tech_icone->icone} tooltip'>{$mostra_logistica}<span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+				}
+				//$this->icones_html .= " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>{$tech_icone->nome}</span></div>";
+			}
+		}
+		
+		foreach ($icone_html as $chave => $html) {
+			$this->icones_html .= $html;
+		}
+
+		
+		if ($this->max_pop >0) {
+			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
+		}
+		
+		return $this->icones_html;
+	}
 }
 ?>

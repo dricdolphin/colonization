@@ -667,7 +667,7 @@ class colonization {
 	Exibe a posição de todas as naves do Império e também nas Colônias
 	******************/		
 	function colonization_exibe_mapa_naves($atts = [], $content = null) {
-		global $asgarosforum, $wpdb;
+		global $asgarosforum, $wpdb, $start_time;
 		$start_time = hrtime(true);
 		
 		$turno = new turno();
@@ -773,10 +773,10 @@ class colonization {
 		$html_planetas_na_estrela = [];
 		$exibiu_nave = [];
 		$estrela = [];
-		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		if ($roles == "administrator") {
-			//echo "Loop das estrelas: {$diferenca}ms<br>";
-		}
+		
+		//$nave = new frota($id_nave->id);
+		$imperio_nave = [];
+		$nave_temp = [];
 		foreach ($ids_estrelas as $id_estrela) {
 			if (empty($estrela[$id_estrela->id])) {
 				$estrela[$id_estrela->id] = new estrela($id_estrela->id);
@@ -820,21 +820,22 @@ class colonization {
 				$html_planetas_na_estrela[$estrela[$id_estrela->id]->id] = $estrela[$id_estrela->id]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
 			}
 			
-			$imperio_nave = [];
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela->id]->X} AND Y={$estrela[$id_estrela->id]->Y} AND Z={$estrela[$id_estrela->id]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
-				$nave = new frota($id_frota->id);
-				if (empty($imperio_nave[$nave->id_imperio])) {
-					$imperio_nave[$nave->id_imperio] = new imperio($nave->id_imperio,true);
+				if (empty($nave_temp[$id_frota->id])) {
+					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 				}
-				if ($imperio_nave[$nave->id_imperio]->id == 0) {
-					$imperio_nave[$nave->id_imperio]->nome = $nave->nome_npc;
+				$nave = $nave_temp[$id_frota->id];
+				if ($nave->id_imperio == 0) {
+					$nome_imperio = $nave->nome_npc;
+				} else {
+					$nome_imperio = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id={$nave->id_imperio}");
 				}
 				
 				if ($roles != "administrator") {
 					if ((($imperio->sensores + $imperio->anti_camuflagem) > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
-						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</div>";
+						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
@@ -843,31 +844,25 @@ class colonization {
 						if ($imperio->id != 0 && (($imperio->sensores + $imperio->anti_camuflagem) > $nave->camuflagem)) {
 							$nave_visivel = "(Visível) ";	
 						}
-						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave_visivel}<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</i></div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</i></div>";
+						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave_visivel}<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</i></div>";
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</i></div>";
 						$exibiu_nave[$nave->id] = true;
 					} else {
-						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$imperio_nave[$nave->id_imperio]->nome})</div>";
+						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
 			}
 		}
-		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		if ($roles == "administrator") {
-			//echo "Término loop das estrelas: {$diferenca}ms<br>";
-		}
 		
 		foreach ($ids_naves as $id_nave) {
-			$nave = new frota($id_nave->id);
-			if (empty($imperio_nave[$nave->id_imperio])) {
-				$imperio_nave[$nave->id_imperio] = new imperio($nave->id_imperio,true);
+			if (empty($nave_temp[$id_nave->id])) {
+				$nave_temp[$id_nave->id] = new frota($id_nave->id);
 			}
-			if ($imperio_nave[$nave->id_imperio]->id == 0) {
-				$imperio_nave[$nave->id_imperio]->nome = $nave->nome_npc;
-			}
-			
+			$nave = $nave_temp[$id_nave->id];
+			//$nave = new frota($id_nave->id);
+			//$nave->__construct($id_nave->id);
 			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
 			if (empty($estrela[$id_estrela])) {
 				$estrela[$id_estrela] = new estrela($id_estrela);
@@ -908,40 +903,38 @@ class colonization {
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela]->X} AND Y={$estrela[$id_estrela]->Y} AND Z={$estrela[$id_estrela]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL) ORDER BY id_imperio");
-			$imperio_nave_na_estrela = [];
 			foreach ($ids_naves_na_estrela AS $id_frota) {
-				$nave_na_estrela = new frota($id_frota->id);
-				if (empty($imperio_nave_na_estrela[$nave_na_estrela->id_imperio])) {
-					$imperio_nave_na_estrela[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio,true);
+				if (empty($nave_temp[$id_frota->id])) {
+					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 				}
-				if ($imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->id == 0) {
-					$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome = $nave_na_estrela->nome_npc;
+				$nave_na_estrela = $nave_temp[$id_frota->id];				
+				//$nave_na_estrela = new frota($id_frota->id);
+				if ($nave_na_estrela->id_imperio == 0) {
+					$nome_imperio = $nave_na_estrela->nome_npc;
+				} else {
+					$nome_imperio = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id={$nave_na_estrela->id_imperio}");
 				}
 
 				if (empty($exibiu_nave[$nave_na_estrela->id]) || $exibiu_nave[$nave_na_estrela->id] == false) {
 					if ($roles != "administrator") {
 						if ((($imperio->sensores + $imperio->anti_camuflagem) > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
-							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</div>";
-							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</div>";
+							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
+							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
-							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</i></div>";
-							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</i></div>";
+							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</i></div>";
+							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</i></div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
-							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</div>";
-							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$imperio_nave_na_estrela[$nave_na_estrela->id_imperio]->nome})</div>";
+							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
+							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}
 				}				
 			}
-		}
-		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		if ($roles == "administrator") {
-			//echo "Término loop das naves: {$diferenca}ms<br>";
 		}
 	
 		$html_final = "";
@@ -980,10 +973,6 @@ class colonization {
 			ORDER BY (CASE WHEN cic.id_imperio = {$imperio->id} THEN 0 ELSE 1 END), ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
 			");
 		}
-		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		if ($roles == "administrator") {
-			//echo "Query das Estrelas: {$diferenca}ms<br>";
-		}
 
 		foreach ($ids_estrelas as $chave) {
 			if ($html_naves_mini[$chave->id] == "<div class='naves_no_local'>") {
@@ -1004,12 +993,6 @@ class colonization {
 				</div>";
 			}
 		}
-		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-		if ($roles == "administrator") {
-			//echo "Loop do HTML Final: {$diferenca}ms<br>";
-		}		
-		
-		//$html_final = "Império {$imperio->id} // {$roles}";
 		return $html_final;
 	}
 	
@@ -1871,9 +1854,10 @@ if (!empty($imperios[0])) {
 		
 		foreach ($resultados as $resultado) {
 			$imperio = new imperio($resultado->id);
+			$icones_html = $imperio->icones_html();
 			$html_recursos .= "<div class='linha_barra_recursos'>
 			<div class='celula_barra_recursos'><b>{$imperio->nome}</b></div>
-			<div class='celula_barra_recursos'>{$imperio->icones_html}</div>";
+			<div class='celula_barra_recursos'>{$icones_html}</div>";
 			
 			$recursos_atuais = $imperio->exibe_recursos_atuais(true);
 			$recursos_atuais = substr($recursos_atuais,19); //Remove o cabeçalho

@@ -51,14 +51,21 @@ class frota
 	public $destinos_buracos_minhoca;
 	
 	function __construct($id=0) {
-		global $wpdb;
-		
+		global $wpdb, $start_time;
+		//$start_time = hrtime(true);
+
 		if ($id == 0) {
 			return false;
 		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		$this->id = $id;
-	
+
 		$resultados = $wpdb->get_results("SELECT id, id_imperio, nome_npc, nome, tipo, qtd, X, Y, Z, string_nave, custo,
 		tamanho, HP, velocidade, alcance, 
 		pdf_laser, pdf_projetil, pdf_torpedo,
@@ -82,7 +89,7 @@ class frota
 		$this->X = $resultado->X;
 		$this->Y = $resultado->Y;
 		$this->Z = $resultado->Z;
-		
+
 		$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$this->X} AND Y={$this->Y} AND Z={$this->Z}");
 		$this->id_estrela = $id_estrela;
 		//$this->estrela = new estrela($id_estrela);
@@ -131,7 +138,9 @@ class frota
 		$this->partes_nave = JSON_decode($this->string_nave);
 		if (!empty($this->partes_nave)) {
 			foreach ($this->partes_nave as $parte_nave => $valor) {
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$especiais_tech = $wpdb->get_var("SELECT ct.especiais FROM colonization_tech AS ct WHERE especiais LIKE '%id={$parte_nave}%'");
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$especiais = explode(";",$especiais_tech);
 				
 				//bonus_abordagem
@@ -598,7 +607,7 @@ class frota
 			$defesa_abordagem = $defesa_abordagem*10;
 		}
 		if ($this->poder_invasao > 0) {
-			$defesa_abordagem = $defesa_abordagem*$this->poder_invasao;
+			$defesa_abordagem = $defesa_abordagem + $this->poder_invasao*10;
 		}		
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
 

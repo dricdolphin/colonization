@@ -146,9 +146,10 @@ class acoes
 
 				if ($valor->turno_destroi <= $this->turno->turno) {
 					$this->turno_destroi[$chave] = $valor->turno_destroi;
-					if (!empty($valor->turno_destroi)) {
-						$this->pop[$chave] = 0;
-					}
+				}
+				
+				if ($this->turno_destroi[$chave] != "" && $this->turno_destroi[$chave] != 0 && $this->turno_destroi[$chave] >= $this->turno->turno) {
+					$this->pop[$chave] = 0;
 				}
 			}
 			$chave++;
@@ -563,7 +564,8 @@ class acoes
 		$html_producao_consumo_instalacao = "";
 		
 		if (!empty($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
-			$id_recursos = implode(",",array_keys($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]]));
+			
+			$id_recursos = implode(",",array_filter(array_keys($this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])));
 			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
 			FROM colonization_recurso AS cr
 			WHERE cr.id IN ({$id_recursos})
@@ -577,7 +579,7 @@ class acoes
 		}
 
 		if (!empty($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])) {
-			$id_recursos = implode(",",array_keys($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]]));
+			$id_recursos = implode(",",array_filter(array_keys($this->recursos_consumidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]])));
 			$id_recursos_ordenados = $wpdb->get_results("SELECT cr.id
 			FROM colonization_recurso AS cr
 			WHERE cr.id IN ({$id_recursos})
