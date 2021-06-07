@@ -347,8 +347,11 @@ class frota
 			}
 		}
 
+		$html_tipo_estrela = "";
 		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
 			$imperio = new imperio($this->id_imperio);
+			$estrela_capital = new estrela($imperio->id_estrela_capital);
+			$html_tipo_estrela = "Estrela {$estrela_capital->tipo}";
 			$this->alcance = $this->alcance+$imperio->bonus_alcance;
 			
 			$display_select = "";
@@ -356,6 +359,12 @@ class frota
 				$disabled = "";
 				$display = "";
 				//$html .= $this->exibe_estrelas_destino();
+			}
+			
+			if ($this->id_estrela_destino != 0) {
+				$estrela = new estrela($this->id_estrela_destino);
+				$html_estrela_destino = "<div class=''>Nave em trânsito para '{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z})'</div>";
+				$html_tipo_estrela = "Estrela {$estrela->tipo}";
 			}
 		}			
 
@@ -398,8 +407,10 @@ class frota
 		}
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
-		<select class='select_frota' data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' {$disabled}>
+		{$html_estrela_destino}
+		<select class='select_frota' data-atributo='id_estrela' data-alcance='{$this->alcance}' data-alcance-local='{$alcance_local}' style='width: 100%; {$display_select}' onchange='altera_tipo_estrela(this);' {$disabled}>
 		</select>
+		<div data-atributo='tipo_estrela'>{$html_tipo_estrela}</div>
 		</div>
 		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a>{$href_calcula_distancia}</div>
 		</td>";			

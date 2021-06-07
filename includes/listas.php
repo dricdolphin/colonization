@@ -14,7 +14,7 @@ class lista_estrelas
 	function __construct() {
 		global $wpdb;
 		$resultados = $wpdb->get_results(
-		"SELECT id, nome, X, Y, Z
+		"SELECT id, nome, X, Y, Z, tipo
 		FROM colonization_estrela 
 		ORDER BY colonization_estrela.X, colonization_estrela.Y, colonization_estrela.Z");
 
@@ -33,6 +33,7 @@ class lista_estrelas
 			$lista_y_estrela .= "			lista_y_estrela[{$resultado->id}]={$resultado->Y};\n";
 			$lista_z_estrela .= "			lista_z_estrela[{$resultado->id}]={$resultado->Z};\n";
 			$lista_nome_estrela .= "			lista_nome_estrela[{$resultado->id}]='{$resultado->nome}';\n";
+			$lista_tipo_estrela .= "			lista_tipo_estrela[{$resultado->id}]='{$resultado->tipo}';\n";
 			$index++;
 		}
 
@@ -44,6 +45,7 @@ var lista_x_estrela=[];
 var lista_y_estrela=[];
 var lista_z_estrela=[];
 var lista_nome_estrela=[];
+var lista_tipo_estrela=[];
 var custos_instalacao=[];
 
 var turno_atual={$turno->turno};
@@ -64,6 +66,7 @@ var turno_atual={$turno->turno};
 {$lista_y_estrela}
 {$lista_z_estrela}
 {$lista_nome_estrela}
+{$lista_tipo_estrela}
 			
 			var html = \"			<select data-atributo='id_estrela' style='width: 100%'>\";
 			for (var index = 0; index < lista_valores.length; index++) {

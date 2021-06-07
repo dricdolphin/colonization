@@ -124,6 +124,7 @@ class roda_turno {
 					}
 					$html .= "INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$id_recurso}, qtd={$imperio_recursos->qtd[$chave]}+{$acoes->recursos_balanco[$id_recurso]}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}<br>";
 					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_imperio={$imperio->id}, id_recurso ={$id_recurso}, qtd={$imperio_recursos->qtd[$chave]}+{$acoes->recursos_balanco[$id_recurso]}, turno={$proximo_turno}, disponivel={$imperio_recursos->disponivel[$chave]}");
+					//$wpdb->query("UPDATE colonization_log_recursos_imperio SET comentario='CRIADO POR RODA_TURNO' WHERE id_imperio={$imperio->id} AND id=(SELECT MAX(id) FROM colonization_log_recursos_imperio WHERE id_imperio={$imperio->id})")
 				}
 				
 				//Cria poluição

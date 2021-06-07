@@ -43,6 +43,8 @@ class planeta
 	public $tamanho_alcance_local = 0;
 	public $terraforma = 0;
 	
+	public $popula_instalacoes_planeta = false;
+	
 	function __construct($id, $turno=0) {
 		global $wpdb;
 
@@ -83,17 +85,42 @@ class planeta
 				$wpdb->query("INSERT INTO colonization_planeta_recursos SET turno={$this->turno->turno}, id_planeta={$this->id}, id_recurso={$max_turno->id_recurso}, disponivel={$planeta_recurso->qtd_disponivel}");					
 			}
 		}
+	}
+
+	/***********************
+	function popula_instalacoes_planeta()
+	----------------------
+	Popula os dados do Planeta que dependem de Instalações
+	***********************/
+	function popula_instalacoes_planeta() {
+		global $wpdb;
+		
+		if ($this->popula_instalacoes_planeta) {
+			return;
+		}
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		//Verifica se tem Instalações com Especiais
 		$id_instalacoes = $wpdb->get_results("
 		SELECT cpi.id, cpi.id_instalacao
 		FROM colonization_planeta_instalacoes AS cpi
-		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno} AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)");
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta={$this->id} AND cpi.turno<={$this->turno->turno} AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
+		AND ci.especiais != ''");
 		
 		//Precisa verificar se não houve upgrade da instalação
+		$instalacao_temp = [];
 		foreach ($id_instalacoes as $id) {
-			$instalacao = new instalacao($id->id_instalacao);
-			$colonia_instalacao = new colonia_instalacao($id->id);
+			if (empty($instalacao_temp[$id->id_instalacao])) {
+				$instalacao_temp[$id->id_instalacao] = new instalacao($id->id_instalacao);
+			}
+			$instalacao = $instalacao_temp[$id->id_instalacao];
 			$especiais = explode(";",$instalacao->especiais);
 			
 			//Especiais: slots_extra=qtd
@@ -126,16 +153,19 @@ class planeta
 			
 			if (!empty($pop_inospito)) {
 				$pop_inospito_valor = explode("=",$pop_inospito[0]);
+				if (empty($colonia_instalacao)) {
+					$colonia_instalacao = new colonia_instalacao($id->id);
+				}
 				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
 			}
 			
 			//habitavel=1
-			$habitavel = array_values(array_filter($especiais, function($value) {
+			$terraforma = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'habitavel') !== false;
 			}));
 			
-			if (!empty($habitavel)) {
-				$habitavel_valor = explode("=",$habitavel[0]);
+			if (!empty($terraforma)) {
+				$habitavel_valor = explode("=",$terraforma[0]);
 				$this->terraforma = $habitavel_valor[1];
 			}
 
@@ -150,6 +180,9 @@ class planeta
 					$this->alcance_local = $alcance_local_valor[1];
 				}
 				
+				if (empty($colonia_instalacao)) {
+					$colonia_instalacao = new colonia_instalacao($id->id);
+				}
 				if (10*$colonia_instalacao->nivel > $this->tamanho_alcance_local) {
 					$this->tamanho_alcance_local = 10*$colonia_instalacao->nivel;
 				}
@@ -173,8 +206,6 @@ class planeta
 			if (!empty($escudos)) {
 				$this->escudos = "<div class='{$instalacao->icone} tooltip'>&nbsp;</div> - <b>{$instalacao->nome}</b>";
 			}
-
-			
 			
 			//Especiais: pdf_instalacoes=valor
 			$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
@@ -182,36 +213,42 @@ class planeta
 			}));
 			
 			if (!empty($pdf_instalacoes)) {
-				$colonia_instalacao = new colonia_instalacao($id->id);
+				if (empty($colonia_instalacao)) {
+					$colonia_instalacao = new colonia_instalacao($id->id);
+				}
 
-				$index = count($this->instalacoes_ataque);
-				$this->instalacoes_ataque[$index] = $colonia_instalacao->id_instalacao;
-				$this->instalacoes_ataque_nivel[$index] = $colonia_instalacao->nivel;
+				//$index = count($this->instalacoes_ataque);
+				$this->instalacoes_ataque[] = $colonia_instalacao->id_instalacao;
+				$this->instalacoes_ataque_nivel[] = $colonia_instalacao->nivel;
+			}
+		}
+		
+		$qtd_instalacao_ataque_id = [];
+		foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
+			$instalacao_ataque = new instalacao($id_instalacao);
+			$especiais = explode(";",$instalacao_ataque->especiais);
+			//Especiais: pdf_instalacoes=valor
+			$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'pdf_instalacoes') !== false;
+			}));				
+			
+			if (empty($pdf_instalacoes)) {
+				continue;
 			}
 
-			$qtd_instalacao_ataque_id = [];
-			foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
-				$instalacao_ataque = new instalacao($id_instalacao);
-				$especiais = explode(";",$instalacao_ataque->especiais);
-				//Especiais: pdf_instalacoes=valor
-				$pdf_instalacoes = array_values(array_filter($especiais, function($value) {
-					return strpos($value, 'pdf_instalacoes') !== false;
-				}));				
-				
-				$pdf_instalacoes =  explode("=",$pdf_instalacoes[0]);
-				$pdf_instalacoes =  $pdf_instalacoes[1]*$this->instalacoes_ataque_nivel[$chave];
-				
-				if (!empty($qtd_instalacao_ataque_id[$id_instalacao])) {
-					$qtd_instalacao_ataque_id[$id_instalacao]++;
-					$qtd_instalacao="{$qtd_instalacao_ataque_id[$id_instalacao]} x";
-				} else {
-					$qtd_instalacao_ataque_id[$id_instalacao] = 1;
-					$qtd_instalacao = "";
-				}
-				
-				$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span><span style='font-family: Verdana, Tahoma, sans-serif;'>PdF Planetário:{$pdf_instalacoes}</span></div><br>";
-				$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='mini_instalacao_ataque {$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
-			}			
+			$pdf_instalacoes = explode("=",$pdf_instalacoes[0]);
+			$pdf_instalacoes = $pdf_instalacoes[1]*$this->instalacoes_ataque_nivel[$chave];				
+			
+			if (!empty($qtd_instalacao_ataque_id[$id_instalacao])) {
+				$qtd_instalacao_ataque_id[$id_instalacao]++;
+				$qtd_instalacao="{$qtd_instalacao_ataque_id[$id_instalacao]} x";
+			} else {
+				$qtd_instalacao_ataque_id[$id_instalacao] = 1;
+				$qtd_instalacao = "";
+			}
+			
+			$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span><span style='font-family: Verdana, Tahoma, sans-serif;'>PdF Planetário:{$pdf_instalacoes}</span></div><br>";
+			$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='mini_instalacao_ataque {$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
 		}
 		
 		if ($this->max_slots != 0) {
@@ -220,17 +257,20 @@ class planeta
 			}
 		}
 		
-		$this->tamanho = $this->tamanho + $this->slots_extra;
-		
-		if ($this->inospito == 1) {
-			$this->icone_habitavel = "<div class='fas fa-globe tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
-			if ($this->terraforma == 1) {
-				$this->icone_habitavel = "<div class='fas fa-globe-europe tooltip' style='color: #AEB213;'>&nbsp;<span class='tooltiptext'>Terraformado</span></div>";
-			}
-		} else {
-			$this->icone_habitavel = "<div class='fas fa-globe-americas tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
-		}
+		$this->tamanho = $this->tamanho + $this->slots_extra;		
+		$this->popula_instalacoes_planeta = true;
 	}
+	
+	/***********************
+	function tamanho()
+	----------------------
+	Retorna o tamanho do planeta, incluindo os valores de slots extra
+	***********************/
+	function tamanho() {
+		$this->popula_instalacoes_planeta();
+		return $this->tamanho;
+	}
+	
 
 	/***********************
 	function lista_dados()
@@ -312,6 +352,26 @@ class planeta
 		}
 		
 		return $html;
+	}
+
+	/***********************
+	function icone_habitavel()
+	----------------------
+	Popula e exibe o ícone de habitabilidade do planeta
+	***********************/	
+	function icone_habitavel ($exibe_icones = false) {
+		global $wpdb;
+		
+		if ($this->inospito == 1) {
+			$this->icone_habitavel = "<div class='fas fa-globe tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
+			if ($this->terraforma == 1) {
+				$this->icone_habitavel = "<div class='fas fa-globe-europe tooltip' style='color: #AEB213;'>&nbsp;<span class='tooltiptext'>Terraformado</span></div>";
+			}
+		} else {
+			$this->icone_habitavel = "<div class='fas fa-globe-americas tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
+		}
+		
+		return $this->icone_habitavel;
 	}
 }
 

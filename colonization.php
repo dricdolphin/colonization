@@ -2029,7 +2029,10 @@ if (!empty($imperios[0])) {
 				continue;
 			}
 
-			$colonia->planeta = new planeta($colonia->id_planeta);
+			if (empty($colonia->planeta)) {
+				$colonia->planeta = new planeta($colonia->id_planeta);
+			}
+			
 			if (empty($estrela[$colonia->id_estrela])) {
 				$estrela[$colonia->id_estrela] = new estrela($colonia->id_estrela);
 			}
@@ -2037,7 +2040,12 @@ if (!empty($imperios[0])) {
 
 			$lista_recursos = $colonia->exibe_recursos_colonia();
 			
-			$html .= "<tr><td><a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'><span class='tooltip'>{$colonia->planeta->nome}<span class='tooltiptext'>Alterar nome da Colônia</span></span></a> - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
+			$html_nome_planeta = "{$colonia->planeta->nome}";
+			if ($colonia->vassalo == 0) {
+				$html_nome_planeta = "<a href='#' onclick='return muda_nome_colonia({$colonia->id_planeta}, event);'><span class='tooltip'>{$colonia->planeta->nome}<span class='tooltiptext'>Alterar nome da Colônia</span></span></a>";
+			}
+			
+			$html .= "<tr><td>{$html_nome_planeta} - {$colonia->estrela->X};{$colonia->estrela->Y};{$colonia->estrela->Z} / {$colonia->planeta->posicao}</td>
 			<td>{$lista_recursos}</td>
 			</tr>\n";				
 		}
@@ -2209,12 +2217,14 @@ if (!empty($imperios[0])) {
 			}
 			
 			$link_visivel = "";
+			$link_repara = "";
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
-				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><div class='fad fa-hood-cloak tooltip'><span class='tooltiptext'>Desativar Camuflagem</span></div></a>";
+				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><span class='tooltip'><i class='fad fa-hood-cloak'></i><span class='tooltiptext'>Desativar Camuflagem</span></span></a>&nbsp;";
 			}
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*10,0);
+				$link_repara = "<a href='#' onclick='return repara_nave(event, this, {$nave->id});'><span class='tooltip'><i class='fas fa-tools'></i><span class='tooltiptext'>Reparar Nave</span></span></a>&nbsp;";
 				$icone_dano = "fas fa-claw-marks";
 				if ($nivel_dano == 10) {
 					//Sem danos!
@@ -2238,7 +2248,7 @@ if (!empty($imperios[0])) {
 					$nivel_dano = "DESTRUÍDA!!!";					
 				}
 				
-				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>";
+				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>&nbsp;";
 			}
 			
 			if (!empty($nave->id_estrela_destino) && $turno == $turno_atual->turno) {
@@ -2266,7 +2276,7 @@ if (!empty($imperios[0])) {
 			}
 			
 			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
-			{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
+			{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos}{$link_repara} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
 			</div>";
 		}
 		
@@ -2879,7 +2889,7 @@ var id_imperio_atual = {$imperio->id};
 		<div>---------------------------------------------------</div>
 		<div id='especiais'>
 		<div><label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' value='1'></input><br></div>
-		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='5' style='width: 50px;'></input></div>
+		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='10' style='width: 50px;'></input></div>
 		<div><label>Transporte de Tropas: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_tropas' value='0' min='0' style='width: 50px;'></input></div>
 		<div><label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombardeamento' value='0' min='0' style='width: 50px;'></input>Mk: <input type='number' id='mk_bombardeamento' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
 		<div><label>Camuflagem: </label><input type='number' id='mk_camuflagem' onchange='return calcula_custos(event, this);' value='0' max='3' min='0' style='width: 50px;'></input></div>

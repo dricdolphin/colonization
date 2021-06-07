@@ -61,7 +61,79 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_deletar_nave', array ($this, 'deletar_nave'));//Deleta uma nave MODELO
 		add_action('wp_ajax_coloniza_planeta', array ($this, 'coloniza_planeta'));//coloniza_planeta
+		add_action('wp_ajax_repara_nave', array ($this, 'repara_nave'));//repara_nave
 	}
+
+	/***********************
+	function repara_nave()
+	----------------------
+	Repara uma nave
+	***********************/
+	function repara_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$nave = new frota($_POST['id']);
+		$imperio = new imperio($nave->id_imperio);
+		$dados_ajax['debug'] = "";
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		if ($imperio->id != $nave->id_imperio && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode reparar suas naves!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
+		}
+		
+		//Verifica se é uma colônia do Jogador (ou Ponto de Reabastecimento)
+		//$estrela = new estrela ($nave->id_estrela);
+		$ponto_reabastece = $wpdb->get_var("SELECT id FROM colonization_imperio_abastecimento WHERE id_imperio={$nave->id_imperio} AND id_estrela={$nave->id_estrela}");
+		$estrela_colonia = $wpdb->get_var("SELECT ce.id 
+		FROM colonization_estrela AS ce 
+		JOIN colonization_planeta AS cp
+		ON ce.id = cp.id_estrela
+		JOIN colonization_imperio_colonias AS cic
+		ON cic.id_planeta = cp.id
+		WHERE cic.id_imperio={$nave->id_imperio} AND ce.id={$nave->id_estrela}");
+		
+		if (empty($ponto_reabastece) && empty($estrela_colonia)) {
+			$dados_salvos['resposta_ajax'] = "Só é possível reparar sua nave num sistema que tenha um Espaçoporto amigável!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta				
+		}
+
+		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+		if ($nave->HP_max > $nave->HP) {
+			$qtd_html = "Industrializáveis";
+			$custo_reparo = intval(($nave->HP_max - $nave->HP)/10) + 1;
+			if ($custo_reparo == 1) {
+				$qtd_html = "Industrializável";
+			}
+			if ($imperio->pega_qtd_recurso_imperio($id_industrializaveis) < $custo_reparo) {
+				$dados_salvos['resposta_ajax'] = "O custo para reparar essa nave é de {$custo_reparo}{$qtd_html} mas o Império não tem os Recursos suficientes!";
+				
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta							
+			}
+			$wpdb->query("UPDATE colonization_imperio_recursos SET qtd = qtd - {$custo_reparo} WHERE id_recurso={$id_industrializaveis} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+			//$wpdb->query("UPDATE colonization_log_recursos_imperio SET comentario='ATUALIZADO POR REPARA_NAVE' WHERE id_imperio={$imperio->id} AND id=(SELECT MAX(id) FROM colonization_log_recursos_imperio WHERE id_imperio={$imperio->id})");
+			$dados_ajax['debug'] .= "UPDATE colonization_imperio_recursos SET qtd = qtd - {$custo_reparo} WHERE id_recurso={$id_industrializaveis} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}\n";
+			$wpdb->query("UPDATE colonization_imperio_frota SET HP = {$nave->HP_max} WHERE id={$nave->id}");
+			$dados_ajax['debug'] .= "UPDATE colonization_imperio_frota SET HP = {$nave->HP_max} WHERE id={$nave->id}\n";
+		}
+
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta				
+	}
+
 
 	/***********************
 	function coloniza_planeta()
@@ -534,6 +606,7 @@ class colonization_ajax {
 		if ($dados_salvos['resposta_ajax'] == "OK!") {
 			foreach ($queries as $chave => $query) {
 				$wpdb->query($query);
+				//$wpdb->query("UPDATE colonization_log_recursos_imperio SET comentario='ATUALIZADO POR REPARA_NAVE' WHERE id_imperio={$imperio->id} AND id=(SELECT MAX(id) FROM colonization_log_recursos_imperio WHERE id_imperio={$imperio->id})");
 			}
 		}
 		
@@ -1626,6 +1699,7 @@ class colonization_ajax {
 		$dados_salvos['resposta_ajax'] = "OK!";
 		$dados_salvos['debug'] = "";
 		$planeta = new planeta($_POST['id_planeta']);
+		$planeta->popula_instalacoes_planeta();
 		$estrela = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
 		
@@ -1716,6 +1790,7 @@ class colonization_ajax {
 		$colonia_origem = new colonia($_POST['id_colonia_origem']);
 		$colonia_destino = new colonia($_POST['id_colonia_destino']);
 		$planeta = new planeta($colonia_destino->id_planeta);
+		$planeta->popula_instalacoes_planeta();
 		$estrela_destino = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
 		
@@ -1886,6 +1961,7 @@ class colonization_ajax {
 		}
 
 		$planeta = new planeta($_POST['id_planeta']);
+		$planeta->popula_instalacoes_planeta();
 		$estrela = new estrela($planeta->id_estrela);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 		$colonia = new colonia($id_colonia);
@@ -2014,9 +2090,9 @@ class colonization_ajax {
 					$dados_salvos['resposta_ajax'] .= "É necessário ter um Espaçoporto no Sistema Estelar antes de poder construir uma Base Colonial.";
 				} elseif (!empty($tem_espacoporto_na_colonia) && $instalacao->base_colonial) {
 					$dados_salvos['resposta_ajax'] .= "Não é possível criar uma Base Colonial em um planeta que já tem um Espaçoporto.";
-				} elseif (empty($tem_espacoporto) && !$instalacao->espacoporto) {
+				} elseif (empty($tem_espacoporto) && !$instalacao->espacoporto && $colonia->vassalo == 0) {
 					$dados_salvos['resposta_ajax'] .= "A primeira Instalação de um Sistema Estelar precisa ser, necessariamente, um Espaçoporto.";
-				} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia) && empty($tem_espacoporto_na_colonia) && !$instalacao->base_colonial) {
+				} elseif (!empty($tem_espacoporto) && empty($tem_base_estelar_na_colonia) && empty($tem_espacoporto_na_colonia) && !$instalacao->base_colonial && $colonia->vassalo == 0) {
 					$dados_salvos['resposta_ajax'] .= "A primeira Instalação de uma Colônia num Sistema Estelar que tenha um Espaçoporto precisa ser, necessariamente, uma Base Colonial.";
 				}
 			}			
@@ -2095,7 +2171,7 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação não pode ser construído num Gigante Gasoso!";
 			}
 
-			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho)) {
+			if ($_POST['id'] == "" && (($planeta->instalacoes + $instalacao->slots) > $planeta->tamanho())) {
 				$dados_salvos['resposta_ajax'] .= "Este planeta já atingiu o número máximo de instalações! Destrua uma instalação antes de criar outra!";
 			}
 
@@ -2675,10 +2751,10 @@ class colonization_ajax {
 		$recurso[$id_energia] = $recurso_energia;
 		
 		foreach ($instalacao->recursos_produz as $chave_recurso_produz => $id_recurso_produz) {
-			if (empty($recurso[$id_recurso])) {
-				$recurso[$id_recurso] = new recurso($id_recurso);
+			if (empty($recurso[$id_recurso_produz])) {
+				$recurso[$id_recurso_produz] = new recurso($id_recurso_produz);
 			}
-			if ($recurso[$id_recurso]->extrativo == 1 && $instalacao->nao_extrativo != true) {
+			if ($recurso[$id_recurso_produz]->extrativo == 1 && $instalacao->nao_extrativo != true) {
 				$id_planeta_recurso = $wpdb->get_var("SELECT id FROM colonization_planeta_recursos WHERE id_planeta={$planeta->id} AND id_recurso={$id_recurso_produz} AND turno={$_POST['turno']}");
 				if (!empty($id_planeta_recurso)) {
 					$planeta_recursos = new planeta_recurso($id_planeta_recurso);	
@@ -2687,7 +2763,7 @@ class colonization_ajax {
 					}
 				} else {//Caso o planeta não tenha o recurso...
 					$planeta_recursos = new recurso($id_recurso_produz);
-					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso[$id_recurso]->nome}, ";
+					$dados_salvos['balanco_acao'] .= "Reservas Planetárias de {$recurso[$id_recurso_produz]->nome}, ";
 				}
 			}
 		}
@@ -2733,7 +2809,7 @@ class colonization_ajax {
 			$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
 			if ($chave_recurso !== false && $dados_salvos['balanco_acao'] != "") {
 				$dados_salvos['balanco_acao'] .= ". \n\nUma geradora de Energia só pode ser desativada se o balanço de Energia estiver zerado ou positivo!";
-			} elseif ($planeta->inospito == 1 && $instalacao->pop_inospito && $colonia->pop != 0) {
+			} elseif ($planeta->inospito == 1 && ($instalacao->pop_inospito || $instalacao->terraforma) && $colonia->pop != 0) {
 				$dados_salvos['balanco_acao'] = "\n\nNão é possível desativar uma Instalação que serve de suporte de vida em Planetas Inóspitos enquanto houver habitantes no local!";
 			} else {
 				$dados_salvos['balanco_acao'] = "";

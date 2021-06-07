@@ -63,6 +63,7 @@ class imperio_recursos
 			foreach ($this->id as $chave => $valor) {
 				if ($this->id[$chave] == 0) {//As chaves estão em branco, vamos criá-las!
 					$wpdb->query("INSERT INTO colonization_imperio_recursos SET id_recurso={$this->id_recurso[$chave]}, qtd=0, turno={$this->turno->turno}, id_imperio={$this->id_imperio}");
+					//$wpdb->query("UPDATE colonization_log_recursos_imperio SET comentario='CRIADO POR IMPERIO_RECURSOS' WHERE id_imperio={$this->id_imperio} AND id=(SELECT MAX(id) FROM colonization_log_recursos_imperio WHERE id_imperio={$this->id_imperio})")
 					$this->id[$chave] = $wpdb->insert_id;;
 				}
 			}

@@ -227,14 +227,18 @@ class acoes
 	function exibe_pop_mdo_planeta($id_planeta) {
 		global $wpdb;
 		
+		//$planeta = new planeta($id_planeta, $this->turno->turno);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$id_planeta} AND id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
-		
-		$planeta = new planeta($id_planeta, $this->turno->turno);
+		$id_estrela = $wpdb->get_var("SELECT cp.id_estrela
+		FROM colonization_imperio_colonias AS cic
+		JOIN colonization_planeta AS cp
+		ON cp.id=cic.id_planeta
+		WHERE cic.id={$id_colonia}");
 		$colonia = new colonia($id_colonia, $this->turno->turno);
 		
-		$mdo_planeta = $this->mdo_planeta($planeta->id);
+		$mdo_planeta = $this->mdo_planeta($colonia->id_planeta);
 		
-		$pop_sistema = $this->pop_mdo_sistema($planeta->id_estrela);
+		$pop_sistema = $this->pop_mdo_sistema($id_estrela);
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
 
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
@@ -253,7 +257,7 @@ class acoes
 			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
 		}
 
-		return "<div style='display: inline-block;' name='mdo_sistema_{$planeta->id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}{$html_nova_pop}";
+		return "<div style='display: inline-block;' name='mdo_sistema_{$id_estrela}'>({$pop_disponivel_sistema})</div> {$mdo_planeta}/{$colonia->pop}{$html_nova_pop}";
 	}
 
 	/***********************
@@ -432,8 +436,8 @@ class acoes
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
 				<div data-atributo='nome_planeta'>
-					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho} | </div>
-					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
+					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho()} | </div>
+					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel()}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
 					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>
 					<div data-atributo='recursos_planeta' style='margin-bottom: 2px;'><span style='color: #6d351a; font-weight: bold;'>Jazidas:</span> {$html_recursos_planeta}</div>
 					<div data-atributo='balanco_recursos_planeta' id='balanco_planeta_{$planeta->id}'>{$balanco_planeta}</div>

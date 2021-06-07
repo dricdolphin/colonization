@@ -589,3 +589,20 @@ function abre_div_planetas(id_estrela=0) {
 		}
 	}
 }
+
+/******************
+function altera_tipo_estrela(id=0)
+--------------------
+Atualiza o tipo_estrela com o tipo da estrela selecionado
+******************/
+function altera_tipo_estrela(objeto) {
+	let div_parent = pega_ascendente(objeto,"DIV");	
+	let divs = div_parent.getElementsByTagName("DIV");
+	
+	for(let index=0; index < divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "tipo_estrela") {
+			divs[index].innerHTML = "Estrela " + lista_tipo_estrela[objeto.options[objeto.selectedIndex].value];
+			break;
+		}
+	}
+}

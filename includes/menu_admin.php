@@ -266,6 +266,7 @@ class menu_admin {
 			foreach ($lista_id_imperio as $id) {
 				$imperio = new imperio($id->id,true);
 				$acoes = new acoes($imperio->id);
+				$imperio->acoes = $acoes;
 				
 				$html_dados_imperio = $imperio->lista_dados();
 

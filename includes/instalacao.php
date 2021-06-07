@@ -45,6 +45,7 @@ class instalacao
 	public $espacoporto = false;
 	public $base_colonial = false;
 	public $torpedeiros_sistema_estelar = 0;
+	public $terraforma = false;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -87,6 +88,17 @@ class instalacao
 	
 		//Especiais
 		$especiais = explode(";",$this->especiais);
+
+		//habitavel=1
+		$terraforma = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'habitavel') !== false;
+		}));
+			
+		if (!empty($terraforma)) {
+			$habitavel_valor = explode("=",$terraforma[0]);
+			$this->terraforma = $habitavel_valor[1];
+		}
+
 
 		//Especiais: pop_inospito=qtd
 		$pop_inospito = array_values(array_filter($especiais, function($value) {

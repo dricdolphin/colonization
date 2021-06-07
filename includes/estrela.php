@@ -172,6 +172,8 @@ class estrela
 				$planeta->icone_habitavel = "<div class='fas fa-moon tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Lua</span></div>";;
 			} elseif ($planeta->classe == "Gigante Gasoso") {
 				$planeta->icone_habitavel = "<div class='fas fa-planet-ringed tooltip' style='color: #912611; font-size: 0.85em;'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Gigante Gasoso</span></div>";
+			} else {
+				$planeta->icone_habitavel();
 			}
 
 			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
@@ -186,7 +188,7 @@ class estrela
 			
 			$html_planetas .= "<div class='planeta_na_lista'>{$planeta->posicao}-{$icone_colonia}{$planeta->icone_habitavel}{$link_nome_planeta}"; 
 			if ($detalhes_planetas) {
-				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho})";
+				$html_planetas .= " ({$planeta->subclasse} - Tam: {$planeta->tamanho()})";
 			}
 			
 			if ($exibe_recursos_planetas) {

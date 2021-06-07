@@ -789,6 +789,30 @@ function deleta_nave(evento, objeto, id_nave) {
 }
 
 /******************
+function repara_nave
+--------------------
+Repara uma nave
+******************/
+function repara_nave(evento, objeto, id_nave) {
+	let dados_ajax = "post_type=POST&action=repara_nave&id=" + id_nave;
+	
+	let resposta = new Promise((resolve, reject) => {
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
+	
+	resposta.then((successMessage) => {
+		if (successMessage.resposta_ajax != "OK!") {
+			alert(successMessage);
+		} else {
+			window.setTimeout(function(){document.location.reload();},1000);
+		}
+	});
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
 function carrega_nave
 --------------------
 Carrega a string de uma nave salva e a processa

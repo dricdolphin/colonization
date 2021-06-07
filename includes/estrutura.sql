@@ -222,7 +222,7 @@ poder_invasao INT(6) NOT NULL,
 pesquisa BOOLEAN DEFAULT FALSE,
 camuflagem INT(6) DEFAULT 0,
 nivel_estacao_orbital INT(6) DEFAULT 0,
-especiais TEXT DEFAULT NULL,
+especiais TEXT DEFAULT '',
 HP INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
 turno INT(6) NOT NULL,
@@ -356,7 +356,8 @@ id_imperio INT(6) DEFAULT 0,
 id_recurso INT(6) NOT NULL,
 qtd INT(6) NOT NULL,
 turno INT(6) NOT NULL,
-data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+comentario TEXT DEFAULT ''
 )
 
 --Tabela com os modelos de naves

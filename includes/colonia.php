@@ -151,7 +151,10 @@ class colonia
 			$imperios_npc = "";
 		}
 
-		$this->planeta = new planeta ($this->id_planeta);
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta($this->id_planeta);
+			//$this->planeta->popula_instalacoes_planeta();
+		}
 		$this->estrela = new estrela ($this->id_estrela);
 		$imperio = new imperio($this->id_imperio);
 		
@@ -304,6 +307,10 @@ class colonia
 			$this->planeta = new planeta ($this->id_planeta);
 		}
 		
+		if (!$this->planeta->popula_instalacoes_planeta) {
+			$this->planeta->popula_instalacoes_planeta();
+		}
+		
 		//Existem algumas Techs que aumentam o consumo de alimentos
 		$consumo_extra_inospito = 0;
 		if ($this->planeta->inospito == 1 && $this->planeta->terraforma == 0) {
@@ -315,8 +322,8 @@ class colonia
 			
 		//População acima do limite de Slots do planeta consome o DOBRO de alimento
 		$consumo_extra_pop = 0;
-		if ($this->pop > $this->planeta->tamanho*10) {
-			$consumo_extra_pop = ($this->pop - $this->planeta->tamanho*10);
+		if ($this->pop > $this->planeta->tamanho()*10) {
+			$consumo_extra_pop = ($this->pop - $this->planeta->tamanho()*10);
 		}
 	
 		//A poluição mais alta também aumenta o consumo de alimentos
@@ -374,19 +381,26 @@ class colonia
 		//O aumento da população funciona assim: se houver comida sobrando DEPOIS do consumo, ela cresce em 5 por turno se pop<30, depois cresce 10 por turno até atingir (Tamanho do Planeta*10)
 		//No entanto, a poluição reduz o crescimento populacional
 		$nova_pop = 0;
-		$planeta = new planeta($this->id_planeta);
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta($this->id_planeta);
+		}
+		
+		if (!$this->planeta->popula_instalacoes_planeta) {
+			$this->planeta->popula_instalacoes_planeta();
+		}
+		
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
 		if ($roles == "administrator") {
 			//echo "Alimentos: {$alimentos} | pop: {$this->pop} | colonia: {$this->id} | balanco_alimentos: {$balanco_alimentos}<br>";
 		}		
 		if ($alimentos > $this->pop && $balanco_alimentos > 0 && $this->vassalo == 0) {//Caso tenha alimentos suficientes E tenha balanço de alimentos positivo...
-			if (($planeta->inospito == 0 && $planeta->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
+			if (($this->planeta->inospito == 0 && $this->planeta->terraforma == 0) || $imperio->coloniza_inospito == 1) {//Se for planeta habitável, a Pop pode crescer
 				if ($this->poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
-					$limite_pop_planeta = $planeta->tamanho*10; 
+					$limite_pop_planeta = $this->planeta->tamanho()*10; 
 					//Caso o Império tenha uma Tech de Bônus Populacional...
 					if ($imperio->max_pop >0) {
 						$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
-						if ($planeta->tamanho == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
+						if ($this->planeta->tamanho() == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
 							$limite_pop_planeta	= 0; 
 						}									
 					}
@@ -400,7 +414,7 @@ class colonia
 							$fator_cresce = 10;
 						}
 						
-						if ($planeta->subclasse == "Gaia") {
+						if ($this->planeta->subclasse == "Gaia") {
 							$fator_cresce = $fator_cresce*2;
 						}
 						

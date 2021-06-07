@@ -23,6 +23,7 @@ class imperio
 	public $html_header;
 	public $turno;
 	public $acoes;
+	public $id_estrela_capital = 0;
 	
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	public $icones_html = "";
@@ -177,6 +178,16 @@ class imperio
 		) AS custo_tech");
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_tech = $this->pontuacao_tech + $pontuacao;
+
+		$this->id_estrela_capital = $wpdb->get_var("
+		SELECT ce.id
+		FROM colonization_imperio_colonias AS cit
+		JOIN colonization_planeta AS cp
+		ON cp.id = cit.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cit.turno = {$this->turno->turno}
+		AND cit.capital=true AND id_imperio = {$this->id}");
 
 		$this->espalhamento = $wpdb->get_var("SELECT CEIL(SUM(POW(POW(estrela_capital.X - estrelas_colonias.X,2) + POW(estrela_capital.Y - estrelas_colonias.Y,2) + POW(estrela_capital.Z - estrelas_colonias.Z,2),0.5))) AS espalhamento
 		FROM (SELECT ce.X, ce.Y, ce.Z, cit.id_imperio, cit.turno
@@ -555,7 +566,7 @@ class imperio
 				<div data-atributo='ID'>{$this->id}</div>
 				<div data-atributo='gerenciar'><a href='#' onclick='return edita_objeto(event, this);'>Editar</a> | <a href='#' onclick='return excluir_objeto(event, this);'>Excluir</a></div>
 			</td>
-			<td><div data-atributo='nome_jogador'>{$user->display_name}{$this->icones_html}</div></td>
+			<td><div data-atributo='nome_jogador'>{$user->display_name}{$this->icones_html()}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='prestigio' data-valor-original='{$this->prestigio}' data-editavel='true' data-style='width: 40px;'>{$this->prestigio}</div></td>
 			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
@@ -663,6 +674,7 @@ class imperio
 			}
 			
 			$planeta = new planeta($colonia->id_planeta);
+			$planeta->popula_instalacoes_planeta();
 			$estrela = new estrela($planeta->id_estrela);
 
 			$html_pop_colonia = "{$colonia->pop}";
@@ -706,7 +718,7 @@ class imperio
 			
 			$html .= "<tr>
 			<td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao})</td>
-			<td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel}</td>
+			<td>{$colonia->icone_capital}{$planeta->nome}&nbsp;{$planeta->icone_habitavel()}</td>
 			<td>{$html_defesas}</td>
 			<td>{$colonia->html_pop_colonia}</td><td>{$colonia->poluicao}</td>
 			</tr>";
@@ -1020,6 +1032,7 @@ class imperio
 				ON ci.id = cpi.id_instalacao
 				WHERE cpi.id_planeta = {$colonia[$resultado->id]->id_planeta} AND cpi.turno <= {$this->turno->turno}
 				AND (cpi.turno_destroi IS NULL or cpi.turno_destroi = 0)
+				AND ci.icone != ''
 				ORDER BY ci.nome");
 				
 				$icones_planeta = [];
@@ -1091,7 +1104,7 @@ class imperio
 					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext' style='font-size: 0.7em'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
 				}
 				
-				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_nova_pop}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel()}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_nova_pop}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
