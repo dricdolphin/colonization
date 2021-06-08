@@ -1629,7 +1629,6 @@ function muda_nome_nave(id_nave, evento) {
 function tirar_cerco(objeto, evento, id_estrela, coloca_cerco=false) 
 --------------------
 Tira uma Estrela do Cerco
-
 ******************/	
 function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
 	let dados_ajax = "post_type=POST&action=tirar_cerco&id_estrela=" + id_estrela + "&coloca_cerco=" + coloca_cerco;
@@ -1686,4 +1685,56 @@ function coloniza_planeta (objeto, evento, id_planeta, id_imperio) {
 
 	evento.preventDefault();
 	return false;	
+}
+
+/******************
+function remove_aviso()
+--------------------
+Remove um aviso
+******************/
+function remove_aviso (objeto, evento, id) {
+	if (objeto_em_salvamento) {
+		
+		evento.preventDefault();
+		return false;
+	}
+	
+	objeto_em_salvamento = true;
+	
+	let div_notice = objeto;
+	
+	try {
+		while (div_notice.getAttribute("class") != "notice") {
+			div_notice = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice.remove = function () {return;};
+	}
+
+	let div_notice_panel = div_notice;
+	try {
+		while (div_notice_panel.getAttribute("class") != "notices-panel") {
+			div_notice_panel = div_notice.parentNode;
+		} 
+	}
+	catch (err) {
+		div_notice_panel.childElementCount = false;
+	}
+
+
+	let dados_ajax = "post_type=POST&action=remove_aviso&id=" + id;
+	let resposta = processa_xhttp_basico(dados_ajax);
+	resposta.then((successMessage) => {
+		if (successMessage) {
+			objeto_em_salvamento = false;
+			div_notice.remove();
+			if (div_notice_panel.childElementCount == 0) {
+				div_notice_panel.remove();
+			}				
+		}
+	});		
+
+	evento.preventDefault();
+	return false;
 }

@@ -369,3 +369,12 @@ string_nave TEXT DEFAULT '',
 texto_nave TEXT DEFAULT '',
 texto_custo TEXT DEFAULT ''
 )
+
+--Tabela com os avisos de visitas de naves
+CREATE TABLE IF NOT EXISTS colonization_visita_nave (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+id_imperio INT(6) DEFAULT 0,
+id_estrela INT(6) NOT NULL,
+id_nave INT(6) NOT NULL,
+processado BOOLEAN DEFAULT FALSE
+)

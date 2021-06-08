@@ -48,6 +48,7 @@ class imperio
 	public $bonus_invasao = 1;
 	public $bonus_abordagem = 0;
 	public $defesa_abordagem=0;
+	public $camuflagem_grande=false;
 	
 	//Atributos de defesa planetária
 	public $pdf_planetario = 10;
@@ -242,6 +243,15 @@ class imperio
 		
 		foreach ($especiais_lista AS $id) {
 			$especiais = explode(";",$id->especiais);
+			
+			//camuflagem_grande
+			$camuflagem_grande = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'camuflagem_grande') !== false;
+			}));
+			
+			if (!empty($camuflagem_grande)) {
+				$this->camuflagem_grande = true;
+			}
 			
 			//defesa_abordagem
 			$defesa_abordagem = array_values(array_filter($especiais, function($value) {

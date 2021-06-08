@@ -89,7 +89,7 @@ class colonization {
 		add_action('wp_head', array($this,'colonization_ajaxurl')); //Necessário para incluir o ajaxurl
 		add_action('wp_body_open', array($this,'colonization_exibe_barra_recursos')); //Adiciona a barra de recursos de cada Império
 		add_action('asgarosforum_after_post_author', array($this,'colonization_exibe_prestigio'), 10, 2);
-		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_tech_transfere_pendente')); //Adiciona as mensagens de transferência de Tech pendentes
+		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_avisos_imperio')); //Adiciona as mensagens de transferência de Tech pendentes
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_viagem_frota')); //Adiciona as mensagens de viagens pendentes de Naves dos Impérios
 		add_action('asgarosforum_wp_head', array($this,'colonization_exibe_missoes_pendente')); //Adiciona as mensagens de missões pendentes
 		add_action('asgarosforum_custom_header_menu', array($this,'colonization_menu_asgaros'));
@@ -1085,12 +1085,11 @@ class colonization {
 
 	
 	/******************
-	function colonization_exibe_tech_transfere_pendente()
+	function colonization_exibe_avisos_imperio()
 	-----------
-	Exibe no painel principal se existem transferências de Tech pendentes
-	* Também exibe os recebimentos de Recursos pendentes
+	Exibe os avisos para o Império
 	******************/	
-	function colonization_exibe_tech_transfere_pendente() {
+	function colonization_exibe_avisos_imperio() {
 		global $asgarosforum, $wpdb;
 		
 		$user = wp_get_current_user();
@@ -1107,13 +1106,17 @@ class colonization {
 		
 		if ($roles != "administrator") {
 			$imperio = new imperio();
+		} else {
+			//$imperio = new imperio(4);
 		}
 		
 		if (!empty($imperio->id)) {
-			$ids_pendentes_techs = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0");
+			$tech = new tech();
+			$ids_pendentes_techs = $wpdb->get_results("SELECT id, id_tech FROM colonization_imperio_transfere_techs WHERE id_imperio_destino={$imperio->id} AND processado=0 ORDER BY id_tech");
 			$ids_pendentes_recurso = $wpdb->get_results("SELECT id FROM colonization_imperio_transfere_recurso WHERE id_imperio_destino={$imperio->id} AND processado=0");
+			$ids_avisos_pendentes = $wpdb->get_results("SELECT id, id_estrela FROM colonization_visita_nave WHERE id_imperio={$imperio->id} AND processado = FALSE");
 		}
-		
+
 		foreach ($ids_pendentes_techs as $id) {
 			$transfere_tech = new transfere_tech($id->id);
 			
@@ -1128,6 +1131,14 @@ class colonization {
 			$notice = $transfere_recurso->exibe_autoriza();
 			$notice = apply_filters('asgarosforum_filter_login_message', $notice);
 			$asgarosforum->add_notice($notice);
+		}
+		
+		foreach ($ids_avisos_pendentes as $id) {	
+			$estrela = new estrela($id->id_estrela);
+			$notice = "<div>Você recebeu a visita de uma nave em {$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z}).<br>
+			<a href='#' style='font-weight: bold !important;' onclick='return remove_aviso(this, event,{$id->id});'>OK, entendido!</a></div>";
+			$notice = apply_filters('asgarosforum_filter_login_message', $notice);
+			$asgarosforum->add_notice($notice);			
 		}
 		
 		return;
@@ -2224,7 +2235,8 @@ if (!empty($imperios[0])) {
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*10,0);
-				$link_repara = "<a href='#' onclick='return repara_nave(event, this, {$nave->id});'><span class='tooltip'><i class='fas fa-tools'></i><span class='tooltiptext'>Reparar Nave</span></span></a>&nbsp;";
+				$custo_reparo = intval(($nave->HP_max - $nave->HP)/10) + 1;
+				$link_repara = "<a href='#' onclick='return repara_nave(event, this, {$nave->id}, {$custo_reparo});'><span class='tooltip'><i class='fas fa-tools'></i><span class='tooltiptext'>Reparar Nave</span></span></a>&nbsp;";
 				$icone_dano = "fas fa-claw-marks";
 				if ($nivel_dano == 10) {
 					//Sem danos!

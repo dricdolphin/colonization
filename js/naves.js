@@ -793,7 +793,19 @@ function repara_nave
 --------------------
 Repara uma nave
 ******************/
-function repara_nave(evento, objeto, id_nave) {
+function repara_nave(evento, objeto, id_nave, custo_reparo) {
+	let texto_industrializaveis = "Industrializáveis";
+	if (custo_reparo == 1) {
+		texto_industrializaveis = "Industrializável";
+	}
+	
+	let confirma = confirm("O custo para reparar essa anve será de " + custo_reparo + " " + texto_industrializaveis + ".\nPodemos concluir a operação de reparo?");
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;		
+	}
+	
 	let dados_ajax = "post_type=POST&action=repara_nave&id=" + id_nave;
 	
 	let resposta = new Promise((resolve, reject) => {

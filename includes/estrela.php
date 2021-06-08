@@ -178,7 +178,14 @@ class estrela
 
 			$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$planeta->id} AND turno={$turno->turno}");
 			if (!empty($id_colonia)) {
-				$icone_colonia = "<div class='far fa-flag tooltip'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado</span></div>";;;
+				$colonia = new colonia($id_colonia);
+				if ($colonia->id_imperio == 0) {
+					$nome_colonizador = $colonia->nome_npc;
+				} else {
+					$nome_colonizador = $wpdb->get_var("SELECT nome FROM colonization_imperio WHERE id={$colonia->id_imperio}");
+				}
+				
+				$icone_colonia = "<div class='far fa-flag tooltip'>&nbsp;<span style='font-size: 1.18em;' class='tooltiptext'>Colonizado por '{$nome_colonizador}'</span></div>";;;
 			}
 			
 			$link_nome_planeta = $planeta->nome;
