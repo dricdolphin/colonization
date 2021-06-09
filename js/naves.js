@@ -344,7 +344,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 	let corasita = 0;
+	let aureum = 0;
 	let texto_corasita = "";
+	let texto_aureum = "";
 	if (nave.mk_escudos*1 > 2) {
 		corasita = energium_escudos;
 		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
@@ -352,6 +354,15 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}		
 		energium_escudos = 0;
 		texto_corasita = " | Corasita: "+corasita;
+	} else if (nave.mk_escudos*1 > 4) {
+		corasita = energium_escudos;
+		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
+			corasita = (Math.trunc(50/5,0)+1)*nave.mk_escudos + Math.trunc(Math.pow((chassi-50)/2,(1/3)))*nave.mk_escudos;
+		}		
+		energium_escudos = 0;
+		texto_corasita = " | Corasita: "+corasita;
+		aureum = corasita;
+		texto_aureum = " | Aureum: "+aureum;
 	}
 	
 	if (nave.mk_camuflagem*1 > 3) {
@@ -440,7 +451,8 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'Corasita': corasita*1,
 		'Tritanium': tritanium*1,
 		'Neutronium': neutronium*1,
-		'Tricobalto': tricobalto*1
+		'Tricobalto': tricobalto*1,
+		'Aureum': aureum*1
 	};
 
 	//Remove os itens em branco ou zerados
@@ -469,8 +481,8 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
 		+"pdf Laser: "+pdf_laser+"/ pdf Torpedo: "+pdf_torpedo+"/ pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
 		chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
-		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium + texto_nor_duranium + texto_corasita + texto_trillithium 
-		+ texto_tritanium + texto_neutronium + texto_tricobalto;
+		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium 
+		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum;
 	
 		/***
 		texto_partes_nave_div.innerHTML = nave.qtd_laser+"="+nave.mk_laser+";"+nave.qtd_torpedo+"="+nave.mk_torpedo+";"+nave.qtd_projetil+"="+nave.mk_projetil+";"
@@ -799,7 +811,7 @@ function repara_nave(evento, objeto, id_nave, custo_reparo) {
 		texto_industrializaveis = "Industrializável";
 	}
 	
-	let confirma = confirm("O custo para reparar essa anve será de " + custo_reparo + " " + texto_industrializaveis + ".\nPodemos concluir a operação de reparo?");
+	let confirma = confirm("O custo para reparar essa nave será de " + custo_reparo + " " + texto_industrializaveis + ".\nPodemos concluir a operação de reparo?");
 	
 	if (!confirma) {
 		evento.preventDefault();

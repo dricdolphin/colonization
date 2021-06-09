@@ -2249,9 +2249,45 @@ class colonization_ajax {
 					if ($instalacao->limite == 1) {
 						$texto_limite = "uma Instalação";
 					}
-					$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite é de {$texto_limite}.";
+					$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite é de {$texto_limite} por Planeta.\n";
 				}
 			}
+
+			if ($_POST['id'] == "" && $instalacao->limite_sistema > 0) {
+				$instalacoes_no_sistema = $wpdb->get_var("
+				SELECT COUNT(cpi.id)
+				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$turno->turno}
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cpi.id_instalacao = {$instalacao->id}
+				AND cic.id_imperio = {$imperio->id}
+				AND cp.id_estrela = {$planeta->id_estrela}
+				AND cpi.turno <= {$turno->turno}
+				");
+				
+				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
+				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$turno->turno}
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cpi.id_instalacao = {$instalacao->id}
+				AND cic.id_imperio = {$imperio->id}
+				AND cp.id_estrela = {$planeta->id_estrela}
+				AND cpi.turno <= {$turno->turno}\n";
+				
+				if ($instalacao->limite_sistema <= $instalacoes_no_sistema) {
+						$texto_limite = "{$instalacao->limite_sistema} Instalações";
+					if ($instalacao->limite_sistema == 1) {
+						$texto_limite = "uma Instalação";
+					}
+					$dados_salvos['resposta_ajax'] .= "Não é possível construir outro(a) {$instalacao->nome}. O limite para esta Instalação é de {$texto_limite} em todo o Sistema Estelar.\n";
+				}
+			}			
 
 			//Verifica se o Império tem os Recursos para construir ou realizar o upgrade
 			$niveis = $_POST['nivel'] - $nivel_original;
