@@ -1095,6 +1095,7 @@ class imperio
 					$html_pdf_planetario .= "<div class='mini_instalacao_ataque far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$colonia[$resultado->id]->pdf_planetario}</div>";
 				}
 				
+				$planeta[$colonia[$resultado->id]->id_planeta]->popula_instalacoes_planeta();
 				foreach ($planeta[$colonia[$resultado->id]->id_planeta]->mini_html_instalacao_ataque as $chave => $html_instalacao) {
 					$html_pdf_planetario .= $html_instalacao;
 				}
@@ -1114,7 +1115,10 @@ class imperio
 					$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext' style='font-size: 0.7em'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
 				}
 				
-				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel()}{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_nova_pop}{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
+				$html_planeta[$colonia[$resultado->id]->id_planeta] = "<div class='dados_planeta'><span style='font-style: italic;'>
+				{$colonia[$resultado->id]->icone_capital}{$planeta[$colonia[$resultado->id]->id_planeta]->nome}&nbsp;{$colonia[$resultado->id]->icone_vassalo}{$planeta[$colonia[$resultado->id]->id_planeta]->icone_habitavel()}
+				{$html_icones_planeta}</span> - MdO/Pop: {$mdo_colonia[$resultado->id]}/{$colonia[$resultado->id]->html_pop_colonia}{$html_nova_pop}
+				{$html_pdf_planetario} - Poluição: {$poluicao} {$balanco_poluicao_planeta}</div>";
 				//$html_transfere_pop_planeta[$colonia[$resultado->id]->id_planeta] = $html_transfere_pop;
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

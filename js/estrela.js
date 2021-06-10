@@ -4,13 +4,13 @@ function pega_estrelas_ajax()
 Pega as estrelas do banco de dados
 ******************/	
 function pega_estrelas_ajax() {
-	var dados_ajax = "post_type=POST&action=lista_estrelas";
+	let dados_ajax = "post_type=POST&action=lista_estrelas";
 
-	var xhttp = new XMLHttpRequest();
+	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			console.log(this.responseText);
-			var resposta = JSON.parse(this.responseText);
+			let resposta = JSON.parse(this.responseText);
 			console.log(resposta);
 			carrega_dados_estrela(resposta);
 			desenha_mapa_estelar();

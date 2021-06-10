@@ -24,6 +24,7 @@ class lista_estrelas
 		$lista_y_estrela = "";
 		$lista_z_estrela = "";
 		$lista_nome_estrela = "";
+		$lista_tipo_estrela = "";
 		
 		$index = 0;
 		foreach ($resultados as $resultado) {

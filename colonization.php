@@ -1095,6 +1095,7 @@ class colonization {
 		$user = wp_get_current_user();
 		$ids_pendentes_techs = [];
 		$ids_pendentes_recurso = [];
+		$ids_avisos_pendentes = [];
 		$roles = "";
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];

@@ -72,6 +72,10 @@ function valida_acao(evento, objeto) {
 		}
 	}
 	
+	if (objeto.type == "checkbox") {
+		dados['pop'] = 0;
+	}
+	
 	if (dados['pop_original'] == dados['pop']) {
 		evento.preventDefault();
 		return false;

@@ -116,6 +116,7 @@ class planeta
 		
 		//Precisa verificar se não houve upgrade da instalação
 		$instalacao_temp = [];
+		$colonia_instalacao_temp = [];
 		foreach ($id_instalacoes as $id) {
 			if (empty($instalacao_temp[$id->id_instalacao])) {
 				$instalacao_temp[$id->id_instalacao] = new instalacao($id->id_instalacao);
@@ -153,9 +154,10 @@ class planeta
 			
 			if (!empty($pop_inospito)) {
 				$pop_inospito_valor = explode("=",$pop_inospito[0]);
-				if (empty($colonia_instalacao)) {
-					$colonia_instalacao = new colonia_instalacao($id->id);
+				if (empty($colonia_instalacao_temp[$id->id])) {
+					$colonia_instalacao_temp[$id->id] = new colonia_instalacao($id->id);
 				}
+				$colonia_instalacao = $colonia_instalacao_temp[$id->id];
 				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
 			}
 			
@@ -180,9 +182,11 @@ class planeta
 					$this->alcance_local = $alcance_local_valor[1];
 				}
 				
-				if (empty($colonia_instalacao)) {
-					$colonia_instalacao = new colonia_instalacao($id->id);
+				if (empty($$colonia_instalacao_temp[$id->id])) {
+					$colonia_instalacao_temp[$id->id] = new colonia_instalacao($id->id);
 				}
+				$colonia_instalacao = $colonia_instalacao_temp[$id->id];
+				
 				if (10*$colonia_instalacao->nivel > $this->tamanho_alcance_local) {
 					$this->tamanho_alcance_local = 10*$colonia_instalacao->nivel;
 				}
@@ -213,9 +217,10 @@ class planeta
 			}));
 			
 			if (!empty($pdf_instalacoes)) {
-				if (empty($colonia_instalacao)) {
-					$colonia_instalacao = new colonia_instalacao($id->id);
+				if (empty($colonia_instalacao_temp[$id->id])) {
+					$colonia_instalacao_temp[$id->id] = new colonia_instalacao($id->id);
 				}
+				$colonia_instalacao = $colonia_instalacao_temp[$id->id];
 
 				//$index = count($this->instalacoes_ataque);
 				$this->instalacoes_ataque[] = $colonia_instalacao->id_instalacao;
@@ -225,7 +230,10 @@ class planeta
 		
 		$qtd_instalacao_ataque_id = [];
 		foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
-			$instalacao_ataque = new instalacao($id_instalacao);
+			if (empty($instalacao_temp[$id_instalacao])) {
+				$instalacao_temp[$id_instalacao] = new instalacao($id_instalacao);
+			}
+			$instalacao_ataque = $instalacao_temp[$id_instalacao];
 			$especiais = explode(";",$instalacao_ataque->especiais);
 			//Especiais: pdf_instalacoes=valor
 			$pdf_instalacoes = array_values(array_filter($especiais, function($value) {

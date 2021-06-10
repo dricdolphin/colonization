@@ -943,8 +943,8 @@ class colonization_ajax {
 	function envia_nave() {
 		global $wpdb;
 		// Report all PHP errors
-		error_reporting(E_ALL);
-		ini_set("display_errors", 1);
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);
 		
 		$nave = new frota($_POST['id']);
 		if ($nave->alcance == 0 || $nave->nivel_estacao_orbital != 0) {
@@ -2746,10 +2746,11 @@ class colonization_ajax {
 	***********************/	
 	function valida_acao() {
 		global $wpdb, $debug, $start_time; 
-		$wpdb->hide_errors();
+		//$wpdb->hide_errors();
 		// Report all PHP errors
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
+		
 		$dados_salvos = [];
 		$dados_salvos['debug'] = "";
 		
@@ -2925,7 +2926,12 @@ class colonization_ajax {
 	Pega os resultados da ação
 	***********************/	
 	function produtos_acao($imperio, $id_planeta_instalacoes, $colonias) {
-		global $start_time;
+		global $wpdb, $start_time;
+		//$wpdb->hide_errors();
+		// Report all PHP errors
+		//error_reporting(E_ALL);
+		//ini_set("display_errors", 1);		
+		
 		$dados_salvos = [];
 		
 		$dados_salvos['debug'] = "";

@@ -154,7 +154,7 @@ class acoes
 			}
 			$chave++;
 		}
-
+		
 		$chave = 0;
 		//*****
 		if (isset($this->id[$chave])) {
@@ -169,7 +169,6 @@ class acoes
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
 						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
-					
 					} else {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
@@ -621,7 +620,7 @@ class acoes
 				$banido = false;
 			}
 		}
-
+		
 		$bonus_sinergia_tech = 0;
 		$instalacao_tech = 0;
 		if ($imperio == "") {
@@ -845,7 +844,8 @@ class acoes
 
 							$this->debug .= "ID_PLANETA_INSTALACOES: {$id_planeta_instalacoes} : {$this->id_planeta_instalacoes[$chave]} \n";
 							$wpdb->query("UPDATE colonization_acoes_turno SET pop={$desativa_instalacao_atual} WHERE id={$this->id[$chave]}");
-							$this->pop[$chave] = $desativa_instalacao_atual;
+							$this->pop[$chave] = 0;
+							$this->desativado[$chave] = $desativa_instalacao_atual;
 						}
 					}					
 				}
