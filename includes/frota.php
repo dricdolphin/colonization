@@ -348,6 +348,7 @@ class frota
 		}
 
 		$html_tipo_estrela = "";
+		$html_estrela_destino = "";
 		if ($this->alcance > 0 || $this->tamanho <= $tamanho_alcance_local)  {
 			$imperio = new imperio($this->id_imperio);
 			$estrela_capital = new estrela($imperio->id_estrela_capital);

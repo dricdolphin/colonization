@@ -854,11 +854,19 @@ class acoes
 					//Verifica as condições
 					if (!empty($imperio->extrativo['*']) && $imperio->bonus_todos_recursos == 0) {//O bônus se aplica somente para recursos EXTRATIVOS
 						if ($imperio->extrativo['*'] === true && $recurso[$id_recurso]->extrativo == 1) {
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+							if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
+								$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10)*(($imperio->bonus_recurso['*'])/100)));
+							} else {
+								$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+							}
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 						}
 					} else {//O bônus se aplica à qualquer tipo de recurso
-						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
+						if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10)*(($imperio->bonus_recurso['*'])/100)));
+						} else {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));	
+						}
 						//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso['*'])/100)));
 					}
 				} 
@@ -867,11 +875,19 @@ class acoes
 					//Verifica as condições
 					if (!empty($imperio->extrativo[$id_recurso])) {//O bônus se aplica somente para recursos EXTRATIVOS
 						if ($imperio->extrativo[$id_recurso] === true && $recurso[$id_recurso]->extrativo == 1) {
-							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+							if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
+								$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+							} else {
+								$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+							}
 							//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 						}
 					} else {//O bônus se aplica à qualquer tipo de recurso
-						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+						if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+						} else {
+							$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
+						}
 						//$this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_id_planeta_instalacoes[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10)*(($imperio->bonus_recurso[$id_recurso])/100)));
 					}
 				}
@@ -881,8 +897,11 @@ class acoes
 					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
 						$imperio->max_bonus_recurso[$id_recurso] = false;
 					}
-					
-					$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
+					if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10))*($bonus_recurso_colonia/100));
+					} else {
+						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
+					}
 					//$this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] = $this->recursos_produzidos_id_planeta_instalacoes[$this->id_planeta_instalacoes[$chave]][$id_recurso] + intval(floor(floor($instalacao->recursos_produz_qtd[$chave_recursos]*$this->nivel_instalacao[$chave]*$this->pop[$chave]/10))*($bonus_recurso_colonia/100));
 					
 					if ($roles == "administrator") {
