@@ -45,6 +45,7 @@ class instalacao
 	public $espacoporto = false;
 	public $base_colonial = false;
 	public $torpedeiros_sistema_estelar = 0;
+	public $minas_subespaciais = 0;
 	public $terraforma = false;
 	
 	function __construct($id) {
@@ -89,6 +90,16 @@ class instalacao
 		//Especiais
 		$especiais = explode(";",$this->especiais);
 
+		//minas_subespaciais=10
+		$minas_subespaciais = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'minas_subespaciais') !== false;
+		}));
+			
+		if (!empty($minas_subespaciais)) {
+			$minas_subespaciais_valor = explode("=",$minas_subespaciais[0]);
+			$this->minas_subespaciais = $this->minas_subespaciais + $minas_subespaciais_valor[1];
+		}
+
 		//habitavel=1
 		$terraforma = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'habitavel') !== false;
@@ -98,7 +109,6 @@ class instalacao
 			$habitavel_valor = explode("=",$terraforma[0]);
 			$this->terraforma = $habitavel_valor[1];
 		}
-
 
 		//Especiais: pop_inospito=qtd
 		$pop_inospito = array_values(array_filter($especiais, function($value) {

@@ -344,6 +344,7 @@ class acoes
 
 		$defesa_sistema['torpedos'] = 0;
 		$defesa_sistema['torpedeiros'] = 0;
+		$defesa_sistema['minas_subespaciais'] = 0;
 		if (empty($resultados)) {
 			return $defesa_sistema ;
 		}
@@ -353,6 +354,7 @@ class acoes
 			
 			$defesa_sistema['torpedos'] = $defesa_sistema['torpedos'] + $colonia->qtd_defesas;
 			$defesa_sistema['torpedeiros'] = $defesa_sistema['torpedeiros'] + $colonia->bonus_torpedeiros();
+			$defesa_sistema['minas_subespaciais'] = $defesa_sistema['minas_subespaciais'] + $colonia->minas_subespaciais();
 		}
 		$defesa_sistema['torpedeiros'] = $defesa_sistema['torpedeiros'] + $defesa_sistema['torpedos'];
 

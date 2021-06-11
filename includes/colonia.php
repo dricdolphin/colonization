@@ -33,6 +33,7 @@ class colonia
 	public $pdf_planetario;
 	public $defesa_invasao = 0;
 	public $qtd_defesas = 0;
+	public $minas_subespaciais = 0;
 	public $html_pop_colonia;
 	public $html_instalacao_ataque = [];
 	public $bonus_extrativo = false;
@@ -457,5 +458,28 @@ class colonia
 	
 		return $bonus_torpedeiros;
 	}
+	
+	/***********************
+	function minas_subespaciais()
+	----------------------
+	Pega a qtd de Minas Subespaciais na colônia
+	***********************/	
+	function minas_subespaciais() {
+		global $wpdb;
+		
+		$minas_subespaciais = 0;
+		if (empty($this->instalacoes_planeta)) {
+			$this->popula_instalacoes_planeta();
+		}
+		
+		foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {
+			$instalacao = new instalacao($id_instalacao);
+			if ($instalacao->minas_subespaciais != 0) {
+				$minas_subespaciais = $minas_subespaciais + $instalacao->minas_subespaciais*$this->nivel_instalacoes_planeta[$id_planeta_instalacoes];
+			}
+		}
+	
+		return $minas_subespaciais;
+	}	
 }
 ?>

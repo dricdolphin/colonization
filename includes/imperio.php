@@ -1162,6 +1162,7 @@ class imperio
 					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]] = [];
 					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedos'] = $torpedos;
 					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedeiros'] = $torpedos;
+					$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['minas_subespaciais'] = 0;
 				}
 				
 				if ($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['torpedos'] > 0) {
@@ -1176,6 +1177,10 @@ class imperio
 					}
 				}
 
+				if (!empty($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['minas_subespaciais'])) {
+					$html_defesas_sistema .= " <div class='fab fa-mixer tooltip'><span class='tooltiptext'>Minas Subespaciais (PdF Torpedos: {$qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]]['minas_subespaciais']})</span></div>";
+				}
+				
 				$html_nome_estrela = "{$estrela[$planeta_id_estrela[$id_planeta]]->nome} ({$estrela[$planeta_id_estrela[$id_planeta]]->X};{$estrela[$planeta_id_estrela[$id_planeta]]->Y};{$estrela[$planeta_id_estrela[$id_planeta]]->Z})";
 				if ($roles == "administrator") {
 					$html_nome_estrela = "<a href='#' onclick='return tirar_cerco(this, event, {$estrela[$planeta_id_estrela[$id_planeta]]->id}, true)'>{$html_nome_estrela}</a>";
