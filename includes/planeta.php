@@ -370,13 +370,19 @@ class planeta
 	function icone_habitavel ($exibe_icones = false) {
 		global $wpdb;
 		
+		$globo_inospito = "fas fa-globe";
+		$globo_habitavel = "fas fa-globe-americas";
+		if ($this->classe == "Gigante Gasoso") {
+			$globo_inospito = "fas fa-planet-ringed";
+		}
+		
 		if ($this->inospito == 1) {
-			$this->icone_habitavel = "<div class='fas fa-globe tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
+			$this->icone_habitavel = "<div class='{$globo_inospito} tooltip' style='color: #912611;'>&nbsp;<span class='tooltiptext'>Inóspito</span></div>";
 			if ($this->terraforma == 1) {
 				$this->icone_habitavel = "<div class='fas fa-globe-europe tooltip' style='color: #AEB213;'>&nbsp;<span class='tooltiptext'>Terraformado</span></div>";
 			}
 		} else {
-			$this->icone_habitavel = "<div class='fas fa-globe-americas tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
+			$this->icone_habitavel = "<div class='{$globo_habitavel} tooltip' style='color: #005221;'>&nbsp;<span class='tooltiptext'>Habitável</span></div>";
 		}
 		
 		return $this->icone_habitavel;

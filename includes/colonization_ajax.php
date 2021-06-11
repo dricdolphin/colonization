@@ -2077,6 +2077,7 @@ class colonization_ajax {
 					AND cic.id_imperio = {$imperio->id}
 					AND cpi.id_planeta = {$planeta->id}
 					AND cpi.turno <= {$turno->turno}
+					AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
 					");
 					
 					$instalacoes_no_planeta = $instalacoes_no_planeta + $aumento_de_slot;
@@ -2212,7 +2213,10 @@ class colonization_ajax {
 			
 			if ($instalacao->somente_gigante_gasoso && $planeta->classe != "Gigante Gasoso") {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um Gigante Gasoso!";
-			} elseif ($planeta->classe == "Gigante Gasoso" && empty($instalacao->somente_gigante_gasoso) && $instalacao->slots > 0) {
+			} 
+			
+			$dados_salvos['debug'] .= "{$planeta->classe} && {$instalacao->somente_gigante_gasoso} && {$instalacao->slots}\n";
+			if ($planeta->classe == "Gigante Gasoso" && empty($instalacao->somente_gigante_gasoso) && $instalacao->slots > 0) {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação não pode ser construído num Gigante Gasoso!";
 			}
 
@@ -2231,6 +2235,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cpi.id_planeta = {$planeta->id}
 				AND cpi.turno <= {$turno->turno}
+				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
 				");
 				
 				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
@@ -2242,6 +2247,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cpi.id_planeta = {$planeta->id}
 				AND cpi.turno <= {$turno->turno}
+				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
 				";
 				
 				if ($instalacao->limite <= $instalacoes_no_planeta) {
@@ -2266,6 +2272,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cp.id_estrela = {$planeta->id_estrela}
 				AND cpi.turno <= {$turno->turno}
+				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
 				");
 				
 				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
@@ -2278,7 +2285,8 @@ class colonization_ajax {
 				WHERE cpi.id_instalacao = {$instalacao->id}
 				AND cic.id_imperio = {$imperio->id}
 				AND cp.id_estrela = {$planeta->id_estrela}
-				AND cpi.turno <= {$turno->turno}\n";
+				AND cpi.turno <= {$turno->turno}
+				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)n";
 				
 				if ($instalacao->limite_sistema <= $instalacoes_no_sistema) {
 						$texto_limite = "{$instalacao->limite_sistema} Instalações";
