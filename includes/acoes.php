@@ -76,7 +76,7 @@ class acoes
 		$index = 0;
 		foreach ($id_estrelas_imperio as $id_estrela) {
 			$resultados_temp = $wpdb->get_results("
-				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, 
+				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, ci.sempre_ativa
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
 				cpi.turno_desmonta AS turno_desmonta,
 				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
@@ -118,7 +118,10 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
-				$this->desativado[$chave] = 0;
+				$this->desativado[$chave] = 1;//Instalações novas começam DESATIVADAS
+				if ($valor->sempre_ativa) {//A não ser que sejam instalações SEMPRE ATIVAS
+					$this->desativado[$chave] = 0;
+				}
 				$this->turno_destroi[$chave] = "";
 				$this->turno_desmonta[$chave] = "";
 				$this->data_modifica[$chave] = $this->turno->data_turno;
