@@ -2077,7 +2077,7 @@ class colonization_ajax {
 					AND cic.id_imperio = {$imperio->id}
 					AND cpi.id_planeta = {$planeta->id}
 					AND cpi.turno <= {$turno->turno}
-					AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
+					AND (cpi.turno_desmonta = 0 OR cpi.turno_desmonta IS NULL)
 					");
 					
 					$instalacoes_no_planeta = $instalacoes_no_planeta + $aumento_de_slot;
@@ -2235,7 +2235,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cpi.id_planeta = {$planeta->id}
 				AND cpi.turno <= {$turno->turno}
-				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
+				AND (cpi.turno_desmonta = 0 OR cpi.turno_desmonta IS NULL)
 				");
 				
 				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
@@ -2247,7 +2247,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cpi.id_planeta = {$planeta->id}
 				AND cpi.turno <= {$turno->turno}
-				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
+				AND (cpi.turno_desmonta = 0 OR cpi.turno_desmonta IS NULL)
 				";
 				
 				if ($instalacao->limite <= $instalacoes_no_planeta) {
@@ -2272,7 +2272,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cp.id_estrela = {$planeta->id_estrela}
 				AND cpi.turno <= {$turno->turno}
-				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)
+				AND (cpi.turno_desmonta = 0 OR cpi.turno_desmonta IS NULL)
 				");
 				
 				$dados_salvos['debug'] .= "SELECT COUNT(cpi.id)
@@ -2286,7 +2286,7 @@ class colonization_ajax {
 				AND cic.id_imperio = {$imperio->id}
 				AND cp.id_estrela = {$planeta->id_estrela}
 				AND cpi.turno <= {$turno->turno}
-				AND (cpi.turno_destroi = 0 OR cpi.turno_destroi IS NULL)n";
+				AND (cpi.turno_desmonta = 0 OR cpi.turno_desmonta IS NULL)\n";
 				
 				if ($instalacao->limite_sistema <= $instalacoes_no_sistema) {
 						$texto_limite = "{$instalacao->limite_sistema} Instalações";
@@ -2810,10 +2810,10 @@ class colonization_ajax {
 		}
 		$ajax_valida = true;
 		$acoes->pega_balanco_recursos($_POST['id_planeta_instalacoes']); //Recalcula os balanços
-			$debug .= $acoes->debug;
-			$acoes->debug = "";
-			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-			$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms \n";
+		$debug .= $acoes->debug;
+		$acoes->debug = "";
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms \n";
 		
 		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
 		$pop_planeta = $colonia->pop;

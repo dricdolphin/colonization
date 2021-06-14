@@ -354,12 +354,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}		
 		energium_escudos = 0;
 		texto_corasita = " | Corasita: "+corasita;
-	} else if (nave.mk_escudos*1 > 4) {
-		corasita = energium_escudos;
-		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
-			corasita = (Math.trunc(50/5,0)+1)*nave.mk_escudos + Math.trunc(Math.pow((chassi-50)/2,(1/3)))*nave.mk_escudos;
-		}		
-		energium_escudos = 0;
+	}
+	
+	if (nave.mk_escudos*1 > 4) {
 		texto_corasita = " | Corasita: "+corasita;
 		aureum = corasita;
 		texto_aureum = " | Aureum: "+aureum;

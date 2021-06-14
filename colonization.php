@@ -811,8 +811,13 @@ class colonization {
 			if (empty($html_estrela[$estrela[$id_estrela->id]->id])) {
 				$turno_visitado = "";
 				if ($turno->turno != $id_estrela->turno) {
+					if (!str_contains($nomes_imperios,$imperio->nome)) {
 					$turno_visitado = " Vistado no Turno {$id_estrela->turno}";
+					} else {
+						$id_estrela->turno = $turno->turno;
+					}
 				}
+				
 				$html_estrela[$estrela[$id_estrela->id]->id] = "<div class='nome_estrela'><b>{$estrela[$id_estrela->id]->nome}</b> ({$estrela[$id_estrela->id]->X};{$estrela[$id_estrela->id]->Y};{$estrela[$id_estrela->id]->Z}) {$nomes_imperios}{$turno_visitado}</div>";
 				$html_estrela_mini[$estrela[$id_estrela->id]->id] = "<div class='nome_estrela_mini'><b>{$estrela[$id_estrela->id]->nome}</b> ({$estrela[$id_estrela->id]->X};{$estrela[$id_estrela->id]->Y};{$estrela[$id_estrela->id]->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela[$id_estrela->id]->id] = "<div class='naves_no_local'>";

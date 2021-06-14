@@ -189,7 +189,7 @@ class estrela
 			}
 			
 			$link_nome_planeta = $planeta->nome;
-			if ($imperio->id == $id_imperio_colonizador && $icone_colonia == "" && $detalhes_planetas && $exibe_recursos_planetas && $id_imperio_colonizador != 0) {
+			if (($imperio->id == $id_imperio_colonizador || $roles == "administrator") && $icone_colonia == "" && $detalhes_planetas && $exibe_recursos_planetas && $id_imperio_colonizador != 0) {
 				$link_nome_planeta = "<a href='#' onclick='return coloniza_planeta(this, event, {$planeta->id}, {$id_imperio_colonizador});'><span class='tooltip'>{$planeta->nome}<span class='tooltiptext'>Criar Colônia</span></span></a>";
 			}
 			
