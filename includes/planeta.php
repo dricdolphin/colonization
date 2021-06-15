@@ -182,7 +182,7 @@ class planeta
 					$this->alcance_local = $alcance_local_valor[1];
 				}
 				
-				if (empty($$colonia_instalacao_temp[$id->id])) {
+				if (empty($colonia_instalacao_temp[$id->id])) {
 					$colonia_instalacao_temp[$id->id] = new colonia_instalacao($id->id);
 				}
 				$colonia_instalacao = $colonia_instalacao_temp[$id->id];

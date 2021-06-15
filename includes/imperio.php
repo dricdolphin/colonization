@@ -231,7 +231,7 @@ class imperio
 		//sinergia -- se aplica apenas se houver mais de uma instalação que produza o recurso
 		//max_bonus_recurso=qtd_total -- o bônus tem um limite máximo (unitário)
 		
-		$especiais_lista = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais
+		$especiais_lista = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais, ct.icone
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id = cit.id_tech
@@ -537,8 +537,8 @@ class imperio
 			
 			if (!empty($torpedos_sistema_estelar)) {
 				$this->torpedos_sistema_estelar = true;
-				$tech_torpededos = new tech ($id->id);
-				$this->icone_torpedos_sistema_estelar = " <div class='{$tech_torpededos->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";				
+				//$tech_torpededos = new tech ($id->id);
+				$this->icone_torpedos_sistema_estelar = " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";				
 			}
 			
 			//Especiais -- torpedeiros_sistema_estelar			
@@ -549,8 +549,8 @@ class imperio
 			if (!empty($torpedeiros_sistema_estelar)) {
 				$torpedeiros_sistema_estelar_valor = explode("=",$torpedeiros_sistema_estelar[0]);
 				$this->torpedeiros_sistema_estelar = $torpedeiros_sistema_estelar_valor[1];
-				$tech_torpedeiro = new tech ($id->id);
-				$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_torpedeiro->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
+				//$tech_torpedeiro = new tech ($id->id);
+				$this->icone_torpedeiros_sistema_estelar = " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
 			}
 		}
 		//Depois de pegar o alcance e o bônus de logística, soma os dois

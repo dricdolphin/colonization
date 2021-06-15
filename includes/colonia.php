@@ -154,7 +154,7 @@ class colonia
 
 		if (empty($this->planeta)) {
 			$this->planeta = new planeta($this->id_planeta);
-			//$this->planeta->popula_instalacoes_planeta();
+			//$this->planeta->popula_instalacoes_colonia();
 		}
 		$this->estrela = new estrela ($this->id_estrela);
 		$imperio = new imperio($this->id_imperio);
@@ -223,11 +223,11 @@ class colonia
 	
 
 	/***********************
-	function popula_instalacoes_planeta()
+	function popula_instalacoes_colonia()
 	----------------------
 	Popula a variável $this->instalacoes_planeta[]
 	***********************/	
-	function popula_instalacoes_planeta() {
+	function popula_instalacoes_colonia() {
 		global $wpdb;
 		
 		$instalacoes_colonia = $wpdb->get_results("SELECT 
@@ -257,7 +257,7 @@ class colonia
 		global $wpdb;
 		
 		if (empty($this->instalacoes_planeta)) {
-			$this->popula_instalacoes_planeta();
+			$this->popula_instalacoes_colonia();
 		}
 		
 		if ($this->bonus_extrativo === false) {
@@ -281,7 +281,7 @@ class colonia
 		global $wpdb;
 
 		if (empty($this->instalacoes_planeta)) {
-			$this->popula_instalacoes_planeta();
+			$this->popula_instalacoes_colonia();
 		}
 		
 		if (empty($this->bonus_recurso[$id_recurso])) {
@@ -446,7 +446,7 @@ class colonia
 		
 		$bonus_torpedeiros = 0;
 		if (empty($this->instalacoes_planeta)) {
-			$this->popula_instalacoes_planeta();
+			$this->popula_instalacoes_colonia();
 		}
 		
 		foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {
@@ -469,7 +469,7 @@ class colonia
 		
 		$minas_subespaciais = 0;
 		if (empty($this->instalacoes_planeta)) {
-			$this->popula_instalacoes_planeta();
+			$this->popula_instalacoes_colonia();
 		}
 		
 		foreach ($this->instalacoes_planeta as $id_planeta_instalacoes => $id_instalacao) {

@@ -78,6 +78,7 @@ class colonization {
 		add_shortcode('colonization_exibe_diplomacia',array($this,'colonization_exibe_diplomacia')); //Exibe as condições diplomáticas do Império
 		add_shortcode('colonization_gerencia_tech',array($this,'colonization_gerencia_tech')); //Exibe a lista de Techs do Império, e permite adicionar 
 		add_shortcode('turno_atual',array($this,'colonization_turno_atual')); //Exibe o texto com o Turno Atual
+		add_shortcode('colonization_todos_objetos',array($this,'colonization_todos_objetos')); //Exibe o texto com o Turno Atual
 		
 		
 		add_action('plugins_loaded', array($this,'carrega_actions') );
@@ -401,6 +402,80 @@ class colonization {
          </script>";
 	}
 
+
+
+	function colonization_todos_objetos($atts = [], $content = null) {
+		global $asgarosforum, $wpdb;
+		$start_time = hrtime(true);
+		$turno = new turno();
+		
+		$ids = $wpdb->get_results("SELECT id FROM colonization_imperio");
+		foreach ($ids as $id) {
+			$objeto = new imperio($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new imperio({$id->id}) {$diferenca}ms<br>";
+			$objeto->acoes = new acoes($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new acoes({$id->id}) {$diferenca}ms<br>";
+		}
+		
+		$ids = $wpdb->get_results("SELECT id FROM colonization_recurso");
+		foreach ($ids as $id) {
+			$objeto = new recurso($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new recurso({$id->id}) {$diferenca}ms<br>";
+		}
+
+		$ids = $wpdb->get_results("SELECT id FROM colonization_planeta");
+		foreach ($ids as $id) {
+			$objeto = new planeta($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new planeta({$id->id}) {$diferenca}ms<br>";
+			$objeto->popula_instalacoes_planeta();
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "popula_instalacoes_planeta() {$diferenca}ms<br>";
+		}
+
+		$ids = $wpdb->get_results("SELECT id FROM colonization_estrela");
+		foreach ($ids as $id) {
+			$objeto = new estrela($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new estrela({$id->id}) {$diferenca}ms<br>";
+		}
+
+		$ids = $wpdb->get_results("SELECT id FROM colonization_instalacao");
+		foreach ($ids as $id) {
+			$objeto = new instalacao($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new instalacao({$id->id}) {$diferenca}ms<br>";
+		}
+		
+		$ids = $wpdb->get_results("SELECT id FROM colonization_tech");
+		foreach ($ids as $id) {
+			$objeto = new tech($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new tech({$id->id}) {$diferenca}ms<br>";
+		}
+
+		$ids = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE turno={$turno->turno}");
+		foreach ($ids as $id) {
+			$objeto = new colonia($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new colonia({$id->id}) {$diferenca}ms<br>";
+			$objeto->popula_instalacoes_colonia();
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "popula_instalacoes_colonia()({$id->id}) {$diferenca}ms<br>";
+		}
+
+		$ids = $wpdb->get_results("SELECT id FROM colonization_imperio_frota");
+		foreach ($ids as $id) {
+			$objeto = new frota($id->id);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			echo "new frota({$id->id}) {$diferenca}ms<br>";
+		}	
+	
+	}
 	/******************
 	function colonization_gerencia_tech()
 	-----------
