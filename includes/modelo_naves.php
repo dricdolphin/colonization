@@ -64,7 +64,9 @@ class modelo_naves
 		$this->string_nave = json_encode($string_nave, JSON_UNESCAPED_UNICODE);
 		
 		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td><td>{$this->turno}</td>
-		<td><a href='#' onclick='return carrega_nave(event, this, {$this->id_imperio});'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
+		<td>
+		<a href='#' onclick='return carrega_nave(event, this, {$this->id_imperio});'>Carregar Modelo</a><br>
+		<a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Modelo</a></td></tr>";
 	
 		return $html;
 	}

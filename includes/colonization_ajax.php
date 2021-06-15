@@ -1150,7 +1150,8 @@ class colonization_ajax {
 				ON cp.id = cic.id_planeta
 				JOIN colonization_estrela AS ce
 				ON ce.id = cp.id_estrela
-				WHERE ce.id={$estrela_destino->id}");
+				WHERE ce.id={$estrela_destino->id}
+				AND cic.turno = {$turno->turno}");
 					
 				foreach ($ids_imperios_colonias as $imperios_colonia) {
 					$id_diplomacia = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$nave->id_imperio} AND id_imperio_contato={$imperios_colonia->id_imperio} and nome_npc='{$imperios_colonia->nome_npc}'");	
