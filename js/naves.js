@@ -52,6 +52,23 @@ function calcula_custos(evento, objeto)
 Calcula os custos de uma nave
 ******************/	
 function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
+	if (objeto.type == "number") {
+		if (objeto.max != "") {
+			if (objeto.value*1 > objeto.max*1) {
+				objeto.value = objeto.max;
+			}
+		}
+		if (objeto.min != "") {
+			if (objeto.value*1 < objeto.min*1) {
+				objeto.value = objeto.min;
+			}
+		}		
+		if (objeto.value*1 < 0) {
+			objeto.value = 0;
+		}
+		
+	}
+	
 	if (Object.keys(nave).length == 0) {//Se não tem uma nave em JSON, então pega os dados da nave do Formulário
 		let partes_nave = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
 		let objeto_nave = {};
@@ -358,7 +375,10 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	
 	if (nave.mk_escudos*1 > 4) {
 		texto_corasita = " | Corasita: "+corasita;
-		aureum = corasita;
+		aureum = Math.trunc(corasita/3);
+		if (aureum < 1) {
+			aureum = 1;
+		}
 		texto_aureum = " | Aureum: "+aureum;
 	}
 	

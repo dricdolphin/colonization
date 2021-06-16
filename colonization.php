@@ -2181,7 +2181,8 @@ if (!empty($imperios[0])) {
 		WHERE (cif.turno_destruido = 0 OR cif.turno_destruido > {$turno}) AND cif.id_imperio = {$imperio->id} AND cif.turno <= {$turno}
 		AND (cfhm.turno = {$turno} OR cfhm.turno IS NULL)
 		GROUP BY cif.id
-		ORDER BY cif.nivel_estacao_orbital DESC, cif.id_estrela_destino, cif.nome
+		ORDER BY cif.nivel_estacao_orbital DESC, (CASE WHEN cif.id_estrela_destino = 0 THEN 0 ELSE 1 END),
+		cif.tamanho, cif.nome
 		");
 		//***/
 		
@@ -2475,7 +2476,8 @@ if (!empty($imperios[0])) {
 		LEFT JOIN colonization_estrela AS ce
 		ON ce.X=cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
 		WHERE cif.id_imperio={$imperio->id} AND cif.turno_destruido=0
-		ORDER BY (cif.nivel_estacao_orbital>0) DESC, ce.nome");
+		ORDER BY cif.nivel_estacao_orbital DESC, (CASE WHEN cif.id_estrela_destino = 0 THEN 0 ELSE 1 END),
+		cif.tamanho, cif.nome");
 		$html_id_estrela_destino = "";
 		$html_buracos_de_minhoca = "";
 		$index = 0;		
@@ -2832,21 +2834,49 @@ var id_imperio_atual = {$imperio->id};
 
 		$estilo = "";
 		
+		
 		$imperio = new imperio();
 		if ($roles != "administrator") {
 			$estilo = "style='display: none;'";
-			$imperio = new imperio();
+			//$imperio = new imperio();
+		} else {
+			//$imperio = new imperio(4);
 		}
 		
 		$outras_partes_nave = "";
 		$html_javascript = "";
 		$tech = new tech();
+		$estilo_plasma = $estilo;
+		$html_tricobalto_torpedo = "<label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input>";
+		$html_tritanium_blindagem = "<label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium_blindagem' value='1'></input>";
+		$html_neutronium_blindagem = "<label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium_blindagem' value='1'></input>";
+
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio, turno, id");
+			$estilo_plasma = "";
+			
+			foreach ($imperio as $chave => $valor) {
+				if (str_contains($chave, "mk_")) {
+					$imperio->$chave = 6;
+				}
+			}
+			$imperio->nivel_estacao_orbital = 10;
 		} else {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id} ORDER BY id_imperio, turno, id");
+			if ($imperio->pdf_plasma > 0) {
+				$estilo_plasma = "";
+			}
+			if (!$imperio->tricobalto_torpedo) {
+				$html_tricobalto_torpedo = "";
+			}
+			if (!$imperio->tritanium_blindagem) {
+				$html_tritanium_blindagem = "";
+			}
+			if (!$imperio->neutronium_blindagem) {
+				$html_neutronium_blindagem = "";
+			}		
 		}
 		
 		//$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
@@ -2862,12 +2892,6 @@ var id_imperio_atual = {$imperio->id};
 					break;
 				}
 			}
-		}
-		
-
-		$estilo_plasma = $estilo;
-		if ($roles == "administrator" || $imperio->pdf_plasma > 0) {
-			$estilo_plasma = "";
 		}
 		
 		$html = "<script type='text/javascript'>
@@ -2887,29 +2911,29 @@ var id_imperio_atual = {$imperio->id};
 		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 1 | Duranium: 0</div><br>
 		<div id='chassi'>Chassi: 2 - Categoria: Corveta</div>
 		<div id='armas'>
-		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
-		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input> <label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input></div>
-		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='6' style='width: 50px;'></input></div>
-		<div id='plasma' {$estilo_plasma}>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='3' style='width: 50px;'></input></div>
+		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_laser}' style='width: 50px;'></input></div>
+		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_torpedo}' style='width: 50px;'></input> {$html_tricobalto_torpedo}</div>
+		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_projetil}' style='width: 50px;'></input></div>
+		<div id='plasma' {$estilo_plasma}>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_plasma}' style='width: 50px;'></input></div>
 		</div>
 		<div>---------------------------------------------------</div>
 		<div id='defesas'>
-		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='5' style='width: 50px;'></input> <label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium_blindagem' value='1'></input><label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium_blindagem' value='1'></input></div>
-		<div id='escudos'>Escudos: Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' max='5' style='width: 50px;'></input></div>
+		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='{$imperio->mk_blindagem}' style='width: 50px;'></input> {$html_tritanium_blindagem}{$html_neutronium_blindagem}</div>
+		<div id='escudos'>Escudos: Mk: <input type='number' id='mk_escudos' onchange='return calcula_custos(event, this);' value='0' min='0' max='{$imperio->mk_escudos}' style='width: 50px;'></input></div>
 		</div>
 		<div>---------------------------------------------------</div>
 		<div id='motores'>
-		<div id='impulso'>Motor de Impulso: Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
-		<div id='dobra'>Motor de Dobra: Mk: <input type='number' id='mk_dobra' onchange='return calcula_custos(event, this);' value='1' max='5' min='1' style='width: 50px;'></input></div>
+		<div id='impulso'>Motor de Impulso: Mk: <input type='number' id='mk_impulso' onchange='return calcula_custos(event, this);' value='1' max='{$imperio->mk_impulso}' min='1' style='width: 50px;'></input></div>
+		<div id='dobra'>Motor de Dobra: Mk: <input type='number' id='mk_dobra' onchange='return calcula_custos(event, this);' value='1' max='{$imperio->mk_dobra}' min='1' style='width: 50px;'></input></div>
 		<div id='combustivel'>Células de Combustível: <input type='number' id='qtd_combustivel' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input></div>
 		</div>
 		<div>---------------------------------------------------</div>
 		<div id='especiais'>
 		<div><label>Pesquisa: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='qtd_pesquisa' value='1'></input><br></div>
-		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='10' style='width: 50px;'></input></div>
+		<div><label>Nível da Estação Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='nivel_estacao_orbital' value='0' min='0' max='{$imperio->nivel_estacao_orbital}' style='width: 50px;'></input></div>
 		<div><label>Transporte de Tropas: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_tropas' value='0' min='0' style='width: 50px;'></input></div>
-		<div><label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombardeamento' value='0' min='0' style='width: 50px;'></input>Mk: <input type='number' id='mk_bombardeamento' onchange='return calcula_custos(event, this);' value='1' max='3' min='1' style='width: 50px;'></input></div>
-		<div><label>Camuflagem: </label><input type='number' id='mk_camuflagem' onchange='return calcula_custos(event, this);' value='0' max='3' min='0' style='width: 50px;'></input></div>
+		<div><label>Compartimento de Bombardeamento Orbital: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_bombardeamento' value='0' min='0' style='width: 50px;'></input>Mk: <input type='number' id='mk_bombardeamento' onchange='return calcula_custos(event, this);' value='1' max='{$imperio->mk_bombardeamento}' min='1' style='width: 50px;'></input></div>
+		<div><label>Camuflagem: </label><input type='number' id='mk_camuflagem' onchange='return calcula_custos(event, this);' value='0' max='{$imperio->mk_camuflagem}' min='0' style='width: 50px;'></input></div>
 		<div {$estilo}><label>Slots Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_slots_extra' value='0' min='0' style='width: 50px;'></input></div>
 		<div {$estilo}><label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input></div>
 		{$outras_partes_nave}

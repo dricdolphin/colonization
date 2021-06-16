@@ -1864,8 +1864,14 @@ class colonization_ajax {
 			$id_instalacao = 0;
 			$salva_balanco = false;
 			$imperio->acoes->pega_balanco_recursos($id_instalacao, $salva_balanco, $imperio);
-			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop-{$_POST['pop']} WHERE id={$colonia_origem->id}");
-			$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
+			if ($colonia_origem->pop >= $_POST['pop']) {
+				$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop-{$_POST['pop']} WHERE id={$colonia_origem->id}");
+				$resultado = $wpdb->query("UPDATE colonization_imperio_colonias SET pop=pop+{$_POST['pop']} WHERE id={$colonia_destino->id}");
+			} else {
+				$dados_salvos['resposta_ajax'] = "Não há Pop suficiente na Colônia de origem para que essa transferência seja efetuada!";
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
 			
 			$colonias = [];
 			$colonias[0] = $colonia_origem->id;
@@ -2669,7 +2675,7 @@ class colonization_ajax {
 	
 		$dados_salvos['resposta_ajax'] = "";
 		
-		if ($instalacao->sempre_ativa == 0) {
+		if ($instalacao->sempre_ativa == 0 && $instalacao->slots == 0) {
 			$dados_salvos['resposta_ajax'] = "Não é possível desmantelar uma Instalação que não pode ser desativada.";
 		}
 

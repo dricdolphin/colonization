@@ -24,44 +24,62 @@ class imperio
 	public $turno;
 	public $acoes;
 	public $id_estrela_capital = 0;
+	public $debug = "";
+	public $popula_variaveis_imperio = false;
+	
+	private $attributes = []; //Array privado com todas as propriedades "mágicas"
 	
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
-	public $icones_html = "";
-	public $max_pop = 0;
-	public $limite_poluicao = 100;
-	public $alcance_logistica = 0;
-	public $bonus_alcance_logistica = 0;
-	public $bonus_alcance = 0;
-	public $bonus_comercio = 0;
-	public $bonus_recurso = [];
-	public $sinergia = [];
-	public $extrativo = [];
-	public $bonus_todos_recursos = 0;
-	public $max_bonus_recurso = [];
-	public $bonus_pesquisa_naves = 0;
-	public $crescimento_pop = 1;
-	public $sensores = 0;
-	public $anti_camuflagem = 0;
-	public $coloniza_inospito = 0;
-	public $alimento_inospito = 0;
-	public $consome_poluicao = 0;
-	public $bonus_invasao = 1;
-	public $bonus_abordagem = 0;
-	public $defesa_abordagem=0;
-	public $camuflagem_grande=false;
+	//*** Por serem "custosas", estou passando esses atributos para as funções "mágicas" __get e __set ***
+	private $icones_html = "";
+	private $max_pop = 0;
+	private $limite_poluicao = 100;
+	private $alcance_logistica = 0;
+	private $bonus_alcance_logistica = 0;
+	private $bonus_alcance = 0;
+	private $bonus_comercio = 0;
+	private $bonus_recurso = [];
+	private $sinergia = [];
+	private $extrativo = [];
+	private $bonus_todos_recursos = 0;
+	private $max_bonus_recurso = [];
+	private $bonus_pesquisa_naves = 0;
+	private $crescimento_pop = 1;
+	private $sensores = 0;
+	private $anti_camuflagem = 0;
+	private $coloniza_inospito = 0;
+	private $alimento_inospito = 0;
+	private $consome_poluicao = 0;
+	private $bonus_invasao = 1;
+	private $bonus_abordagem = 0;
+	private $defesa_abordagem=0;
+	private $camuflagem_grande=false;
+	private $tricobalto_torpedo=false;
+	private $tritanium_blindagem=false;
+	private $neutronium_blindagem=false;
+	
+	private $mk_laser = 0;
+	private $mk_torpedo = 0;
+	private $mk_projetil = 0;
+	private $mk_plasma = 0;
+	private $mk_blindagem = 0;
+	private $mk_escudos = 0;
+	private $mk_dobra = 0;
+	private $mk_impulso= 0;
+	private $mk_bombardeamento = 0;
+	private $mk_camuflagem = 0;
+	private $nivel_estacao_orbital = 0;
 	
 	//Atributos de defesa planetária
-	public $pdf_planetario = 10;
-	public $pdf_torpedo = 0;
-	public $pdf_plasma = 0;
-	public $defesa_invasao = 1;
-	public $torpedos_sistema_estelar = false;
-	public $icone_torpedos_sistema_estelar = "";
-	public $torpedeiros_sistema_estelar = false;
-	public $icone_torpedeiros_sistema_estelar = "";
-	
-	public $debug = "";
-	
+	private $pdf_planetario = 10;
+	private $pdf_torpedo = 0;
+	private $pdf_plasma = 0;
+	private $defesa_invasao = 1;
+	private $torpedos_sistema_estelar = false;
+	private $icone_torpedos_sistema_estelar = "";
+	private $torpedeiros_sistema_estelar = false;
+	private $icone_torpedeiros_sistema_estelar = "";
+	//***/
 
 	/***********************
 	function __construct($id, $super=false)
@@ -209,28 +227,50 @@ class imperio
 		WHERE cit.turno = (SELECT MAX(id) FROM colonization_turno_atual)
 		AND cit.capital=false AND cit.vassalo=false AND id_imperio = {$this->id}) AS estrelas_colonias
 		ON estrelas_colonias.id_imperio = estrela_capital.id_imperio AND estrelas_colonias.turno = estrela_capital.turno");
+	
+		//$this->popula_variaveis_imperio();
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para setar variáveis
+	//***********************/
+	public function __set($name, $value)
+	{
+		$this->$name = $value;
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para pegar variáveis
+	***********************/
+	public function __get($name)
+	{
+		if (!$this->popula_variaveis_imperio) {
+			$this->popula_variaveis_imperio();
+		}
+		
+		return $this->$name;
+	}
+	//***/
+
+	/***********************
+	function popula_variaveis_imperio()
+	----------------------
+	Popula as variáveis do Império
+	***********************/
+	function popula_variaveis_imperio() {
+		global $wpdb;
+		
+		if ($this->popula_variaveis_imperio) {
+			return;
+		}
 		
 		//***********************************
 		// ALTERAÇÕES DE TECH (ESPECIAIS)
 		//***********************************
-		//No momento existem as seguintes funções especiais para Techs:
-		//max_pop=porcentagem -- tech que aumenta o máximo de pop de uma colônia
-		//crescimento_pop=velocidade -- tech que aumenta a velocidade de crescimento da Pop
-		//logistica=alcance -- tech que permite criar Instalações e Colônias à uma determinada distância
-		//bonus_logistica=bonus -- bônus de alcance
-		//limite_poluicao=porcentagem -- tech que aumenta o limite de poluição aceitável
-		//sensores=nivel -- nível das Techs de Sensores
-		//bonus_pesquisa_naves=valor -- tech que dá bonus nas pesquisas das naves
-		//coloniza_inospito=valor -- Pode colonizar planetas inóspitos
-		//alimento_inospito=valor -- Consome recursos a mais em planetas inóspitos
-		//
-		//produz_recurso=porcentagem -- tech que dá um bônus em algum recurso
-		//Essa Tech pode ter os seguintes atributos
-		//id_recurso=recursos -- pode ser uma lista separada por vírgula ou *, para todos os recursos => OBRIGATÓRIO
-		//extrativo -- se aplica apenas à recursos com o atributo extrativo
-		//sinergia -- se aplica apenas se houver mais de uma instalação que produza o recurso
-		//max_bonus_recurso=qtd_total -- o bônus tem um limite máximo (unitário)
-		
 		$especiais_lista = $wpdb->get_results("SELECT ct.id AS id, ct.especiais AS especiais, ct.icone
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
@@ -244,6 +284,34 @@ class imperio
 		foreach ($especiais_lista AS $id) {
 			$especiais = explode(";",$id->especiais);
 			
+			//Todos os MKs
+			$mks = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'mk_') !== false;
+			}));
+			
+			if (!empty($mks)) {
+				//mk_[parte_nave]=valor
+				$mks_valor = explode("=",$mks[0]);
+
+				$propriedade = $mks_valor[0];
+				if ($mks_valor[1] > $this->$propriedade) {
+					$this->$propriedade = $mks_valor[1];
+				}
+			}
+
+			//nivel_estacao_orbital
+			$nivel_estacao_orbital = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'nivel_estacao_orbital') !== false;
+			}));
+			
+			if (!empty($nivel_estacao_orbital)) {
+				$nivel_estacao_orbital_valor = explode("=",$nivel_estacao_orbital[0]);
+
+				if ($nivel_estacao_orbital_valor[1] > $this->nivel_estacao_orbital) {
+					$this->nivel_estacao_orbital = $nivel_estacao_orbital_valor[1];
+				}
+			}
+			
 			//camuflagem_grande
 			$camuflagem_grande = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'camuflagem_grande') !== false;
@@ -253,6 +321,33 @@ class imperio
 				$this->camuflagem_grande = true;
 			}
 			
+			//tricobalto_torpedo
+			$tricobalto_torpedo = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'tricobalto_torpedo') !== false;
+			}));
+			
+			if (!empty($tricobalto_torpedo)) {
+				$this->tricobalto_torpedo = true;
+			}
+			
+			//tritanium_blindagem;
+			$tritanium_blindagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'tritanium_blindagem') !== false;
+			}));
+			
+			if (!empty($tritanium_blindagem)) {
+				$this->tritanium_blindagem = true;
+			}
+			
+			//neutronium_blindagem;
+			$neutronium_blindagem = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'neutronium_blindagem') !== false;
+			}));
+			
+			if (!empty($neutronium_blindagem)) {
+				$this->neutronium_blindagem = true;
+			}			
+			
 			//defesa_abordagem
 			$defesa_abordagem = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'defesa_abordagem') !== false;
@@ -260,7 +355,7 @@ class imperio
 			
 			if (!empty($defesa_abordagem)) {
 				$defesa_abordagem_valor = explode("=",$defesa_abordagem[0]);
-				$this->defesa_abordagem = $this->defesa_abordagem	+ $defesa_abordagem_valor[1];
+				$this->defesa_abordagem = $this->defesa_abordagem + $defesa_abordagem_valor[1];
 			}
 			
 			//bonus_abordagem
@@ -555,6 +650,8 @@ class imperio
 		}
 		//Depois de pegar o alcance e o bônus de logística, soma os dois
 		$this->alcance_logistica = $this->alcance_logistica + $this->bonus_alcance_logistica;
+		
+		$this->popula_variaveis_imperio = true;
 	}
 
 	/***********************
@@ -638,7 +735,11 @@ class imperio
 		if ($this->id == 0) {
 			return;
 		}
-
+		
+		if (!$this->popula_variaveis_imperio) {
+			$this->popula_variaveis_imperio();
+		}
+		
 		$id_estrelas_imperio = $wpdb->get_results("
 		SELECT DISTINCT ce.id
 		FROM colonization_imperio_colonias AS cic
@@ -878,6 +979,9 @@ class imperio
 			$roles = $user->roles[0];
 		}
 
+		if (!$this->popula_variaveis_imperio) {
+			$this->popula_variaveis_imperio();
+		}
 		
 		$this->debug = "";
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
@@ -1283,6 +1387,10 @@ class imperio
 		}
 
 		$icone_html = [];
+		
+		if (!$this->popula_variaveis_imperio) {
+			$this->popula_variaveis_imperio();
+		}		
 		
 		foreach ($icones AS $icone) {
 			$tech_icone = new tech($icone->id);
