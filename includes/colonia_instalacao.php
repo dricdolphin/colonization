@@ -21,14 +21,17 @@ class colonia_instalacao
 	public $instalacao;
 	public $planeta;
 	public $imperio;
+	public $pop = 0;
+	public $desativado = 1;
 	
 	function __construct($id) {
 		global $wpdb;
 		
 		$this->id = $id;
+		$turno_atual = new turno();
 
 		$resultados = $wpdb->get_results("SELECT id_planeta, id_instalacao, nivel, turno, instalacao_inicial, turno_destroi, turno_desmonta FROM colonization_planeta_instalacoes WHERE id=".$this->id);
-		$resultado = $resultados[0];				
+		$resultado = $resultados[0];			
 		
 		$this->id_planeta = $resultado->id_planeta;
 		$this->id_instalacao = $resultado->id_instalacao;
@@ -40,6 +43,13 @@ class colonia_instalacao
 		
 		//$this->planeta = new planeta($this->id_planeta);
 		//$this->instalacao = new instalacao($this->id_instalacao);
+	
+		$resultados = $wpdb->get_results("SELECT pop, desativado FROM colonization_acoes_turno WHERE turno={$turno_atual->turno} AND id_planeta_instalacoes={$this->id}");
+		if (!empty($resultados)) {
+			$resultado = $resultados[0];
+			$this->pop = $resultado->pop;
+			$this->desativado = $resultado->desativado;
+		}
 	}
 
 	/***********************

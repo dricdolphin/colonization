@@ -1811,6 +1811,7 @@ class colonization_ajax {
 		if (($planeta->inospito == 1 && $planeta->terraforma == 0) && $imperio->coloniza_inospito != 1) {
 			if ($_POST['pop'] > $planeta->pop_inospito) {
 				$dados_salvos['resposta_ajax'] = "Este planeta é inóspito! O máximo de Pop que ele suporta é {$planeta->pop_inospito} Pop";
+				$dados_salvos['debug'] .= $planeta->debug;
 			}
 		}
 		

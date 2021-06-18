@@ -44,6 +44,7 @@ class planeta
 	public $terraforma = 0;
 	
 	public $popula_instalacoes_planeta = false;
+	public $debug = "";
 	
 	function __construct($id, $turno=0) {
 		global $wpdb;
@@ -158,7 +159,13 @@ class planeta
 					$colonia_instalacao_temp[$id->id] = new colonia_instalacao($id->id);
 				}
 				$colonia_instalacao = $colonia_instalacao_temp[$id->id];
-				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel;
+				
+				$desativado = 1;
+				if ($colonia_instalacao->desativado) {
+					$desativado = 0;
+				} 
+				$this->pop_inospito = $this->pop_inospito + $pop_inospito_valor[1]*$colonia_instalacao->nivel*$desativado;
+				$this->debug .= "{$pop_inospito_valor[1]}*{$colonia_instalacao->nivel}*{$colonia_instalacao->desativado}\n";
 			}
 			
 			//habitavel=1
