@@ -2099,9 +2099,13 @@ class colonization_ajax {
 				}
 			}
 
-			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop
+			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop ou desativando
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
-			$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			if ($instalacao->desguarnecida && !$this->sempre_ativa) {
+				$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=true WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			} else {
+				$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			}
 			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
 		} else {
 			//Verifica se é a primeira Instalação da Colônia. Se for, TEM que ser um Espaçoporto ou uma Base Colonial

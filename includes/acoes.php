@@ -120,7 +120,7 @@ class acoes
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
 				$this->desativado[$chave] = 1;//Instalações novas começam DESATIVADAS
-				if ($valor->sempre_ativa) {//A não ser que sejam instalações SEMPRE ATIVAS
+				if (!$valor->sempre_ativa) {//A não ser que sejam instalações SEMPRE ATIVAS
 					$this->desativado[$chave] = 0;
 				}
 				$this->turno_destroi[$chave] = "";

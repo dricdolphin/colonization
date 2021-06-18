@@ -1277,6 +1277,7 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	let tabela=pega_ascendente(linha,"TABLE");
 	let inputs = linha.getElementsByTagName("INPUT");
 	let divs = linha.getElementsByTagName("DIV");
+	let desativado = true;
 	let dados = [];
 	let id_objeto = 0;
 
@@ -1285,12 +1286,6 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 		return false;		
 	}
 	
-	let confirma=confirm("AVISO!\nEsta ação é irreversível. Deseja continuar?");
-
-	if (!confirma) {
-		evento.preventDefault();
-		return false;		
-	}
 	
 	for (let index=0; index<inputs.length; index++) {
 		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
@@ -1330,9 +1325,31 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 		if (jogador) {
 			if (divs[index].getAttribute('data-atributo') == "id_planeta_instalacoes") {
 				id_objeto = divs[index].innerHTML;
+			} else if (divs[index].getAttribute('data-atributo') == "pop") {
+				let inputs_div_pop = divs[index].getElementsByTagName("INPUT");
+				for (let index_input = 0; index_input < inputs_div_pop.length; index_input++) {
+					if (inputs_div_pop[index_input].type == "checkbox" && inputs_div_pop[index_input].value != "1") {
+						desativado = false;	
+					} else if (inputs_div_pop[index_input].type == "range" && inputs_div_pop[index_input].value != "0") {
+						desativado = false;
+					}
+				}
 			}
 		}
 	}	
+
+	if (!desativado) {
+		alert("Só é possível desmantelar uma Instalação que esteja desativada!");
+		evento.preventDefault();
+		return false;		
+	}
+
+	let confirma=confirm("AVISO!\nEsta ação é irreversível. Deseja continuar?");
+
+	if (!confirma) {
+		evento.preventDefault();
+		return false;		
+	}
 
 	if (dados["turno_destroi"] == "&nbsp;") {
 		destruido = true;
