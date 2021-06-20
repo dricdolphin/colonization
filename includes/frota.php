@@ -314,10 +314,7 @@ class frota
 			//	return;
 			//} 
 		}
-
-
 		//$html .= "<td>&nbsp;</td>";
-		
 		
 		$planetas_estrela = $wpdb->get_results("
 		SELECT cp.id
@@ -544,8 +541,7 @@ class frota
 			{$valor}
 			";
 		}
-		
-		
+
 		$html .= "</select>
 		</div>
 		<div data-atributo='gerenciar'><a href='#' onclick='return envia_nave(this,event,{$this->id})' {$display}>Despachar Nave</a></div>
@@ -629,6 +625,5 @@ class frota
 
 		return $html_nave;
 	}
-
 }
 ?>

@@ -2235,9 +2235,14 @@ if (!empty($imperios[0])) {
 			
 			$link_visivel = "";
 			$link_repara = "";
+			$link_anti_dobra = "";
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><span class='tooltip'><i class='fad fa-hood-cloak'></i><span class='tooltiptext'>Desativar Camuflagem</span></span></a>&nbsp;";
 			}
+
+			if ($nave->partes_nave->anti_dobra && $nave->anti_dobra == 0 && $roles == "administrator") {
+				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
+			}			
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*10,0);
@@ -2294,7 +2299,7 @@ if (!empty($imperios[0])) {
 			}
 			
 			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
-			{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos}{$link_repara} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
+			{$link_anti_dobra}{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos}{$link_repara} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
 			</div>";
 		}
 		

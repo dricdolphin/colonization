@@ -1755,3 +1755,29 @@ function remove_aviso (objeto, evento, id) {
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function ativa_anti_dobra(id=0)
+--------------------
+Ativa o campo anti_dobra em um sistema
+******************/
+function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
+	let confirma = confirm("Esta ação afeta TODAS as naves do sistema, incluindo as suas.\n O efeito anti-dobra só será liberado no final do Turno. Deseja continuar?");
+	
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+	
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_estrela="+id_estrela+"&id_nave="+id_nave;
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
+	
+	retorno.then((successMessage) => {
+		objeto.remove();
+	});
+
+	evento.preventDefault();
+	return false;
+}

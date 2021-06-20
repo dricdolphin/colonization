@@ -63,8 +63,35 @@ class colonization_ajax {
 		add_action('wp_ajax_coloniza_planeta', array ($this, 'coloniza_planeta'));//coloniza_planeta
 		add_action('wp_ajax_repara_nave', array ($this, 'repara_nave'));//repara_nave
 		add_action('wp_ajax_remove_aviso', array ($this, 'remove_aviso'));//remove_aviso
+		add_action('wp_ajax_ativa_anti_dobra', array ($this, 'ativa_anti_dobra'));//ativa_anti_dobra
 	}
 
+
+	/***********************
+	function ativa_anti_dobra()
+	----------------------
+	Ativa o sistema anti-dobra
+	***********************/
+	function ativa_anti_dobra() {
+		global $wpdb;
+		
+		$estrela = new estrela($_POST['id_estrela']);
+		$slots = 0;
+		if ($_POST['id_nave'] != 0) {
+			$nave = new frota($_POST['id_nave']);
+			$slots = $nave->tamanho;
+		}
+		
+		if ($slots == 0) {
+			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
+		} else {
+			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND tamanho <= {$slots}");
+		}
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta	
+	}
 
 	/***********************
 	function remove_aviso()

@@ -221,6 +221,8 @@ class roda_turno {
 			//Cria TODOS os planetas para popular os recursos para o Turno atual. Pode demorar um pouco...
 			$planeta = new planeta($ids_planeta->id);
 		}
+		$html.= "Liberando todas as naves do efeito Anti-Dobra...<br>";
+		$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra = FALSE");
 		
 		$this->concluido = true;
 		} else {
