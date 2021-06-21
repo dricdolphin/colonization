@@ -77,7 +77,7 @@ class acoes
 		$index = 0;
 		foreach ($id_estrelas_imperio as $id_estrela) {
 			$resultados_temp = $wpdb->get_results("
-				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, ci.sempre_ativa,
+				SELECT cic.id AS id_colonia, cic.id_imperio, cat.id AS id, cic.id_planeta AS id_planeta, ci.pode_desativar, ci.desguarnecida,
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
 				cpi.turno_desmonta AS turno_desmonta,
 				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
@@ -119,9 +119,9 @@ class acoes
 				$this->id_planeta_instalacoes[$chave] = $valor->id_planeta_instalacoes;
 				$this->nivel_instalacao[$chave] = $valor->nivel_instalacao;
 				$this->pop[$chave] = 0;
-				$this->desativado[$chave] = 1;//Instalações novas começam DESATIVADAS
-				if (!$valor->sempre_ativa) {//A não ser que sejam instalações SEMPRE ATIVAS
-					$this->desativado[$chave] = 0;
+				$this->desativado[$chave] = 0;
+				if ($valor->desguarnecida == 1 && $valor->pode_desativar == 1) {//Instalações novas que sejam desguarnecidas e possam ser desativadas começam DESATIVADAS
+					$this->desativado[$chave] = 1;
 				}
 				$this->turno_destroi[$chave] = "";
 				$this->turno_desmonta[$chave] = "";
@@ -172,11 +172,11 @@ class acoes
 					if ($pop_turno_anterior === null) {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
-						pop={$this->pop[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						pop={$this->pop[$chave]}, desativado={$this->desativado[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 					} else {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
-						pop={$pop_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						pop={$pop_turno_anterior}, desativado={$this->desativado[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 						$this->pop[$chave] = $pop_turno_anterior;
 					}
 					$this->id[$chave] = $wpdb->insert_id;
@@ -483,7 +483,7 @@ class acoes
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 0) {
 				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
-			} elseif ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1) {
+			} elseif ($instalacao[$this->id_instalacao[$chave]]->pode_desativar == 1) {
 				//Instalações Desguarnecidas podem ser desativadas
 				if ($this->desativado[$chave] == 0) {
 					$exibe_acoes = "<label class='switch'><input type='checkbox' data-ajax='true' data-atributo='desativado' onclick='return desativar_instalacao(event,this,{$this->id[$chave]});' data-valor-original='{$this->desativado[$chave]}' value='{$this->desativado[$chave]}' {$this->disabled}><span class='slider round'></span></label>";
@@ -526,7 +526,7 @@ class acoes
 					$ja_destruiu = ", true";
 				}
 				//if ($roles == "administrator") {
-				if ($instalacao[$this->id_instalacao[$chave]]->sempre_ativa == 1 || $instalacao[$this->id_instalacao[$chave]]->slots > 0) {
+				if ($instalacao[$this->id_instalacao[$chave]]->pode_desativar == 1 || $instalacao[$this->id_instalacao[$chave]]->slots > 0) {
 					$div_desmonta_instalacao .= "<div data-atributo='desmonta_instalacao'><a href='#' onclick='return desmonta_instalacao(event, this, {$this->turno->turno},true{$ja_destruiu});' {$visivel}>Desmantelar</a></div>";
 				}
 				//}

@@ -578,7 +578,7 @@ function nova_instalacao(evento) {
 	let slots = linha_nova.insertCell(-1);
 	let autonoma = linha_nova.insertCell(-1);
 	let desguarnecida = linha_nova.insertCell(-1);
-	let sempre_ativa = linha_nova.insertCell(-1);
+	let pode_desativar = linha_nova.insertCell(-1);
 	let oculta = linha_nova.insertCell(-1);
 	let publica = linha_nova.insertCell(-1);
 	let especiais = linha_nova.insertCell(-1);
@@ -599,7 +599,7 @@ function nova_instalacao(evento) {
 	slots.innerHTML = "<div data-atributo='slots' data-editavel='true' data-valor-original='1' data-style='width: 30px;'><input type='text' data-atributo='slots' data-ajax='true' value='1' style='width: 30px;'></input></div>";
 	autonoma.innerHTML = "<div data-atributo='autonoma' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='autonoma' data-ajax='true'></input></div>";
 	desguarnecida.innerHTML = "<div data-atributo='desguarnecida' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='desguarnecida' data-ajax='true'></input></div>";
-	sempre_ativa.innerHTML = "<div data-atributo='sempre_ativa' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='sempre_ativa' data-ajax='true' checked></input></div>";
+	pode_desativar.innerHTML = "<div data-atributo='pode_desativar' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='pode_desativar' data-ajax='true' checked></input></div>";
 	oculta.innerHTML = "<div data-atributo='oculta' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='oculta' data-ajax='true'></input></div>";
 	publica.innerHTML = "<div data-atributo='publica' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='publica' data-ajax='true' checked></input></div>";
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";

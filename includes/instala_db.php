@@ -63,7 +63,7 @@ class instala_db {
 		slots INT(6) DEFAULT 1,
 		autonoma BOOLEAN DEFAULT FALSE,
 		desguarnecida BOOLEAN DEFAULT FALSE,
-		sempre_ativa BOOLEAN DEFAULT TRUE,
+		pode_desativar BOOLEAN DEFAULT TRUE,
 		oculta BOOLEAN DEFAULT FALSE,
 		icone VARCHAR(255) DEFAULT '',
 		especiais VARCHAR(255) DEFAULT '',

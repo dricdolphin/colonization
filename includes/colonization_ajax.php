@@ -2129,8 +2129,8 @@ class colonization_ajax {
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop ou desativando
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
-			if ($instalacao->desguarnecida && !$this->sempre_ativa) {
-				$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=true WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+			if ($instalacao->desguarnecida == 1 && $this->pode_desativar == 1) {
+				$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			} else {
 				$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 			}
@@ -2707,7 +2707,7 @@ class colonization_ajax {
 	
 		$dados_salvos['resposta_ajax'] = "";
 		
-		if ($instalacao->sempre_ativa == 0 && $instalacao->slots == 0) {
+		if ($instalacao->pode_desativar == 0 && $instalacao->slots == 0) {
 			$dados_salvos['resposta_ajax'] = "Não é possível desmantelar uma Instalação que não pode ser desativada.";
 		}
 
