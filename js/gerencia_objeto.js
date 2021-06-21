@@ -1649,12 +1649,20 @@ Tira uma Estrela do Cerco
 ******************/	
 function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
 	let dados_ajax = "post_type=POST&action=tirar_cerco&id_estrela=" + id_estrela + "&coloca_cerco=" + coloca_cerco;
+	let div_parent = pega_ascendente(objeto, "DIV");
+	if (coloca_cerco) {
+		if (div_parent.previousElementSibling != null || div_parent.firstChild.tagName == "A") {
+			evento.stopImmediatePropagation();
+			evento.stopPropagation();
+			evento.preventDefault();
+			return false;		
+		}
+	}
+	
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
 		if (successMessage) {
 			if (coloca_cerco) {
-				let div_parent = pega_ascendente(objeto, "DIV");
-				
 				let icone_cerco = document.createElement("A");
 				icone_cerco.href = "#";
 				icone_cerco.innerHTML = "<div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div>";
@@ -1666,8 +1674,10 @@ function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
 		}
 	});		
 
+	evento.stopImmediatePropagation();
+	evento.stopPropagation();
 	evento.preventDefault();
-	return false;	
+	return false;
 }
 
 /******************

@@ -21,32 +21,35 @@ class instalacao
 	public $publica;
 	public $icone;
 	public $especiais;
-	public $limite = 0;
-	public $limite_sistema = 0;
-	public $pop_inospito = false;
-	public $nao_extrativo = false;
-	public $bonus_extrativo = 0;
-	public $nivel_maximo = false;
-	public $somente_gigante_gasoso = false;
-	//public $bonus_recurso = false;
 	public $custos;
-	public $id_tech_requisito;
+	
 	public $recursos_produz = [];
 	public $recursos_produz_qtd = [];
 	public $recursos_produz_qtd_comercio = [];	
 	public $comercio_potencial = 0;
 	public $recursos_consome = [];
 	public $recursos_consome_qtd = [];
-	public $consumo_fixo = [];
-	public $consumo_fixo_qtd = [];
-	public $comercio = false;
-	public $comercio_processou = false;
-	public $requer_instalacao_sistema = false;
-	public $espacoporto = false;
-	public $base_colonial = false;
-	public $torpedeiros_sistema_estelar = 0;
-	public $minas_subespaciais = 0;
-	public $terraforma = false;
+	
+	//Especiais
+	private $limite = 0;
+	private $limite_sistema = 0;
+	private $pop_inospito = false;
+	private $nao_extrativo = false;
+	private $bonus_extrativo = 0;
+	private $nivel_maximo = false;
+	private $somente_gigante_gasoso = false;
+	private $consumo_fixo = [];
+	private $consumo_fixo_qtd = [];
+	private $comercio = false;
+	private $comercio_processou = false;
+	private $requer_instalacao_sistema = false;
+	private $espacoporto = false;
+	private $base_colonial = false;
+	private $torpedeiros_sistema_estelar = 0;
+	private $minas_subespaciais = 0;
+	private $terraforma = false;
+	
+	public $popula_especiais_instalacao = false;
 	
 	function __construct($id) {
 		global $wpdb;
@@ -85,8 +88,38 @@ class instalacao
 			$this->recursos_consome[] = $recurso->id_recurso;
 			$this->recursos_consome_qtd[] = $recurso->qtd_por_nivel;
 		}
-	
-	
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para setar variáveis
+	//***********************/
+	public function __set($name, $value)
+	{
+		$this->$name = $value;
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para pegar variáveis
+	***********************/
+	public function __get($name)
+	{
+		if (!$this->popula_especiais_instalacao) {
+			$this->popula_especiais_instalacao();
+		}
+		
+		return $this->$name;
+	}
+
+	function popula_especiais_instalacao() {
+		global $wpdb;
+		if ($this->popula_especiais_instalacao) {
+			return;
+		}
+		
 		//Especiais
 		$especiais = explode(";",$this->especiais);
 
@@ -250,7 +283,6 @@ class instalacao
 			return strpos($value, 'comercio') !== false;
 		}));
 
-		
 		if (!empty($comercio)) {//Esta é uma instalação comercial. Ela gera Pesquisa e Industrializáveis, dependendo da Pop da colônia e do número de colônias dentro do alcance
 			if (!empty($comercio)) {
 				$comercio_valor = explode("=",$comercio[0]);
@@ -288,6 +320,7 @@ class instalacao
 		}	
 		
 		//custo_instalacao=70;id_instalacao=29,57
+		$this->popula_especiais_instalacao = true;
 	}
 
 	/***********************
@@ -425,7 +458,6 @@ class instalacao
 	function html_custo()
 	----------------------
 	Retorna o HTML com o custo da Instalação
-	
 	***********************/	
 	function html_custo() {
 		$custos = explode(";",$this->custos);
@@ -451,9 +483,9 @@ class instalacao
 	}
 
 	/***********************
-	function lista_dados()
+	function produz_comercio()
 	----------------------
-	Exibe os dados do objeto
+	Produz os recursos do Comércio
 	***********************/
 	function produz_comercio($colonia_atual, $nivel_instalacao_atual) {
 		global $wpdb;
@@ -602,6 +634,5 @@ class instalacao
 		
 		return $html_producao_consumo_instalacao;				
 	}
-
 }
 ?>

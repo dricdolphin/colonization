@@ -140,7 +140,6 @@ class estrela
 	function pega_html_planetas_estrela($detalhes_planetas = true, $exibe_recursos_planetas=false, $turno_visitado=0) {
 		global $wpdb;
 
-
 		$user = wp_get_current_user();
 		$roles = "";
 		if (!empty($user->ID)) {

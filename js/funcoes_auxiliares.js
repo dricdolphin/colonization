@@ -572,14 +572,16 @@ function lista_techs_ocultas_html(id=0) {
 }
 
 /******************
-function abre_div_planetas(id=0)
+function abre_div_planetas()
 --------------------
 Abre o div com os planetas de uma estrela
 id_estrela -- qual ID está selecionado
 ******************/
-function abre_div_planetas(id_estrela=0) {
-	let text_id_estrela = "id_estrela_" + id_estrela;
-	let div = document.getElementById(text_id_estrela);
+function abre_div_planetas(evento, objeto) {
+	//let text_id_estrela = "id_estrela_" + id_estrela;
+	//let div = document.getElementById(text_id_estrela);
+	let div = objeto.nextElementSibling;
+	//console.log(div);
 	
 	if (div !== null) {
 		if (div.style.display == "none" || div.style.display == "") {

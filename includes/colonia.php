@@ -35,7 +35,6 @@ class colonia
 	public $qtd_defesas = 0;
 	public $minas_subespaciais = 0;
 	public $html_pop_colonia;
-	public $html_instalacao_ataque = [];
 	public $bonus_extrativo = false;
 	public $bonus_recurso = [];
 	public $comercio_processou = false;

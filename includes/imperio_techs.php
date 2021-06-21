@@ -20,20 +20,22 @@ class imperio_techs
 	function __construct($id) {
 		global $wpdb;
 		
-		$this->id = $id;
-
 		$resultado = $wpdb->get_results("
 		SELECT cit.id AS id, cit.id_tech, cit.custo_pago, cit.turno, cit.id_imperio, cit.tech_inicial
 		FROM colonization_imperio_techs AS cit
-		WHERE cit.id = {$this->id}
+		WHERE cit.id = {$id}
 		");
 
-		$this->id_imperio = $resultado[0]->id_imperio;
-		$this->id_tech = $resultado[0]->id_tech;
-		$this->custo_pago = $resultado[0]->custo_pago;
-		$this->turno = $resultado[0]->turno;
-		$this->tech_inicial = $resultado[0]->tech_inicial;
-
+		if (!empty($resultado)) {
+			$this->id = $id;
+			$this->id_imperio = $resultado[0]->id_imperio;
+			$this->id_tech = $resultado[0]->id_tech;
+			$this->custo_pago = $resultado[0]->custo_pago;
+			$this->turno = $resultado[0]->turno;
+			$this->tech_inicial = $resultado[0]->tech_inicial;
+		} else {
+			$this->id = 0;
+		}
 	}
 
 	/***********************

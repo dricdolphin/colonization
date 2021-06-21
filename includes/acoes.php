@@ -168,6 +168,8 @@ class acoes
 					$turno_anterior = $this->turno->turno - 1;
 					$pop_turno_anterior = $wpdb->get_var("SELECT pop FROM colonization_acoes_turno 
 					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id_instalacao={$this->id_instalacao[$chave]} AND turno={$turno_anterior} AND id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]}");
+					$desativado_turno_anterior = $wpdb->get_var("SELECT desativado FROM colonization_acoes_turno 
+					WHERE id_imperio={$this->id_imperio} AND id_planeta={$this->id_planeta[$chave]} AND id_instalacao={$this->id_instalacao[$chave]} AND turno={$turno_anterior} AND id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]}");					
 					
 					if ($pop_turno_anterior === null) {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
@@ -176,8 +178,9 @@ class acoes
 					} else {
 						$wpdb->query("INSERT INTO colonization_acoes_turno 
 						SET id_imperio={$this->id_imperio}, id_planeta={$this->id_planeta[$chave]}, id_instalacao={$this->id_instalacao[$chave]}, id_planeta_instalacoes={$this->id_planeta_instalacoes[$chave]},
-						pop={$pop_turno_anterior}, desativado={$this->desativado[$chave]}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
+						pop={$pop_turno_anterior}, desativado={$desativado_turno_anterior}, data_modifica='{$this->data_modifica[$chave]}', turno={$this->turno->turno}");
 						$this->pop[$chave] = $pop_turno_anterior;
+						$this->desativado[$chave] == $desativado_turno_anterior;
 					}
 					$this->id[$chave] = $wpdb->insert_id;
 				}
@@ -227,8 +230,8 @@ class acoes
 	----
 	$id_planeta = planeta escolhido
 	***********************/	
-	function exibe_pop_mdo_planeta($id_planeta) {
-		global $wpdb;
+	function exibe_pop_mdo_planeta($id_planeta, $imperio = [], $planeta = []) {
+		global $wpdb, $start_time;
 		
 		//$planeta = new planeta($id_planeta, $this->turno->turno);
 		$id_colonia = $wpdb->get_var("SELECT id FROM colonization_imperio_colonias WHERE id_planeta={$id_planeta} AND id_imperio={$this->id_imperio} AND turno={$this->turno->turno}");
@@ -238,21 +241,43 @@ class acoes
 		ON cp.id=cic.id_planeta
 		WHERE cic.id={$id_colonia}");
 		$colonia = new colonia($id_colonia, $this->turno->turno);
+		if (!empty($planeta)) {
+			$colonia->planeta = $planeta;
+		}
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "exibe_pop_mdo_planeta => new colonia({$id_colonia}) {$diferenca}ms\n";		
 		
 		$mdo_planeta = $this->mdo_planeta($colonia->id_planeta);
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "exibe_pop_mdo_planeta => mdo_planeta() {$diferenca}ms\n";
 		
 		$pop_sistema = $this->pop_mdo_sistema($id_estrela);
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "exibe_pop_mdo_planeta => pop_mdo_sistema() {$diferenca}ms\n";
+		
 		$pop_disponivel_sistema = $pop_sistema['pop'] - $pop_sistema['mdo'];		
 
 		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
-		$imperio = new imperio($this->id_imperio, $this->turno->turno);
+		if (empty($imperio) && empty($this->imperio)) {
+			$imperio = new imperio($this->id_imperio, $this->turno->turno);
+			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+			$this->debug .= "exibe_pop_mdo_planeta => new imperio({$this->id_imperio}) {$diferenca}ms\n";
+			$this->imperio = $imperio;
+		} elseif (empty($imperio) && !empty($this->imperio)) {
+			$imperio = $this->imperio;
+		}
+
 		$imperio_recursos = new imperio_recursos($imperio->id, $this->turno->turno);
-		$imperio->acoes = $this;				
+		if (empty($imperio->acoes)) {
+			$imperio->acoes = $this;
+		}			
 		
 		$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
 		$alimentos = floor($this->recursos_balanco[$id_alimento] + $imperio_recursos->qtd[$chave_alimento]);
 		$nova_pop = $colonia->crescimento_colonia($imperio, $alimentos, $this->recursos_balanco[$id_alimento]);
-				
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		$this->debug .= "exibe_pop_mdo_planeta => colonia->crescimento_colonia() {$diferenca}ms\n";		
+
 		$html_nova_pop = "";
 		if ($nova_pop > 0) {
 			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext'>Crescimento Populacional</span><span style='color: green; font-family: Verdana, Tahoma, sans-serif;'>+{$nova_pop}</span></span>)";	
@@ -272,7 +297,7 @@ class acoes
 		global $wpdb;
 		
 		$resultados = $wpdb->get_results("
-		SELECT cic.id AS id_colonia
+		SELECT cic.id AS id_colonia, cic.pop, cic.pop_robotica, cic.id_planeta
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
 		ON cp.id=cic.id_planeta
@@ -295,14 +320,14 @@ class acoes
 		$mdo_sistema = 0;
 		$pop_sistema = 0;
 		foreach ($resultados as $resultado) {
-			$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
+			//$colonia = new colonia($resultado->id_colonia, $this->turno->turno);
 			
 			//$planeta = $colonia->planeta;
 			//$estrela = $colonia->estrela;
 
-			$mdo = $this->mdo_planeta($colonia->id_planeta);
+			$mdo = $this->mdo_planeta($resultado->id_planeta);
 			$mdo_sistema = $mdo_sistema + $mdo;
-			$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
+			$pop_sistema = $pop_sistema + $resultado->pop + $resultado->pop_robotica;
 		}
 
 		$resposta = [];
@@ -373,7 +398,7 @@ class acoes
 	$turno_atual = somente libera para edição se o Turno exibido for o Turno atual
 	***********************/
 	function lista_dados($turno_atual=true) {
-		global $wpdb, $plugin_colonization;
+		global $wpdb, $plugin_colonization, $start_time;
 		
 		$html = "";
 		$ultimo_planeta = 0;
@@ -383,6 +408,9 @@ class acoes
 		
 		$estilo = $estilo_impar;
 		$instalacao = [];
+		$estrelas = [];
+		$planetas = [];
+		$colonias = [];
 
 		$user = wp_get_current_user();
 		$roles = "";
@@ -399,14 +427,14 @@ class acoes
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->lista_dados => new instalacao({$this->id_instalacao[$chave]}) {$diferenca}ms\n";
 			}
 			//$colonia_instalacao = new colonia_instalacao($this->id_planeta_instalacoes[$chave]);
-
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->oculta != 0 || ($this->turno_desmonta[$chave] <= $this->turno->turno && !empty($this->turno_desmonta[$chave]))) {
 				continue; //Caso seja uma instalação oculta ou se tiver sido desmontada, deve pular
 			}
-			
 			
 			$html_upgrade = "";
 
@@ -420,10 +448,29 @@ class acoes
 
 
 			if ($ultimo_planeta != $this->id_planeta[$chave]) {
-				$planeta = new planeta($this->id_planeta[$chave], $this->turno->turno);
+				if (empty($planetas[$this->id_planeta[$chave]])) {
+					$planetas[$this->id_planeta[$chave]] = new planeta($this->id_planeta[$chave], $this->turno->turno);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "acoes->lista_dados => new planeta({$this->id_planeta[$chave]}) {$diferenca}ms\n";
+				}
+				$planeta = $planetas[$this->id_planeta[$chave]];
 				$html_recursos_planeta = $planeta->exibe_recursos_planeta();
-				$estrela = new estrela($planeta->id_estrela);
-				$colonia = new colonia($this->id_colonia[$chave], $this->turno->turno);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->lista_dados => planeta->exibe_recursos_planeta() {$diferenca}ms\n";				
+				
+				if (empty($estrelas[$planeta->id_estrela])) {
+					$estrelas[$planeta->id_estrela]= new estrela($planeta->id_estrela);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "acoes->lista_dados => new estrela({$planeta->id_estrela}) {$diferenca}ms\n";
+				}
+				$estrela = $estrelas[$planeta->id_estrela];
+				
+				if (empty($colonias[$this->id_colonia[$chave]])) {
+					$colonias[$this->id_colonia[$chave]] = new colonia($this->id_colonia[$chave], $this->turno->turno);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "acoes->lista_dados => new colonia({$this->id_colonia[$chave]}) {$diferenca}ms\n";
+				}
+				$colonia = $colonias[$this->id_colonia[$chave]];
 
 				$html_nova_instalacao_jogador = "<div data-atributo='link_nova_instalacao_jogador' class='link_nova_instalacao_jogador'><a href='#' onclick='return nova_instalacao_jogador(event,this,{$planeta->id},{$this->id_imperio});' {$visivel}>Nova Instalação</a></div>";
 				$ultimo_planeta = $this->id_planeta[$chave];				
@@ -431,7 +478,19 @@ class acoes
 				$balanco_planeta = "";
 				
 				$balanco_planeta = $this->exibe_balanco_planeta($planeta->id);
-				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->lista_dados => exibe_balanco_planeta({$planeta->id}) {$diferenca}ms\n";				
+				if (empty($this->imperio)) {
+					$imperio = new imperio($this->id_imperio, $this->turno->turno);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$this->debug .= "exibe_pop_mdo_planeta => new imperio({$this->id_imperio}) {$diferenca}ms\n";
+					$this->imperio = $imperio;
+				}
+				$pop_mdo_planeta = $this->exibe_pop_mdo_planeta($planeta->id, $this->imperio, $planeta);
+				
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->lista_dados => exibe_pop_mdo_planeta({$planeta->id}) {$diferenca}ms\n";
+				
 				if ($colonia->vassalo == 1 && $roles != "administrator") {
 					$this->disabled = "disabled";
 					$visivel = "style='display: none;'";

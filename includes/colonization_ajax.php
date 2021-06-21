@@ -1446,11 +1446,12 @@ class colonization_ajax {
 		//Verifica se o Império já tem essa Tech
 		$dados_salvos['debug'] = "";
 		$imperio = new imperio($_POST['id_imperio']);
-		if (empty($_POST['id'])) {
+		if (empty($_POST['id']) || $_POST['id'] == "null") {
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']}");
 			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']} \n";
 		} else {
 			$tech_imperio = new imperio_techs($_POST['id']);
+			$dados_salvos['debug'] .= "new imperio_techs (POST['id']:{$_POST['id']}) \n";
 			$id_tech = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']}");
 			$dados_salvos['debug'] .= "SELECT id FROM colonization_imperio_techs WHERE id_imperio={$_POST['id_imperio']} AND id_tech={$_POST['id_tech']} AND id !={$_POST['id']} \n";
 		}
@@ -1458,6 +1459,7 @@ class colonization_ajax {
 		$dados_salvos['confirma'] = "";
 		if (!empty($id_tech)) {
 			$tech_imperio = new imperio_techs($id_tech);
+			$dados_salvos['debug'] .= "new imperio_techs (id_tech:{$id_tech}) \n";
 			if ($tech_imperio->custo_pago == 0) {
 				$dados_salvos['resposta_ajax'] = "O Império já possui essa Tech!";
 				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -1473,7 +1475,6 @@ class colonization_ajax {
 				wp_die(); //Termina o script e envia a resposta
 			}
 		}
-		
 
 		$tech = new tech($_POST['id_tech']);
 		$tabela_techs = "colonization_imperio_techs";
@@ -1540,19 +1541,24 @@ class colonization_ajax {
 		//Verifica se o Império tem Pesquisa suficiente
 		$id_recurso_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		
-		if (!empty($tech_imperio)) {
+		if ($tech_imperio->id != 0) {
 			if ($_POST['custo_pago'] == 0 && $tech_imperio->custo_pago != 0) {
 				$custo_a_pagar = $tech->custo - $tech_imperio->custo_pago;
+				$dados_salvos['debug'] .= "tech->custo - tech_imperio->custo \n";
 			} else {
 				$custo_a_pagar = $_POST['custo_pago'] - $tech_imperio->custo_pago;
+				$dados_salvos['debug'] .= "POST_custo_pago - tech_imperio->custo \n";
 			}
 		} else {
 			if ($_POST['custo_pago'] == 0) {
 				$custo_a_pagar = $tech->custo;
+				$dados_salvos['debug'] .= "tech->custo \n";
 			} else {
 				$custo_a_pagar = $_POST['custo_pago'];
+				$dados_salvos['debug'] .= "POST_custo_pago \n";
 			}
 		}
+		$dados_salvos['debug'] .= "\$_POST['custo_pago']: {$_POST['custo_pago']} || \$tech->custo: {$tech->custo} || \$custo_a_pagar: {$custo_a_pagar}\n";
 		
 		$turno = new turno();
 		$pesquisas_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
@@ -1570,6 +1576,7 @@ class colonization_ajax {
 			//Pode cobrar o custo da Tech, caso não seja uma Tech Inicial
 			if ($_POST['tech_inicial'] != 1) {
 				$consome_pesquisa = $wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
+				$dados_salvos['debug'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo_a_pagar} WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa} \n";
 			}
 			//Reseta os dados do JSON
 			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");

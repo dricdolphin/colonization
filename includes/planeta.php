@@ -108,7 +108,7 @@ class planeta
 		
 		//Verifica se tem Instalações com Especiais
 		$id_instalacoes = $wpdb->get_results("
-		SELECT cpi.id, cpi.id_instalacao
+		SELECT cpi.id, cpi.id_instalacao, ci.especiais, ci.nome, ci.icone
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
 		ON ci.id = cpi.id_instalacao
@@ -120,10 +120,10 @@ class planeta
 		$colonia_instalacao_temp = [];
 		foreach ($id_instalacoes as $id) {
 			if (empty($instalacao_temp[$id->id_instalacao])) {
-				$instalacao_temp[$id->id_instalacao] = new instalacao($id->id_instalacao);
+				//$instalacao_temp[$id->id_instalacao] = new instalacao($id->id_instalacao);
 			}
-			$instalacao = $instalacao_temp[$id->id_instalacao];
-			$especiais = explode(";",$instalacao->especiais);
+			//$instalacao = $instalacao_temp[$id->id_instalacao];
+			$especiais = explode(";",$id->especiais);
 			
 			//Especiais: slots_extra=qtd
 			//Tem também o max_slots=max, que define o máximo de slots
@@ -215,7 +215,7 @@ class planeta
 			}));
 			
 			if (!empty($escudos)) {
-				$this->escudos = "<div class='{$instalacao->icone} tooltip'>&nbsp;</div> - <b>{$instalacao->nome}</b>";
+				$this->escudos = "<div class='{$id->icone} tooltip'>&nbsp;</div> - <b>{$id->nome}</b>";
 			}
 			
 			//Especiais: pdf_instalacoes=valor
@@ -234,6 +234,19 @@ class planeta
 				$this->instalacoes_ataque_nivel[] = $colonia_instalacao->nivel;
 			}
 		}
+		
+		if ($this->max_slots != 0) {
+			if ($this->slots_extra > $this->max_slots) {
+				$this->slots_extra = $this->max_slots;
+			}
+		}
+		
+		$this->tamanho = $this->tamanho + $this->slots_extra;		
+		$this->popula_instalacoes_planeta = true;
+	}
+	
+	function popula_instalacoes_ataque() {
+		$this->popula_instalacoes_planeta();
 		
 		$qtd_instalacao_ataque_id = [];
 		foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
@@ -264,17 +277,10 @@ class planeta
 			
 			$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span><span style='font-family: Verdana, Tahoma, sans-serif;'>PdF Planetário:{$pdf_instalacoes}</span></div><br>";
 			$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='mini_instalacao_ataque {$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
-		}
-		
-		if ($this->max_slots != 0) {
-			if ($this->slots_extra > $this->max_slots) {
-				$this->slots_extra = $this->max_slots;
-			}
-		}
-		
-		$this->tamanho = $this->tamanho + $this->slots_extra;		
-		$this->popula_instalacoes_planeta = true;
+		}		
 	}
+	
+	
 	
 	/***********************
 	function tamanho()

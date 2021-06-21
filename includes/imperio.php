@@ -819,6 +819,7 @@ class imperio
 				$html_defesas .= "<br>";
 			}
 			
+			$planeta->popula_instalacoes_ataque();
 			foreach ($planeta->html_instalacao_ataque as $chave => $html_instalacao) {
 				$html_defesas .= $html_instalacao;
 			}
@@ -1112,6 +1113,7 @@ class imperio
 			
 			if (empty($planeta[$colonia[$resultado->id]->id_planeta])) {
 				$planeta[$colonia[$resultado->id]->id_planeta] = new planeta($colonia[$resultado->id]->id_planeta);
+				$colonia[$resultado->id]->planeta = $planeta[$colonia[$resultado->id]->id_planeta];
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";				
 			}
@@ -1200,6 +1202,7 @@ class imperio
 				}
 				
 				$planeta[$colonia[$resultado->id]->id_planeta]->popula_instalacoes_planeta();
+				$planeta[$colonia[$resultado->id]->id_planeta]->popula_instalacoes_ataque();
 				foreach ($planeta[$colonia[$resultado->id]->id_planeta]->mini_html_instalacao_ataque as $chave => $html_instalacao) {
 					$html_pdf_planetario .= $html_instalacao;
 				}
@@ -1290,12 +1293,12 @@ class imperio
 					$html_nome_estrela = "<a href='#' onclick='return tirar_cerco(this, event, {$estrela[$planeta_id_estrela[$id_planeta]]->id}, true)'>{$html_nome_estrela}</a>";
 				}
 				
-				
+				$html_planetas_na_estrela = $estrela[$planeta_id_estrela[$id_planeta]]->pega_html_planetas_estrela(true,true);
 				$html_sistema[$planeta_id_estrela[$id_planeta]] = "
-				<div style='margin-bottom: 5px;'><div style='display: inline;'><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
-				{$html_nome_estrela}</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
-				{$html_defesas_sistema}
-				</div><br>";
+				<div  style='margin-bottom: 5px;'>
+					<div class='nome_estrela_nave' style='display: inline;'  onclick='return abre_div_planetas(event, this);'><span style='text-decoration: underline;'>Colônias em <span style='font-weight: 600; color: #4F4F4F;'>
+					{$html_nome_estrela}</span></span> - MdO/Pop: {$mdo_sistema[$planeta_id_estrela[$id_planeta]]}/{$pop_sistema[$planeta_id_estrela[$id_planeta]]}
+					{$html_defesas_sistema}</div><div class='lista_planetas_nave'>{$html_planetas_na_estrela}</div><br>";
 			}
 
 			//Define se exibe ou não o div de transferência de Pop
@@ -1319,7 +1322,16 @@ class imperio
 			$html_lista_planetas = "";
 			$lista_options_colonias = "";
 			if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$id_colonia]->vassalo == 0 || ($colonia[$id_colonia]->vassalo == 1 && $roles == "administrator"))) {
-				$ids_colonias = $wpdb->get_results("SELECT id FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno} AND id != {$id_colonia}");
+				$ids_colonias = $wpdb->get_results("
+				SELECT cic.id 
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno} AND cic.id != {$id_colonia}
+				ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.inospito ASC, cp.posicao, cic.id_planeta
+				");
 				foreach ($ids_colonias as $id_colonia_imperio) {
 					if (empty($colonia[$id_colonia_imperio->id])) {
 						$colonia[$id_colonia_imperio->id] = new colonia($id_colonia_imperio->id);
@@ -1361,7 +1373,7 @@ class imperio
 					$icone_cerco = "<a href='#' onclick='return tirar_cerco(this,event,{$id_sistema});'><div class='fas fa-bell-on tooltip' style='display: inline;'><span class='tooltiptext'>Sistema sob ataque!</span>&nbsp;</div></a>";	
 				}
 			}
-			$html = substr_replace($html, $icone_cerco, 39, 0);
+			$html = substr_replace($html, $icone_cerco, 45, 0);
 			$html_lista .= "{$html}</div>";
 		}
 		

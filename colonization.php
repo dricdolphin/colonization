@@ -779,6 +779,8 @@ class colonization {
 		foreach ($ids_estrelas as $id_estrela) {
 			if (empty($estrela[$id_estrela->id])) {
 				$estrela[$id_estrela->id] = new estrela($id_estrela->id);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_acoes_imperio => new estrela({$id_estrela->id}){$diferenca}ms');</script>";				
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -822,12 +824,16 @@ class colonization {
 				$html_naves[$estrela[$id_estrela->id]->id] = "<div class='naves_no_local'>";
 				$html_naves_mini[$estrela[$id_estrela->id]->id] = "<div class='naves_no_local'>";
 				$html_planetas_na_estrela[$estrela[$id_estrela->id]->id] = $estrela[$id_estrela->id]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela->id]->X} AND Y={$estrela[$id_estrela->id]->Y} AND Z={$estrela[$id_estrela->id]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				if (empty($nave_temp[$id_frota->id])) {
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_frota->id}){$diferenca}ms');</script>";
 				}
 				$nave = $nave_temp[$id_frota->id];
 				if ($nave->id_imperio == 0) {
@@ -863,6 +869,8 @@ class colonization {
 		foreach ($ids_naves as $id_nave) {
 			if (empty($nave_temp[$id_nave->id])) {
 				$nave_temp[$id_nave->id] = new frota($id_nave->id);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_nave->id}){$diferenca}ms');</script>";
 			}
 			$nave = $nave_temp[$id_nave->id];
 			//$nave = new frota($id_nave->id);
@@ -870,6 +878,8 @@ class colonization {
 			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
 			if (empty($estrela[$id_estrela])) {
 				$estrela[$id_estrela] = new estrela($id_estrela);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_acoes_imperio => new estrela({$id_estrela}){$diferenca}ms');</script>";
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -904,12 +914,16 @@ class colonization {
 				$html_naves[$estrela[$id_estrela]->id] = "<div class='naves_no_local'>";
 				$html_naves_mini[$estrela[$id_estrela]->id] = "<div class='naves_no_local'>";
 				$html_planetas_na_estrela[$estrela[$id_estrela]->id] = $estrela[$id_estrela]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";				
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela]->X} AND Y={$estrela[$id_estrela]->Y} AND Z={$estrela[$id_estrela]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL) ORDER BY id_imperio");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				if (empty($nave_temp[$id_frota->id])) {
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_frota->id}){$diferenca}ms');</script>";
 				}
 				$nave_na_estrela = $nave_temp[$id_frota->id];				
 				//$nave_na_estrela = new frota($id_frota->id);
@@ -944,7 +958,7 @@ class colonization {
 		$html_final = "";
 		if ($apenas_recursos && $imperio->id != 0 && $id_estrela) {
 			$id_recursos_conhecidos = $wpdb->get_results("
-			SELECT DISTINCT cir.id_recurso 
+			SELECT DISTINCT cir.id_recurso, cr.nome
 			FROM colonization_imperio_recursos AS cir 
 			JOIN colonization_recurso AS cr
 			ON cr.id = cir.id_recurso
@@ -952,8 +966,8 @@ class colonization {
 			ORDER by cr.nome");
 			$html_options = "<option value=''></option>";
 			foreach ($id_recursos_conhecidos as $id_recurso) {
-				$recurso = new recurso($id_recurso->id_recurso);
-				$html_options .= "<option value={$recurso->id}>{$recurso->nome}</option> \n";
+				//$recurso = new recurso($id_recurso->id_recurso);
+				$html_options .= "<option value={$id_recurso->id_recurso}>{$id_recurso->nome}</option> \n";
 			}
 			if (!isset($atts['id_estrela'])) {
 				$html_final = "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
@@ -2134,7 +2148,8 @@ if (!empty($imperios[0])) {
 	os dados do Império com id="1"
 	***********************/	
 	function colonization_exibe_acoes_imperio($atts = [], $content = null) {
-		global $wpdb;
+		global $wpdb, $start_time;
+		$start_time = hrtime(true);
 		
 		if (isset($atts['turno'])) {
 			//$turno = new turno ($atts['turno']);
@@ -2162,13 +2177,36 @@ if (!empty($imperios[0])) {
 		}
 		
 		$imperio->acoes = new acoes($imperio->id, $turno);
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => new acoes(){$diferenca}ms');</script>";
 		
 		$recursos_atuais = $imperio->exibe_recursos_atuais();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => imperio->exibe_recursos_atuais(){$diferenca}ms');</script>";		
+		
 		$recursos_produzidos = $imperio->acoes->exibe_recursos_produzidos();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => imperio->acoes->exibe_recursos_produzidos(){$diferenca}ms');</script>";
+		
 		$recursos_consumidos = $imperio->acoes->exibe_recursos_consumidos();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => imperio->acoes->exibe_recursos_consumidos(){$diferenca}ms');</script>";
+		
 		$balanco_recursos = $imperio->acoes->exibe_recursos_balanco();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => imperio->acoes->exibe_recursos_balanco(){$diferenca}ms');</script>";		
+		
 		$imperio->acoes->lista_dados(false); //Mostra somente o Turno atual
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>
+		console.log('colonization_exibe_acoes_imperio => imperio->acoes->lista_dados(){$diferenca}ms');
+		console.log(`colonization_exibe_acoes_imperio => \n {$imperio->acoes->debug}`);
+		</script>";		
+		
 		$lista_colonias = $imperio->exibe_lista_colonias();
+		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+		echo "<script>console.log('colonization_exibe_acoes_imperio => imperio->exibe_recursos_balanco(){$diferenca}ms');</script>";		
+		
 		$html_frota = "";
 	
 		
@@ -2240,7 +2278,7 @@ if (!empty($imperios[0])) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><span class='tooltip'><i class='fad fa-hood-cloak'></i><span class='tooltiptext'>Desativar Camuflagem</span></span></a>&nbsp;";
 			}
 
-			if ($nave->partes_nave->anti_dobra && $nave->anti_dobra == 0) {
+			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
 			}			
 			
@@ -2284,11 +2322,12 @@ if (!empty($imperios[0])) {
 				ON cp.id = cic.id_planeta
 				WHERE cp.id_estrela = {$nave->estrela->id} AND cic.turno = {$imperio->turno->turno}");
 				
-				$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
+				
 				$html_nave_estrela_atual = "<div>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
 				if ($nave->pesquisa==1 || $imperio->id == $id_imperio_colonizador) {
-					$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas({$nave->estrela->id});'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
-					$html_nave_estrela_atual .=	"<div class='lista_planetas_nave' id='id_estrela_{$nave->estrela->id}'>{$html_planetas_na_estrela}</div>";
+					$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas(event,this);'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
+					$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
+					$html_nave_estrela_atual .=	"<div class='lista_planetas_nave'>{$html_planetas_na_estrela}</div>";
 				}
 			}
 			

@@ -1216,11 +1216,11 @@ function nova_tech_jogador(evento, id_imperio) {
 		let turno = linha_nova.insertCell(-1);
 
 		nome_tech.innerHTML = "<td style='width: 300px;'>"
-		+"<input type='hidden' data-atributo='id' data-valor-original='' value='"+successMessage.id_imperio_tech+"'></input>"
+		+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 		+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
-		+"<input type='hidden' data-atributo='where_value' value='"+successMessage.id_imperio_tech+"'></input>"
+		+"<input type='hidden' data-atributo='where_value' value=''></input>"
 		+"<input type='hidden' data-atributo='turno' value='"+turno_atual+"' data-ajax='true'></input>"
 		+"<input type='hidden' data-atributo='custo_pago' value='0' data-ajax='true'></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_imperio'></input>"
