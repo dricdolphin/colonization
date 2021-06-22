@@ -18,8 +18,6 @@ class planeta
 	public $tamanho;
 	public $estrela;
 	public $inospito;
-	public $pop_inospito;
-	public $icone_habitavel;
 	public $instalacoes;
 	public $turno;
 	
@@ -32,16 +30,17 @@ class planeta
 	public $mini_html_instalacao_ataque = [];
 	
 	public $escudos;
-	
 	//public $pdf_instalacoes = [];
 	
 	//Especiais provenientes de Construções e/ou Techs
-	public $slots_extra = 0;
-	public $max_slots = 0;
-	public $alcance_local = 0;
-	public $buraco_de_minhoca = 0;
-	public $tamanho_alcance_local = 0;
-	public $terraforma = 0;
+	private $slots_extra = 0;
+	private $max_slots = 0;
+	private $alcance_local = 0;
+	private $buraco_de_minhoca = 0;
+	private $tamanho_alcance_local = 0;
+	private $terraforma = 0;
+	private $pop_inospito;
+	private $icone_habitavel;	
 	
 	public $popula_instalacoes_planeta = false;
 	public $debug = "";
@@ -88,6 +87,28 @@ class planeta
 		}
 	}
 
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para setar variáveis
+	//***********************/
+	public function __set($name, $value)
+	{
+		$this->$name = $value;
+	}
+
+	/***********************
+	function __get($name)
+	----------------------
+	Método mágico para pegar variáveis
+	//***********************/	
+	public function __get($name) {
+		
+		$this->popula_instalacoes_planeta();
+		
+		return $this->$name;
+	}
+	
 	/***********************
 	function popula_instalacoes_planeta()
 	----------------------
@@ -382,6 +403,8 @@ class planeta
 	***********************/	
 	function icone_habitavel ($exibe_icones = false) {
 		global $wpdb;
+		
+		$this->popula_instalacoes_planeta();
 		
 		$globo_inospito = "fas fa-globe";
 		$globo_habitavel = "fas fa-globe-americas";

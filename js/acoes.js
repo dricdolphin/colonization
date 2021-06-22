@@ -49,7 +49,7 @@ function valida_acao(evento, objeto)
 --------------------
 Pega os produtos da Ação
 ******************/	
-function valida_acao(evento, objeto) {
+function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	let objeto_editado = pega_dados_objeto(objeto);//Pega os dados do objeto
 	let linha = pega_ascendente(objeto,"TR");
 	let divs = linha.getElementsByTagName('DIV');
@@ -57,7 +57,7 @@ function valida_acao(evento, objeto) {
 	let labels = linha.getElementsByTagName('LABEL');
 	let dados = []; //Dados que serão enviados para a validação
 	
-	if (evento.button !== 0 && evento.type !== "touchend" ) {
+	if (evento.button !== 0 && evento.type !== "touchend" && !forcar_valida_acao) {
 		evento.preventDefault();
 		return false;
 	}

@@ -407,6 +407,11 @@ tr.th_linha_2 th {
 	color: #006400;
 }
 
+.verde_escuro_bold {
+	color: #006400;
+	font-weight: bold;
+}
+
 .vermelho {
 	color: #660000;
 }
@@ -425,6 +430,11 @@ tr.th_linha_2 th {
 
 .marrom {
 	color: #8B4513;
+}
+
+.marrom_bold {
+	color: #8B4513;
+	font-weight: bold;
 }
 
 .crystal {

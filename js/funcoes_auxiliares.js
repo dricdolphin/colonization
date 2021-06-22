@@ -608,3 +608,18 @@ function altera_tipo_estrela(objeto) {
 		}
 	}
 }
+
+function troca_classe_select(objeto) {
+	if (objeto.className != "select_lista_planetas") {
+		let classes = objeto.className.split(" ");
+		for (let index = 0; index < classes.length; index++) {
+			if (classes[index] != "select_lista_planetas") {
+				objeto.classList.remove(classes[index]);	
+			}
+		}
+	}
+	
+	if (objeto.options[objeto.selectedIndex].className != "") {
+		objeto.classList.add(objeto.options[objeto.selectedIndex].className);
+	}
+}

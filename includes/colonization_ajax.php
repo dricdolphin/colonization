@@ -525,7 +525,8 @@ class colonization_ajax {
 			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
 			if ($qtd_recurso_imperio < $qtd && !$upgrade) {
-				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes!";
+				$qtd_faltante = $qtd - $qtd_recurso_imperio;
+				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes! Faltam {$qtd_faltante} unidade(s) de {$nome_recurso}";
 				break;
 			}
 			
@@ -2136,12 +2137,15 @@ class colonization_ajax {
 
 			//Atualiza a ação relativa à esta Instalação, reduzindo a Pop ou desativando
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
-			if ($instalacao->desguarnecida == 1 && $this->pode_desativar == 1) {
+			$dados_salvos['debug'] .= "{$instalacao->desguarnecida} && {$instalacao->pode_desativar} \n";
+			if ($instalacao->desguarnecida == 1 && $instalacao->pode_desativar == 1) {
 				$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+				$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}\n";
 			} else {
 				$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+				$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
 			}
-			$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
+			
 		} else {
 			//Verifica se é a primeira Instalação da Colônia. Se for, TEM que ser um Espaçoporto ou uma Base Colonial
 			if ($imperio->id != 0) {

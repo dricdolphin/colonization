@@ -552,6 +552,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 	let input_nivel = {};
 	let dados = [];
 	let input_pop = "";
+	let checkbox_desativa_instalacao = "";
 	for (let index=0; index<inputs.length; index++) {
 		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
@@ -563,6 +564,8 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 			input_nivel = inputs[index];
 		} else if (inputs[index].getAttribute("data-atributo") == "pop" ) {
 			input_pop = inputs[index];
+		} else if (inputs[index].getAttribute("data-atributo") == "desativado") {
+			checkbox_desativa_instalacao = inputs[index];
 		}
 	}
 
@@ -646,9 +649,16 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				
 				let fator = ((nivel_upgrade-1)/(nivel_upgrade));
 				
-				if (input_pop != undefined) {
+				if (input_pop != "") {
 					input_pop.value = Math.floor(input_pop.value*fator);
 					label_pop.innerHTML = input_pop.value;
+					//input_pop.click();
+					altera_acao(event, input_pop);
+					valida_acao(event, input_pop, true);
+				} else if (checkbox_desativa_instalacao != "") {
+					if (checkbox_desativa_instalacao.value == 0) {
+						checkbox_desativa_instalacao.click();
+					}
 				}
 
 				if (nivel_upgrade >= nivel_maximo) {
@@ -656,7 +666,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				}
 				
 				objeto_em_salvamento = false;
-				document.location.reload();
+				//document.location.reload();
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;

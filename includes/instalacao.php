@@ -131,8 +131,6 @@ class instalacao
 				$this->recursos_produz_qtd_comercio[$chave_plasma] = 0;
 			}
 		}	
-
-
 	}
 
 	/***********************
@@ -152,13 +150,16 @@ class instalacao
 	***********************/
 	public function __get($name)
 	{
-		if (!$this->popula_especiais_instalacao) {
-			$this->popula_especiais_instalacao();
-		}
-		
+		$this->popula_especiais_instalacao();
+
 		return $this->$name;
 	}
 
+	/***********************
+	function popula_especiais_instalacao
+	----------------------
+	Popula os especiais da instalação
+	***********************/
 	function popula_especiais_instalacao() {
 		global $wpdb;
 		if ($this->popula_especiais_instalacao) {

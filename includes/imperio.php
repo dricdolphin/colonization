@@ -248,9 +248,7 @@ class imperio
 	***********************/
 	public function __get($name)
 	{
-		if (!$this->popula_variaveis_imperio) {
-			$this->popula_variaveis_imperio();
-		}
+		$this->popula_variaveis_imperio();
 		
 		return $this->$name;
 	}
@@ -1337,9 +1335,10 @@ class imperio
 			}
 			$html_lista_planetas = "";
 			$lista_options_colonias = "";
+			$primeira_classe = "";
 			if ($mdo_disponivel_sistema > 0 && $mdo_disponivel_planeta > 0 && $this->turno->bloqueado == 1 && ($colonia[$id_colonia]->vassalo == 0 || ($colonia[$id_colonia]->vassalo == 1 && $roles == "administrator"))) {
 				$ids_colonias = $wpdb->get_results("
-				SELECT cic.id 
+				SELECT cic.id, cic.id_planeta 
 				FROM colonization_imperio_colonias AS cic
 				JOIN colonization_planeta AS cp
 				ON cp.id = cic.id_planeta
@@ -1360,13 +1359,22 @@ class imperio
 						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 						$this->debug .= "imperio->exibe_lista_colonias -> foreach() new Planeta {$diferenca}ms \n";
 					}
+					$classe_habitavel = "";
 					if ($id_colonia_imperio->id != $id_colonia && ($colonia[$id_colonia_imperio->id]->vassalo == 0 || ($colonia[$id_colonia_imperio->id]->vassalo == 1 && $roles == "administrator"))) {
-							$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
+							if ($planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->inospito == 0) {
+								$classe_habitavel = "verde_escuro_bold";
+							} elseif ($planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->inospito == 1 && $planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->pop_inospito > 0) {
+								$classe_habitavel = "marrom_bold";
+							}
+							if ($lista_options_colonias == "" && $classe_habitavel != "") {
+								$primeira_classe = $classe_habitavel;
+							}
+							$lista_options_colonias .= "<option data-atributo='id_colonia' value='{$id_colonia_imperio->id}' class='{$classe_habitavel}'>{$planeta[$colonia[$id_colonia_imperio->id]->id_planeta]->nome}</option> \n";
 					}
 				}
 				$html_lista_planetas = "<b>Transferir</b> <input data-atributo='pop' data-ajax='true' data-valor-original='1' type='range' min='1' max='{$mdo_transfere}' value='1' oninput='return altera_pop_transfere(event, this);' style='width: 80px;'></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>1</label>
 				&nbsp; <b>Pop para</b> &nbsp; 
-				<select class='select_lista_planetas'>
+				<select class='select_lista_planetas {$primeira_classe}' onchange='return troca_classe_select(this);'>
 				{$lista_options_colonias}
 				</select> &nbsp; <a href='#' onclick='return transfere_pop(event,this,{$this->id},{$id_colonia},{$colonia[$id_colonia]->id_planeta},{$colonia[$id_colonia]->id_estrela});'>TRANSFERIR!</a>
 				";
