@@ -27,6 +27,7 @@ class instalacao
 	public $recursos_produz_qtd = [];
 	public $recursos_produz_qtd_comercio = [];	
 	public $comercio_potencial = 0;
+	public $comercio = false;
 	public $recursos_consome = [];
 	public $recursos_consome_qtd = [];
 	
@@ -40,7 +41,6 @@ class instalacao
 	private $somente_gigante_gasoso = false;
 	private $consumo_fixo = [];
 	private $consumo_fixo_qtd = [];
-	private $comercio = false;
 	private $comercio_processou = false;
 	private $requer_instalacao_sistema = false;
 	private $espacoporto = false;
@@ -88,6 +88,51 @@ class instalacao
 			$this->recursos_consome[] = $recurso->id_recurso;
 			$this->recursos_consome_qtd[] = $recurso->qtd_por_nivel;
 		}
+		
+		//comercio=1
+		$especiais = explode(";",$this->especiais);
+		
+		$comercio = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'comercio') !== false;
+		}));
+
+		if (!empty($comercio)) {//Esta é uma instalação comercial. Ela gera Pesquisa e Industrializáveis, dependendo da Pop da colônia e do número de colônias dentro do alcance
+			if (!empty($comercio)) {
+				$comercio_valor = explode("=",$comercio[0]);
+				$this->comercio = $comercio_valor[1];
+			}
+			
+			//O bônus base é de 0 Pesquisas e 0 Industrializáveis
+			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
+			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
+			$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");
+			
+			$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
+			if ($chave_pesquisa === false) {
+				$chave_pesquisa = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_pesquisa] = $id_pesquisa;
+				$this->recursos_produz_qtd[$chave_pesquisa] = 0;
+				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 0;
+			}
+			
+			$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
+			if ($chave_industrializaveis === false) {
+				$chave_industrializaveis = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_industrializaveis] = $id_industrializaveis;
+				$this->recursos_produz_qtd[$chave_industrializaveis] = 0;
+				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 0;
+			}
+
+			$chave_plasma = array_search($id_plasma, $this->recursos_produz);
+			if ($chave_plasma === false) {
+				$chave_plasma = count($this->recursos_produz)+1;
+				$this->recursos_produz[$chave_plasma] = $id_plasma;
+				$this->recursos_produz_qtd[$chave_plasma] = 0;
+				$this->recursos_produz_qtd_comercio[$chave_plasma] = 0;
+			}
+		}	
+
+
 	}
 
 	/***********************
@@ -278,47 +323,6 @@ class instalacao
 			
 		}	
 		
-		//comercio=1
-		$comercio = array_values(array_filter($especiais, function($value) {
-			return strpos($value, 'comercio') !== false;
-		}));
-
-		if (!empty($comercio)) {//Esta é uma instalação comercial. Ela gera Pesquisa e Industrializáveis, dependendo da Pop da colônia e do número de colônias dentro do alcance
-			if (!empty($comercio)) {
-				$comercio_valor = explode("=",$comercio[0]);
-				$this->comercio = $comercio_valor[1];
-			}
-			
-			//O bônus base é de 0 Pesquisas e 0 Industrializáveis
-			$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
-			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
-			$id_plasma = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Plasma de Dobra'");
-			
-			$chave_pesquisa = array_search($id_pesquisa, $this->recursos_produz);
-			if ($chave_pesquisa === false) {
-				$chave_pesquisa = count($this->recursos_produz)+1;
-				$this->recursos_produz[$chave_pesquisa] = $id_pesquisa;
-				$this->recursos_produz_qtd[$chave_pesquisa] = 0;
-				$this->recursos_produz_qtd_comercio[$chave_pesquisa] = 0;
-			}
-			
-			$chave_industrializaveis = array_search($id_industrializaveis, $this->recursos_produz);
-			if ($chave_industrializaveis === false) {
-				$chave_industrializaveis = count($this->recursos_produz)+1;
-				$this->recursos_produz[$chave_industrializaveis] = $id_industrializaveis;
-				$this->recursos_produz_qtd[$chave_industrializaveis] = 0;
-				$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = 0;
-			}
-
-			$chave_plasma = array_search($id_plasma, $this->recursos_produz);
-			if ($chave_plasma === false) {
-				$chave_plasma = count($this->recursos_produz)+1;
-				$this->recursos_produz[$chave_plasma] = $id_plasma;
-				$this->recursos_produz_qtd[$chave_plasma] = 0;
-				$this->recursos_produz_qtd_comercio[$chave_plasma] = 0;
-			}
-		}	
-		
 		//custo_instalacao=70;id_instalacao=29,57
 		$this->popula_especiais_instalacao = true;
 	}
@@ -428,6 +432,8 @@ class instalacao
 	$id_recurso - id do recurso
 	***********************/
 	function bonus_recurso($id_recurso) {
+		global $wpdb;
+		
 		$especiais = explode(";",$this->especiais);
 
 		$id_recurso_especiais = array_values(array_filter($especiais, function($value) {
@@ -460,6 +466,7 @@ class instalacao
 	Retorna o HTML com o custo da Instalação
 	***********************/	
 	function html_custo() {
+		global $wpdb;
 		$custos = explode(";",$this->custos);
 		
 		$html = "";

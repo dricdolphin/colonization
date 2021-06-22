@@ -267,6 +267,12 @@ class imperio
 		if ($this->popula_variaveis_imperio) {
 			return;
 		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}		
 		
 		//***********************************
 		// ALTERAÇÕES DE TECH (ESPECIAIS)
@@ -652,6 +658,16 @@ class imperio
 		$this->alcance_logistica = $this->alcance_logistica + $this->bonus_alcance_logistica;
 		
 		$this->popula_variaveis_imperio = true;
+		
+		if ($roles == "administrator" && $this->id == 0) {
+			foreach ($this as $chave => $valor) {
+				if (str_contains($chave, "mk_")) {
+					$this->$chave = 6;
+				}
+			}
+			$this->nivel_estacao_orbital = 10;			
+		}
+	
 	}
 
 	/***********************
@@ -1330,7 +1346,7 @@ class imperio
 				JOIN colonization_estrela AS ce
 				ON ce.id = cp.id_estrela
 				WHERE cic.id_imperio={$this->id} AND cic.turno={$this->turno->turno} AND cic.id != {$id_colonia}
-				ORDER BY cic.capital DESC, cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.inospito ASC, cp.posicao, cic.id_planeta
+				ORDER BY cic.capital DESC, (CASE WHEN ce.id = {$this->id_estrela_capital} THEN 0 ELSE 1 END), cic.vassalo ASC, ce.X, ce.Y, ce.Z, cp.inospito ASC, cp.posicao, cic.id_planeta
 				");
 				foreach ($ids_colonias as $id_colonia_imperio) {
 					if (empty($colonia[$id_colonia_imperio->id])) {

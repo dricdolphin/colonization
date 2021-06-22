@@ -2899,13 +2899,7 @@ var id_imperio_atual = {$imperio->id};
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio, turno, id");
 			$estilo_plasma = "";
-			
-			foreach ($imperio as $chave => $valor) {
-				if (str_contains($chave, "mk_")) {
-					$imperio->$chave = 6;
-				}
-			}
-			$imperio->nivel_estacao_orbital = 10;
+			$imperio->popula_variaveis_imperio();
 		} else {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id} ORDER BY id_imperio, turno, id");
