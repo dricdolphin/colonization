@@ -2574,11 +2574,28 @@ if (!empty($imperios[0])) {
 		) AS cihp
 		ON cihp.id_estrela = ce.id
 		WHERE cihp.id_estrela IS NULL");
-		$html_id_estrela_pesquisa = "";
 		
+		$html_id_estrela_pesquisa = "";
 		foreach ($lista_estrelas_sem_pesquisa as $ids_estrelas_sem_pesquisa) {
 			$html_id_estrela_pesquisa .= "id_estrela_pesquisa[{$ids_estrelas_sem_pesquisa->id}] = 1; \n";
 		}
+
+		$lista_estrelas_nunca_visitadas = $wpdb->get_results("
+		SELECT DISTINCT ce.id, cih.id_estrela
+		FROM colonization_estrela AS ce
+		LEFT JOIN
+		(SELECT id_estrela FROM 
+		colonization_estrelas_historico 
+		WHERE id_imperio={$imperio->id}
+		) AS cih
+		ON cih.id_estrela = ce.id
+		WHERE cih.id_estrela IS NULL");
+		
+		$html_id_estrela_nunca_visitada = "";
+		foreach ($lista_estrelas_nunca_visitadas as $ids_estrelas) {
+			$html_id_estrela_nunca_visitada .= "id_estrela_nunca_visitada[{$ids_estrelas->id}] = 1; \n";
+		}
+		
 		
 		$html .= "</table>
 		</div>";
@@ -2625,6 +2642,8 @@ var id_imperio_atual = {$imperio->id};
 		{$html_id_estrela_destino}
 		var id_estrela_pesquisa = [];
 		{$html_id_estrela_pesquisa}
+		var id_estrela_nunca_visitada = [];
+		{$html_id_estrela_nunca_visitada}
 		var buracos_de_minhoca = [];
 		{$html_buracos_de_minhoca}
 		var html_lista_estrelas = lista_estrelas_html();
