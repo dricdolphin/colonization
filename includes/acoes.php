@@ -423,7 +423,11 @@ class acoes
 				$banido = false;
 			}
 		}
-
+		
+		$imperio = new imperio($this->id_imperio);
+		$imperio_recursos = new imperio_recursos($imperio->id, $this->turno->turno);
+		$id_alimento = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Alimentos'");
+		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");		
 		foreach ($this->id AS $chave => $valor) {
 			if (empty($instalacao[$this->id_instalacao[$chave]])) {
 				$instalacao[$this->id_instalacao[$chave]] = new instalacao($this->id_instalacao[$chave]);
@@ -437,8 +441,8 @@ class acoes
 			}
 			
 			$html_upgrade = "";
-
 			$this->disabled = "";
+			
 			$visivel = "";
 			$turno_atual = new turno();
 			if (($this->turno->turno != $turno_atual->turno) || ($this->turno->encerrado == 1 && $roles != "administrator") || $banido) {
@@ -555,9 +559,32 @@ class acoes
 				$exibe_acoes = "&nbsp;";
 			}
 			
+			//Verifica se a Instalação tem algum html_especial
+			$div_html_especial = "";
+			if ($instalacao[$this->id_instalacao[$chave]]->html_especial != "") {
+				$qtd_pop = false;
+				$chama_funcao = $instalacao[$this->id_instalacao[$chave]]->html_especial;
+				if ($instalacao[$this->id_instalacao[$chave]]->produz_droids) {
+					$chave_industrializaveis = array_search($id_industrializaveis, $imperio_recursos->id_recurso);				
+					$qtd_pop = $imperio_recursos->qtd[$chave_industrializaveis]/10;
+				} elseif ($instalacao[$this->id_instalacao[$chave]]->produz_clones) {
+					$chave_alimento = array_search($id_alimento, $imperio_recursos->id_recurso);
+					$qtd_pop = $imperio_recursos->qtd[$chave_alimento]/100;
+				}
+				
+				if ($qtd_pop !== false && ($instalacao[$this->id_instalacao[$chave]]->produz_droids || $instalacao[$this->id_instalacao[$chave]]->produz_clones)) {
+					$div_html_especial = $instalacao[$this->id_instalacao[$chave]]->$chama_funcao($this->id_colonia[$chave],$qtd_pop);
+					$div_html_especial = "<div>{$div_html_especial}</div>";
+				} elseif ($instalacao[$this->id_instalacao[$chave]]->anti_dobra) {
+					$div_html_especial = $instalacao[$this->id_instalacao[$chave]]->$chama_funcao($planetas[$this->id_planeta[$chave]]->id_estrela);
+					$div_html_especial = "<div>{$div_html_especial}</div>";					
+				}
+			}
+			
 			$div_desmonta_instalacao = "";
 			if (!empty($this->turno_destroi[$chave])) {
 				$exibe_acoes = "<span style='color: #DD0000; font-weight: bold;'>DESTRUÍDA!</span>";
+				$div_html_especial = "";
 				$div_desmonta_instalacao = "<div class='repara_instalacao'><a href='#' onclick='return repara_instalacao(event, this);' {$visivel}>Reparar Instalação</a></div>";
 			}
 			
@@ -611,6 +638,7 @@ class acoes
 					</div>
 					{$html_upgrade}
 					{$div_desmonta_instalacao}
+					{$div_html_especial}
 					<div data-atributo='custo_instalacao' data-valor-original='' class='custo_instalacao'><label>Custo por nível:</label> {$html_custo_instalacao}</div>
 					<div data-atributo='balanco_instalacao' id='{$this->id_planeta_instalacoes[$chave]}' class='balanco_instalacao'><label>Balanço da produção:</label> {$html_producao_consumo_instalacao}</div>
 				</td>
@@ -733,9 +761,14 @@ class acoes
 		} else {
 			$balancos_db = json_decode($balancos_db, false, 512, JSON_UNESCAPED_UNICODE);
 			$flag_novo_balanco = false;
+			foreach ($balancos_db as $property => $value) {
+				$this->$property = json_decode(json_encode($value),true);
+			}
+			
+			/***
 			$this->recursos_produzidos_planeta_instalacao = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_instalacao),true); //Número de Instalações, por planeta, que geram um determinado recurso
 			$this->recursos_produzidos_planeta_bonus = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_bonus),true); //Bônus de recursos, por planeta
-			$this->recursos_produzidos_planeta_instalacao_bonus = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_instalacao_bonus),true); //Bônus de recursos, por planeta
+			$this->recursos_produzidos_planeta_instalacao_bonus = json_decode(json_encode($balancos_db->recursos_produzidos_planeta_instalacao_bonus),true); //Bônus de recursos, por instalação de um planeta
 			$this->recursos_produzidos_planeta = json_decode(json_encode($balancos_db->recursos_produzidos_planeta),true);
 			$this->recursos_produzidos_id_planeta_instalacoes = json_decode(json_encode($balancos_db->recursos_produzidos_id_planeta_instalacoes),true);
 
@@ -747,6 +780,7 @@ class acoes
 			$this->recursos_produzidos_nome = json_decode(json_encode($balancos_db->recursos_produzidos_nome),true);
 			$this->recursos_consumidos_nome = json_decode(json_encode($balancos_db->recursos_consumidos_nome),true);
 			$this->recursos_balanco_nome = json_decode(json_encode($balancos_db->recursos_balanco_nome),true);
+			//***/
 			
 			//$this->recursos_produzidos = (array) $balancos_db->recursos_produzidos;
 			//$this->recursos_consumidos = (array) $balancos_db->recursos_consumidos;

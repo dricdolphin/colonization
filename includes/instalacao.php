@@ -30,24 +30,28 @@ class instalacao
 	public $comercio = false;
 	public $recursos_consome = [];
 	public $recursos_consome_qtd = [];
+	public $html_especial;
 	
 	//Especiais
 	private $limite = 0;
 	private $limite_sistema = 0;
-	private $pop_inospito = false;
-	private $nao_extrativo = false;
 	private $bonus_extrativo = 0;
-	private $nivel_maximo = false;
-	private $somente_gigante_gasoso = false;
 	private $consumo_fixo = [];
 	private $consumo_fixo_qtd = [];
+	private $torpedeiros_sistema_estelar = 0;
+	private $minas_subespaciais = 0;
+	private $pop_inospito = false;
+	private $nao_extrativo = false;
+	private $nivel_maximo = false;
+	private $somente_gigante_gasoso = false;
 	private $comercio_processou = false;
 	private $requer_instalacao_sistema = false;
 	private $espacoporto = false;
 	private $base_colonial = false;
-	private $torpedeiros_sistema_estelar = 0;
-	private $minas_subespaciais = 0;
 	private $terraforma = false;
+	private $produz_droids = false;
+	private $produz_clones = false;
+	private $anti_dobra = false;
 	
 	public $popula_especiais_instalacao = false;
 	
@@ -130,7 +134,64 @@ class instalacao
 				$this->recursos_produz_qtd[$chave_plasma] = 0;
 				$this->recursos_produz_qtd_comercio[$chave_plasma] = 0;
 			}
-		}	
+		}
+
+		//consumo_fixo=11,100
+		$consumo_fixo = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'consumo_fixo') !== false;
+		}));
+
+		if (!empty($consumo_fixo)) {
+			$consumo_fixo_valores = explode("=",$consumo_fixo[0]);
+			$consumo_fixo_valores = $consumo_fixo_valores[1];
+			
+			$consumo_fixo_valores = array_filter(explode(",",$consumo_fixo_valores));
+			
+			$chave_consumo_fixo = 0;
+			foreach ($consumo_fixo_valores as $chave => $id_recurso_qtd) {
+				//O consomo fixo tem o formato consumo_fixo=id_recurso_1,qtd_recurso_1,id_recurso_2,qtd_recurso_2
+				if ($chave % 2 == 1) {//Desse modo, pegamos apenas os arrays com chaves PARES
+					continue;
+				}
+				
+				$chave_id_recurso = $chave;
+				$chave_qtd = $chave+1;
+				
+				$this->consumo_fixo[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_id_recurso];
+				$this->consumo_fixo_qtd[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_qtd];
+				$chave_consumo_fixo++;
+			}
+		}
+
+		//produz_droids=1
+		$produz_droids = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'produz_droids') !== false;
+		}));
+			
+		if (!empty($produz_droids)) {
+			$this->produz_droids = true;
+			$this->html_especial = 'html_produz_droids';
+		}
+
+		//produz_clones=1
+		$produz_clones = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'produz_clones') !== false;
+		}));
+			
+		if (!empty($produz_clones)) {
+			$this->produz_clones = true;
+			$this->html_especial = 'html_produz_clones';
+		}
+		
+		//anti_dobra=100
+		$anti_dobra = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'anti_dobra') !== false;
+		}));
+			
+		if (!empty($anti_dobra)) {
+			$this->anti_dobra = true;
+			$this->html_especial = 'html_anti_dobra';
+		}		
 	}
 
 	/***********************
@@ -168,7 +229,7 @@ class instalacao
 		
 		//Especiais
 		$especiais = explode(";",$this->especiais);
-
+		
 		//minas_subespaciais=10
 		$minas_subespaciais = array_values(array_filter($especiais, function($value) {
 			return strpos($value, 'minas_subespaciais') !== false;
@@ -295,35 +356,6 @@ class instalacao
 			$this->bonus_extrativo = $bonus_extrativo_valor[1];
 		}		
 
-
-		//consumo_fixo=11,100
-		$consumo_fixo = array_values(array_filter($especiais, function($value) {
-			return strpos($value, 'consumo_fixo') !== false;
-		}));
-
-		if (!empty($consumo_fixo)) {
-			$consumo_fixo_valores = explode("=",$consumo_fixo[0]);
-			$consumo_fixo_valores = $consumo_fixo_valores[1];
-			
-			$consumo_fixo_valores = array_filter(explode(",",$consumo_fixo_valores));
-			
-			$chave_consumo_fixo = 0;
-			foreach ($consumo_fixo_valores as $chave => $id_recurso_qtd) {
-				//O consomo fixo tem o formato consumo_fixo=id_recurso_1,qtd_recurso_1,id_recurso_2,qtd_recurso_2
-				if ($chave % 2 == 1) {//Desse modo, pegamos apenas os arrays com chaves PARES
-					continue;
-				}
-				
-				$chave_id_recurso = $chave;
-				$chave_qtd = $chave+1;
-				
-				$this->consumo_fixo[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_id_recurso];
-				$this->consumo_fixo_qtd[$chave_consumo_fixo] = $consumo_fixo_valores[$chave_qtd];
-				$chave_consumo_fixo++;
-			}
-			
-		}	
-		
 		//custo_instalacao=70;id_instalacao=29,57
 		$this->popula_especiais_instalacao = true;
 	}
@@ -587,6 +619,46 @@ class instalacao
 		
 		return true;
 	}
+
+
+	/***********************
+	function html_produz_droids()
+	----------------------
+	Pega o HTML com o link para produzir Droids
+	***********************/	
+	function html_produz_droids($id_colonia, $max_pop = 10) {
+		global $wpdb;
+		
+		$html = "<input type='number' min=0 max={$max_pop} value=0 class='criar_pop'></input><a href='#' onclick=\"return criar_pop(event, this, {$id_colonia}, 'droids');\">Criar Droids</a>";
+		
+		return $html;
+	}
+
+	/***********************
+	function html_produz_droids()
+	----------------------
+	Pega o HTML com o link para produzir Droids
+	***********************/	
+	function html_produz_clones($id_colonia, $max_pop = 10) {
+		global $wpdb;
+		
+		$html = "<input type='number' min=0 max={$max_pop} value=0 class='criar_pop'></input><a href='#' onclick=\"return criar_pop(event, this, {$id_colonia}, 'pop');\">Criar Clones</a>";
+		
+		return $html;
+	}
+	
+	/***********************
+	function html_anti_dobra()
+	----------------------
+	Pega o HTML com o link para produzir Droids
+	***********************/	
+	function html_anti_dobra($id_estrela) {
+		global $wpdb;
+		
+		$html = "<a href='#' onclick=\"return ativa_anti_dobra(this, event, {$id_estrela});\">Ativar Anti-Dobra</a>";
+		
+		return $html;
+	}	
 
 	/***********************
 	function html_producao_consumo_instalacao($chave)

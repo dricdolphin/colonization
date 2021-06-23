@@ -1801,3 +1801,41 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function criar_pop(evento, objeto, id_colonia, tipo_pop)
+--------------------
+Cria Pop em uma Colônia específica
+******************/
+function criar_pop(evento, objeto, id_colonia, tipo_pop) {
+	let input_qtd = objeto.previousElementSibling;
+	if (input_qtd.value > 0) {
+		let consumo_texto = "";
+		if (tipo_pop == "droids") {
+			consumo_texto = input_qtd.value*10 + " Industrializáveis";
+		} else if (tipo_pop == "pop") {
+			consumo_texto = input_qtd.value*100 + " Alimentos";
+		}
+		let confirma = confirm("Esta ação irá consumir "+consumo_texto+". Deseja continuar?");
+		
+		if (!confirma) {
+			evento.preventDefault();
+			return false;			
+		}
+		
+		let retorno = new Promise((resolve, reject) => {
+			let dados_ajax = "post_type=POST&action=criar_pop&id_colonia="+id_colonia+"&tipo_pop="+tipo_pop+"&qtd="+input_qtd.value;
+			resolve(processa_xhttp_resposta(dados_ajax));
+		});
+		
+		retorno.then((successMessage) => {
+			document.location.reload();
+		});
+		retorno.catch((error) => {
+			console.error(error);
+		});
+	}
+
+	evento.preventDefault();
+	return false;
+}

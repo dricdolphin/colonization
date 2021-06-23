@@ -691,6 +691,13 @@ tr.th_linha_2 th {
 	font-weight: normal;
 }
 
+.criar_pop {
+	font-size: 0.85em;
+	height: 2.5em;
+	width: 4em;
+	margin-right: 1.5em;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/
