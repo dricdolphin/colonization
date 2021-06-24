@@ -2274,13 +2274,22 @@ if (!empty($imperios[0])) {
 			$link_visivel = "";
 			$link_repara = "";
 			$link_anti_dobra = "";
+			$icone_anti_dobra = "";
 			if ($nave->visivel == 0 && $nave->camuflagem > 0) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><span class='tooltip'><i class='fad fa-hood-cloak'></i><span class='tooltiptext'>Desativar Camuflagem</span></span></a>&nbsp;";
 			}
-
+			
+			if ($nave->anti_dobra == 1) {
+				$icone_anti_dobra = "<div class='fas fa-anchor tooltip'><span class='tooltiptext'>Nave sob efeito de Anti-Dobra</span></div>";
+			}
+			
 			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0 && $estrela[$id_estrela]->anti_dobra == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
-			}			
+			}
+
+			if (isset($nave->partes_nave->reforco_dobra_local) && $nave->anti_dobra == 1) {
+				$link_anti_dobra = "<a href='#' onclick='return desativa_anti_dobra(this,event,{$nave->id});'><span class='tooltip'><i class='fas fa-wind'></i><span class='tooltiptext'>Desativar Anti-Dobra</span></span></a>&nbsp;";
+			}	
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {
 				$nivel_dano = round((($nave->HP)/($nave->HP_max))*10,0);
@@ -2338,7 +2347,7 @@ if (!empty($imperios[0])) {
 			}
 			
 			$html_frota .= "<div style='background-color: #EFEFEF; padding: 2px; margin: 2px; display: inline-table;'>
-			{$link_anti_dobra}{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos}{$link_repara} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
+			{$link_anti_dobra}{$icone_anti_dobra}{$html_estacao_orbital}<b>{$html_qtd}{$html_nome_nave}</b>&nbsp;{$html_danos}{$link_repara} {$link_visivel} {$html_pesquisa_nave}{$html_nave_estrela_atual}
 			</div>";
 		}
 		
@@ -2350,7 +2359,7 @@ if (!empty($imperios[0])) {
 		<div id='recursos_consumidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_consumidos}</div>
 		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
-		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
+		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-gas-pump'></i>Alcance <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
 		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis <i class='fas fa-bomb'></i>PdF Bombardeamento
 		<i class='fas fa-users'></i>Poder de Invasão <i class='fas fa-running'></i>Poder de Abordagem <i class='fas fa-user-shield'></i>Defesa de Abordagem
 		</div>

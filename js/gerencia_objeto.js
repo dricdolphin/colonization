@@ -1839,3 +1839,23 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function ativa_anti_dobra(id=0)
+--------------------
+Desativa o Campo Anti-Dobra afetando uma nave
+******************/
+function desativa_anti_dobra(objeto, evento, id_nave) {
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave;
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
+	
+	retorno.then((successMessage) => {
+		alert('Nave liberada!');
+		objeto.remove();
+	});
+
+	evento.preventDefault();
+	return false;
+}

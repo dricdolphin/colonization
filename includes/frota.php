@@ -575,7 +575,9 @@ class frota
 			$html_HP = "{$this->HP}/";
 		}
 		
-		$html_nave = "{$tipo}<div class='fas fa-heart' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$html_HP}{$this->HP_max}</span></div>";
+		$html_nave = "{$tipo}";
+		$html_nave .= "<div class='fas fa-gas-pump' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->alcance}</span></div>";
+		$html_nave .= "<div class='fas fa-heart' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$html_HP}{$this->HP_max}</span></div>";
 		$html_nave .= "<div class='far fa-tachometer-alt' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->velocidade}</span></div>";
 		
 		if ($this->blindagem >0) {
