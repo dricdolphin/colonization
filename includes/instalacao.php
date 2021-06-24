@@ -506,8 +506,7 @@ class instalacao
 		foreach ($custos as $custo) {
 			$dados_custo = explode("=",$custo);
 			$recurso = new recurso($dados_custo[0]);
-			
-			
+
 			$nome_recurso = $recurso->nome;
 			$nome_tooltip = "";			
 			if ($recurso->icone != "") {
@@ -655,7 +654,11 @@ class instalacao
 	function html_anti_dobra($id_estrela) {
 		global $wpdb;
 		
-		$html = "<a href='#' onclick=\"return ativa_anti_dobra(this, event, {$id_estrela});\">Ativar Anti-Dobra</a>";
+		$html = "";
+		$anti_dobra = $wpdb->get_var("SELECT anti_dobra FROM colonization_estrela WHERE id={$id_estrela}");
+		if ($anti_dobra == 0) {
+			$html = "<a href='#' onclick=\"return ativa_anti_dobra(this, event, {$id_estrela});\">Ativar Anti-Dobra</a>";
+		}
 		
 		return $html;
 	}	

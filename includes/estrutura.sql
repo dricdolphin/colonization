@@ -23,6 +23,7 @@ Z INT(6) NOT NULL,
 tipo VARCHAR(255) NOT NULL,
 cerco BOOLEAN DEFAULT FALSE,
 ids_estrelas_destino TEXT DEFAULT '',
+anti_dobra BOOLEAN DEFAULT FALSE,
 UNIQUE KEY (X, Y, Z)
 )
 

@@ -590,6 +590,7 @@ tr.th_linha_2 th {
 	display: inline-block;
 	margin-right: 0.5em;
 	background-color: rgba(0, 0, 0, 0.1);
+	cursor: pointer;
 }
 
 .mini_mapa {

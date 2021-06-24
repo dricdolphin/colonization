@@ -348,22 +348,33 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 
 	
 	let tricobalto = 0;
+	let corasita = 0;
+	let aureum = 0;
+	let capirotum = 0;
 	let texto_tricobalto = "";
+	let texto_corasita = "";
+	let texto_aureum = "";
+	let texto_capirotum = "";
+	
 	if (nave.tricobalto_torpedo) {
 		tricobalto = 1*nave.qtd_torpedo;
 		pdf_torpedo = pdf_torpedo*3;
 		texto_tricobalto = " | Tricobalto: "+tricobalto;
 	}
 
+	if (nave.hasOwnProperty('capacitores_capirotum')) {
+		if (nave.capacitores_capirotum) {
+			capirotum = nave.qtd_laser*1;
+			texto_capirotum = " | Capirotum: "+capirotum;
+			pdf_laser = pdf_laser*10;
+		}
+	}
+
 	let energium_escudos = qtd_escudos*1;
 	if (energium_escudos < qtd_escudos) {
 		energium_escudos = qtd_escudos;
 	}
-
-	let corasita = 0;
-	let aureum = 0;
-	let texto_corasita = "";
-	let texto_aureum = "";
+	
 	if (nave.mk_escudos*1 > 2) {
 		corasita = energium_escudos;
 		if (chassi > 50) {//Corrige o consumo de recursos para Blindagem e Escudos para naves acima de 50 slots
@@ -469,7 +480,8 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'Tritanium': tritanium*1,
 		'Neutronium': neutronium*1,
 		'Tricobalto': tricobalto*1,
-		'Aureum': aureum*1
+		'Aureum': aureum*1,
+		'Capirotum': capirotum*1
 	};
 
 	//Remove os itens em branco ou zerados
@@ -499,7 +511,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		+"pdf Laser: "+pdf_laser+"/ pdf Torpedo: "+pdf_torpedo+"/ pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
 		chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
 		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium 
-		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum;
+		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum + texto_capirotum;
 	
 		/***
 		texto_partes_nave_div.innerHTML = nave.qtd_laser+"="+nave.mk_laser+";"+nave.qtd_torpedo+"="+nave.mk_torpedo+";"+nave.qtd_projetil+"="+nave.mk_projetil+";"

@@ -1795,7 +1795,7 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 	});
 	
 	retorno.then((successMessage) => {
-		objeto.remove();
+		document.location.reload();
 	});
 
 	evento.preventDefault();

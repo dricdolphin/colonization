@@ -2278,7 +2278,7 @@ if (!empty($imperios[0])) {
 				$link_visivel = "<a href='#' onclick='return nave_visivel(this,event,{$nave->id});'><span class='tooltip'><i class='fad fa-hood-cloak'></i><span class='tooltiptext'>Desativar Camuflagem</span></span></a>&nbsp;";
 			}
 
-			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0) {
+			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0 && $estrela[$id_estrela]->anti_dobra == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
 			}			
 			

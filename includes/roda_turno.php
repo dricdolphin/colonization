@@ -223,6 +223,7 @@ class roda_turno {
 		}
 		$html.= "Liberando todas as naves do efeito Anti-Dobra...<br>";
 		$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra = FALSE");
+		$wpdb->query("UPDATE colonization_estrela SET anti_dobra = FALSE");
 		
 		$this->concluido = true;
 		} else {

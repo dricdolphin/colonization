@@ -20,6 +20,7 @@ class estrela
 	public $colonias;
 	public $ids_estrelas_destino;
 	public $destinos_buracos_minhoca = [];
+	public $anti_dobra = false;
 	
 	/***********************
 	function __construct($id_estrela)
@@ -41,7 +42,7 @@ class estrela
 		}
 		$this->id = $id_estrela;
 
-		$resultados = $wpdb->get_results("SELECT id, nome, descricao, comentarios, X, Y, Z, tipo, ids_estrelas_destino, cerco FROM colonization_estrela WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id, nome, descricao, comentarios, X, Y, Z, tipo, ids_estrelas_destino, cerco, anti_dobra FROM colonization_estrela WHERE id=".$this->id);
 		if (empty($resultados)) {
 			$this->id = 0;
 			$this->X = -1;
@@ -60,6 +61,7 @@ class estrela
 		$this->Z = $resultado->Z;
 		$this->tipo = $resultado->tipo;
 		$this->cerco = $resultado->cerco;
+		$this->anti_dobra = $resultado->anti_dobra;
 		$this->ids_estrelas_destino = $resultado->ids_estrelas_destino;
 		$this->destinos_buracos_minhoca = explode(";",$this->ids_estrelas_destino);
 		
@@ -128,8 +130,24 @@ class estrela
 		$dy = ($this->Y - $estrela_destino->Y)**2;
 		$dz = ($this->Z - $estrela_destino->Z)**2;
 		
-		
 		return $distancia;
+	}
+	
+	/***********************
+	function colonias_na_estrela()
+	----------------------
+	Pega as colônias na estrela
+	***********************/
+	function colonias_na_estrela($turno = 0) {
+		global $wpdb;
+		
+		$turno = new turno($turno);
+		return $wpdb->get_results("
+		SELECT cic.id 
+		FROM colonization_imperio_colonias AS cic
+		JOIN coloniza_planeta AS cp
+		ON cp.id = cic.id_planeta
+		WHERE cic.turno={$turno->turno} AND ce.id={$this->id}");
 	}
 	
 	/******************

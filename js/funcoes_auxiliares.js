@@ -615,6 +615,11 @@ function altera_tipo_estrela(objeto) {
 	}
 }
 
+/******************
+function troca_classe_select(objeto)
+--------------------
+Troca a classe de um objeto
+******************/
 function troca_classe_select(objeto) {
 	if (objeto.className != "select_lista_planetas") {
 		let classes = objeto.className.split(" ");
@@ -628,4 +633,20 @@ function troca_classe_select(objeto) {
 	if (objeto.options[objeto.selectedIndex].className != "") {
 		objeto.classList.add(objeto.options[objeto.selectedIndex].className);
 	}
+}
+
+/******************
+function altera_tipo_estrela(evento, id_planeta)
+--------------------
+Scroll para o planeta
+******************/
+function ir_para_planeta(evento, id_planeta) {
+	let texto_id_planeta = 'planeta_' + id_planeta;
+	let div_destino = document.getElementById(texto_id_planeta);
+	
+	console.log(texto_id_planeta);
+	div_destino.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+
+	evento.preventDefault();
+	return false;
 }

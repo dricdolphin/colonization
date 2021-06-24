@@ -502,7 +502,7 @@ class acoes
 				}
 				
 				$primeira_linha = "<td rowspan='{$colonia->num_instalacoes}' data-atributo='dados_colonia' style='height: 180px;'>
-				<div data-atributo='nome_planeta'>
+				<div data-atributo='nome_planeta' id='planeta_{$planeta->id}'>
 					<div data-atributo='slots_planeta' style='display: inline-block;'>{$colonia->instalacoes}/{$planeta->tamanho()} | </div>
 					<div data-atributo='dados_colonia' style='display: inline-block;'>{$colonia->icone_capital}{$colonia->icone_vassalo}{$planeta->icone_habitavel()}{$planeta->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$planeta->posicao}) | </div>
 					<div style='display: inline-block;' data-atributo='pop_mdo_planeta' id='pop_mdo_planeta_{$planeta->id}'>{$pop_mdo_planeta}</div>

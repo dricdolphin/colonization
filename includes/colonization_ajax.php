@@ -133,6 +133,7 @@ class colonization_ajax {
 		
 		if ($slots == 0) {
 			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
+			$wpdb->query("UPDATE colonization_estrela SET anti_dobra=true WHERE id={$_POST['id_estrela']}");
 		} else {
 			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND tamanho <= {$slots}");
 		}
@@ -1265,7 +1266,7 @@ class colonization_ajax {
 				$dados_salvos['alerta'] .= "{$ids_imperio->categoria}: {$imperio->nome}\n";
 			}
 			
-			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela_destino->X}, Y={$estrela_destino->Y}, Z={$estrela_destino->Z}, id_estrela_destino=0, visivel=false WHERE id={$nave->id}"); //Atualiza a posição da nave
+			$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET X={$estrela_destino->X}, Y={$estrela_destino->Y}, Z={$estrela_destino->Z}, id_estrela_destino=0, visivel=false, anti_dobra={$estrela_destino->anti_dobra} WHERE id={$nave->id}"); //Atualiza a posição da nave
 			$resposta = $wpdb->query("INSERT INTO colonization_frota_historico_movimentacao SET id_nave={$nave->id}, id_imperio={$nave->id_imperio}, id_estrela_origem={$id_estrela_origem}, id_estrela_destino={$estrela_destino->id}, turno={$turno->turno}"); //Adiciona o histórico da nave
 		}
 		
@@ -1832,7 +1833,6 @@ class colonization_ajax {
 		$planeta->popula_instalacoes_planeta();
 		$estrela = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
-		
 		$id_existe = "";
 		if ($_POST['id'] != "") {//Se o valor estiver em branco, é um novo objeto.
 			$id_existe = " AND id != {$_POST['id']}";			
@@ -1877,6 +1877,29 @@ class colonization_ajax {
 			
 			if (!$colonia_dentro_logistica && $_POST['vassalo'] != 1) {
 				$dados_salvos['resposta_ajax'] = "Esta estrela está além do Alcance Logístico do Império!";
+			}
+			
+			$dados_salvos['debug'] .= "estrelas->colonias_na_estrela: " . count($estrela->colonias_na_estrela()) . "\n";
+			if (count($estrela->colonias_na_estrela()) == 0) {//É a primeira colônia no sistema!
+				$nave_no_sistema = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}");
+				$dados_salvos['debug'] .= "SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}\n";
+				if ($nave_no_sistema == 0) {
+					$dados_salvos['resposta_ajax'] = "É necessário ter uma nave no sistema para permitir sua Colonização!";
+				}
+				
+				if ($dados_salvos['resposta_ajax'] == "OK!") {
+					$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Espaçoporto'");
+					$espacoporto = new instalacao($id_espacoporto);
+					$custos = explode(";",$espacoporto->custos);
+					
+					$html = "";
+					foreach ($custos as $custo) {
+						$dados_custo = explode("=",$custo);
+						if ($imperio->pega_qtd_recurso_imperio($dados_custo[0]) < $dados_custo[1]) {
+							$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para instalar um Espaçoporto nessa Colônia!";
+						}
+					}
+				}
 			}
 		}
 
