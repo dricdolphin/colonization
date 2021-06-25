@@ -2481,7 +2481,7 @@ class colonization_ajax {
 						if (empty($recursos_devolve[$id_recurso])) {
 							$recursos_devolve[$id_recurso] = 0;
 						}
-						$dados_salvos['debug'] .= "\nID:{$_POST['id']} instalacao_inicial:{$_POST['instalacao_inicial']}";
+						$dados_salvos['debug'] .= "ID:{$_POST['id']} instalacao_inicial:{$_POST['instalacao_inicial']}\n";
 						if (!($_POST['id'] == "" && $_POST['instalacao_inicial'] == 1)) {//Uma instalação inicial é gratuita, desde que esteja sendo criada.
 							$qtd_imperio = $qtd_imperio + $recursos_devolve[$id_recurso];
 							$custo_recursos = $qtd*$niveis;
@@ -2492,6 +2492,48 @@ class colonization_ajax {
 						}
 					}
 				}
+			
+			//Verifica no balanço do Império se é possível ativar a instalação (caso ela seja pode_desativar)
+			if ($roles == "administrator") {
+				//$dados_salvos['resposta_ajax'] = "pode_desativar: {$instalacao->pode_desativar} || desguarnecida: {$instalacao->desguarnecida}";
+			}
+			
+			if ($instalacao->pode_desativar == 0) {
+				//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
+				$sem_balanco = true;
+				$acoes = new acoes($imperio->id,$turno->turno,$sem_balanco);
+				
+				if (empty($acoes->recursos_balanco)) {
+					$acoes->pega_balanco_recursos();
+				}
+				
+				foreach ($instalacao->consumo_fixo as $chave => $id_recurso) {//Verifica o custo fixo
+					$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->consumo_fixo_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
+					if ($instalacao->consumo_fixo_qtd[$chave] > $acoes->recursos_balanco[$id_recurso]) {
+						if (!empty($_POST['upgrade_acao'])) {
+							$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+						} else {
+							$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+						}
+						break;
+					}
+				}
+				
+				if ($instalacao->desguarnecida == 1) {//Se for desguarnecida, verifica também o custo de ATIVAR ela no máximo
+					foreach ($instalacao->recursos_consome as $chave => $id_recurso) {//Verifica o custo fixo
+						$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->recursos_consome_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
+						if ($instalacao->recursos_consome_qtd[$chave] > $acoes->recursos_balanco[$id_recurso]) {
+							if (!empty($_POST['upgrade_acao'])) {
+								$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+							} else {
+								$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+							}
+							break;
+						}
+					}
+				}
+			}
+			
 			} 
 		}
 		
