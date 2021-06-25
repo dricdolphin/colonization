@@ -44,6 +44,7 @@ class instalacao
 	private $nao_extrativo = false;
 	private $nivel_maximo = false;
 	private $somente_gigante_gasoso = false;
+	private $somente_ana_branca = false;
 	private $comercio_processou = false;
 	private $requer_instalacao_sistema = false;
 	private $espacoporto = false;
@@ -278,6 +279,15 @@ class instalacao
 		if (!empty($somente_gigante_gasoso)) {
 			$this->somente_gigante_gasoso = true;
 		}
+		
+		//somente_ana_branca
+		$somente_ana_branca = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'somente_ana_branca') !== false;
+		}));
+		
+		if (!empty($somente_ana_branca)) {
+			$this->somente_ana_branca = true;
+		}		
 
 		//espacoporto
 		$espacoporto = array_values(array_filter($especiais, function($value) {

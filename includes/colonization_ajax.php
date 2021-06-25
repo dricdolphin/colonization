@@ -1135,6 +1135,10 @@ class colonization_ajax {
 					$dados_salvos['alerta'] .= "{$estrela_destino->comentarios}\n";
 				}
 				
+				if ($estrela_destino->anti_dobra == 1) {
+					$dados_salvos['alerta'] .= "Há um campo anti-dobra ativo no sistema!\n";
+				}
+				
 				if ($nave->camuflagem > 0) {
 					$dados_salvos['alerta'] .= "A nave está camuflada!\n";
 				}
@@ -2336,6 +2340,10 @@ class colonization_ajax {
 			if ($instalacao->somente_gigante_gasoso && $planeta->classe != "Gigante Gasoso") {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um Gigante Gasoso!";
 			} 
+			
+			if ($instalacao->somente_ana_branca && $estrela->tipo == "Anã Branca") {
+				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um sistema que tenha uma Estrela Anã Branca!";
+			} 			
 			
 			$dados_salvos['debug'] .= "{$planeta->classe} && {$instalacao->somente_gigante_gasoso} && {$instalacao->slots}\n";
 			if ($planeta->classe == "Gigante Gasoso" && empty($instalacao->somente_gigante_gasoso) && $instalacao->slots > 0) {
