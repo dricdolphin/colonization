@@ -145,7 +145,7 @@ class estrela
 		return $wpdb->get_results("
 		SELECT cic.id 
 		FROM colonization_imperio_colonias AS cic
-		JOIN coloniza_planeta AS cp
+		JOIN colonization_planeta AS cp
 		ON cp.id = cic.id_planeta
 		WHERE cic.turno={$turno->turno} AND ce.id={$this->id}");
 	}

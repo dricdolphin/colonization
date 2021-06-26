@@ -1383,6 +1383,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	});
 	
 	valida_dados.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			let xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
@@ -1471,6 +1473,8 @@ function repara_instalacao(evento, objeto) {
 	});
 	
 	valida_dados.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			objeto.style.visibility = "hidden";
 			document.location.reload();
@@ -1610,6 +1614,8 @@ function muda_nome_colonia(id_planeta, evento) {
 		let dados_ajax = "post_type=POST&action=muda_nome_colonia&id_planeta=" + id_planeta + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
+			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
 			}
@@ -1642,6 +1648,8 @@ function muda_nome_nave(id_nave, evento) {
 		let dados_ajax = "post_type=POST&action=muda_nome_nave&id=" + id_nave + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
+			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
 			}
@@ -1671,6 +1679,8 @@ function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
 	
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			if (coloca_cerco) {
 				let icone_cerco = document.createElement("A");
@@ -1714,6 +1724,8 @@ function coloniza_planeta (objeto, evento, id_planeta, id_imperio) {
 	let dados_ajax = "post_type=POST&action=coloniza_planeta&id_planeta=" + id_planeta + "&id_imperio=" + id_imperio;
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			document.location.reload();
 			//alert("Salvou!");
@@ -1763,6 +1775,8 @@ function remove_aviso (objeto, evento, id) {
 	let dados_ajax = "post_type=POST&action=remove_aviso&id=" + id;
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			objeto_em_salvamento = false;
 			div_notice.remove();
@@ -1795,6 +1809,8 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 	});
 	
 	retorno.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			document.location.reload();
 		}
@@ -1831,6 +1847,8 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 		});
 		
 		retorno.then((successMessage) => {
+			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
 			}
@@ -1856,6 +1874,8 @@ function desativa_anti_dobra(objeto, evento, id_nave) {
 	});
 	
 	retorno.then((successMessage) => {
+		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		if (successMessage) {
 			alert('Nave liberada!');
 			objeto.remove();
