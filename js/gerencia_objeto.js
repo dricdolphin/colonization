@@ -657,7 +657,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 					valida_acao(event, input_pop, true);
 				} else if (checkbox_desativa_instalacao != "") {
 					if (checkbox_desativa_instalacao.value == 0) {
-						checkbox_desativa_instalacao.click();
+						//checkbox_desativa_instalacao.click();
 					}
 				}
 
@@ -1791,11 +1791,13 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 	
 	let retorno = new Promise((resolve, reject) => {
 		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_estrela="+id_estrela+"&id_nave="+id_nave;
-		resolve(processa_xhttp_resposta(dados_ajax));
+		resolve(processa_xhttp_basico(dados_ajax));
 	});
 	
 	retorno.then((successMessage) => {
-		document.location.reload();
+		if (successMessage) {
+			document.location.reload();
+		}
 	});
 
 	evento.preventDefault();
@@ -1825,11 +1827,13 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 		
 		let retorno = new Promise((resolve, reject) => {
 			let dados_ajax = "post_type=POST&action=criar_pop&id_colonia="+id_colonia+"&tipo_pop="+tipo_pop+"&qtd="+input_qtd.value;
-			resolve(processa_xhttp_resposta(dados_ajax));
+			resolve(processa_xhttp_basico(dados_ajax));
 		});
 		
 		retorno.then((successMessage) => {
-			document.location.reload();
+			if (successMessage) {
+				document.location.reload();
+			}
 		});
 		retorno.catch((error) => {
 			console.error(error);
@@ -1848,12 +1852,14 @@ Desativa o Campo Anti-Dobra afetando uma nave
 function desativa_anti_dobra(objeto, evento, id_nave) {
 	let retorno = new Promise((resolve, reject) => {
 		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave;
-		resolve(processa_xhttp_resposta(dados_ajax));
+		resolve(processa_xhttp_basico(dados_ajax));
 	});
 	
 	retorno.then((successMessage) => {
-		alert('Nave liberada!');
-		objeto.remove();
+		if (successMessage) {
+			alert('Nave liberada!');
+			objeto.remove();
+		}
 	});
 
 	evento.preventDefault();

@@ -99,6 +99,23 @@ class colonization_ajax {
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta							
 		}
+
+		if ($_POST['tipo_pop'] != "pop") {
+			$sem_balanco = true;
+			$acoes = new acoes($imperio->id,$turno->turno,$sem_balanco);
+			if (empty($acoes->recursos_balanco)) {
+				$acoes->pega_balanco_recursos();
+			}
+
+			$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+			if ($_POST['qtd'] > $acoes->recursos_balanco[$id_energia]) {
+				$dados_salvos['resposta_ajax'] = "Não é possível realizar esta ação! Esses Droids irão consumir {$_POST['qtd']} Energia mas o Balanço do Recurso não é suficiente!";					
+				
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta										
+			}
+		}
+
 		$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
 		$dados_ajax['debug'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd-{$custo} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno} \n";
 		if ($_POST['tipo_pop'] == "pop") {
@@ -2215,8 +2232,13 @@ class colonization_ajax {
 			$fator = floor(($colonia_instalacao->nivel/$_POST['nivel'])*100)/100;
 			$dados_salvos['debug'] .= "{$instalacao->desguarnecida} && {$instalacao->pode_desativar} \n";
 			if ($instalacao->desguarnecida == 1 && $instalacao->pode_desativar == 1) {
-				$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
-				$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}\n";
+				$id_energia = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Energia'");
+				$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
+				if ($chave_recurso === false && !(($planeta->inospito == 1 && ($instalacao->pop_inospito || $instalacao->terraforma) && $colonia->pop != 0))) {
+					//Produtoras de Energia não podem ser desativadas, nem Instalações que suportam Pop em Planetas Inóspitos
+					//$wpdb->query("UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
+					//$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=0, desativado=1 WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}\n";
+				}
 			} else {
 				$wpdb->query("UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno}");
 				$dados_salvos['debug'] .= "UPDATE colonization_acoes_turno SET pop=floor(pop*{$fator}) WHERE id_planeta_instalacoes={$_POST['id']} AND turno={$turno->turno} \n";
@@ -2346,7 +2368,7 @@ class colonization_ajax {
 			} 			
 			
 			$dados_salvos['debug'] .= "{$planeta->classe} && {$instalacao->somente_gigante_gasoso} && {$instalacao->slots}\n";
-			if ($planeta->classe == "Gigante Gasoso" && empty($instalacao->somente_gigante_gasoso) && $instalacao->slots > 0) {
+			if ($planeta->classe == "Gigante Gasoso" && $instalacao->somente_gigante_gasoso == false && $instalacao->slots > 0) {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação não pode ser construído num Gigante Gasoso!";
 			}
 
@@ -2493,48 +2515,42 @@ class colonization_ajax {
 					}
 				}
 			
-			//Verifica no balanço do Império se é possível ativar a instalação (caso ela seja pode_desativar)
-			if ($roles == "administrator") {
-				//$dados_salvos['resposta_ajax'] = "pode_desativar: {$instalacao->pode_desativar} || desguarnecida: {$instalacao->desguarnecida}";
-			}
-			
-			if ($instalacao->pode_desativar == 0) {
-				//Como salvou uma ação, precisa REMOVER o antigo balanço dos recursos do banco de dados e salvar o novo
-				$sem_balanco = true;
-				$acoes = new acoes($imperio->id,$turno->turno,$sem_balanco);
-				
-				if (empty($acoes->recursos_balanco)) {
-					$acoes->pega_balanco_recursos();
-				}
-				
-				foreach ($instalacao->consumo_fixo as $chave => $id_recurso) {//Verifica o custo fixo
-					$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->consumo_fixo_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
-					if ($instalacao->consumo_fixo_qtd[$chave] > $acoes->recursos_balanco[$id_recurso]) {
-						if (!empty($_POST['upgrade_acao'])) {
-							$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
-						} else {
-							$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
-						}
-						break;
+				//Verifica no balanço do Império se é possível ativar a instalação (caso ela seja pode_desativar == 0)
+				if ($instalacao->pode_desativar == 0 || (!empty($_POST['upgrade_acao']) && $instalacao->desguarnecida == 1)) {
+					$sem_balanco = true;
+					$acoes = new acoes($imperio->id,$turno->turno,$sem_balanco);
+					
+					if (empty($acoes->recursos_balanco)) {
+						$acoes->pega_balanco_recursos();
 					}
-				}
-				
-				if ($instalacao->desguarnecida == 1) {//Se for desguarnecida, verifica também o custo de ATIVAR ela no máximo
-					foreach ($instalacao->recursos_consome as $chave => $id_recurso) {//Verifica o custo fixo
-						$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->recursos_consome_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
-						if ($instalacao->recursos_consome_qtd[$chave] > $acoes->recursos_balanco[$id_recurso]) {
+					
+					foreach ($instalacao->consumo_fixo as $chave => $id_recurso) {//Verifica o custo fixo
+						$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->consumo_fixo_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
+						if ($instalacao->consumo_fixo_qtd[$chave] > ($acoes->recursos_balanco[$id_recurso] + $imperio->pega_qtd_recurso_imperio($id_recurso))) {
 							if (!empty($_POST['upgrade_acao'])) {
-								$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+								$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
 							} else {
-								$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+								$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->consumo_fixo_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
 							}
 							break;
 						}
 					}
+					
+					if ($instalacao->desguarnecida == 1) {//Se for desguarnecida, verifica também o custo de ATIVAR ela no máximo
+						foreach ($instalacao->recursos_consome as $chave => $id_recurso) {//Verifica o custo fixo
+							$dados_salvos['debug'] .= "Consumo e balanço: {$acoes->recursos_balanco_nome[$id_recurso]}: {$instalacao->recursos_consome_qtd[$chave]} || {$acoes->recursos_balanco[$id_recurso]} \n";
+							if ($instalacao->recursos_consome_qtd[$chave] > ($acoes->recursos_balanco[$id_recurso] + $imperio->pega_qtd_recurso_imperio($id_recurso))) {
+								if (!empty($_POST['upgrade_acao'])) {
+									$dados_salvos['resposta_ajax'] = "Não é possível realizar esse upgrade! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+								} else {
+									$dados_salvos['resposta_ajax'] = "Não é possível construir essa Instalação! Essa ação irá consumir {$instalacao->recursos_consome_qtd[$chave]} {$acoes->recursos_balanco_nome[$id_recurso]} mas o Balanço do Recurso não é suficiente!";
+								}
+								break;
+							}
+						}
+					}
 				}
 			}
-			
-			} 
 		}
 		
 		if (empty($dados_salvos['resposta_ajax'])) {
@@ -3066,6 +3082,7 @@ class colonization_ajax {
 		}
 
 
+		/***
 		if ($_POST['desativado'] == 1 || (!$instalacao->desguarnecida && $_POST['pop'] == 0)) {//Se for para DESATIVAR uma Instalação, não precisa fazer os balanços
 			//EXCETO se estiver desativando uma produtora de Energia. Nesse caso, o Jogador é informado que só pode desativar a geradora se o balanço de energia for maior ou igual à zero.
 			$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
@@ -3077,6 +3094,7 @@ class colonization_ajax {
 				$dados_salvos['balanco_acao'] = "";
 			}
 		}
+		//***/
 		
 		if ($dados_salvos['balanco_acao'] == "") {//Validou as ações! Pega os dados modificados e passa para o Jogador
 			$imperio = new imperio($_POST['id_imperio']);
