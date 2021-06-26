@@ -147,7 +147,7 @@ class estrela
 		FROM colonization_imperio_colonias AS cic
 		JOIN colonization_planeta AS cp
 		ON cp.id = cic.id_planeta
-		WHERE cic.turno={$turno->turno} AND ce.id={$this->id}");
+		WHERE cic.turno={$turno->turno} AND cp.id_estrela={$this->id}");
 	}
 	
 	/******************
