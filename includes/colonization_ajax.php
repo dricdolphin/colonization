@@ -854,10 +854,11 @@ class colonization_ajax {
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
+		$turno = new turno();
 		$id_imperio = $wpdb->get_var("
 		SELECT cic.id_imperio 
 		FROM colonization_imperio_colonias AS cic
-		WHERE cic.id_planeta={$_POST['id_planeta']}");
+		WHERE cic.id_planeta={$_POST['id_planeta']} AND cic.turno={$turno->turno}");
 		
 		$imperio = new imperio($id_imperio);
 		
@@ -1905,6 +1906,7 @@ class colonization_ajax {
 				$nave_no_sistema = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}");
 				$dados_salvos['debug'] .= "SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}\n";
 				if ($nave_no_sistema == 0) {
+					$dados_salvos['resposta_ajax'] = "É necessário ter uma nave no sistema para permitir sua Colonização!";
 					$dados_salvos['resposta_ajax'] = "É necessário ter uma nave no sistema para permitir sua Colonização!";
 				}
 				
@@ -3082,7 +3084,7 @@ class colonization_ajax {
 		}
 
 
-		/***
+		//***
 		if ($_POST['desativado'] == 1 || (!$instalacao->desguarnecida && $_POST['pop'] == 0)) {//Se for para DESATIVAR uma Instalação, não precisa fazer os balanços
 			//EXCETO se estiver desativando uma produtora de Energia. Nesse caso, o Jogador é informado que só pode desativar a geradora se o balanço de energia for maior ou igual à zero.
 			$chave_recurso = array_search($id_energia,$instalacao->recursos_produz);
@@ -3225,6 +3227,11 @@ class colonization_ajax {
 			foreach ($lista_id_imperio as $id) {
 				$imperio = new imperio($id->id);
 				$acoes = new acoes($imperio->id,$turno->turno);
+				$acoes->pega_balanco_recursos();
+				//Reseta os dados do JSON
+				$wpdb->query("DELETE FROM colonization_balancos_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+				$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE turno={$turno->turno} AND id_imperio={$imperio->id}");
+				$acoes->pega_balanco_recursos();
 				$balanco = $acoes->exibe_recursos_balanco();
 			
 				$html_lista_imperios .= "<tr><td><div>".$imperio->nome."</div></td><td>{$acoes->max_data_modifica}</td><td>{$imperio->pontuacao}</td><td>{$balanco}</td></tr>";

@@ -244,7 +244,7 @@ class colonization {
 						$results_temp[] = $resultado;	
 					}
 				} else {
-					if (str_contains($resultado->name,$imperio->nome)) {
+					if (str_contains($resultado->name, $imperio->nome) || str_contains($resultado->name, "Todos os Impérios")) {
 						$results_temp[] = $resultado;
 					}
 				}
@@ -253,7 +253,7 @@ class colonization {
 			//echo "current_forum: {$asgarosforum->current_forum}<br>";
 			//echo "results:<br>";
 			//var_dump($results);
-		}  elseif ((str_contains($nome_categoria, $user->display_name) && !$sticky) || ($roles == "administrator" && !$sticky)) {
+		}  elseif ((str_contains($nome_categoria, $user->display_name)  && !$sticky) || ($roles == "administrator" && !$sticky)) {
 			$contem_display_name = false;
 			if ($roles == "administrator") {
 				$ids_jogadores = $wpdb->get_results("SELECT id, id_jogador FROM colonization_imperio");
@@ -287,7 +287,7 @@ class colonization {
 			// Build final query and get results.
 			$query = "SELECT t.id, t.name, t.views, t.sticky, t.closed, t.author_id, ({$query_answers}) AS answers 
 			FROM {$asgarosforum->tables->topics} AS t 
-			WHERE (t.parent_id = {$id_forum_categoria_comunicacoes_globais} AND t.sticky = 0 AND t.approved = 1 AND (t.name LIKE '%{$imperio->nome}%' OR t.name LIKE '%{$user->display_name}%')) OR t.id IN ({$topic_ids})
+			WHERE (t.parent_id = {$id_forum_categoria_comunicacoes_globais} AND t.sticky = 0 AND t.approved = 1 AND (t.name LIKE '%{$imperio->nome}%' OR t.name LIKE '%{$user->display_name}%' OR t.name LIKE '%Todos os Impérios%')) OR t.id IN ({$topic_ids})
 			ORDER BY {$order};";
 			
 			$results_temp = $wpdb->get_results($query);
