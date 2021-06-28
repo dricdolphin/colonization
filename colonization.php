@@ -170,7 +170,7 @@ class colonization {
 			
 			$nome_topico = $asgarosforum->content->get_topic_title($asgarosforum->current_element);
 			
-			if (!str_contains($nome_topico,$imperio->nome)) {
+			if (!(str_contains($nome_topico,$imperio->nome) || str_contains($nome_topico,"Todos os Impérios"))) {
 				return false;
 			}
 		}
@@ -823,9 +823,11 @@ class colonization {
 				$html_estrela_mini[$estrela[$id_estrela->id]->id] = "<div class='nome_estrela_mini'><b>{$estrela[$id_estrela->id]->nome}</b> ({$estrela[$id_estrela->id]->X};{$estrela[$id_estrela->id]->Y};{$estrela[$id_estrela->id]->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela[$id_estrela->id]->id] = "<div class='naves_no_local'>";
 				$html_naves_mini[$estrela[$id_estrela->id]->id] = "<div class='naves_no_local'>";
-				$html_planetas_na_estrela[$estrela[$id_estrela->id]->id] = $estrela[$id_estrela->id]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
-				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";
+				if (!$mini_mapa) {
+					$html_planetas_na_estrela[$estrela[$id_estrela->id]->id] = $estrela[$id_estrela->id]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";
+				}
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela->id]->X} AND Y={$estrela[$id_estrela->id]->Y} AND Z={$estrela[$id_estrela->id]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
@@ -913,9 +915,11 @@ class colonization {
 				$html_estrela_mini[$estrela[$id_estrela]->id] = "<div class='nome_estrela_mini'><b>{$estrela[$id_estrela]->nome}</b> ({$estrela[$id_estrela]->X};{$estrela[$id_estrela]->Y};{$estrela[$id_estrela]->Z})<br>{$nomes_imperios}</div>";
 				$html_naves[$estrela[$id_estrela]->id] = "<div class='naves_no_local'>";
 				$html_naves_mini[$estrela[$id_estrela]->id] = "<div class='naves_no_local'>";
-				$html_planetas_na_estrela[$estrela[$id_estrela]->id] = $estrela[$id_estrela]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
-				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";				
+				if (!$mini_mapa) {
+					$html_planetas_na_estrela[$estrela[$id_estrela]->id] = $estrela[$id_estrela]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";				
+				}
 			}
 			
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela]->X} AND Y={$estrela[$id_estrela]->Y} AND Z={$estrela[$id_estrela]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL) ORDER BY id_imperio");
@@ -2335,8 +2339,10 @@ if (!empty($imperios[0])) {
 				$html_nave_estrela_atual = "<div>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
 				if ($nave->pesquisa==1 || $imperio->id == $id_imperio_colonizador) {
 					$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas(event,this);'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
-					$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
-					$html_nave_estrela_atual .=	"<div class='lista_planetas_nave'>{$html_planetas_na_estrela}</div>";
+					if (!$mini_mapa) {
+						$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
+						$html_nave_estrela_atual .=	"<div class='lista_planetas_nave'>{$html_planetas_na_estrela}</div>";
+					}
 				}
 			}
 			
