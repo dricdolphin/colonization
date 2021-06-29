@@ -61,6 +61,7 @@ function inclui_recurso(evento, id_recurso) {
 	let input_qtd = "";
 
 	if (!objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
@@ -240,7 +241,7 @@ function copiar_objeto(evento, objeto, id_imperio, upgrade=false) {
 		input['turno_destruido'].value = turno_atual;
 		
 		objeto_em_edicao = false;
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		
 		let retorno_salva_objeto = new Promise((resolve, reject) =>	{
 			resolve(salva_objeto(evento, objeto));
@@ -315,12 +316,14 @@ function desbloquear_turno()
 Desbloqueia o Turno
 ******************/
 function desbloquear_turno(evento, objeto) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let confirma = confirm("Tem certeza que deseja desbloquear o Turno?");
 	if (confirma) {
@@ -330,7 +333,7 @@ function desbloquear_turno(evento, objeto) {
 			if (this.readyState == 4 && this.status == 200) {
 				let resposta = JSON.parse(this.responseText);
 				
-				objeto_em_salvamento = false;
+				objeto_em_edicao = false;
 				
 				if (resposta.resposta_ajax == "OK!") {
 					retorno = true;
@@ -399,13 +402,14 @@ function nave_visivel()
 Torna a nave visível
 ******************/
 function nave_visivel (objeto, evento, id_nave) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let dados_ajax = "post_type=POST&action=nave_visivel&id="+id_nave;
 	let xhttp = new XMLHttpRequest();
@@ -421,7 +425,7 @@ function nave_visivel (objeto, evento, id_nave) {
 				return false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
@@ -451,7 +455,8 @@ function envia_nave()
 Envia uma nave para algum lugar
 ******************/
 function envia_nave (objeto, evento, id_nave) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
@@ -482,7 +487,7 @@ function envia_nave (objeto, evento, id_nave) {
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let dados_ajax = "post_type=POST&action=envia_nave&id="+id_nave+"&id_estrela="+id_estrela;
 	let xhttp = new XMLHttpRequest();
@@ -499,7 +504,7 @@ function envia_nave (objeto, evento, id_nave) {
 			}
 			
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (resposta.debug != undefined) {
 				console.log(resposta.debug);
 			}
@@ -535,19 +540,20 @@ function upgrade_instalacao()
 Faz o upgrade de uma Instalação
 ******************/
 function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
-	if (objeto_em_salvamento) {
-		
+	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 
 	let linha = pega_ascendente(objeto,"TR");
 	let celula = pega_ascendente(objeto,"TD");
 	let inputs = linha.getElementsByTagName("INPUT");
 	let labels = linha.getElementsByTagName("LABEL");
+	let divs = linha.getElementsByTagName("DIV");
 
 	let input_nivel = {};
 	let dados = [];
@@ -566,6 +572,14 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 			input_pop = inputs[index];
 		} else if (inputs[index].getAttribute("data-atributo") == "desativado") {
 			checkbox_desativa_instalacao = inputs[index];
+		}
+	}
+	
+	let div_gerenciar = "";
+	for (let index=0; index<divs.length; index++) {
+		if(divs[index].getAttribute('data-atributo') == "gerenciar") {
+			divs[index].style.visibility = "visible";
+			div_gerenciar = divs[index];
 		}
 	}
 
@@ -601,7 +615,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				console.log(resposta.debug);
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
@@ -649,6 +663,8 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				
 				let fator = ((nivel_upgrade-1)/(nivel_upgrade));
 				
+				div_gerenciar.style.visibility = "hidden";
+				objeto_em_edicao = false;
 				if (input_pop != "") {
 					input_pop.value = Math.floor(input_pop.value*fator);
 					label_pop.innerHTML = input_pop.value;
@@ -664,15 +680,14 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				if (nivel_upgrade >= nivel_maximo) {
 					objeto.style.display='none';
 				}
-				
-				objeto_em_salvamento = false;
+
 				//document.location.reload();
 			} else {
 				alert(resposta.resposta_ajax);
 				retorno = false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
@@ -699,13 +714,14 @@ function aceita_missao()
 Aceita ou rejeita uma missão
 ******************/
 function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;	
+	objeto_em_edicao = true;	
 	
 	let div_notice = objeto;
 	
@@ -727,7 +743,7 @@ function aceita_missao (objeto, evento, id_imperio, id_missao, aceita=true) {
 				return false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
@@ -760,13 +776,14 @@ function processa_viagem_nave()
 Processa a viagem de uma nave
 ******************/
 function processa_viagem_nave (objeto, evento, id_nave) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;	
+	objeto_em_edicao = true;	
 	
 	let div_notice = objeto;
 	
@@ -792,7 +809,7 @@ function processa_viagem_nave (objeto, evento, id_nave) {
 				return false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (resposta.debug != undefined) {
 				console.log(resposta.debug);
 			}			
@@ -824,13 +841,14 @@ function processa_recebimento_tech()
 Aceita ou rejeita o recebimento de uma Tech
 ******************/
 function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let div_notice = objeto;
 	
@@ -874,7 +892,7 @@ function processa_recebimento_tech (objeto, evento, id_tech_transf, autoriza) {
 				return false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
@@ -913,13 +931,14 @@ function processa_recebimento_recurso()
 Processa o recebimento de um recurso
 ******************/
 function processa_recebimento_recurso (objeto, evento, id_tech_transf) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let div_notice = objeto;
 	
@@ -956,7 +975,7 @@ function processa_recebimento_recurso (objeto, evento, id_tech_transf) {
 				return false;
 			}
 			
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			if (resposta.resposta_ajax == "SALVO!") {
 				retorno = true;
 			} else {
@@ -1292,6 +1311,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	let id_objeto = 0;
 
 	if(objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;		
 	}
@@ -1318,6 +1339,7 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 		}
 	}
 	
+	let div_gerenciar = "";
 	for (let index=0; index<divs.length; index++) {
 		if (divs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| divs[index].getAttribute("data-atributo") == "id_planeta" 
@@ -1345,11 +1367,19 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 					}
 				}
 			}
+			
+			if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+				div_gerenciar = divs[index];
+				console.log(div_gerenciar.style.visibility);
+				div_gerenciar.style.visibility = "visible";
+				console.log(div_gerenciar.style.visibility);
+			}
 		}
 	}	
 
 	if (!desativado) {
 		alert("Só é possível desmantelar uma Instalação que esteja desativada!");
+		div_gerenciar.style.visibility = "hidden";
 		evento.preventDefault();
 		return false;		
 	}
@@ -1357,6 +1387,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	let confirma=confirm("AVISO!\nEsta ação é irreversível. Deseja continuar?");
 
 	if (!confirma) {
+		div_gerenciar.style.visibility = "hidden";
+		
 		evento.preventDefault();
 		return false;		
 	}
@@ -1383,8 +1415,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 	});
 	
 	valida_dados.then((successMessage) => {
-		objeto_em_salvamento = false;
 		objeto_em_edicao = false;
+		objeto_em_salvamento = false;
 		if (successMessage) {
 			let xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
@@ -1437,6 +1469,8 @@ function desmonta_instalacao(evento, objeto, turno, jogador=false, destruido=fal
 			xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.send(dados_ajax);
+		} else {
+			div_gerenciar.style.visibility = "hidden";
 		}
 	});
 	
@@ -1460,6 +1494,8 @@ function repara_instalacao(evento, objeto) {
 	let id_objeto = 0;
 
 	if(objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;		
 	}
@@ -1473,8 +1509,8 @@ function repara_instalacao(evento, objeto) {
 	});
 	
 	valida_dados.then((successMessage) => {
-		objeto_em_salvamento = false;
 		objeto_em_edicao = false;
+		objeto_em_salvamento = false;
 		if (successMessage) {
 			objeto.style.visibility = "hidden";
 			document.location.reload();
@@ -1614,7 +1650,7 @@ function muda_nome_colonia(id_planeta, evento) {
 		let dados_ajax = "post_type=POST&action=muda_nome_colonia&id_planeta=" + id_planeta + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
@@ -1648,7 +1684,7 @@ function muda_nome_nave(id_nave, evento) {
 		let dados_ajax = "post_type=POST&action=muda_nome_nave&id=" + id_nave + "&novo_nome=" + encodeURIComponent(novo_nome);
 		let resposta = processa_xhttp_basico(dados_ajax);
 		resposta.then((successMessage) => {
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
@@ -1679,7 +1715,7 @@ function tirar_cerco(objeto, evento, id_estrela, coloca_cerco = false) {
 	
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		objeto_em_edicao = false;
 		if (successMessage) {
 			if (coloca_cerco) {
@@ -1707,7 +1743,9 @@ Muda o nome de uma Nave
 id_nave = id da nave
 ******************/	
 function coloniza_planeta (objeto, evento, id_planeta, id_imperio) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;
 	}
@@ -1720,11 +1758,11 @@ function coloniza_planeta (objeto, evento, id_planeta, id_imperio) {
 		return false;
 	}
 
-	objeto_em_salvamento = true;	
+	objeto_em_edicao = true;	
 	let dados_ajax = "post_type=POST&action=coloniza_planeta&id_planeta=" + id_planeta + "&id_imperio=" + id_imperio;
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		objeto_em_edicao = false;
 		if (successMessage) {
 			document.location.reload();
@@ -1742,13 +1780,14 @@ function remove_aviso()
 Remove um aviso
 ******************/
 function remove_aviso (objeto, evento, id) {
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		
 		evento.preventDefault();
 		return false;
 	}
 	
-	objeto_em_salvamento = true;
+	objeto_em_edicao = true;
 	
 	let div_notice = objeto;
 	
@@ -1775,10 +1814,10 @@ function remove_aviso (objeto, evento, id) {
 	let dados_ajax = "post_type=POST&action=remove_aviso&id=" + id;
 	let resposta = processa_xhttp_basico(dados_ajax);
 	resposta.then((successMessage) => {
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		objeto_em_edicao = false;
 		if (successMessage) {
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			div_notice.remove();
 			if (div_notice_panel.childElementCount == 0) {
 				div_notice_panel.remove();
@@ -1809,7 +1848,7 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 	});
 	
 	retorno.then((successMessage) => {
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		objeto_em_edicao = false;
 		if (successMessage) {
 			document.location.reload();
@@ -1847,7 +1886,7 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 		});
 		
 		retorno.then((successMessage) => {
-			objeto_em_salvamento = false;
+			objeto_em_edicao = false;
 			objeto_em_edicao = false;
 			if (successMessage) {
 				document.location.reload();
@@ -1874,7 +1913,7 @@ function desativa_anti_dobra(objeto, evento, id_nave) {
 	});
 	
 	retorno.then((successMessage) => {
-		objeto_em_salvamento = false;
+		objeto_em_edicao = false;
 		objeto_em_edicao = false;
 		if (successMessage) {
 			alert('Nave liberada!');

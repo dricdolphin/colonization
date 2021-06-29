@@ -1026,7 +1026,7 @@ function nova_instalacao_jogador
 Cria uma nova Instalação que o Jogador pode adicionar
 ******************/
 function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
-	if (range_em_edicao || range_em_edicao == objeto) {
+	if (range_em_edicao || range_em_edicao == objeto || objeto_em_edicao) {
 		alert("Já existe um objeto em edição!");
 		
 		evento.preventDefault();
@@ -1034,6 +1034,7 @@ function nova_instalacao_jogador(evento, objeto, id_planeta, id_imperio) {
 	}
 	
 	range_em_edicao = objeto;
+	objeto_em_edicao = true;
 	let dados_ajax = "post_type=POST&action=lista_instalacoes_imperio&id_planeta="+id_planeta;
 	
 	let xhttp = new XMLHttpRequest();

@@ -765,7 +765,9 @@ Salva uma nave
 ******************/
 function salvar_nave(evento, objeto, id_imperio) {
 	//let inputs = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
-	if (objeto_em_salvamento) {
+	if (objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
+		
 		evento.preventDefault();
 		return false;
 	}
@@ -799,7 +801,7 @@ function salvar_nave(evento, objeto, id_imperio) {
 	}
 	
 	let resposta = new Promise((resolve, reject) => {
-		objeto_em_salvamento = true;
+		objeto_em_edicao = true;
 		resolve(processa_xhttp_resposta(dados_ajax));
 		//resolve(dados_ajax);
 	});

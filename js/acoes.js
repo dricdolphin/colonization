@@ -12,8 +12,9 @@ function altera_acao(evento, objeto) {
 	let labels = linha.getElementsByTagName("LABEL");
 	let tds = linha.getElementsByTagName("TD");
 
-	if (!range_em_edicao || range_em_edicao == objeto) {
+	if ((!range_em_edicao || range_em_edicao == objeto)) {
 		range_em_edicao = objeto;
+		objeto_em_edicao = true;
 		
 		//***
 		for(let index=0; index<tds.length; index++) {
@@ -155,6 +156,7 @@ function desativar_instalacao(evento, objeto, id_acao) {
 	//var dados_ajax = "post_type=POST&action=desativar_instalacao";
 
 	range_em_edicao = objeto;
+	objeto_em_edicao = true;
 	
 	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "desativado") {
@@ -289,6 +291,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 		}
 		
 		range_em_edicao = false;
+		objeto_em_edicao = false;
 		
 		evento.preventDefault();
 		return false;
@@ -362,6 +365,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 				
 				atualiza_produtos_acao(id_imperio, id_planeta, id_estrela, id_planeta_instalacoes, produtos_acao);
 				range_em_edicao = false;
+				objeto_em_edicao = false;
 			} else {
 				alert(resposta.resposta_ajax);
 			}
@@ -378,6 +382,7 @@ function salva_acao(evento, objeto, cancela = false, produtos_acao={}) {
 	xhttp.send(objeto_editado['dados_ajax']);
 
 	range_em_edicao = true; //Trava o objeto em modo de edição até que o AJAX libere
+	objeto_em_edicao = true;
 	evento.preventDefault();
 	return false;
 }

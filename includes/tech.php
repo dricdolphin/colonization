@@ -138,6 +138,7 @@ class tech
 		
 		$custo_pago = ", 0 as custo_pago";
 		$join = "";
+		$mostra_techs_com_requisito = false;
 		if ($where == "") {
 			$custo_pago = ", 0 as custo_pago";
 			$join = "";
@@ -163,6 +164,8 @@ class tech
 					WHERE ct.id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$imperio->id})
 					AND ct.id NOT IN (SELECT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$imperio->id})
 					) AS ct)";
+				
+				$mostra_techs_com_requisito = true;
 			}
 		} elseif ($id_imperio != 0) {
 			$custo_pago = ", cit.custo_pago, cit.id_imperio";
@@ -204,7 +207,12 @@ class tech
 		$nivel--;
 		$lista_completa = [];
 		$lista_completa_temp = [];
-		
+
+		if ($mostra_techs_com_requisito && $roles == "administrator") {
+			//Adiciona na lista as Techs que o Império tenha os pré-requisitos
+			
+		}
+
 		$nivel=1;
 		while (!empty($lista_techs[$nivel])) {
 			foreach($lista_techs[$nivel] as $tech) {
@@ -230,6 +238,8 @@ class tech
 			}
 			$nivel++;
 		}
+
+
 
 		return $lista_completa;
 	}

@@ -329,6 +329,8 @@ nome_tabela='' -- Define em qual tabela os dados serão salvos
 ******************/	
 function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nome_tabela='', jogador=false) {
 	if (objeto_em_salvamento) {
+		alert('Já existe um objeto em salvamento!');
+		
 		evento.preventDefault();
 		return false;
 	}
@@ -374,12 +376,14 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 			resolve(chama_funcao_validacao(objeto, objeto_editado['funcao_valida_objeto']));
 		} else {
 			objeto_em_edicao = false;
+			objeto_em_salvamento = false;
 			resolve(true);
 		}
 	});
 	
 	let retorno = valida_dados.then((successMessage) => {
 		if (!successMessage) {
+			objeto_em_edicao = false;
 			objeto_em_salvamento = false;
 		} else {
 			/********************************************
@@ -412,8 +416,8 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 							console.log(resposta.debug);
 						}					
 						
-						objeto_em_salvamento = false;
-						objeto_em_edicao = false; //Libera a edição de outros objetos
+						objeto_em_edicao = false;
+						objeto_em_salvamento = false; //Libera a edição de outros objetos
 						range_em_edicao = false;
 						
 						if (resposta.resposta_ajax == "SALVO!") {
@@ -452,7 +456,7 @@ function salva_objeto(evento, objeto, cancela=false, remove_gerenciar=false, nom
 	});
 	
 	//if (!valida_dados) {
-	//	objeto_em_salvamento = false;
+	//	objeto_em_edicao = false;
 	//	
 	//	evento.preventDefault();
 	//	return false;
@@ -510,10 +514,12 @@ function excluir_objeto(evento, objeto) {
 				if (resposta.resposta_ajax == "DELETADO!") {
 					linha_objeto.remove(); //Remove a linha
 					objeto_em_edicao = false;
+					objeto_em_salvamento = false;
 					range_em_edicao = false;
 				} else {
 					alert(resposta.resposta_ajax);
 					objeto_em_edicao = false;
+					objeto_em_salvamento = false;
 					range_em_edicao = false;
 				}
 				

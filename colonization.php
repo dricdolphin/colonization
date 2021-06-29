@@ -427,7 +427,14 @@ class colonization {
 			
 		$html_techs_imperio = "";
 		$tech = new tech();
-		$resultados = $tech->query_tech("",$imperio->id);
+		//$resultados = $tech->query_tech("",$imperio->id);
+		$resultados = $wpdb->get_results("SELECT ct.id 
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id = cit.id_tech
+		WHERE cit.id_imperio={$imperio->id}
+		ORDER BY cit.turno, ct.nome");
+		
 		foreach ($resultados as $resultado) {
 			$id_imperio_techs = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$resultado->id}");
 			if (!empty($id_imperio_techs)) {
@@ -2124,10 +2131,10 @@ if (!empty($imperios[0])) {
 			//$imperio = new imperio($id_imperio, true);
 			$html_pontuacao = "<div class='fas fa-search tooltip'>{$imperio[$id_imperio]->pontuacao}
 			<span class='tooltiptext'>
-			Desenvolvimento: {$imperio[$id_imperio]->pontuacao_desenvolvimento}<br>			
-			Colônias: {$imperio[$id_imperio]->pontuacao_colonia}<br>
-			Techs: {$imperio[$id_imperio]->pontuacao_tech}<br>
 			Bélica: {$imperio[$id_imperio]->pontuacao_belica}<br>
+			Colônias: {$imperio[$id_imperio]->pontuacao_colonia}<br>
+			Desenvolvimento: {$imperio[$id_imperio]->pontuacao_desenvolvimento}<br>			
+			Techs: {$imperio[$id_imperio]->pontuacao_tech}<br>
 			</span></div>";	
 			
 			$html .= "<tr><td>{$lista_nome[$id_imperio]}</td>
