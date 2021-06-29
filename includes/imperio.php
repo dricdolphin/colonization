@@ -660,7 +660,7 @@ class imperio
 		if ($roles == "administrator" && $this->id == 0) {
 			foreach ($this as $chave => $valor) {
 				if (str_contains($chave, "mk_")) {
-					$this->$chave = 6;
+					$this->$chave = 10;
 				}
 			}
 			$this->nivel_estacao_orbital = 10;			

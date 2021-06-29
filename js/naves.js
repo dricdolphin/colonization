@@ -351,10 +351,12 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let corasita = 0;
 	let aureum = 0;
 	let capirotum = 0;
+	let trillithium = 0;
 	let texto_tricobalto = "";
 	let texto_corasita = "";
 	let texto_aureum = "";
 	let texto_capirotum = "";
+	let texto_trillithium = "";
 	
 	if (nave.tricobalto_torpedo) {
 		tricobalto = 1*nave.qtd_torpedo;
@@ -369,6 +371,14 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			pdf_laser = pdf_laser*10;
 		}
 	}
+	
+
+	if (nave.hasOwnProperty('enxame_abordagem')) {
+		if (nave.enxame_abordagem) {
+			trillithium = trillithium + (Math.trunc(chassi*1/5,0)+1);
+			texto_trillithium = " | Trillithium: "+trillithium;
+		}
+	}	
 
 	let energium_escudos = qtd_escudos*1;
 	if (energium_escudos < qtd_escudos) {
@@ -396,6 +406,18 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	if (nave.mk_camuflagem*1 > 3) {
 		corasita = corasita + nave.mk_camuflagem*1;
 		texto_corasita = " | Corasita: "+corasita;
+	};
+
+	if (nave.mk_camuflagem*1 > 4) {
+		if (nave.mk_escudos*1 > 4) {
+			aureum = aureum + nave.mk_camuflagem*1 - 4;
+			texto_aureum = " | Aureum: "+aureum;
+		} else {
+			if (objeto.type == "number") {
+				objeto.value = 4;
+			}
+			nave.mk_camuflagem = 4;
+		}
 	};
 	
 	if (chassi <= 10) {
@@ -442,11 +464,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_plasma*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
-	
-	let texto_trillithium = "";
-	let trillithium = 0;
+
 	if (nave.mk_dobra*1 > 2) {
-		trillithium = dillithium;
+		trillithium = trillithium + dillithium;
 		texto_trillithium = " | Trillithium: "+ trillithium;
 	}	
 
