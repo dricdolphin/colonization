@@ -563,6 +563,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 		if (inputs[index].getAttribute("data-atributo") == "id_imperio" 
 		|| inputs[index].getAttribute("data-atributo") == "id_planeta" 
 		|| inputs[index].getAttribute("data-atributo") == "id_instalacao" 
+		|| inputs[index].getAttribute("data-atributo") == "id_estrela" 
 		|| inputs[index].getAttribute("data-atributo") == "id_planeta_instalacoes") {
 			dados[inputs[index].getAttribute("data-atributo")] = inputs[index].value;
 		} else if (inputs[index].getAttribute("data-atributo") == "nivel") {
@@ -666,7 +667,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				div_gerenciar.style.visibility = "hidden";
 				objeto_em_edicao = false;
 				if (input_pop != "") {
-					input_pop.value = Math.floor(input_pop.value*fator);
+					input_pop.value = Math.ceil(input_pop.value*fator);
 					label_pop.innerHTML = input_pop.value;
 					//input_pop.click();
 					altera_acao(event, input_pop);
@@ -674,6 +675,24 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				} else if (checkbox_desativa_instalacao != "") {
 					if (checkbox_desativa_instalacao.value == 0) {
 						//checkbox_desativa_instalacao.click();
+						//altera_acao(event, checkbox_desativa_instalacao);
+						//valida_acao(event, checkbox_desativa_instalacao, true);
+						div_gerenciar.style.visibility = "visible";
+						let retorno = new Promise((resolve, reject) => {
+							let dados_ajax= "post_type=POST&action=produtos_acao&id_imperio="+dados['id_imperio']+"&id_planeta="+dados['id_planeta']+"&id_estrela="+dados['id_estrela']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes'];
+							console.log(dados_ajax);
+							objeto_em_edicao = true;
+							range_em_edicao = true;
+							resolve(processa_xhttp_resposta(dados_ajax));
+						});
+						
+						retorno.then((successMessage) => {
+							console.log(successMessage);
+							atualiza_produtos_acao(dados['id_imperio'], dados['id_planeta'], dados['id_planeta'], dados['id_planeta_instalacoes'], successMessage);
+							div_gerenciar.style.visibility = "hidden";
+							objeto_em_edicao = false;
+							range_em_edicao = false;							
+						});
 					}
 				}
 
@@ -684,6 +703,8 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				//document.location.reload();
 			} else {
 				alert(resposta.resposta_ajax);
+				div_gerenciar.style.visibility = "hidden";
+				objeto_em_edicao = false;
 				retorno = false;
 			}
 			

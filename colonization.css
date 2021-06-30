@@ -699,6 +699,14 @@ tr.th_linha_2 th {
 	margin-right: 1.5em;
 }
 
+.recursos_balanco_imperio {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 52px;
+    background-color: #FFFFFF;
+    z-index: 99999;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/
@@ -714,4 +722,12 @@ tr.th_linha_2 th {
 		max-height: 14px;
 		position: static;
 	}
+	
+	.recursos_balanco_imperio {
+		position: -webkit-sticky;
+		position: sticky;
+		top: 62px;
+		background-color: #FFFFFF;
+		z-index: 99999;
+	}	
 }

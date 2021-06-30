@@ -30,7 +30,7 @@ class colonization_ajax {
 		add_action('wp_ajax_destruir_instalacao', array ($this, 'destruir_instalacao'));
 		add_action('wp_ajax_desmonta_instalacao', array ($this, 'desmonta_instalacao'));
 		add_action('wp_ajax_dados_imperio', array ($this, 'dados_imperio'));
-		//add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao'));
+		add_action('wp_ajax_produtos_acao', array ($this, 'produtos_acao_ajax'));
 		add_action('wp_ajax_valida_acao', array ($this, 'valida_acao'));
 		add_action('wp_ajax_roda_turno', array ($this, 'roda_turno'));
 		add_action('wp_ajax_libera_turno', array ($this, 'libera_turno'));
@@ -3121,11 +3121,25 @@ class colonization_ajax {
 	}
 	
 	/***********************
+	function produtos_acao_ajax()
+	----------------------
+	Pega os resultados da ação, via AJAX
+	***********************/	
+	function produtos_acao_ajax() {
+		
+		$dados_salvos = $this->produtos_acao();
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta
+	}
+	
+	
+	/***********************
 	function produtos_acao()
 	----------------------
 	Pega os resultados da ação
-	***********************/	
-	function produtos_acao($imperio, $id_planeta_instalacoes, $colonias) {
+	***********************/
+	function produtos_acao($imperio=0, $id_planeta_instalacoes=0, $colonias = []) {
 		global $wpdb, $start_time;
 		//$wpdb->hide_errors();
 		// Report all PHP errors
@@ -3135,9 +3149,18 @@ class colonization_ajax {
 		$dados_salvos = [];
 		
 		$dados_salvos['debug'] = "";
+		if ($imperio == 0) {
+			$imperio = new imperio($_POST['id_imperio']);
+			$imperio->acoes = new acoes($imperio->id,$imperio->turno->turno,false);
+			$id_planeta_instalacoes = $_POST['id_planeta_instalacoes'];
+			$colonias[0] = $wpdb->get_var("SELECT cic.id FROM colonization_imperio_colonias AS cic WHERE cic.id_imperio={$imperio->id} AND cic.turno={$imperio->turno->turno} AND cic.id_planeta={$_POST['id_planeta']}");
+			$colonias[1] = 0;	
+			$imperio->acoes->pega_balanco_recursos();
+		}
+		
 		$acoes = $imperio->acoes;
-			
-			//$start_time = hrtime(true);
+
+		//$start_time = hrtime(true);
 		$planeta = new planeta($_POST['id_planeta']);
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$dados_salvos['debug'] .= "produtos_acao() -> new Planeta {$diferenca}ms \n";

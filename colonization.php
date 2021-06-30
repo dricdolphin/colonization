@@ -2370,7 +2370,7 @@ if (!empty($imperios[0])) {
 		<div id='recursos_atuais_imperio_{$imperio->id}' >{$recursos_atuais}</div><br>
 		<div id='recursos_produzidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_produzidos}</div>
 		<div id='recursos_consumidos_imperio_{$imperio->id}' style='display: none;'>{$recursos_consumidos}</div>
-		<div id='recursos_balanco_imperio_{$imperio->id}'>{$balanco_recursos}</div><br>
+		<div id='recursos_balanco_imperio_{$imperio->id}' class='recursos_balanco_imperio'>{$balanco_recursos}</div><br>
 		<div><b>Frota do Império</b></div>
 		<div><span style='text-decoration: underline;'>Legenda:</span> <i class='fas fa-gas-pump'></i>Alcance <i class='fas fa-heart'></i>HP <i class='far fa-tachometer-alt'></i>Velocidade <i class='fas fa-hard-hat'></i>Blindagem <i class='fas fa-shield'></i>Escudos 
 		<i class='far fa-sword-laser'></i>PdF Laser <i class='far fa-bahai'></i>PdF Torpedos <i class='far fa-asterisk'></i>PdF Projéteis <i class='fas fa-bomb'></i>PdF Bombardeamento
