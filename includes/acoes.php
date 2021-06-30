@@ -1388,12 +1388,21 @@ class acoes
 		global $wpdb;
 
 		$html = "<span style='color: #2f4f4f ; font-weight: bold;'>Balanço dos Recursos:</span> ";			
-		asort($this->recursos_balanco,SORT_NUMERIC);
-		foreach ($this->recursos_balanco as $id_recurso => $qtd) {
-			if ($qtd > 0) {
-				$html .= "{$this->recursos_balanco_nome[$id_recurso]}: {$qtd}; ";
-			} elseif ($qtd < 0) {
-				$html .= "{$this->recursos_balanco_nome[$id_recurso]}: <span style='color: #FF2222;'>{$qtd}</span>; ";
+		
+		//asort($this->recursos_balanco_nome,SORT_LOCALE_STRING);
+		$ids_recursos = $wpdb->get_results("
+		SELECT cr.id, cr.nome, cr.descricao, cr.icone
+		FROM colonization_recurso AS cr
+		ORDER BY cr.nivel, cr.extrativo, cr.nome
+		");
+		
+		foreach ($ids_recursos as $id_recurso) {
+			if (!empty($this->recursos_balanco[$id_recurso->id])) {
+				if ($this->recursos_balanco[$id_recurso->id] < 0) {
+					$html .= "<span style='font-weight: bold;'>{$this->recursos_balanco_nome[$id_recurso->id]}: <span style='color: #FF2222;'>{$this->recursos_balanco[$id_recurso->id]}</span></span>; ";
+				} else {
+					$html .= "{$this->recursos_balanco_nome[$id_recurso->id]}: {$this->recursos_balanco[$id_recurso->id]}; ";
+				}
 			}
 		}
 		
@@ -1408,6 +1417,8 @@ class acoes
 	$id_planeta - id do planeta a exibir
 	***********************/
 	function exibe_balanco_planeta($id_planeta) {
+		global $wpdb;
+		
 		$balanco_temp = [];
 		$balanco_planeta = "<span style='color: #2f4f4f ; font-weight: bold;'>Balanço dos Recursos:</span> ";
 		foreach ($this->recursos_balanco_nome as $id_recurso => $nome) {
@@ -1417,22 +1428,27 @@ class acoes
 		}
 		
 		if (!empty($balanco_temp)) {
-			asort($balanco_temp,SORT_NUMERIC);
+			//asort($balanco_temp,SORT_NUMERIC);
+			$ids_recursos = $wpdb->get_results("
+			SELECT cr.id, cr.nome, cr.descricao, cr.icone
+			FROM colonization_recurso AS cr
+			ORDER BY cr.nivel, cr.extrativo, cr.nome
+			");			
 			
-			foreach ($balanco_temp as $id_recurso =>$qtd) {
-				if ($qtd != 0) {
-					$recurso = new recurso ($id_recurso);
-					if ($qtd < 0) {
-						$html_qtd = "<span style='color: #DD0000;'>{$qtd}</span>";
+			foreach ($ids_recursos as $id_recurso) {
+				//$recurso = new recurso ($id_recurso->id);
+				if(empty($this->recursos_produzidos_planeta_bonus[$id_recurso->id][$id_planeta])) {
+					$this->recursos_produzidos_planeta_bonus[$id_recurso->id][$id_planeta] = 0;
+				}
+				if (!empty($balanco_temp[$id_recurso->id])) {
+					$balanco_temp[$id_recurso->id] = floor($balanco_temp[$id_recurso->id] + $this->recursos_produzidos_planeta_bonus[$id_recurso->id][$id_planeta]);
+					if ($balanco_temp[$id_recurso->id] < 0) {
+						$html_qtd = "<span style='color: #DD0000;'>{$balanco_temp[$id_recurso->id]}</span>";
 					} else {
-						$html_qtd = $qtd;
-					}
-					
-					if(empty($this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta])) {
-						$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta] = 0;
+						$html_qtd = $balanco_temp[$id_recurso->id];
 					}
 					//$html_qtd = "<span style='color: #23A455;'>{$this->recursos_produzidos_planeta[$id_recurso][$id_planeta]} + {$this->recursos_produzidos_planeta_bonus[$id_recurso][$id_planeta]}</span> <span style='color: #DD0000;'>-{$this->recursos_consumidos_planeta[$id_recurso][$id_planeta]}</span>";
-					$balanco_planeta .= "{$recurso->nome}: {$html_qtd}; ";
+					$balanco_planeta .= "{$id_recurso->nome}: {$html_qtd}; ";
 				}
 			}
 		}

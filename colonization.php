@@ -2346,10 +2346,10 @@ if (!empty($imperios[0])) {
 				$html_nave_estrela_atual = "<div>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
 				if ($nave->pesquisa==1 || $imperio->id == $id_imperio_colonizador) {
 					$html_nave_estrela_atual = "<div class='nome_estrela_nave' onclick='return abre_div_planetas(event,this);'>{$nave->estrela->nome} ({$nave->estrela->X};{$nave->estrela->Y};{$nave->estrela->Z})</div>";
-					if (!$mini_mapa) {
+					//if (!$mini_mapa) {
 						$html_planetas_na_estrela = $nave->estrela->pega_html_planetas_estrela(true,true);
 						$html_nave_estrela_atual .=	"<div class='lista_planetas_nave'>{$html_planetas_na_estrela}</div>";
-					}
+					//}
 				}
 			}
 			
