@@ -42,12 +42,6 @@ function atualiza_objeto(objeto, dados) {
 	for (let index = 0; index < divs.length; index++) {
 		if (divs[index].getAttribute('data-valor-original') !== null) {
 			atributo = divs[index].getAttribute('data-atributo');
-			//HARDCODED -- Adiciona o link para gerenciar os objetos que são gerenciáveis
-			if(divs[index].getAttribute('data-atributo') == "gerenciar") {
-				divs[index].childNodes[0].style.visibility="visible";
-				//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
-			}
-			
 			if (typeof(dados[atributo]) !== "undefined") {
 				//Só atualiza o innerHTML de divs que não contenham objetos
 				if (dados[atributo] !== null) {
@@ -59,7 +53,13 @@ function atualiza_objeto(objeto, dados) {
 					}
 				}
 			}
-		}	
+		} else if(divs[index].getAttribute('data-atributo') == "gerenciar") {
+			let div_hrefs = divs[index].getElementsByTagName("A");
+			for (let index_href = 0; index_href < div_hrefs.length; index_href++) {
+				div_hrefs[index_href].style.visibility="visible";	
+			}
+			//divs[index].childNodes[0].addEventListener("click",function () {chama_funcao_validacao(objeto,"gerenciar_objeto")});
+		}		
 	}
 	
 	for (let index = 0; index < inputs.length; index++) {

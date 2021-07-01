@@ -428,7 +428,7 @@ class colonization {
 		$html_techs_imperio = "";
 		$tech = new tech();
 		//$resultados = $tech->query_tech("",$imperio->id);
-		$resultados = $wpdb->get_results("SELECT ct.id 
+		$resultados = $wpdb->get_results("SELECT cit.id, cit.custo_pago, cit.turno, ct.nome, ct.custo
 		FROM colonization_imperio_techs AS cit
 		JOIN colonization_tech AS ct
 		ON ct.id = cit.id_tech
@@ -436,22 +436,23 @@ class colonization {
 		ORDER BY cit.turno, ct.nome");
 		
 		foreach ($resultados as $resultado) {
-			$id_imperio_techs = $wpdb->get_var("SELECT id FROM colonization_imperio_techs WHERE id_imperio={$imperio->id} AND id_tech={$resultado->id}");
-			if (!empty($id_imperio_techs)) {
-				$imperio_techs = new imperio_techs($id_imperio_techs);
-				$tech = new tech($imperio_techs->id_tech);
-				if ($imperio_techs->custo_pago == 0) {
-					$imperio_techs->custo_pago = $tech->custo;
-				}
-				$html_techs_imperio .= "<tr><td>{$tech->nome}</td><td>{$imperio_techs->custo_pago}</td><td>{$imperio_techs->turno}</td></tr>";
+			//$id_imperio_techs = $wpdb->get_var("SELECT id FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id} AND cit.id_tech={$resultado->id}");
+			//if (!empty($id_imperio_techs)) {
+			//$imperio_techs = new imperio_techs($resultado->id);
+			//$tech = new tech($imperio_techs->id_tech);
+			$html_custo_pago = "{$resultado->custo}";
+			if ($resultado->custo_pago != 0) {
+				$html_custo_pago = "{$resultado->custo_pago}/{$resultado->custo}";
 			}
+			$html_techs_imperio .= "<tr><td>{$resultado->nome}</td><td>{$html_custo_pago}</td><td>{$resultado->turno}</td></tr>";
 		}
+		
 			
 		$html = "<div><h4>Techs do Império '{$imperio->nome}'</h4></div>
 		<div>
 		<table class='lista_techs_imperio' data-tabela='colonization_imperio_techs' style='width: 700px;'>
 		<thead>
-		<tr><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th><th style='width: 150px;'>Turno</th></tr>
+		<tr class='th_linha_3'><th style='width: 500px;'>Tech</th><th style='width: 150px;'>Custo</th><th style='width: 150px;'>Turno</th></tr>
 		</thead>
 		<tbody>";
 

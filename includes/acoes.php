@@ -81,13 +81,13 @@ class acoes
 				cpi.id AS id_planeta_instalacoes, cpi.id_instalacao AS id_instalacao, cpi.nivel AS nivel_instalacao, cpi.turno_destroi AS turno_destroi, 
 				cpi.turno_desmonta AS turno_desmonta,
 				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
-				FROM colonization_imperio_colonias AS cic 
-				JOIN colonization_planeta_instalacoes AS cpi
+				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic 
 				ON cpi.id_planeta = cic.id_planeta
 				LEFT JOIN 
 				(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, desativado, data_modifica
 				 FROM colonization_acoes_turno
-				 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno}
+				 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno} GROUP BY id_planeta_instalacoes
 				) AS cat
 				ON cat.id_planeta = cic.id_planeta
 				AND cat.id_instalacao = cpi.id_instalacao
@@ -1399,7 +1399,7 @@ class acoes
 		foreach ($ids_recursos as $id_recurso) {
 			if (!empty($this->recursos_balanco[$id_recurso->id])) {
 				if ($this->recursos_balanco[$id_recurso->id] < 0) {
-					$html .= "<span style='font-weight: bold;'>{$this->recursos_balanco_nome[$id_recurso->id]}: <span style='color: #FF2222;'>{$this->recursos_balanco[$id_recurso->id]}</span></span>; ";
+					$html .= "{$this->recursos_balanco_nome[$id_recurso->id]}: <span style='color: #FF2222;'>{$this->recursos_balanco[$id_recurso->id]}</span>; ";
 				} else {
 					$html .= "{$this->recursos_balanco_nome[$id_recurso->id]}: {$this->recursos_balanco[$id_recurso->id]}; ";
 				}

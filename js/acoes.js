@@ -58,7 +58,16 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	let labels = linha.getElementsByTagName('LABEL');
 	let dados = []; //Dados que serão enviados para a validação
 	
+	let div_gerenciar = "";
+	for (let index=0; index<divs.length; index++) {
+		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+			div_gerenciar = divs[index];
+			break;
+		}
+	}
+	
 	if (evento.button !== 0 && evento.type !== "touchend" && !forcar_valida_acao) {
+		div_gerenciar.style.visibility = "hidden";
 		evento.preventDefault();
 		return false;
 	}
@@ -78,6 +87,7 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	}
 	
 	if (dados['pop_original'] == dados['pop']) {
+		div_gerenciar.style.visibility = "hidden";
 		evento.preventDefault();
 		return false;
 	}

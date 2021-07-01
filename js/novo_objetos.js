@@ -966,8 +966,8 @@ function nova_nave(evento, id_imperio, X_estrela=0, Y_estrela=0, Z_estrela=0) {
 	
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
 	turno_destruido.innerHTML = "<div data-atributo='turno_destruido' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno_destruido' data-ajax='true' style='width: 50px;' value='0'></input></div>";
-	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_objeto(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a></div>";
-
+	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_nave(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a><br>"
+	+"<a href='#' onclick='return copiar_nave(event, this,"+id_imperio+",true);' style='visibility: hidden;'>Upgrade</a></div>";
 
 	evento.preventDefault();
 	return false;	
@@ -1217,11 +1217,11 @@ function nova_tech_jogador(evento, id_imperio) {
 		let turno = linha_nova.insertCell(-1);
 
 		nome_tech.innerHTML = "<td style='width: 300px;'>"
-		+"<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>"
+		+"<input type='hidden' data-atributo='id' data-valor-original='' value='"+successMessage.id_imperio_techs+"'></input>"
 		+"<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='"+id_imperio+"' value='"+id_imperio+"'></input>"
 		+"<input type='hidden' data-atributo='id_tech' data-ajax='true' data-valor-original='' value=''></input>"
 		+"<input type='hidden' data-atributo='where_clause' value='id'></input>"
-		+"<input type='hidden' data-atributo='where_value' value=''></input>"
+		+"<input type='hidden' data-atributo='where_value' value='"+successMessage.id_imperio_techs+"'></input>"
 		+"<input type='hidden' data-atributo='turno' value='"+turno_atual+"' data-ajax='true'></input>"
 		+"<input type='hidden' data-atributo='custo_pago' value='0' data-ajax='true'></input>"
 		+"<input type='hidden' data-atributo='funcao_validacao' value='valida_tech_imperio'></input>"

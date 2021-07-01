@@ -918,3 +918,139 @@ function carrega_nave(evento, objeto, id_imperio) {
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function copiar_nave(evento, objeto, id_imperio, upgrade=false)
+--------------------
+Copia um objeto na última linha
+objeto -- objeto sendo editado
+id_imperio -- Império dono dessa nave
+upgrade = false -- se é um upgrade, edita os dados necessários, salva e cria uma nova nave
+******************/
+function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
+	let tabela = document.getElementsByTagName('TABLE');
+	
+	for (let index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
+		if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
+			tabela = tabela[index_tabelas];
+			break;
+		}
+	}
+	
+	let linha = pega_ascendente(objeto,"TR");
+	let celulas = linha.getElementsByTagName("TD");
+	let inputs = [];
+
+	if (upgrade) {
+		//O upgrade só pode ser feito na Capital
+		let objeto_editado = edita_objeto(evento, objeto);
+		let input = [];
+		
+		inputs = linha.getElementsByTagName("INPUT");
+		
+		for (let index_input = 0; index_input < inputs.length; index_input++) {
+			if (inputs[index_input].getAttribute('data-atributo') == "custo" || inputs[index_input].getAttribute('data-atributo') == "turno_destruido"
+				|| inputs[index_input].getAttribute('data-atributo') == "X" || inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
+				input[inputs[index_input].getAttribute('data-atributo')] = inputs[index_input];
+			}
+		}
+		
+		let custo_nave = JSON.parse(input['custo'].value);
+		if (input['turno_destruido'].value != 0) {
+			alert('Não é possível realizar o upgrade de uma nave que já tenha sido destruída!');
+			salva_objeto(evento, objeto, true);
+			
+			evento.preventDefault();
+			return false;
+		}
+		//TODO -- Verificar TODAS as estrelas...
+		/***
+		else if(input['X'].value != tabela.getAttribute("data-X") || input['Y'].value != tabela.getAttribute("data-Y") || input['Z'].value != tabela.getAttribute("data-Z")) {
+			alert('Só é possível fazer o upgrade de uma nave que esteja na Capital!');
+			salva_objeto(evento, objeto, true);
+			
+			evento.preventDefault();
+			return false;			
+		}
+		//***/
+		
+		custo_nave['upgrade'] = true;
+		input['custo'].value = JSON.stringify(custo_nave);
+		input['turno_destruido'].value = turno_atual;
+		
+		objeto_em_edicao = false;
+		objeto_em_edicao = false;
+		
+		let retorno_salva_objeto = new Promise((resolve, reject) =>	{
+			resolve(salva_objeto(evento, objeto));
+		});
+		
+		retorno_salva_objeto.then((successMessage) => {
+			//console.log("Nave foi destruída e custos devolvidos!");
+			if (successMessage) {
+				let nave_upgrade = copiar_nave(evento, objeto, id_imperio);
+				let inputs_nave_upgrade = nave_upgrade.getElementsByTagName("INPUT");
+				
+				for (let index_input = 0; index_input < inputs_nave_upgrade.length; index_input++) {
+					if (inputs_nave_upgrade[index_input].getAttribute('data-atributo') == "turno") {
+						inputs_nave_upgrade[index_input].value = turno_atual;
+					} else if (inputs_nave_upgrade[index_input].getAttribute('data-atributo') == "turno_destruido") {
+						inputs_nave_upgrade[index_input].value = 0;
+					}
+				}
+				objeto.remove();
+			} else {
+				salva_objeto(evento, objeto, true)
+			}
+			//nave_upgrade.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+		});
+		
+		return false;
+	}
+	
+	let linha_nova = tabela.insertRow(-1);
+	
+	let celula = "";
+	for (let index = 0; index < celulas.length; index++) {
+		celula = linha_nova.insertCell(index);
+		celula.innerHTML = celulas[index].innerHTML;
+	}
+
+	let retorno = edita_objeto(evento, celula);
+
+	celulas = linha_nova.getElementsByTagName("TD");
+	inputs = linha_nova.getElementsByTagName("INPUT");
+	ahrefs = linha_nova.getElementsByTagName("A");
+
+	for (let index_input = 0; index_input < inputs.length; index_input++) {
+		if (inputs[index_input].getAttribute('data-atributo') == "id" || inputs[index_input].getAttribute('data-atributo') == "where_value") {
+			inputs[index_input].value = "";
+			inputs[index_input].setAttribute('data-valor-original',"");
+		} else if(inputs[index_input].getAttribute('data-atributo') == "custo") {
+			let custo_nave = JSON.parse(inputs[index_input].value);
+			delete custo_nave.upgrade;
+			inputs[index_input].value = JSON.stringify(custo_nave);
+		}  else if (id_imperio !=0) {
+			if (inputs[index_input].getAttribute('data-atributo') == "X" 
+				|| inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
+				let string_data = 'data-' + inputs[index_input].getAttribute('data-atributo');
+				inputs[index_input].value = tabela.getAttribute(string_data);
+			} else if (inputs[index_input].getAttribute('data-atributo') == "turno") {
+				inputs[index_input].value = turno_atual;
+			}
+		}
+	}
+	
+	for (let index_anchors = 0; index_anchors < ahrefs.length; index_anchors++) {
+		//console.log(ahrefs[index_anchors].text);
+		if (ahrefs[index_anchors].text == "Cancelar" ) {
+			ahrefs[index_anchors].setAttribute('onclick','return cancela_edicao(event, this);');
+		} else if (ahrefs[index_anchors].text == "Criar cópia" || ahrefs[index_anchors].text == "Upgrade") {
+			ahrefs[index_anchors].style.visibility = "hidden";
+		}
+	}		
+	
+	evento.preventDefault();
+	linha_nova.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+	return linha_nova;
+}

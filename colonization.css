@@ -403,6 +403,20 @@ tr.th_linha_2 th {
 	z-index: 99;	
 }
 
+.th_linha_3 {
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 52px;
+	z-index: 99;	
+}
+
+tr.th_linha_3 th {
+	background-color: #FDFDFD;
+	position: sticky;
+	top: 52px;
+	z-index: 99;	
+}
+
 .verde_escuro {
 	color: #006400;
 }

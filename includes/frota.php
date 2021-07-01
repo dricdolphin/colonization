@@ -211,6 +211,12 @@ class frota
 			if ($this->alcance_temp != 0) {
 				$this->alcance = $this->alcance_temp;
 			}
+			
+			$html_upgrade_nave = "";
+			if ($this->turno_destruido == 0) {
+				$html_upgrade_nave = "<a href='#' onclick='return copiar_nave(event, this, {$this->id_imperio},true);'>Upgrade</a>";
+			}
+			
 			$html = "<td>
 				<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
@@ -249,8 +255,8 @@ class frota
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
 				<td><div data-atributo='gerenciar'>
-				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a><br>
-				<a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio},true);'>Upgrade</a>
+				<a href='#' onclick='return copiar_nave(event, this, {$this->id_imperio});'>Criar cópia</a><br>
+				{$html_upgrade_nave}
 				</div>
 				</td>";
 		
@@ -274,7 +280,7 @@ class frota
 				<td><div data-atributo='Z' data-editavel='true' data-valor-original='{$this->Z}' data-style='width: 30px;'>{$this->Z}</div></td>
 				<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno}' data-style='width: 50px;'>{$this->turno}</div></td>
 				<td><div data-atributo='turno_destruido' data-editavel='true' data-valor-original='{$this->turno_destruido}' data-style='width: 50px;'>{$this->turno_destruido}</div></td>
-				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_objeto(event, this, {$this->id_imperio});'>Criar cópia</a></div></td>";			
+				<td><div data-atributo='gerenciar'><a href='#' onclick='return copiar_nave(event, this, {$this->id_imperio});'>Criar cópia</a></div></td>";			
 		}
 		
 		return $html;

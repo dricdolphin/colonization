@@ -230,7 +230,7 @@ class colonization_ajax {
 		ON ce.id = cp.id_estrela
 		JOIN colonization_imperio_colonias AS cic
 		ON cic.id_planeta = cp.id
-		WHERE cic.id_imperio={$nave->id_imperio} AND ce.id={$nave->id_estrela}");
+		WHERE cic.id_imperio={$nave->id_imperio} AND ce.id={$nave->id_estrela} AND cic.turno={$imperio->turno->turno}");
 		
 		if (empty($ponto_reabastece) && empty($estrela_colonia)) {
 			$dados_salvos['resposta_ajax'] = "Só é possível reparar sua nave num sistema que tenha um Espaçoporto amigável!";
@@ -294,6 +294,7 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta			
 		}
 		
+		$estrela_capital = new estrela($imperio->id_estrela_capital);
 		if ($estrela->cerco) {
 			$dados_salvos['resposta_ajax'] = "O sistema está sitiado e não pode receber alterações nesse momento.";
 		
@@ -637,7 +638,7 @@ class colonization_ajax {
 			//Primeiro verifica se tem uma Estação Orbital na CAPITAL do Império...
 			//Naves acima de CORVETAS requerem uma Estação Orbital de nível adequado...
 			$nivel_estacao_orbital_requerida = 0;
-			if ($_POST['tamanho'] > 10 && $_POST['nivel_estacao_orbital'] == 0) {//Estações Orbitais podem ter qualquer tamanho...
+			if ($_POST['nivel_estacao_orbital'] == 0) {//Estações Orbitais podem ter qualquer tamanho...
 				if ($_POST['tamanho'] > 1000) {
 					$nivel_estacao_orbital_requerida = 10;
 				} elseif ($_POST['tamanho'] > 500) {
@@ -667,6 +668,7 @@ class colonization_ajax {
 				WHERE cic.id_imperio={$imperio->id}
 				AND cic.turno={$imperio->turno->turno}
 				AND cic.capital=true");
+				
 				$dados_salvos['debug'] .= "\n
 				SELECT cp.id_estrela
 				FROM colonization_imperio_colonias AS cic
@@ -677,21 +679,56 @@ class colonization_ajax {
 				AND cic.capital=true\n";
 				
 				$estrela_capital = new estrela($id_estrela_capital);
-
-				$estacao_orbital_na_capital = $wpdb->get_var("
-				SELECT COUNT(cif.id) 
-				FROM colonization_imperio_frota AS cif
-				WHERE cif.X={$estrela_capital->X} AND cif.Y={$estrela_capital->Y} AND cif.Z={$estrela_capital->Z}
-				AND cif.nivel_estacao_orbital >= {$nivel_estacao_orbital_requerida}
-				AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
 				
-				if ($estacao_orbital_na_capital == 0) {
-					$html_mk = $plugin_colonization->html_mk($nivel_estacao_orbital_requerida);
-					$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital{$html_mk} ou melhor na Capital para poder construir essa nave!";
-					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-					wp_die(); //Termina o script e envia a resposta					
+				if ($_POST['tamanho'] > 10) {
+					$estacao_orbital_na_estrela = $wpdb->get_var("
+					SELECT COUNT(cif.id) 
+					FROM colonization_imperio_frota AS cif
+					WHERE cif.X={$_POST['X']} AND cif.Y={$_POST['Y']} AND cif.Z={$_POST['Z']}
+					AND cif.nivel_estacao_orbital >= {$nivel_estacao_orbital_requerida}
+					AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
+					
+					$dados_salvos['debug'] .= "SELECT COUNT(cif.id) 
+					FROM colonization_imperio_frota AS cif
+					WHERE cif.X={$_POST['X']} AND cif.Y={$_POST['Y']} AND cif.Z={$_POST['Z']}
+					AND cif.nivel_estacao_orbital >= {$nivel_estacao_orbital_requerida}
+					AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)\n";
+					
+					if ($estacao_orbital_na_estrela == 0) {
+						$html_mk = $plugin_colonization->html_mk($nivel_estacao_orbital_requerida);
+						$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital {$html_mk} no Sistema para poder construir essa nave!";
+						echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+						wp_die(); //Termina o script e envia a resposta					
+					}
 				}
+
+				$colonias_imperio = $wpdb->get_var("
+				SELECT COUNT(cic.id) 
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}
+				AND cic.id_imperio = {$_POST['id_imperio']} AND cic.turno={$_POST['turno']}");		
+
+				$dados_salvos['debug'] .= "SELECT COUNT(cic.id) 
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}
+				AND cic.id_imperio = {$_POST['id_imperio']} AND cic.turno={$_POST['turno']}";
 				
+				if ($colonias_imperio == 0) {
+					$dados_salvos['resposta_ajax'] = "Só é possível criar novas naves em suas Colônias!";
+					if ($upgrade) {
+						$dados_salvos['resposta_ajax'] = "Só é possível criar atualizar suas naves em suas Colônias!";
+					}
+					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+					wp_die(); //Termina o script e envia a resposta										
+				}
 			}
 			
 			foreach ($string_nave as $chave_tech => $valor) {
@@ -788,6 +825,7 @@ class colonization_ajax {
 		ORDER BY cit.custo_pago DESC, ct.nome");
 		
 		$dados_salvos['debug'] = "";
+		$dados_salvos['id_imperio_techs'] = "";
 		$html_select = "<select data-atributo='id_tech' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_tech(event, this);'>";
 		
 		foreach ($ids_techs as $id_tech) {
@@ -816,6 +854,9 @@ class colonization_ajax {
 				}
 			}
 			
+			if ($html_select == "<select data-atributo='id_tech' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_tech(event, this);'>" && !empty($id_tech->custo_pago)) {
+				$dados_salvos['id_imperio_techs'] = $id_tech->id_imperio_techs;
+			}
 			if (!empty($id_tech->custo_pago)) {
 				$dados_salvos['custos_tech'][$tech->id] = $tech->custo - $id_tech->custo_pago;
 				$html_select .= "<option value='{$tech->id}' data-id-imperio-tech='{$id_tech->id_imperio_techs}'>Concluir Pesquisa '{$tech->nome}'</option>";
@@ -904,7 +945,17 @@ class colonization_ajax {
 			
 			$html_select_instalacoes .= "<option value='{$instalacao->id}'>{$instalacao->nome}</option>";
 			$dados_salvos['custos_instalacao'][$id_instalacao->id] = $instalacao->html_custo();
-			$dados_salvos['descricao_instalacao'][$id_instalacao->id] = $instalacao->descricao;
+			$html_slots = "Ocupa {$instalacao->slots} slots.";
+			if ($instalacao->slots == 0) {
+				$html_slots = "Não ocupa slots.";
+			} elseif ($instalacao->slots == 1) {
+				$html_slots = "Ocupa um slot.";
+			}
+			$html_pode_desativar = "";
+			if ($instalacao->pode_desativar == 0) {
+				$html_pode_desativar = " <span style='font-style: italic;'>Essa instalação não pode ser desativada.</span>";
+			}
+			$dados_salvos['descricao_instalacao'][$id_instalacao->id] = "{$instalacao->descricao}. {$html_slots}{$html_pode_desativar}";
 			$dados_salvos['produz_instalacao'][$id_instalacao->id] = $instalacao->html_producao_consumo_instalacao();
 			$dados_salvos['tech_instalacao'][$id_instalacao->id] = $id_instalacao->nome_tech;
 		}
@@ -1550,6 +1601,7 @@ class colonization_ajax {
 		}
 
 		$tech = new tech($_POST['id_tech']);
+		$dados_salvos['debug'] .= "id_tech: {$_POST['id_tech']} || somente_valida: {$_POST['somente_valida']}\n";
 		$tabela_techs = "colonization_imperio_techs";
 		if ($_POST['somente_valida'] === "true") {
 			$tabela_techs = "(SELECT DISTINCT 1 AS id, cit.id_tech, cit.custo_pago, cit.publica, cit.id_imperio
