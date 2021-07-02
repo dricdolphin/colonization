@@ -1190,7 +1190,7 @@ class imperio
 							$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'><span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>";
 						} else {
 							$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]++;
-							$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'>x{$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]}<span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>";
+							$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'><span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>x{$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]}";
 						}
 					}
 				}

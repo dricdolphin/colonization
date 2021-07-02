@@ -1200,6 +1200,14 @@ function nova_tech_jogador(evento, id_imperio) {
 	
 	nova_tech.then((successMessage) => {
 		let tabela = document.getElementsByTagName('TABLE');
+
+		if (successMessage.descricao == undefined) {
+			alert("Não há novas Techs para serem pesquisadas!\nExplore estrelas e converse com seus Ministros para encontrar novas Techs!");
+			objeto_em_edicao = false;
+			range_em_edicao = false;
+			evento.preventDefault();
+			return false;
+		}
 		
 		for (let index=0; index < tabela.length; index++) {
 			if (tabela[index].getAttribute("data-tabela") == 'colonization_imperio_techs') {

@@ -548,9 +548,21 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 					label_pop.innerHTML = input_pop.value;
 					//input_pop.click();
 					altera_acao(event, input_pop);
-					valida_acao(event, input_pop, true);
-				} else if (checkbox_desativa_instalacao != "") {
-					if (checkbox_desativa_instalacao.value == 0) {
+					let retorno = new Promise((resolve, reject) => {
+						resolve(valida_acao(event, input_pop, true));
+					});
+
+					retorno.then((successMessage) => {
+						if (!successMessage) {
+							input_pop.value = 0;
+							label_pop.innerHTML = input_pop.value;
+							altera_acao(event, input_pop);
+							valida_acao(event, input_pop, true);
+						}
+					});
+					//Se der um erro no balanço na hora de ajustar a Instalação, DESATIVA para que o jogador possa refazer o balanço.
+				} else {
+					//if (checkbox_desativa_instalacao.value == 0) {
 						//checkbox_desativa_instalacao.click();
 						//altera_acao(event, checkbox_desativa_instalacao);
 						//valida_acao(event, checkbox_desativa_instalacao, true);
@@ -570,7 +582,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 							objeto_em_edicao = false;
 							range_em_edicao = false;							
 						});
-					}
+					//}
 				}
 
 				if (nivel_upgrade >= nivel_maximo) {

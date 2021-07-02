@@ -733,8 +733,8 @@ class acoes
 		$id_poluicao = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome = 'Poluição'");
 		$id_pesquisa = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Pesquisa'");
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
-		$id_comercio = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Capacidade de Comércio'");
-		$id_comercio_maximo = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Comércio Máximo'");
+		$id_comercio = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome LIKE '%Capacidade de Comércio%'");
+		$id_comercio_maximo = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome LIKE '%Comércio Máximo%'");
 
 		//Para agilizar o processamento, salvamos os dados no DB e só processamos todos os balanços quando necessário
 		//$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");

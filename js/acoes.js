@@ -68,6 +68,8 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	
 	if (evento.button !== 0 && evento.type !== "touchend" && !forcar_valida_acao) {
 		div_gerenciar.style.visibility = "hidden";
+		range_em_edicao = false;
+		objeto_em_edicao = false;
 		evento.preventDefault();
 		return false;
 	}
@@ -88,14 +90,42 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	
 	if (dados['pop_original'] == dados['pop']) {
 		div_gerenciar.style.visibility = "hidden";
+		range_em_edicao = false;
+		objeto_em_edicao = false;
 		evento.preventDefault();
 		return false;
 	}
 
-	let dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
-	let retorno = {};
-	retorno.retorno = true;
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
+		console.log(dados_ajax);
+		objeto_em_edicao = true;
+		range_em_edicao = true;
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
 	
+	retorno.then((successMessage) => {
+		console.log(successMessage);
+		if (successMessage.resposta_ajax == "OK!") {
+			if (successMessage.balanco_acao != "") {
+				alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+successMessage.balanco_acao);
+				efetua_acao(evento, objeto, false);
+				return false;
+			}
+			let resposta = {};
+			resposta.resposta = successMessage;
+			resposta.retorno = true;
+			efetua_acao(evento, objeto, resposta);
+			return true;
+		} else {
+			alert(successMessage.resposta_ajax);
+			efetua_acao(evento, objeto, false);
+			return false;
+		}		
+	});
+
+	
+	/***
 	//Envia a chamada de AJAX para salvar o objeto
 	let xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -135,6 +165,7 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send(dados_ajax);
+	//***/
 
 	evento.preventDefault();
 	return retorno;

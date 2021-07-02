@@ -124,7 +124,7 @@ class tech
 	$id_imperio -- se for para pegar um império específico
 	***********************/
 
-	function query_tech($where="",$id_imperio=0) {
+	function query_tech($where="",$id_imperio=0, $libera_techs_secretas = false) {
 		global $wpdb;
 
 
@@ -208,9 +208,30 @@ class tech
 		$lista_completa = [];
 		$lista_completa_temp = [];
 
-		if ($mostra_techs_com_requisito && $roles == "administrator") {
+		if ($mostra_techs_com_requisito && $libera_techs_secretas) {
 			//Adiciona na lista as Techs que o Império tenha os pré-requisitos
-			
+			$todas_as_tech = $wpdb->get_results("
+			SELECT ct.id, ct.lista_requisitos, ct.id_tech_parent, ct.nivel
+			FROM colonization_tech AS ct 
+			WHERE ct.lista_requisitos != '' AND ct.id NOT IN (SELECT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$id_imperio})
+			AND ct.nivel > 1
+			ORDER BY ct.nivel");
+			foreach ($todas_as_tech as $tech) {
+				$num_techs_requisito = count(explode(";",$tech->lista_requisitos)) + count(explode(";",$tech->id_tech_parent));
+				$id_techs_requisito = implode(",",array_merge(explode(";",$tech->lista_requisitos),explode(";",$tech->id_tech_parent)));
+				$tem_techs_requisito = $wpdb->get_var("
+				SELECT COUNT(cit.id) 
+				FROM colonization_imperio_techs AS cit 
+				WHERE cit.id_imperio={$id_imperio} AND cit.id_tech IN ({$id_techs_requisito})");
+				if ($tem_techs_requisito == $num_techs_requisito) {
+					if (empty($lista_techs[$tech->nivel])) {
+						$lista_techs[$tech->nivel] = [];
+					}
+					$ultimo_index = count($lista_techs[$tech->nivel]);
+					$lista_techs[$tech->nivel][$ultimo_index] = $tech;
+					$lista_techs[$tech->nivel][$ultimo_index] = $tech;
+				}
+			}
 		}
 
 		$nivel=1;

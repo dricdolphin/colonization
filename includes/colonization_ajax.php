@@ -815,6 +815,7 @@ class colonization_ajax {
 		
 		$imperio = new imperio($_POST['id_imperio']);
 		
+		/***
 		$ids_techs = $wpdb->get_results("
 		SELECT ct.id, ct.custo, cit.custo_pago, cit.id_imperio_techs
 		FROM colonization_tech AS ct
@@ -823,6 +824,9 @@ class colonization_ajax {
 		WHERE (ct.publica=1 OR ct.id IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$imperio->id}))
 		AND (cit.id_tech IS NULL OR (cit.custo_pago IS NOT NULL AND cit.custo_pago > 0))
 		ORDER BY cit.custo_pago DESC, ct.nome");
+		//***/
+		$ids_techs = new tech();
+		$ids_techs = $ids_techs->query_tech(" AND ct.publica = 1", $imperio->id);
 		
 		$dados_salvos['debug'] = "";
 		$dados_salvos['id_imperio_techs'] = "";
@@ -852,6 +856,11 @@ class colonization_ajax {
 						continue 2;
 					}
 				}
+			}
+			
+			$tech_parcial = $wpdb->get_var("SELECT COUNT(cit.id) FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$_POST['id_imperio']} AND cit.id_tech={$id_tech->id} AND cit.custo_pago = 0");
+			if ($tech_parcial == 1) {//Já tem essa Tech, pode pular
+				continue;
 			}
 			
 			if ($html_select == "<select data-atributo='id_tech' style='width: 100%' class='nome_instalacao' onchange='return atualiza_custo_tech(event, this);'>" && !empty($id_tech->custo_pago)) {
@@ -3058,7 +3067,7 @@ class colonization_ajax {
 		$debug .= "valida_acao() -> \$acoes->pega_balanco_recursos() {$diferenca}ms \n";
 		
 		$mdo_planeta = $acoes->mdo_planeta($planeta->id);
-		$pop_planeta = $colonia->pop;
+		$pop_planeta = $colonia->pop + $colonia->pop_robotica;
 		
 		$mdo_sistema = 0;
 		$pop_sistema = 0;

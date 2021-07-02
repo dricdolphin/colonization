@@ -1221,7 +1221,7 @@ class menu_admin {
 			</thead>
 			<tbody>";
 			
-			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id}");
+			$lista_id_frota = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE id_imperio={$imperio->id} AND turno_destruido=0");
 			
 			foreach ($lista_id_frota as $id_frota) {
 				$frota = new frota($id_frota->id);
