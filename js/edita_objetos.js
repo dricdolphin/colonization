@@ -148,12 +148,14 @@ function edita_objeto(evento, objeto) {
 	for (let index = 0; index < celulas.length; index++) {
 		celula = celulas[index];
 		divs = celula.getElementsByTagName('div'); //Os dados editáveis ficam sempre dentro de divs
-		if (index == 0) {//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Salvar e Excluir, que no modo edição são alterados para Salvar e Cancelar
+		if (index == 0) {//A primeira célula é especial, pois tem dois divs -- um com dados e outro com os links para Editar e Excluir, que no modo edição são alterados para Salvar e Cancelar
 			for (let index_div = 0; index_div < divs.length; index_div++) {
-				if (divs[index_div].getAttribute('data-atributo') == "gerenciar") {
+				if (divs[index_div].getAttribute('data-atributo') == "gerenciar" && divs[index_div].innerHTML.includes("Editar")) {
 					divs[index_div].innerHTML = "<a href='#' onclick='return salva_objeto(event, this);'>Salvar</a> | <a href='#' onclick='return salva_objeto(event, this, true);'>Cancelar</a>";
 				} else if (divs[index_div].getAttribute('data-atributo') == "processa_string") {
 					divs[index_div].style.visibility = "visible";
+				} else if (divs[index_div].getAttribute('data-atributo') == "gerenciar" && divs[index_div].getAttribute('data-exibe-ao-salvar') == "true") {
+					divs[index_div].style.visibility = "hidden";
 				}
 			}
 		}
@@ -548,7 +550,6 @@ cancela = false -- define se pega os dados originais ou os novos
 remove_gerenciar = false -- define se deve remover o div "gerenciar"
 ******************/	
 function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=false) {
-
 	let linha = pega_ascendente(objeto,"TR");
 	let inputs = linha.getElementsByTagName("INPUT");
 	let textarea_linha = linha.getElementsByTagName("TEXTAREA");
@@ -628,15 +629,17 @@ function desabilita_edicao_objeto(objeto, cancela = false, remove_gerenciar=fals
 	
 	//A primeira célula NORMALMENTE é especial, pois tem divs com dados como Id e outros, e links de gerenciamento, que no modo edição são alterados para Salvar e Cancelar
 	let celula = linha.cells[0]
-	let divs = celula.getElementsByTagName("DIV");
+	let divs = linha.getElementsByTagName("DIV");
 	for (let index=0; index < divs.length; index++) {
-		if (divs[index].getAttribute('data-atributo') == "gerenciar") {
+		if (divs[index].getAttribute('data-atributo') == "gerenciar" && divs[index].innerHTML.includes("Salvar")) {
 			divs[index].innerHTML = "<a href='#' onclick='return edita_objeto(event, this);'>Editar</a>"+html_deletar;
 			if (remove_gerenciar) {
 				divs[index].style.visibility = "hidden";
 			}
 		} else if (divs[index].getAttribute('data-atributo') == "processa_string") {
 			divs[index].style.visibility = "hidden";
+		} else if (divs[index].getAttribute('data-atributo') == "gerenciar" && divs[index].getAttribute('data-exibe-ao-salvar') == "true") {
+			divs[index].style.visibility = "visible";
 		}
 	}
 	return linha;

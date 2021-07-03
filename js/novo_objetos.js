@@ -47,7 +47,7 @@ function novo_imperio(evento) {
 	prestigio.innerHTML = "<div data-atributo='prestigio' data-editavel='true' data-valor-original='' data-style='width: 40px;'><input type='text' data-atributo='prestigio' data-ajax='true' style='width: 40px;'></input></div>";
 	populacao.innerHTML = "<div data-atributo='pop' data-valor-original=''></div>";
 	pontuacao.innerHTML = "<div data-atributo='pontuacao' data-valor-original=''></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div>";
 
 	evento.preventDefault();
 	return false;
@@ -97,7 +97,7 @@ function nova_estrela(evento) {
 	estrela_z.innerHTML = "<div data-atributo='Z' data-style='width: 100%;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='Z' data-ajax='true' style='width: 100%;'></input></div>";
 	estrela_tipo.innerHTML = "<div data-atributo='tipo' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tipo' data-ajax='true'></input></div>";
 	cerco.innerHTML = "<div data-atributo='cerco' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='cerco' data-ajax='true'></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div>";
 
 	evento.preventDefault();
 	return false;
@@ -189,7 +189,7 @@ function novo_planeta(evento, id_estrela = 0) {
 	subclasse.innerHTML = "<div data-atributo='subclasse' data-editavel='true' data-valor-original=''><input type='text' data-atributo='subclasse' data-ajax='true'></input></div>";
 	tamanho.innerHTML = "<div data-atributo='tamanho' data-style='width: 30px;' data-editavel='true' data-valor-original=''><input type='text' data-atributo='tamanho' data-ajax='true' style='width: 30px;'></input></div>";
 	inospito.innerHTML = "<div data-atributo='inospito' data-type='checkbox' data-editavel='true' data-valor-original='1'><input type='checkbox' data-atributo='inospito' data-ajax='true' checked></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this,"+link_gerenciamento+");' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return gerenciar_objeto(event, this,"+link_gerenciamento+");'>Gerenciar Objeto</a></div>";
 	
 	let selects = "";
 	if (id_estrela != 0) {
@@ -605,7 +605,7 @@ function nova_instalacao(evento) {
 	especiais.innerHTML = "<div data-atributo='especiais' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='especiais' data-ajax='true' data-branco='true'></input></div>";
 	icone.innerHTML = "<div data-atributo='icone' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='icone' data-ajax='true' data-branco='true'></input></div>";
 	custos.innerHTML = "<div data-atributo='custos' data-editavel='true' data-branco='true' data-valor-original=''><input type='text' data-atributo='custos' data-ajax='true' data-branco='true'></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div>";
 
 	evento.preventDefault();	
 	return false;	
@@ -717,7 +717,7 @@ function nova_colonia(evento, id_imperio) {
 	poluicao.innerHTML = "<div data-atributo='poluicao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='poluicao' data-ajax='true' style='width: 30px;' value=0></input></div>";
 	satisfacao.innerHTML = "<div data-atributo='satisfacao' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='satisfacao' data-ajax='true' style='width: 30px;' value=100></input></div>";
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-style='width: 30px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 30px;' value='"+turno_atual+"'></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return gerenciar_objeto(event, this);' style='visibility: hidden;'>Gerenciar Objeto</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div>";
 
 	evento.preventDefault();
 	return false;
@@ -847,8 +847,8 @@ function nova_colonia_instalacao(evento, id_planeta) {
 	turno_destroi.innerHTML = "<div data-atributo='turno_destroi' data-valor-original=''>#</div>";
 	turno_desmonta.innerHTML = "<div data-atributo='turno_desmonta' data-style='width: 50px;' data-editavel='true' data-valor-original='' data-branco='true'>#</div>";
 	instalacao_inicial.innerHTML = "<td><div data-atributo='instalacao_inicial' data-type='checkbox' data-editavel='true' data-valor-original='0'><input type='checkbox' data-atributo='instalacao_inicial' data-ajax='true' value='1'></input></div></td>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return destruir_instalacao(event, this);' style='visibility: hidden;'>Destruir Instalação</a></div>"
-	+"<div data-atributo='gerenciar'><a href='#' onclick='return desmonta_instalacao(event, this, "+turno_atual+");' style='visibility: hidden;'>Desmantelar</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return destruir_instalacao(event, this);'>Destruir Instalação</a></div>"
+	+"<div style='visibility: hidden;'><a href='#' onclick='return desmonta_instalacao(event, this, "+turno_atual+");'>Desmantelar</a></div>";
 
 	evento.preventDefault();
 	return false;
@@ -962,12 +962,12 @@ function nova_nave(evento, id_imperio, X_estrela=0, Y_estrela=0, Z_estrela=0) {
 
 	let turno = linha_nova.insertCell(-1);
 	let turno_destruido = linha_nova.insertCell(-1);
-	let gerenciar = linha_nova.insertCell(-1);	
+	let gerencia = linha_nova.insertCell(-1);	
 	
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
 	turno_destruido.innerHTML = "<div data-atributo='turno_destruido' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno_destruido' data-ajax='true' style='width: 50px;' value='0'></input></div>";
-	gerenciar.innerHTML = "<div data-atributo='gerenciar' data-valor-original=''><a href='#' onclick='return copiar_nave(event, this,"+id_imperio+");' style='visibility: hidden;'>Criar cópia</a><br>"
-	+"<a href='#' onclick='return copiar_nave(event, this,"+id_imperio+",true);' style='visibility: hidden;'>Upgrade</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return copiar_nave(event, this,"+id_imperio+");' >Criar cópia</a><br>"
+	+"<a href='#' onclick='return copiar_nave(event, this,"+id_imperio+",true);'>Upgrade</a></div>";
 
 	evento.preventDefault();
 	return false;	

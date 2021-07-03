@@ -2759,18 +2759,18 @@ class colonization_ajax {
 	***********************/	
 	function deleta_objeto() {
 		global $wpdb; 
-		$wpdb->hide_errors();
+		//$wpdb->hide_errors();
 		
 		//$where = [];
 		//$where[$_POST['where_clause']]=$_POST['where_value'];
 		
 		$resposta = $wpdb->query("DELETE FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}");
 
-		if ($resposta !== false) {
-			$dados_salvos['resposta_ajax'] = "DELETADO!";
-		} else {
+		if ($resposta === false) {
 			$dados_salvos['debug'] = "DELETE FROM {$_POST['tabela']} WHERE {$_POST['where_clause']}={$_POST['where_value']}";
-			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente! \nErro: {$_POST['tabela']}: {$_POST['where_clause']}={$_POST['where_value']}  \n{$wpdb->last_error}";
+			$dados_salvos['resposta_ajax'] = "Ocorreu um erro desconhecido! Por favor, tente novamente! \nErro: resposta:{$resposta}\n{$_POST['tabela']}: {$_POST['where_clause']}={$_POST['where_value']}  \n{$wpdb->last_error}";			
+		} else {
+			$dados_salvos['resposta_ajax'] = "DELETADO!";
 		}
 	
 		echo json_encode($dados_salvos); //Envia a resposta via echo

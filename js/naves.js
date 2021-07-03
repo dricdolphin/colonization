@@ -667,12 +667,14 @@ function processa_string_admin
 --------------------
 Processa uma string de nave na área de Frotas (menu_admin)
 ******************/
-function processa_string_admin (evento, objeto) {
-	let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
-	
-	if (!confirma) {
-		evento.preventDefault();
-		return false;
+function processa_string_admin (evento, objeto, jogador=false) {
+	if (jogador) {
+		let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
+		
+		if (!confirma) {
+			evento.preventDefault();
+			return false;
+		}
 	}
 	
 	let input_string_nave = document.getElementById('string_nave').value;
