@@ -966,8 +966,11 @@ function nova_nave(evento, id_imperio, X_estrela=0, Y_estrela=0, Z_estrela=0) {
 	
 	turno.innerHTML = "<div data-atributo='turno' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno' data-ajax='true' style='width: 50px;' value='"+turno_atual+"'></input></div>";
 	turno_destruido.innerHTML = "<div data-atributo='turno_destruido' data-editavel='true' data-valor-original='' data-style='width: 50px;'><input type='text' data-atributo='turno_destruido' data-ajax='true' style='width: 50px;' value='0'></input></div>";
-	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return copiar_nave(event, this,"+id_imperio+");' >Criar cópia</a><br>"
-	+"<a href='#' onclick='return copiar_nave(event, this,"+id_imperio+",true);'>Upgrade</a></div>";
+	gerencia.innerHTML = "<div data-atributo='gerenciar' data-exibe-ao-salvar='true' style='visibility: hidden;'><a href='#' onclick='return copiar_nave(event, this,"+id_imperio+");' >Criar cópia</a><br>";
+	if (id_imperio != 0) {
+		gerencia.innerHTML = gerencia.innerHTML + "<a href='#' onclick='return copiar_nave(event, this,"+id_imperio+",true);'>Upgrade</a>";
+	}
+	gerencia.innerHTML = gerencia.innerHTML + "</div>";
 
 	evento.preventDefault();
 	return false;	

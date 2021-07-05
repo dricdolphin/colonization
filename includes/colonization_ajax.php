@@ -79,6 +79,7 @@ class colonization_ajax {
 		$colonia = new colonia($_POST['id_colonia']);
 		$imperio = new imperio($colonia->id_imperio);
 		if ($imperio->id != $colonia->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($colonia->id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -180,6 +181,7 @@ class colonization_ajax {
 		$imperio = new imperio($id_imperio);
 		$dados_salvos['resposta_ajax'] = "OK!";
 		if ($imperio->id != $id_imperio && $roles != "administrator") {
+			$imperio = new imperio($id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode remover seus avisos!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -215,6 +217,7 @@ class colonization_ajax {
 		
 		$dados_salvos['resposta_ajax'] = "OK!";
 		if ($imperio->id != $nave->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($nave->id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode reparar suas naves!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -288,6 +291,7 @@ class colonization_ajax {
 		$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
 		
 		if ($imperio->id != $_POST['id_imperio'] && $roles != "administrator") {
+			$imperio = new imperio($_POST['id_imperio'],true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode colonizar um planeta nesse sistema estelar!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -392,6 +396,7 @@ class colonization_ajax {
 		$imperio = new imperio($modelo_nave->id_imperio);
 	
 		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($modelo_nave->id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode deletar um modelo de nave que ele criou!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -566,12 +571,26 @@ class colonization_ajax {
 				wp_die(); //Termina o script e envia a resposta
 			}
 		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
 		
 		$imperio = new imperio($_POST['id_imperio']);
 		$string_nave = json_decode(stripslashes($_POST['string_nave']),true);
 		$dados_salvos['resposta_ajax'] = "OK!";
 		$dados_salvos['debug'] = "";
 		$queries = [];
+		
+		if ($imperio->id != $_POST['id_imperio'] && $roles != "administrator") {
+			$imperio = new imperio($_POST['id_imperio'],true);
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta				
+		}
 		
 		foreach ($custo as $nome_recurso => $qtd) {
 			if ($qtd == 0) {
@@ -1052,7 +1071,8 @@ class colonization_ajax {
 			$roles = $user->roles[0];
 		}
 		$dados_salvos['debug'] = "";
-		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode processar sua missão!";
+		$imperio_correto = new imperio($_POST['id_imperio']);
+		$dados_salvos['resposta_ajax'] = "Somente o Jogador do '{$imperio_correto->nome}' pode processar sua missão!";
 		if ($imperio->id == $_POST['id_imperio'] || $roles == "administrator") {
 			$missao = new missoes($_POST['id']);
 			//Verifica se o player já aceitou ou se rejeitou essa Missão. Uma missão REJEITADA pode ser aceita posteriormente, mas uma missão ACEITA não pode mais ser editada
@@ -1137,7 +1157,8 @@ class colonization_ajax {
 			wp_die();
 		}
 		
-		$dados_salvos['resposta_ajax'] = "Somente o jogador do {$imperio->nome} pode despachar sua nave!";
+		$imperio_correto = new imperio($nave->id_imperio, true);
+		$dados_salvos['resposta_ajax'] = "Somente o Jogador do '{$imperio_correto->nome}' pode despachar sua nave!";
 		if ($imperio->id == $nave->id_imperio || $roles == "administrator") {
 			if ($nave->id_estrela_destino == 0) {
 				$resposta = $wpdb->query("UPDATE colonization_imperio_frota SET id_estrela_destino={$_POST['id_estrela']} WHERE id={$nave->id}");
@@ -2814,6 +2835,8 @@ class colonization_ajax {
 		}
 		
 		if ($id_imperio != $imperio->id && $roles != "administrator") {
+			$imperio = new imperio ($id_imperio , true);
+			
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' ou o Administrador podem reparar/destruír Instalações!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo
 			wp_die(); //Termina o script e envia a resposta

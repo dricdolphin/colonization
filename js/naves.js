@@ -668,7 +668,7 @@ function processa_string_admin
 Processa uma string de nave na área de Frotas (menu_admin)
 ******************/
 function processa_string_admin (evento, objeto, jogador=false) {
-	if (jogador) {
+	if (!jogador) {
 		let confirma = confirm("Ao processar a String TODOS os dados serão perdidos. Deseja continuar?");
 		
 		if (!confirma) {

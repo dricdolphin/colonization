@@ -858,3 +858,65 @@ function salva_diplomacia(evento, objeto, id_imperio_atual, id_imperio_contato, 
 	evento.preventDefault();
 	return false;
 }
+
+function salvar_nave_jogador(evento, objeto) {
+	let div_tabela_frota = document.getElementById("tabela_frota");
+	let ahrefs = div_tabela_frota.getElementsByTagName("A");
+	let selects = document.getElementsByTagName("SELECT");
+	let select_estrela_construcao = "";
+	let select_modelo_nave = "";
+	let link_editar = "";
+
+	for (let index = 0; index<ahrefs.length; index++) {
+		if (ahrefs[index].innerHTML == "Editar") {
+			link_editar = ahrefs[index];
+		} else if (ahrefs[index].innerHTML == "Processa String") {
+			link_processa_string = ahrefs[index];
+		}
+	}
+	
+	for (let index = 0; index<selects.length; index++) {
+		if (selects[index].getAttribute("data-atributo") == "estrela_construcao" ) {
+			select_estrela_construcao = selects[index];
+		} else if (selects[index].getAttribute("data-atributo") == "modelo_nave" ) {
+			select_modelo_nave = selects[index];
+		}
+	}
+
+	let confirma = confirm("Tem certeza que deseja construir a nave '"+ select_modelo_nave.options[select_modelo_nave.selectedIndex].text +"' em "+ select_estrela_construcao.options[select_estrela_construcao.selectedIndex].text +"?");
+
+	if (!confirma) {
+		evento.preventDefault();
+		return false;		
+	}
+	
+
+	//Abre para edição
+	edita_objeto(evento, link_editar);
+	//E processa o String da nave
+	processa_string_admin(evento, link_processa_string, true);
+	//E copia o nome da nave
+	let inputs = div_tabela_frota.getElementsByTagName("INPUT");
+	for (let index = 0; index<inputs.length; index++) {
+		if (inputs[index].getAttribute("data-atributo") == "nome") {
+			inputs[index].value = select_modelo_nave.options[select_modelo_nave.selectedIndex].text;
+		}
+	}
+	//TODO -- E manda salvar o objeto
+	//***
+	let valida_dados = new Promise((resolve, reject) => {
+		resolve(salva_objeto(evento, link_processa_string));
+	});
+	
+	valida_dados.then((successMessage) => {
+		if (successMessage) {
+			document.location.reload();
+		} else {
+			salva_objeto(evento, link_processa_string, true);
+		}
+	});
+	//***/
+	
+	evento.preventDefault();
+	return false;
+}

@@ -448,12 +448,13 @@ function popula_selects_estrelas_frotas() {
 	let selects = document.getElementsByTagName('SELECT');
 	let icone_pesquisa = '';
 	
+	let posicao_nave_na_lista = 0;
 	for (let index=0; index < selects.length; index++) {
 		if (selects[index].getAttribute('data-atributo') == 'id_estrela') {
 			let alcance_nave = selects[index].getAttribute('data-alcance');
 			let alcance_estendido = 2;
 			let reabastece = true;
-			let estrela_atual = id_estrela_atual[index]
+			let estrela_atual = id_estrela_atual[posicao_nave_na_lista]
 			let estrelas_destino = array_estrelas(alcance_nave,alcance_estendido,reabastece,estrela_atual);
 			//console.log('Index: '+index+'; '+estrela_atual);
 			let alcance_local = selects[index].getAttribute('data-alcance-local');
@@ -464,15 +465,17 @@ function popula_selects_estrelas_frotas() {
 			mapped_estrelas_destino_local = estrelas_destino_local.map(function(el, i) {
 				return { index: i, value: el };
 			});
-				mapped_estrelas_destino_local.forEach(
+			
+			mapped_estrelas_destino_local.forEach(
 			function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
 				estrelas_destino[id_estrela_origem] = true;
 			});						
 				
-			mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[index].map(function(el, i) {
+			mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[posicao_nave_na_lista].map(function(el, i) {
 				return { index: i, value: el };
 			});
-				mapped_estrelas_buraco_de_minhoca.forEach(
+			
+			mapped_estrelas_buraco_de_minhoca.forEach(
 			function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
 				estrelas_destino[valor_estrelas_imperio.value] = true;
 			});	
@@ -483,10 +486,10 @@ function popula_selects_estrelas_frotas() {
 			
 			mapped_estrelas_destino.sort(function(firstEl, secondEl) {
 				if (firstEl.nome_estrela.toLowerCase() < secondEl.nome_estrela.toLowerCase()) {
-				return -1;
+					return -1;
 				}
 				if (firstEl.nome_estrela.toLowerCase() > secondEl.nome_estrela.toLowerCase()) {
-				return 1;
+					return 1;
 				}
 				// a must be equal to b
 				return 0;
@@ -495,10 +498,10 @@ function popula_selects_estrelas_frotas() {
 			html_lista = '';
 			mapped_estrelas_destino.forEach(function(valor_destino, chave_destino, mapa_destino) {
 				let selecionado = '';
-				if (id_estrela_destino[index] == 0) {
-					id_estrela_destino[index] = estrela_capital[id_imperio_atual];
+				if (id_estrela_destino[posicao_nave_na_lista] == 0) {
+					id_estrela_destino[posicao_nave_na_lista] = estrela_capital[id_imperio_atual];
 				}
-					if (valor_destino.id_estrela == id_estrela_destino[index]) {
+					if (valor_destino.id_estrela == id_estrela_destino[posicao_nave_na_lista]) {
 					selecionado = 'selected';
 				}
 				if (id_estrela_pesquisa[valor_destino.id_estrela] == 1) {
@@ -520,6 +523,7 @@ function popula_selects_estrelas_frotas() {
 			});
 			
 			selects[index].innerHTML = html_lista;
+			posicao_nave_na_lista++;
 		}
 	}
 }
@@ -647,6 +651,74 @@ function ir_para_planeta(evento, id_planeta) {
 	console.log(texto_id_planeta);
 	div_destino.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function atualiza_lista_estrela_colonia(evento, objeto)
+--------------------
+Atualiza os dados X, Y e Z da Frota
+******************/
+function atualiza_lista_estrela_colonia(evento, objeto) {
+	let div_tabela_frota = document.getElementById("tabela_frota");
+	let divs = div_tabela_frota.getElementsByTagName("DIV");
+	
+	for (let index = 0; index<divs.length; index++) {
+		if (div[index].getAttribute("data-atributo") == "X" || div[index].getAttribute("data-atributo") == "Y" || div[index].getAttribute("data-atributo") == "Z" ) {
+			let texto_atributo = "data-" + div[index].getAttribute("data-atributo");
+			div[index].innerHTML = objeto.getAttribute(texto_atributo); 
+		}
+	}
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function atualiza_lista_estrela_colonia(evento, objeto)
+--------------------
+Atualiza os dados X, Y e Z da Frota
+******************/
+function atualiza_lista_estrela_colonia(evento, objeto) {
+	let div_tabela_frota = document.getElementById("tabela_frota");
+	let divs = div_tabela_frota.getElementsByTagName("DIV");
+	
+	for (let index = 0; index<divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "X" || divs[index].getAttribute("data-atributo") == "Y" || divs[index].getAttribute("data-atributo") == "Z" ) {
+			let texto_atributo = "data-" + divs[index].getAttribute("data-atributo");
+			let valor = objeto.options[objeto.selectedIndex].getAttribute(texto_atributo)
+			divs[index].innerHTML = valor; 
+			divs[index].setAttribute("data-valor-original", valor); 
+		}
+	}
+	
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function atualiza_nave_modelo(evento, objeto)
+--------------------
+Atualiza os dados de um Modelo de Nave
+******************/
+function atualiza_nave_modelo(evento, objeto) {
+	let div_tabela_frota = document.getElementById("tabela_frota");
+	let divs = div_tabela_frota.getElementsByTagName("DIV");
+	let div_texto_nave = document.getElementById("texto_nave");
+	let div_texto_custo = document.getElementById("texto_custo");
+	
+	for (let index = 0; index<divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "string_nave") {
+			let string_nave = objeto.options[objeto.selectedIndex].getAttribute("data-string-nave").replaceAll("\\","");
+			divs[index].innerHTML = string_nave;
+			divs[index].setAttribute("data-valor-original", string_nave);
+		}
+	}
+	
+	div_texto_nave.innerHTML = "<b>Dados da Nave:</b>" + objeto.options[objeto.selectedIndex].getAttribute("data-texto-nave");
+	div_texto_custo.innerHTML = "<b>Custo:</b>" + objeto.options[objeto.selectedIndex].getAttribute("data-texto-custo");
+	
 	evento.preventDefault();
 	return false;
 }
