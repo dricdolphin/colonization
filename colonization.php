@@ -445,7 +445,7 @@ class colonization {
 			if ($resultado->custo_pago != 0) {
 				$html_custo_pago = "{$resultado->custo_pago}/{$resultado->custo}";
 			}
-			$html_techs_imperio .= "<tr><td>{$resultado->nome}</td><td>{$html_custo_pago}</td><td>{$resultado->turno}</td></tr>";
+			$html_techs_imperio .= "<tr><td><input type='hidden' data-atributo='id' value='{$resultado->id}'\>{$resultado->nome}</td><td>{$html_custo_pago}</td><td>{$resultado->turno}</td></tr>";
 		}
 		
 			
@@ -2937,7 +2937,6 @@ var id_imperio_atual = {$imperio->id};
 			foreach ($especiais as $chave => $especial) {
 				if (str_contains($especial,"id=")) {
 					$valor_especial = explode("=",$especial);
-					$outras_partes_nave .= "		<div><label>{$tech->nome}: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='{$valor_especial[1]}' data-descricao='{$tech->nome}' value='1'></input><br></div>\n";
 					$html_javascript .= "descricao_parte['{$valor_especial[1]}'] = \"{$tech->nome}\";\n";
 					break;
 				}

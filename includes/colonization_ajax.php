@@ -962,12 +962,13 @@ class colonization_ajax {
 		FROM colonization_tech AS ct
 		LEFT JOIN (SELECT cit.id AS id_imperio_techs, cit.id_tech, cit.custo_pago FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id}) AS cit
 		ON cit.id_tech = ct.id
-		WHERE (ct.publica=1 OR ct.id IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$imperio->id}))
+		WHERE (ct.publica=1 OR ct.id IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio={$imperio->id})
+		OR ct.id IN (SELECT DISTINCT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio={$imperio->id})) 
 		AND (cit.id_tech IS NULL OR (cit.custo_pago IS NOT NULL AND cit.custo_pago > 0))
 		ORDER BY cit.custo_pago DESC, ct.nome");
 		//***/
 		$ids_techs = new tech();
-		$ids_techs = $ids_techs->query_tech(" AND ct.publica = 1", $imperio->id);
+		$ids_techs = $ids_techs->query_tech(" AND ct.publica = 1", $imperio->id, false, "ORDER BY ct.custo_pago DESC, ct.nome");
 		
 		$dados_salvos['debug'] = "";
 		$dados_salvos['id_imperio_techs'] = "";
@@ -1019,7 +1020,7 @@ class colonization_ajax {
 			if (empty($dados_salvos['custo'])) {
 				$dados_salvos['custo'] = $dados_salvos['custos_tech'][$tech->id];
 				$dados_salvos['descricao'] = $dados_salvos['descricao_tech'][$tech->id];
-				$dados_salvos['id_imperio_tech'] = $id_tech->id_imperio_techs;
+				$dados_salvos['id_imperio_techs'] = $id_tech->id_imperio_techs;
 			}
 		}
 		

@@ -124,7 +124,7 @@ class tech
 	$id_imperio -- se for para pegar um império específico
 	***********************/
 
-	function query_tech($where="",$id_imperio=0, $libera_techs_secretas = false) {
+	function query_tech($where="", $id_imperio=0, $libera_techs_secretas = false, $order_by="ORDER BY ct.belica, ct.lista_requisitos, ct.nome") {
 		global $wpdb;
 
 
@@ -145,21 +145,22 @@ class tech
 		} elseif ($where == " AND ct.publica = 1") {//Coloca as Techs Públicas E as Techs que o Jogador tem acesso
 			$imperio = new imperio($id_imperio);
 			if ($imperio->id != 0) {
-				$tabela_colonization_tech = "(SELECT DISTINCT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
+				$custo_pago = ", ct.custo_pago, ct.id_imperio_techs";
+				$tabela_colonization_tech = "(SELECT DISTINCT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica, ct.custo_pago, ct.id_imperio_techs
 				FROM (
-					SELECT citp.id_tech AS id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 AS publica
+					SELECT citp.id_tech AS id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 AS publica, 0 AS custo_pago, '' AS id_imperio_techs
 					FROM colonization_imperio_techs_permitidas AS citp
 					JOIN colonization_tech AS ct
 					ON ct.id=citp.id_tech
 					WHERE citp.id_imperio = {$imperio->id}
 					UNION
-					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 as publica
+					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, 1 as publica, cit.custo_pago, cit.id AS id_imperio_techs
 					FROM colonization_imperio_techs AS cit
 					JOIN colonization_tech AS ct
 					ON ct.id = cit.id_tech
 					WHERE cit.id_imperio = {$imperio->id}
 					UNION
-					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica
+					SELECT ct.id, ct.id_tech_parent, ct.belica, ct.lista_requisitos, ct.nome, ct.nivel, ct.publica, 0 AS custo_pago, '' AS id_imperio_techs
 					FROM colonization_tech AS ct
 					WHERE ct.id NOT IN (SELECT citp.id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$imperio->id})
 					AND ct.id NOT IN (SELECT cit.id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$imperio->id})
@@ -187,7 +188,7 @@ class tech
 			{$join}
 			WHERE ct.nivel = {$nivel}
 			{$where}
-			ORDER BY ct.belica, ct.lista_requisitos, ct.nome");
+			{$order_by}");
 
 			/*** DEBUG ***
 			if ($roles == "administrator") {
