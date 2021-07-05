@@ -591,6 +591,124 @@ class colonization_ajax {
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta				
 		}
+
+		if ($_POST['qtd'] != "1" && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Só é possível construir UMA Nave por vez!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta				
+		}
+
+		//TODO -- Valida os ATRIBUTOS da nave caso não seja um Admin
+		//if ($roles != "administrator") {
+			$string_nave_com_slashes = addslashes($_POST['string_nave']);
+			$tem_modelo = $wpdb->get_var("
+			SELECT COUNT(cmn.id) 
+			FROM colonization_modelo_naves AS cmn
+			WHERE cmn.id_imperio={$imperio->id}
+			AND cmn.string_nave='{$string_nave_com_slashes}'");
+			
+			$dados_salvos['debug'] .= "SELECT COUNT(cmn.id) 
+			FROM colonization_modelo_naves AS cmn
+			WHERE cmn.id_imperio={$imperio->id}
+			AND cmn.string_nave='{$string_nave_com_slashes}'\n";
+			
+			if ($tem_modelo == 0) {
+				$dados_salvos['resposta_ajax'] = "Não há nenhum modelo que corresponda aos dados dessa nave! Por favor, entre em contato com o Admin!";
+				
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta						
+			}
+			
+			$custo_modelo = $wpdb->get_var("
+			SELECT texto_custo 
+			FROM colonization_modelo_naves AS cmn
+			WHERE cmn.id_imperio={$imperio->id}
+			AND cmn.string_nave='{$string_nave_com_slashes}'
+			AND cmn.id = (SELECT MAX(cmn.id) FROM colonization_modelo_naves AS cmn WHERE cmn.id_imperio={$imperio->id} AND cmn.string_nave='{$string_nave_com_slashes}')
+			");
+			
+			$custo_modelo = explode(" | ", trim($custo_modelo));
+			$custo_modelo_temp = [];
+			foreach ($custo_modelo as $chave => $valor) {
+				$valor_explode = explode(":", $valor);
+				$chave_nome_recurso = trim($valor_explode[0]);
+				if (intval(trim($valor_explode[1])) != 0) {
+					$custo_modelo_temp[$chave_nome_recurso] = intval(trim($valor_explode[1]));
+				}
+			}
+			
+			$custo_modelo = $custo_modelo_temp;
+			$dados_salvos['debug'] .= json_encode($custo) .":". json_encode($custo_modelo)."\n";
+			 
+			if ($custo != $custo_modelo) {
+				$dados_salvos['resposta_ajax'] = "O custo da Nave NÃO está coerente com o custo do Modelo! Por favor, entre em contato com o Admin!";
+			
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta									
+			}
+			
+			$atributos_modelo = $wpdb->get_var("
+			SELECT texto_nave 
+			FROM colonization_modelo_naves AS cmn
+			WHERE cmn.id_imperio={$imperio->id}
+			AND cmn.string_nave='{$string_nave_com_slashes}'
+			AND cmn.id = (SELECT MAX(cmn.id) FROM colonization_modelo_naves AS cmn WHERE cmn.id_imperio={$imperio->id} AND cmn.string_nave='{$string_nave_com_slashes}')
+			");
+			
+			$atributos_OK = true;
+			$atributos_modelo = explode(";", trim($atributos_modelo));
+			$atributos_modelo_temp = [];
+			$dados_salvos['debug'] .= "Atributos da nave:\n";
+			foreach ($atributos_modelo as $chave => $valor) {
+				$valor_explode = explode(":", $valor);
+				$chave_nome_atributo = strtolower(str_replace(" ","_", trim($valor_explode[0])));
+				//Hardcoded -- tirar o acento do pdf_projétil
+				if ($chave_nome_atributo == "pdf_projétil") {
+					$chave_nome_atributo = "pdf_projetil";
+				}
+				if (intval(trim($valor_explode[1])) != 0) {
+					$dados_salvos['debug'] .= "{$chave_nome_atributo}: {$_POST[$chave_nome_atributo]} || {$valor_explode[1]}\n";
+					$atributos_modelo_temp[$chave_nome_atributo] = intval(trim($valor_explode[1]));
+					if ($_POST[$chave_nome_atributo] != intval(trim($valor_explode[1]))) {
+						$dados_salvos['debug'] .= "Inválido! {$chave_nome_atributo}\n";
+						$atributos_OK = false;
+					}
+				}
+			}
+			$atributos_modelo = $atributos_modelo_temp;
+			
+			//pdf_bombardeamento, poder_invasao e mk_camuflagem não são salvos no objeto, mas são salvos no string_nave
+			if ($_POST['mk_camuflagem'] != 0) {
+				$dados_salvos['debug'] .= "mk_camuflagem: {$_POST['mk_camuflagem']} || {$string_nave['mk_camuflagem']}\n";
+				if ($string_nave['mk_camuflagem'] != $_POST['mk_camuflagem'] ) {
+					$dados_salvos['debug'] .= "Inválido! mk_camuflagem\n";
+					$atributos_OK = false;
+				}
+			}
+			if ($_POST['pdf_bombardeamento'] != 0) {
+				$pdf_bombardeamento = intval($string_nave['qtd_bombardeamento'])*(intval($string_nave['mk_bombardeamento'])*2-1);
+				$dados_salvos['debug'] .= "pdf_bombardeamento: {$_POST['pdf_bombardeamento']} || {$pdf_bombardeamento}\n";
+				if ($pdf_bombardeamento != $_POST['pdf_bombardeamento'] ) {
+					$dados_salvos['debug'] .= "Inválido! pdf_bombardeamento\n";
+					$atributos_OK = false;
+				}
+			}
+			if ($_POST['poder_invasao'] != 0) {
+				$dados_salvos['debug'] .= "poder_invasao: {$_POST['poder_invasao']} || {$string_nave['qtd_tropas']}\n";
+				if (intval($string_nave['qtd_tropas']) != $_POST['poder_invasao'] ) {
+					$dados_salvos['debug'] .= "Inválido! qtd_tropas\n";
+					$atributos_OK = false;
+				}
+			}		
+			
+			if (!$atributos_OK) {
+				$dados_salvos['resposta_ajax'] = "Os atributos da Nave NÃO estão coerentes com os atributos do Modelo! Por favor, entre em contato com o Admin!";
+			
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta							
+			}
+		//}
 		
 		foreach ($custo as $nome_recurso => $qtd) {
 			if ($qtd == 0) {
@@ -657,12 +775,13 @@ class colonization_ajax {
 			//Primeiro verifica se tem uma Estação Orbital na CAPITAL do Império...
 			//Naves acima de CORVETAS requerem uma Estação Orbital de nível adequado...
 			$nivel_estacao_orbital_requerida = 0;
+
 			if ($_POST['nivel_estacao_orbital'] == 0) {//Estações Orbitais podem ter qualquer tamanho...
-				if ($_POST['tamanho'] > 1000) {
+				if ($_POST['tamanho'] > 5000) {
 					$nivel_estacao_orbital_requerida = 10;
-				} elseif ($_POST['tamanho'] > 500) {
+				} elseif ($_POST['tamanho'] > 1000) {
 					$nivel_estacao_orbital_requerida = 8;
-				} elseif ($_POST['tamanho'] > 300) {
+				} elseif ($_POST['tamanho'] > 500) {
 					$nivel_estacao_orbital_requerida = 7;
 				} elseif ($_POST['tamanho'] > 300) {
 					$nivel_estacao_orbital_requerida = 6;
@@ -715,7 +834,7 @@ class colonization_ajax {
 					
 					if ($estacao_orbital_na_estrela == 0) {
 						$html_mk = $plugin_colonization->html_mk($nivel_estacao_orbital_requerida);
-						$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital {$html_mk} no Sistema para poder construir essa nave!";
+						$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital{$html_mk} no Sistema para poder construir essa nave!";
 						echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 						wp_die(); //Termina o script e envia a resposta					
 					}
@@ -765,6 +884,9 @@ class colonization_ajax {
 					if (empty($tem_tech)) {
 						$nome_tech = $wpdb->get_var("SELECT nome FROM colonization_tech WHERE especiais LIKE '%{$chave_tech}={$valor}%'");
 						$dados_salvos['resposta_ajax'] = "{$chave_tech}\nÉ necessário ter a Tech '{$nome_tech}' para poder construir essa nave!";
+						if ($nome_tech == "") {
+							$dados_salvos['resposta_ajax'] = "{$chave_tech}={$valor} \nNão existe Tech que permita construir essa nave!";
+						}
 						break;
 					}
 				} elseif (str_contains($chave_tech, "qtd_") || str_contains($chave_tech, "nome_modelo") || str_contains($chave_tech, "id")) {//Pula chaves de qtd, nome_modelo e id

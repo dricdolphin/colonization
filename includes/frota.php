@@ -49,6 +49,7 @@ class frota
 	public $bonus_abordagem = 0;
 	public $bonus_invasao = 0;
 	public $destinos_buracos_minhoca;
+	public $atributos_html = "";
 	
 	function __construct($id=0) {
 		global $wpdb, $start_time;
@@ -297,19 +298,6 @@ class frota
 			$this->estrela = new estrela($this->id_estrela);
 		}
 		$turno = new turno();
-		
-		$html_armas = "";
-		if ($this->pdf_laser >0) {
-			$html_armas .= " pdf Laser: {$this->pdf_laser};";
-		}
-
-		if ($this->pdf_torpedo >0) {
-			$html_armas .= " pdf Torpedo: {$this->pdf_torpedo};";
-		}
-
-		if ($this->pdf_projetil >0) {
-			$html_armas .= " pdf Projétil: {$this->pdf_projetil};";
-		}
 
 		$user = wp_get_current_user();
 		$roles = "";
@@ -372,19 +360,38 @@ class frota
 			}
 		}			
 
+		$href_calcula_distancia = "";
+		$href_upgrade_nave = "";
+		if ($roles == "administrator") {
+			$href_calcula_distancia = " &nbsp; <a href='#' onclick='return calcula_distancia_reabastece(event, this, false, {$this->id});'>Custo e Trajeto</a>";
+			$href_upgrade_nave = "<a href='#' onclick='return realiza_upgrade_nave_jogador(event, this);'>Realiza Upgrade</a>";
+		}
+
 		$html = "<td>
 		<input type='hidden' data-atributo='id' data-valor-original='{$this->id}' value='{$this->id}'></input>
 		<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$this->id_imperio}' value='{$this->id_imperio}'></input>
 		<input type='hidden' data-atributo='where_clause' value='id'></input>
 		<input type='hidden' data-atributo='where_value' value='{$this->id}'></input>		
-		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} '<a href='#' onclick='return muda_nome_nave({$this->id}, event);'><span class='tooltip'>{$this->nome}<span class='tooltiptext'>Alterar o nome da Nave</span></span></a>'</b></div>
-		<div data-atributo='atributos'>Tam: {$this->tamanho}; Vel: {$this->velocidade}; Alc: {$this->alcance}";
+		<div data-atribut='nome_nave'><b>{$this->qtd} {$this->tipo} '<span class='tooltip'><a href='#' onclick='return muda_nome_nave(event, this, {$this->id});'>{$this->nome}</a>'<span class='tooltiptext'>Alterar o nome da Nave</span></span></b></div>
+		<div data-atributo='atributos'>";
 
-		$html .= $html_armas;
-		
-		$html .= " Blindagem: {$this->blindagem}; Escudos: {$this->escudos};";
+		$html_armas = "";
+		if ($this->pdf_laser >0) {
+			$html_armas .= " pdf Laser: {$this->pdf_laser};";
+		}
 
-		$html .= " HP: {$this->HP}/{$this->HP_max};";
+		if ($this->pdf_torpedo >0) {
+			$html_armas .= " pdf Torpedo: {$this->pdf_torpedo};";
+		}
+
+		if ($this->pdf_projetil >0) {
+			$html_armas .= " pdf Projétil: {$this->pdf_projetil};";
+		}		
+
+		$this->atributos_html .= "Tamanho: {$this->tamanho}; Velocidade: {$this->velocidade}; Alcance: {$this->alcance}";
+		$this->atributos_html .= $html_armas;
+		$this->atributos_html .= " Blindagem: {$this->blindagem}; Escudos: {$this->escudos};";
+		$this->atributos_html .= " HP: {$this->HP}/{$this->HP_max};";
 		
 		if ($this->poder_invasao > 0) {
 			$poder_invasao_total = $this->poder_invasao;
@@ -393,22 +400,20 @@ class frota
 			}
 			$poder_invasao_total = $this->poder_invasao * $imperio->bonus_invasao;
 
-			$html .= " Poder de Invasão: {$poder_invasao_total};";	
+			$this->atributos_html .= " Poder de Invasão: {$poder_invasao_total};";	
 		}
+		
+		$html .= $this->atributos_html;
 		
 		if ($this->especiais != "") {
 		$html .= " Especiais: {$this->especiais};";
 		} 
+		
 		$html .= "</div>
 		</td>
 		<td>{$this->estrela->nome} ({$this->X};{$this->Y};{$this->Z})</td>		
 		";
 
-
-		$href_calcula_distancia = "";
-		if ($roles == "administrator") {
-			$href_calcula_distancia = " &nbsp; <a href='#' onclick='return calcula_distancia_reabastece(event, this, false, {$this->id});'>Custo e Trajeto</a>";
-		}
 		$html .= "<td>
 		<div data-atributo='nome_estrela' data-editavel='true' data-type='select' data-id-selecionado='' data-valor-original=''>
 		{$html_estrela_destino}
@@ -632,6 +637,36 @@ class frota
 		}
 
 		return $html_nave;
+	}
+	
+	
+	/***********************
+	function html_categoria()
+	----------------------
+	Retorna a Categoria de uma nave
+	***********************/	
+	function html_categoria($chassi) {
+		if ($chassi <= 10) {
+			return "Corveta";
+		} else if ($chassi > 10 && chassi <= 20) {
+			return "Fragata";
+		} else if ($chassi > 20 && chassi <= 50) {
+			return "Destroier";
+		} else if ($chassi > 50 && chassi <= 100) {
+			return "Cruzador";
+		} else if ($chassi > 100 && chassi <= 200) {
+			return "Nave de Guerra";
+		} else if ($chassi > 200 && chassi <= 300) {
+			return "Nave de Batalha";
+		} else if ($chassi > 300 && chassi <= 500) {
+			return "Couraçado";
+		} else if ($chassi > 500 && chassi <= 1000) {
+			return "Dreadnought";
+		} else if ($chassi > 1000 && chassi <= 5000) {
+			return "Nave-Mãe";
+		} else {
+			return "????????";
+		}		
 	}
 }
 ?>

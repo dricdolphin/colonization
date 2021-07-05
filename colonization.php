@@ -2545,7 +2545,7 @@ if (!empty($imperios[0])) {
 		ON ce.X=cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
 		WHERE cif.id_imperio={$imperio->id} AND cif.turno_destruido=0
 		ORDER BY cif.nivel_estacao_orbital DESC, (CASE WHEN cif.id_estrela_destino = 0 THEN 0 ELSE 1 END),
-		cif.tamanho, cif.nome");
+		(CASE WHEN cif.turno = {$imperio->turno->turno} THEN 0 ELSE 1 END), cif.tamanho, cif.nome, cif.id");
 		$html_id_estrela_destino = "";
 		$html_buracos_de_minhoca = "";
 		$index = 0;		
@@ -2672,7 +2672,7 @@ var id_imperio_atual = {$imperio->id};
 		{$html_buracos_de_minhoca}
 		var html_lista_estrelas = lista_estrelas_html();
 		
-		let popula = popula_selects_estrelas_frotas(); //Depois de carregar os selects das naves, pode popular
+		popula_selects_estrelas_frotas(); //Depois de carregar os selects das naves, pode popular
 		</script>
 		";
 
@@ -2905,9 +2905,9 @@ var id_imperio_atual = {$imperio->id};
 	}
 
 	/***********************
-	function colonization_exibe_constroi_naves($atts = [], $content = null)
+	function colonization_exibe_produz_naves($atts = [], $content = null)
 	----------------------
-	Chamado pelo shortcode [colonization_exibe_constroi_naves]
+	Chamado pelo shortcode [colonization_exibe_produz_naves]
 	$atts = [] - lista de atributos dentro do shortcode 
 	***********************/	
 	function colonization_exibe_produz_naves($atts = [], $content = null) {
@@ -2921,19 +2921,33 @@ var id_imperio_atual = {$imperio->id};
 
 		$estilo = "";
 		
-		
+		$tech = new tech();
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id']);
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
 		} else {
 			$imperio = new imperio();
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
 		}		
-
-		$estilo = "";
-		if ($roles != "administrator") {
-			$estilo = "style='display: none;'";
+		
+		$html_javascript = "";
+		foreach ($ids_techs AS $id_tech) {
+			$tech = new tech($id_tech->id);
+			$especiais = explode(";",$tech->especiais);
+			foreach ($especiais as $chave => $especial) {
+				if (str_contains($especial,"id=")) {
+					$valor_especial = explode("=",$especial);
+					$outras_partes_nave .= "		<div><label>{$tech->nome}: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='{$valor_especial[1]}' data-descricao='{$tech->nome}' value='1'></input><br></div>\n";
+					$html_javascript .= "descricao_parte['{$valor_especial[1]}'] = \"{$tech->nome}\";\n";
+					break;
+				}
+			}
 		}
-		
-		
+
+		$estilo = "style='display: none;'";
+		if ($roles = "administrator") {
+			//$estilo = "";
+		}
 		
 		$lista_estrelas_colonia = $wpdb->get_results("
 		SELECT DISTINCT ce.id, ce.nome, ce.X, ce.Y, ce.Z
@@ -2951,6 +2965,7 @@ var id_imperio_atual = {$imperio->id};
 			SELECT COUNT(cif.id) 
 			FROM colonization_imperio_frota AS cif
 			WHERE cif.X={$id_estrela->X} AND cif.Y={$id_estrela->Y} AND cif.Z={$id_estrela->Z}
+			AND cif.nivel_estacao_orbital > 0
 			AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
 			
 			$html_estacao_orbital = "";
@@ -2959,10 +2974,8 @@ var id_imperio_atual = {$imperio->id};
 				FROM colonization_imperio_frota AS cif
 				WHERE cif.X={$id_estrela->X} AND cif.Y={$id_estrela->Y} AND cif.Z={$id_estrela->Z}
 				AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
-				if ($nivel_estacao_orbital > 0) {
-					$html_mk = $this->html_mk($nivel_estacao_orbital);
-					$html_estacao_orbital = " &#xf85f; {$html_mk}";
-				}
+				$html_mk = $this->html_mk($nivel_estacao_orbital);
+				$html_estacao_orbital = " &#xf85f; {$html_mk}";
 			}
 			
 			if ($html_options == "") {
@@ -2971,10 +2984,13 @@ var id_imperio_atual = {$imperio->id};
 				$posicao_Z = $id_estrela->Z;
 			}
 			
-			$html_options .= "<option data-X='{$id_estrela->X}' data-Y='{$id_estrela->Y}' data-Z='{$id_estrela->Z}'>{$id_estrela->nome} ({$id_estrela->X};{$id_estrela->Y};{$id_estrela->Z}){$html_estacao_orbital}</option>";
+			$html_options .= "<option data-X='{$id_estrela->X}' data-Y='{$id_estrela->Y}' data-Z='{$id_estrela->Z}' data-nome='{$id_estrela->nome} ({$id_estrela->X};{$id_estrela->Y};{$id_estrela->Z})'>{$id_estrela->nome} ({$id_estrela->X};{$id_estrela->Y};{$id_estrela->Z}){$html_estacao_orbital}</option>";
 		}
 		
 		$html = "<h3>Produção de Naves</h3>
+		<script type='text/javascript'>
+		{$html_javascript}
+		</script>		
 		<label>Estrela onde a Nave será produzida:</label>
 		<select class='select_frota' data-atributo='estrela_construcao' onchange='return atualiza_lista_estrela_colonia(event,this);'>{$html_options}</select><br>";
 		

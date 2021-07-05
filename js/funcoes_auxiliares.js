@@ -471,14 +471,16 @@ function popula_selects_estrelas_frotas() {
 				estrelas_destino[id_estrela_origem] = true;
 			});						
 				
-			mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[posicao_nave_na_lista].map(function(el, i) {
-				return { index: i, value: el };
-			});
+			if (buracos_de_minhoca[posicao_nave_na_lista] != undefined) {
+				mapped_estrelas_buraco_de_minhoca = buracos_de_minhoca[posicao_nave_na_lista].map(function(el, i) {
+					return { index: i, value: el };
+				});
 			
-			mapped_estrelas_buraco_de_minhoca.forEach(
-			function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
-				estrelas_destino[valor_estrelas_imperio.value] = true;
-			});	
+				mapped_estrelas_buraco_de_minhoca.forEach(
+				function(valor_estrelas_imperio, id_estrela_origem, mapa_estrelas_imperio) {
+					estrelas_destino[valor_estrelas_imperio.value] = true;
+				});	
+			}
 			
 			var mapped_estrelas_destino = estrelas_destino.map(function(el, i) {
 				return { index: i, value: el, id_estrela: i, nome_estrela: lista_nome_estrela[i], posicao_estrela: ' ('+lista_x_estrela[i]+';'+lista_y_estrela[i]+';'+lista_z_estrela[i]+')' };
@@ -716,8 +718,8 @@ function atualiza_nave_modelo(evento, objeto) {
 		}
 	}
 	
-	div_texto_nave.innerHTML = "<b>Dados da Nave:</b>" + objeto.options[objeto.selectedIndex].getAttribute("data-texto-nave");
-	div_texto_custo.innerHTML = "<b>Custo:</b>" + objeto.options[objeto.selectedIndex].getAttribute("data-texto-custo");
+	div_texto_nave.innerHTML = "<b>Dados da Nave:</b> " + objeto.options[objeto.selectedIndex].getAttribute("data-texto-nave");
+	div_texto_custo.innerHTML = "<b>Custo:</b> " + objeto.options[objeto.selectedIndex].getAttribute("data-texto-custo");
 	
 	evento.preventDefault();
 	return false;

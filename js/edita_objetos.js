@@ -883,7 +883,14 @@ function salvar_nave_jogador(evento, objeto) {
 		}
 	}
 
-	let confirma = confirm("Tem certeza que deseja construir a nave '"+ select_modelo_nave.options[select_modelo_nave.selectedIndex].text +"' em "+ select_estrela_construcao.options[select_estrela_construcao.selectedIndex].text +"?");
+	if (objeto_em_edicao || objeto_em_salvamento) {
+		alert("Já existe um objeto sendo processado!");
+		
+		evento.preventDefault();
+		return false;		
+	}
+	
+	let confirma = confirm("Tem certeza que deseja construir a nave '"+ select_modelo_nave.options[select_modelo_nave.selectedIndex].text +"' em "+ select_estrela_construcao.options[select_estrela_construcao.selectedIndex].getAttribute("data-nome") +"?");
 
 	if (!confirma) {
 		evento.preventDefault();

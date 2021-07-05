@@ -1573,17 +1573,17 @@ function muda_nome_colonia(id_planeta, evento) {
 }
 
 /******************
-function muda_nome_nave(objeto) 
+function muda_nome_nave(evento, objeto, id_nave) 
 --------------------
 Muda o nome de uma Nave
 id_nave = id da nave
 ******************/	
-function muda_nome_nave(id_nave, evento) {
-	let confirma = confirm('Tem certeza que deseja mudar o nome dessa Nave?');
+function muda_nome_nave(evento, objeto, id_nave) {
+	let confirma = confirm("Tem certeza que deseja mudar o nome da Nave '"+objeto.text+"'?");
 	let novo_nome = "";
 	
 	if (confirma) {
-		novo_nome = prompt('Qual será o novo nome do Nave?');
+		novo_nome = prompt('Qual será o novo nome do Nave?', objeto.text);
 	} else {
 		evento.preventDefault();
 		return false;
@@ -1597,7 +1597,8 @@ function muda_nome_nave(id_nave, evento) {
 			objeto_em_edicao = false;
 			objeto_em_edicao = false;
 			if (successMessage) {
-				document.location.reload();
+				objeto.text = novo_nome;
+				//document.location.reload();
 			}
 		});		
 	}

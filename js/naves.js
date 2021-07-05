@@ -66,7 +66,6 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		if (objeto.value*1 < 0) {
 			objeto.value = 0;
 		}
-		
 	}
 	
 	if (Object.keys(nave).length == 0) {//Se não tem uma nave em JSON, então pega os dados da nave do Formulário
@@ -528,7 +527,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		texto_especiais_div.innerHTML = "Especiais: " + texto_especiais;
 		
 		dados_div.innerHTML = "Tamanho: "+chassi+"; Velocidade: "+velocidade+"; Alcance: "+alcance+";<br>" 
-		+"pdf Laser: "+pdf_laser+"/ pdf Torpedo: "+pdf_torpedo+"/ pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"/ Escudos: "+escudos+"; HP: "+hp;
+		+"pdf Laser: "+pdf_laser+"; pdf Torpedo: "+pdf_torpedo+"; pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"; Escudos: "+escudos+"; HP: "+hp;
 		chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
 		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium 
 		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum + texto_capirotum;
@@ -561,12 +560,27 @@ function processa_string(evento, objeto) {
 	let partes_nave = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
 	let objeto_nave = {};
 	let input_string_construcao = document.getElementById("input_string_construcao");
+	console.log("Processando a string...");
 	if (input_string_construcao !== undefined) {
 		for(let index = 0; index < partes_nave.length; index++) {
 			if (partes_nave[index].id != "input_string_construcao") {
 				objeto_nave[partes_nave[index].id] = 0;
 				if (partes_nave[index].type == "checkbox") {
 					partes_nave[index].checked = false;
+				} else if (partes_nave[index].type == "number") {
+					if (partes_nave[index].max != "") {
+						if (partes_nave[index].value*1 > partes_nave[index].max*1) {
+							partes_nave[index].value = partes_nave[index].max;
+						}
+					}
+					if (partes_nave[index].min != "") {
+						if (partes_nave[index].value*1 < partes_nave[index].min*1) {
+							partes_nave[index].value = partes_nave[index].min;
+						}
+					}		
+					if (partes_nave[index].value*1 < 0) {
+						partes_nave[index].value = 0;
+					}
 				}
 			}
 		}
@@ -622,11 +636,25 @@ function processa_string(evento, objeto) {
 			} else if (property.search("qtd_plasma") !== -1) {
 				nave["mk_plasma"] = 1;
 			}	
-		}
-		if (typeof(nave[property]) == "boolean") {
+		} else if (typeof(nave[property]) == "boolean") {
 			nave_elementos[property].checked = nave[property];
 		} else {
 			nave_elementos[property].value = nave[property];
+			if (nave_elementos[property].type == "number") {
+				if (nave_elementos[property].max != "") {
+					if (nave_elementos[property].value*1 > nave_elementos[property].max*1) {
+						nave_elementos[property].value = nave_elementos[property].max;
+					}
+				}
+				if (nave_elementos[property].min != "") {
+					if (nave_elementos[property].value*1 < nave_elementos[property].min*1) {
+						nave_elementos[property].value = nave_elementos[property].min;
+					}
+				}		
+				if (nave_elementos[property].value*1 < 0) {
+					nave_elementos[property].value = 0;
+				}			
+			}
 		}
 	}
 	
