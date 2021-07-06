@@ -1819,7 +1819,7 @@ Desativa o Campo Anti-Dobra afetando uma nave
 ******************/
 function desativa_anti_dobra(objeto, evento, id_nave) {
 	let retorno = new Promise((resolve, reject) => {
-		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave;
+		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave+"&desativa=true";
 		resolve(processa_xhttp_basico(dados_ajax));
 	});
 	

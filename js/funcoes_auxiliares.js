@@ -550,14 +550,18 @@ function destacar_recurso(objeto) {
 }
 
 /******************
-function lista_techs_ocultas_html_(id=0)
+function lista_techs_ocultas_html_(id=0, args={id_imperio: 0})
 --------------------
 Cria a lista de Techs
 id -- qual ID está selecionado
 ******************/
-function lista_techs_ocultas_html(id=0) {
+function lista_techs_ocultas_html(id=0, args={id_imperio: 0}) {
+	if (typeof args !== "object") {
+		args = JSON.parse(args);
+	}
+	
 	let retorno = new Promise((resolve, reject) => {
-		let dados_ajax = "post_type=POST&action=lista_techs_ocultas";
+		let dados_ajax = "post_type=POST&action=lista_techs_ocultas&id_imperio="+args.id_imperio+"&id="+id;
 		resolve(processa_xhttp_resposta(dados_ajax));
 	});
 	

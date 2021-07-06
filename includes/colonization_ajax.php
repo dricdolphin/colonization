@@ -152,7 +152,9 @@ class colonization_ajax {
 		if ($slots == 0) {
 			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z}");
 			$wpdb->query("UPDATE colonization_estrela SET anti_dobra=true WHERE id={$_POST['id_estrela']}");
-		} else {
+		} else if ($nave->anti_dobra && $_POST['desativa'] == true) {//É pra DESATIVAR o anti-dobra DA NAVE
+			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=false WHERE id={$nave->id}");
+		} else {//Ativa o anti-dobra em todas as naves do sistema que forem iguais ou menores que a nave (inclusive a própria nave)
 			$wpdb->query("UPDATE colonization_imperio_frota SET anti_dobra=true WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND tamanho <= {$slots}");
 		}
 		
@@ -418,18 +420,41 @@ class colonization_ajax {
 		global $wpdb;
 		
 		$tech = new tech();
-		$resultados = $tech->query_tech(); //Pega TODAS as Techs, em ordem
+		$resultados = $tech->query_tech(" AND ct.publica = 0  AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$_POST['id_imperio']}) AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$_POST['id_imperio']})"); //Pega TODAS as Techs, em ordem
+		//AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$_POST['id_imperio']})
+		//AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$_POST['id_imperio']})
+		/***
+		$resultados = $wpdb->get_results("SELECT DISTINCT ct.id FROM
+		(SELECT ct.nome, ct.id 
+		FROM colonization_tech AS ct
+		WHERE ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$_POST['id_imperio']})
+		AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$_POST['id_imperio']})
+		AND ct.publica = 0) AS ct
+		ORDER BY ct.nome");
+		
+		$dados_salvos['debug'] = "SELECT DISTINCT ct.id FROM
+		(SELECT ct.nome, ct.id 
+		FROM colonization_tech AS ct
+		WHERE ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs AS cit WHERE cit.id_imperio = {$_POST['id_imperio']})
+		AND ct.id NOT IN (SELECT id_tech FROM colonization_imperio_techs_permitidas AS citp WHERE citp.id_imperio = {$_POST['id_imperio']})
+		AND ct.publica = 0) AS ct
+		ORDER BY ct.nome";
+		//***/
 		
 		$lista_nome = [];
 		$lista_id = [];
 		$index = 0;
+		if ($_POST['id'] != 0) {
+			$tech = new tech($_POST['id']);
+			$lista_nome[] = $tech->nome;
+			$lista_id[] = $tech->id;		
+		}
+		
 		foreach ($resultados as $resultado) {
 			$tech = new tech($resultado->id);
-			if ($tech->publica == 0) {
-				$lista_nome[] = $tech->nome;
-				$lista_id[] = $tech->id;
-				$index++;
-			}
+			$lista_nome[] = $tech->nome;
+			$lista_id[] = $tech->id;
+			$index++;
 		}
 
 		$dados_salvos['lista_nome'] = $lista_nome;
@@ -2570,7 +2595,7 @@ class colonization_ajax {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um Gigante Gasoso!";
 			} 
 			
-			if ($instalacao->somente_ana_branca && $estrela->tipo == "Anã Branca") {
+			if ($instalacao->somente_ana_branca && $estrela->tipo != "Anã Branca") {
 				$dados_salvos['resposta_ajax'] = "Este tipo de Instalação só pode ser instalado em um sistema que tenha uma Estrela Anã Branca!";
 			} 			
 			

@@ -1015,9 +1015,9 @@ class acoes
 
 				$bonus_recurso_colonia = $colonia[$this->id_colonia[$chave]]->bonus_recurso($id_recurso);
 				if ($bonus_recurso_colonia > 0) {
-					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
-						$imperio->max_bonus_recurso[$id_recurso] = false;
-					}
+					//if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
+					//	$imperio->max_bonus_recurso[$id_recurso] = false;
+					//}
 					if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
 						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10))*($bonus_recurso_colonia/100));
 						$this->recursos_produzidos_planeta_instalacao_bonus[$id_recurso][$this->id_planeta_instalacoes[$chave]] = $this->recursos_produzidos_planeta_instalacao_bonus[$id_recurso][$this->id_planeta_instalacoes[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10))*($bonus_recurso_colonia/100));
@@ -1034,9 +1034,9 @@ class acoes
 
 				$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo()/100;
 				if ($recurso[$id_recurso]->extrativo == 1 && $bonus_extrativo > 0) {
-					if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
-						$imperio->max_bonus_recurso[$id_recurso] = false;
-					}
+					//if (!empty($imperio->max_bonus_recurso[$id_recurso])) {
+					//	$imperio->max_bonus_recurso[$id_recurso] = false;
+					//}
 					//$bonus_extrativo = $colonia[$this->id_colonia[$chave]]->bonus_extrativo/100;
 					if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 1 && $this->desativado[$chave] == 0) {
 						$this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] = $this->recursos_produzidos_planeta_bonus[$id_recurso][$this->id_planeta[$chave]] + intval(floor(floor(($instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd[$chave_recursos] + $instalacao[$this->id_instalacao[$chave]]->recursos_produz_qtd_comercio[$chave_recursos])*$this->nivel_instalacao[$chave]*10/10)))*$bonus_extrativo;

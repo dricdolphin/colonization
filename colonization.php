@@ -2296,11 +2296,11 @@ if (!empty($imperios[0])) {
 				$icone_anti_dobra = "<div class='fas fa-anchor tooltip'><span class='tooltiptext'>Nave sob efeito de Anti-Dobra</span></div>";
 			}
 			
-			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0 && $estrela[$id_estrela]->anti_dobra == 0) {
+			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0 && $estrela[$id_estrela]->anti_dobra == 0 && $nave->id_estrela_destino == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
 			}
 
-			if (isset($nave->partes_nave->reforco_dobra_local) && $nave->anti_dobra == 1) {
+			if (isset($nave->partes_nave->reforco_dobra_local) && $nave->anti_dobra == 1 && $nave->id_estrela_destino == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return desativa_anti_dobra(this,event,{$nave->id});'><span class='tooltip'><i class='fas fa-wind'></i><span class='tooltiptext'>Desativar Anti-Dobra</span></span></a>&nbsp;";
 			}	
 			
