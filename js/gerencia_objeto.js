@@ -1134,6 +1134,7 @@ function destruir_instalacao(evento, objeto, jogador=false, reparar=false) {
 	let desmantelar = "";
 	
 	if(objeto_em_edicao) {
+		alert('Já existe um objeto em edição!');
 		evento.preventDefault();
 		return false;		
 	}

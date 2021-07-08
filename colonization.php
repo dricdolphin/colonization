@@ -686,6 +686,7 @@ class colonization {
 			$roles = $user->roles[0];
 		}
 
+		$imperios = [];
 		if (isset($atts['id'])) {
 			$imperio = new imperio($atts['id'],false);
 		} else {
@@ -709,6 +710,7 @@ class colonization {
 		}		
 		
 		$ids_naves = [];
+		
 		if ($imperio->id == 0 && $roles == "administrator") {
 			$ids_naves = $wpdb->get_results("
 			SELECT cif.id, {$turno->turno} AS turno
@@ -810,6 +812,9 @@ class colonization {
 				if ($id_imperio->id_imperio == 0) {
 					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
 				} else {
+					if (empty($imperios[$id_imperio->id_imperio])) {
+						$imperios[$id_imperio->id_imperio] = new imperio($id_imperio->id_imperio, true);
+					}
 					$nomes_imperios .= "{$id_imperio->nome_imperio}; ";
 				}
 			}
@@ -856,7 +861,14 @@ class colonization {
 				if ($roles != "administrator") {
 					if ((($imperio->sensores + $imperio->anti_camuflagem) > $nave->camuflagem) || $nave->visivel == 1 || $nave->camuflagem == 0 || $nave->id_imperio == $imperio->id) {
 						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
+						$html_nave = "";
+						if ($nave->id_imperio != 0) {
+							if (empty($imperios[$nave->id_imperio])) {
+								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+							}							
+							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
+						}
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} <span class='tooltip'>'{$nave->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				} else {
@@ -866,11 +878,25 @@ class colonization {
 							$nave_visivel = "(Visível) ";	
 						}
 						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave_visivel}<i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</i></div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</i></div>";
+						$html_nave = "";
+						if ($nave->id_imperio != 0) {
+							if (empty($imperios[$nave->id_imperio])) {
+								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+							}							
+							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
+						}
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'><i>{$nave->qtd} {$nave->tipo} <span class='tooltip'>'{$nave->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</i></div>";
 						$exibiu_nave[$nave->id] = true;
 					} else {
 						$html_naves[$estrela[$id_estrela->id]->id] .= "<div class='naves'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
-						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} '{$nave->nome}' ({$nome_imperio})</div>";
+						$html_nave = "";
+						if ($nave->id_imperio != 0) {
+							if (empty($imperios[$nave->id_imperio])) {
+								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+							}
+							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
+						}
+						$html_naves_mini[$estrela[$id_estrela->id]->id] .= "<div class='naves_mini'>{$nave->qtd} {$nave->tipo} <span class='tooltip'>'{$nave->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</div>";
 						$exibiu_nave[$nave->id] = true;
 					}
 				}
@@ -911,6 +937,9 @@ class colonization {
 				if ($id_imperio->id_imperio == 0) {
 					$nomes_imperios .= "{$id_imperio->nome_npc}; ";
 				} else {
+					if (empty($imperios[$id_imperio->id_imperio])) {
+						$imperios[$id_imperio->id_imperio] = new imperio($id_imperio->id_imperio, true);
+					}
 					$nomes_imperios .= "{$id_imperio->nome_imperio}; ";
 				}
 			}
@@ -950,17 +979,38 @@ class colonization {
 					if ($roles != "administrator") {
 						if ((($imperio->sensores + $imperio->anti_camuflagem) > $nave_na_estrela->camuflagem) || $nave_na_estrela->visivel == 1 || $nave_na_estrela->camuflagem == 0 || ($nave_na_estrela->id_imperio == $imperio->id)) {
 							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
-							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
+							$html_nave = "";
+							if ($nave_na_estrela->id_imperio != 0) {
+								if (empty($imperios[$nave_na_estrela->id_imperio])) {
+									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+								}						
+								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
+							}
+							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} <span class='tooltip'>'{$nave_na_estrela->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					} else {
 						if ($nave_na_estrela->camuflagem > 0 && $nave_na_estrela->visivel == 0) {
 							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</i></div>";
+							$html_nave = "";
+							if ($nave_na_estrela->id_imperio != 0) {
+								if (empty($imperios[$nave_na_estrela->id_imperio])) {
+									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+								}								
+								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
+							}						
 							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'><i>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</i></div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						} else {
-							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
-							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} '{$nave_na_estrela->nome}' ({$nome_imperio})</div>";
+							$html_naves[$estrela[$id_estrela]->id] .= "<div class='naves'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} <span class='tooltip'>'{$nave_na_estrela->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</div>";
+							$html_nave = "";
+							if ($nave_na_estrela->id_imperio != 0) {
+								if (empty($imperios[$nave_na_estrela->id_imperio])) {
+									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+								}
+								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
+							}							
+							$html_naves_mini[$estrela[$id_estrela]->id] .= "<div class='naves_mini'>{$nave_na_estrela->qtd} {$nave_na_estrela->tipo} <span class='tooltip'>'{$nave_na_estrela->nome}'<span class='tooltiptext'>{$html_nave}</span></span> ({$nome_imperio})</div>";
 							$exibiu_nave[$nave_na_estrela->id] = true;
 						}
 					}

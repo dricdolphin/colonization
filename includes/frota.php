@@ -176,6 +176,7 @@ class frota
 		global $asgarosforum, $wpdb;
 	
 		$imperio = new imperio($this->id_imperio);
+		$estrela_origem = new estrela($this->id_estrela);
 		$estrela_destino = new estrela($this->id_estrela_destino);
 		
 		$html_qtd = "a nave";
@@ -186,7 +187,9 @@ class frota
 		$post_autoriza = $asgarosforum->spoilers->render_spoiler(false, "<p>A nave '{$this->nome}' fora para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</p>
 		<p>{$estrela_destino->descricao}</p>");
 		
-		$html = "<div>O Império '{$imperio->nome}' deseja enviar {$html_qtd} '{$this->nome}' para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
+		$imperio = new imperio($this->id_imperio);
+		$html_nave = $this->html_nave($imperio);
+		$html = "<div>O Império '{$imperio->nome}' deseja enviar {$html_qtd} <span class='tooltip'>'{$this->nome}'<span class='tooltiptext'>{$html_nave}</span></span> de {$estrela_origem->nome} ({$estrela_origem->X};{$estrela_origem->Y};{$estrela_origem->Z}) para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
 		{$post_autoriza}
 		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
 
@@ -571,11 +574,11 @@ class frota
 	}
 	
 	/***********************
-	function exibe_frota()
+	function html_nave()
 	----------------------
-	Exibe uma Nave
+	Exibe o HTML da nave
 	***********************/
-	function html_nave($imperio) {
+	function html_nave($imperio, $mini = false) {
 		$tipo = "";
 		if ($this->tipo != "Estação Orbital") {
 			$tipo = "<span style='font-weight: normal; font-size: 0.9em;'>{$this->tipo}</span>&nbsp;";
@@ -587,7 +590,9 @@ class frota
 		}
 		
 		$html_nave = "{$tipo}";
-		$html_nave .= "<div class='fas fa-gas-pump' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->alcance}</span></div>";
+		if (!$mini) {
+			$html_nave .= "<div class='fas fa-gas-pump' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->alcance}</span></div>";
+		}
 		$html_nave .= "<div class='fas fa-heart' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$html_HP}{$this->HP_max}</span></div>";
 		$html_nave .= "<div class='far fa-tachometer-alt' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$this->velocidade}</span></div>";
 		
@@ -632,7 +637,7 @@ class frota
 		}		
 		$html_nave .= "<div class='fas fa-user-shield' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$defesa_abordagem}</span></div>";
 
-		if ($this->especiais != "") {
+		if ($this->especiais != "" && !$mini) {
 			$html_nave .= "<div class='especiais'>{$this->especiais}</div>";
 		}
 

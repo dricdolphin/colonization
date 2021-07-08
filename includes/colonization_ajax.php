@@ -566,6 +566,25 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta	
 	}	
 
+
+	/***********************
+	function valida_upgrade_nave()
+	----------------------
+	Valida um Upgrade de nave
+	***********************/
+	function valida_upgrade_nave() {
+		global $wpdb, $plugin_colonization;
+		
+		
+		$modelo_nave = new modelo_nave($_POST['id_modelo']);
+		$nave_upgrade = new frota($_POST['id_nave']);
+		
+		//TODO -- Verifica a diferença de custo
+		
+	}
+
+
+
 	/***********************
 	function valida_nave()
 	----------------------
@@ -580,6 +599,10 @@ class colonization_ajax {
 		$custo = json_decode(stripslashes($_POST['custo']),true);
 		$upgrade = array_key_exists("upgrade", $custo);
 		
+		if (!empty($_POST['id'])) {
+			$HP = $wpdb->get_var("SELECT cif.HP FROM colonization_imperio_frota AS cif WHERE cif.id={$_POST['id']}");
+		}
+		
 		if (!empty($_POST['id']) && !$upgrade) {//Só é necessário validar naves que sejam novas OU não seja um upgrade
 			$dados_salvos['resposta_ajax'] = "OK!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -587,7 +610,11 @@ class colonization_ajax {
 		} elseif ($upgrade && $_POST['turno_destruido'] == 0) {
 			$dados_salvos['resposta_ajax'] = "O atributo 'UPGRADE' é reservado somente para naves sendo atualizadas!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-			wp_die(); //Termina o script e envia a resposta			
+			wp_die(); //Termina o script e envia a resposta	
+		} elseif ($upgrade && $HP != $_POST['tamanho']) {
+			$dados_salvos['resposta_ajax'] = "Uma nave só pode ser atualizada caso esteja totalmente reparada!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta					
 		} elseif (!empty($_POST['id']) && $upgrade) {
 			$nave = new frota($_POST['id']);
 			if ($nave->turno_destruido != 0) {//Não é um upgrade, está apenas salvando
@@ -946,7 +973,6 @@ class colonization_ajax {
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta
 	}
-
 
 
 	/***********************

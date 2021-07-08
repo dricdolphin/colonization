@@ -16,6 +16,8 @@ class modelo_naves
 	public $texto_nave;
 	public $texto_custo;
 	public $turno;
+
+	private $JSON_custo;	
 	
 	/***********************
 	function __construct()
@@ -42,7 +44,33 @@ class modelo_naves
 		$this->texto_custo = $resultado->texto_custo;
 		$this->turno = $resultado->turno;
 	}
+
+	/***********************
+	function __set()
+	----------------------
+	Função mágica __set
+	***********************/
+	function __set($propriedade, $valor) {
+		
+		$this->$propriedade = $valor;
+	}
 	
+	/***********************
+	function get()
+	----------------------
+	Função mágia __get
+	***********************/
+	function __get($propriedade) {
+
+		return $this->$propriedade();
+	}
+
+
+	/***********************
+	function lista_dados()
+	----------------------
+	Lista os dados do objeto
+	***********************/	
 	function lista_dados() {
 		global $wpdb;
 		
@@ -72,4 +100,27 @@ class modelo_naves
 	}
 	
 }
+
+	/***********************
+	function JSON_custo()
+	----------------------
+	Inicializa a varíável JSON_custo
+	***********************/
+	function JSON_custo() {
+		global $wpdb;
+		
+		$custo_modelo = explode(" | ", trim($this->texto_custo));
+		$custo_modelo_temp = [];
+		foreach ($custo_modelo as $chave => $valor) {
+			$valor_explode = explode(":", $valor);
+			$chave_nome_recurso = trim($valor_explode[0]);
+			if (intval(trim($valor_explode[1])) != 0) {
+				$custo_modelo_temp[$chave_nome_recurso] = intval(trim($valor_explode[1]));
+			}
+		}
+
+		$this->JSON_custo = $custo_modelo_temp;
+		return $this->JSON_custo;
+	}
+
 ?>
