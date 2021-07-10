@@ -244,6 +244,16 @@ class colonization_ajax {
 			wp_die(); //Termina o script e envia a resposta				
 		}
 
+		$sob_cerco = $wpdb->get_var("SELECT ce.cerco FROM colonization_estrela AS ce
+		WHERE ce.id={$nave->id_estrela}");
+		
+		if ($sob_cerco == 1) {
+			$dados_salvos['resposta_ajax'] = "Não é possível reparar naves em um sistema sob ataque!";
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta															
+		}
+		
+
 		$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
 		if ($nave->HP_max > $nave->HP) {
 			$qtd_html = "Industrializáveis";
@@ -576,7 +586,7 @@ class colonization_ajax {
 		global $wpdb, $plugin_colonization;
 		
 		
-		$modelo_nave = new modelo_nave($_POST['id_modelo']);
+		$modelo_nave = new modelo_naves($_POST['id_modelo']);
 		$nave_upgrade = new frota($_POST['id_nave']);
 		
 		//TODO -- Verifica a diferença de custo
@@ -593,8 +603,8 @@ class colonization_ajax {
 	function valida_nave() {
 		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
-		//error_reporting(E_ALL); 
-		//ini_set("display_errors", 1);
+		error_reporting(E_ALL); 
+		ini_set("display_errors", 1);
 		
 		$custo = json_decode(stripslashes($_POST['custo']),true);
 		$upgrade = array_key_exists("upgrade", $custo);
@@ -611,7 +621,7 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = "O atributo 'UPGRADE' é reservado somente para naves sendo atualizadas!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta	
-		} elseif ($upgrade && $HP != $_POST['tamanho']) {
+		} elseif ($upgrade && $HP != ($_POST['tamanho'])*10) {
 			$dados_salvos['resposta_ajax'] = "Uma nave só pode ser atualizada caso esteja totalmente reparada!";
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta					
@@ -672,68 +682,45 @@ class colonization_ajax {
 				wp_die(); //Termina o script e envia a resposta						
 			}
 			
-			$custo_modelo = $wpdb->get_var("
-			SELECT texto_custo 
+			$id_modelo = $wpdb->get_var("
+			SELECT cmn.id
 			FROM colonization_modelo_naves AS cmn
 			WHERE cmn.id_imperio={$imperio->id}
-			AND cmn.string_nave='{$string_nave_com_slashes}'
-			AND cmn.id = (SELECT MAX(cmn.id) FROM colonization_modelo_naves AS cmn WHERE cmn.id_imperio={$imperio->id} AND cmn.string_nave='{$string_nave_com_slashes}')
-			");
+			AND cmn.string_nave='{$string_nave_com_slashes}'");
 			
-			$custo_modelo = explode(" | ", trim($custo_modelo));
-			$custo_modelo_temp = [];
-			foreach ($custo_modelo as $chave => $valor) {
-				$valor_explode = explode(":", $valor);
-				$chave_nome_recurso = trim($valor_explode[0]);
-				if (intval(trim($valor_explode[1])) != 0) {
-					$custo_modelo_temp[$chave_nome_recurso] = intval(trim($valor_explode[1]));
-				}
+			$modelo_nave = new modelo_naves($id_modelo);
+			$custo_modelo = $modelo_nave->JSON_custo;
+			
+			$custo_modificado = $custo;
+			if (isset($custo['upgrade'])) {
+				$custo_modificado = json_decode(stripslashes($_POST['custo']),true);
+				unset($custo_modificado['upgrade']);
 			}
 			
-			$custo_modelo = $custo_modelo_temp;
-			$dados_salvos['debug'] .= json_encode($custo) .":". json_encode($custo_modelo)."\n";
-			 
-			if ($custo != $custo_modelo) {
+			//Verifica se os Custos sendo passados pelo Jogador são iguais aos Custos do Modelo
+			if ($custo_modificado != $custo_modelo) {
 				$dados_salvos['resposta_ajax'] = "O custo da Nave NÃO está coerente com o custo do Modelo! Por favor, entre em contato com o Admin!";
-			
+				$dados_salvos['debug'] .= "Custos: " . json_encode($custo_modificado) . " || " . json_encode($custo_modelo) . "\n";
+				
 				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 				wp_die(); //Termina o script e envia a resposta									
 			}
 			
-			$atributos_modelo = $wpdb->get_var("
-			SELECT texto_nave 
-			FROM colonization_modelo_naves AS cmn
-			WHERE cmn.id_imperio={$imperio->id}
-			AND cmn.string_nave='{$string_nave_com_slashes}'
-			AND cmn.id = (SELECT MAX(cmn.id) FROM colonization_modelo_naves AS cmn WHERE cmn.id_imperio={$imperio->id} AND cmn.string_nave='{$string_nave_com_slashes}')
-			");
-			
+			$atributos_modelo = $modelo_nave->JSON_atributos;
 			$atributos_OK = true;
-			$atributos_modelo = explode(";", trim($atributos_modelo));
-			$atributos_modelo_temp = [];
-			$dados_salvos['debug'] .= "Atributos da nave:\n";
-			foreach ($atributos_modelo as $chave => $valor) {
-				$valor_explode = explode(":", $valor);
-				$chave_nome_atributo = strtolower(str_replace(" ","_", trim($valor_explode[0])));
-				//Hardcoded -- tirar o acento do pdf_projétil
-				if ($chave_nome_atributo == "pdf_projétil") {
-					$chave_nome_atributo = "pdf_projetil";
-				}
-				if (intval(trim($valor_explode[1])) != 0) {
-					$dados_salvos['debug'] .= "{$chave_nome_atributo}: {$_POST[$chave_nome_atributo]} || {$valor_explode[1]}\n";
-					$atributos_modelo_temp[$chave_nome_atributo] = intval(trim($valor_explode[1]));
-					if ($_POST[$chave_nome_atributo] != intval(trim($valor_explode[1]))) {
-						$dados_salvos['debug'] .= "Inválido! {$chave_nome_atributo}\n";
-						$atributos_OK = false;
-					}
-				}
+
+			//Verifica se os atributos sendo passados pelo Jogador são iguais aos atributos do Modelo
+			foreach ($atributos_modelo as $chave_nome_atributo => $valor_atributo) {
+				if ($_POST[$chave_nome_atributo] != intval($valor_atributo)) {
+					$dados_salvos['debug'] .= "Inválido! {$chave_nome_atributo}: {$_POST[$chave_nome_atributo]} || {$valor_atributo}\n";
+					$atributos_OK = false;
+				}			
 			}
-			$atributos_modelo = $atributos_modelo_temp;
 			
 			//pdf_bombardeamento, poder_invasao e mk_camuflagem não são salvos no objeto, mas são salvos no string_nave
 			if ($_POST['mk_camuflagem'] != 0) {
 				$dados_salvos['debug'] .= "mk_camuflagem: {$_POST['mk_camuflagem']} || {$string_nave['mk_camuflagem']}\n";
-				if ($string_nave['mk_camuflagem'] != $_POST['mk_camuflagem'] ) {
+				if ($string_nave['mk_camuflagem'] != $_POST['mk_camuflagem']) {
 					$dados_salvos['debug'] .= "Inválido! mk_camuflagem\n";
 					$atributos_OK = false;
 				}
@@ -918,6 +905,15 @@ class colonization_ajax {
 					}
 					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 					wp_die(); //Termina o script e envia a resposta										
+				}
+				
+				$sob_cerco = $wpdb->get_var("SELECT ce.cerco FROM colonization_estrela AS ce
+				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}");
+				
+				if ($sob_cerco == 1) {
+					$dados_salvos['resposta_ajax'] = "Não é possível criar ou atualizar naves em um sistema sob ataque!";
+					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+					wp_die(); //Termina o script e envia a resposta															
 				}
 			}
 			

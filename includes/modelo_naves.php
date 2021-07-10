@@ -17,7 +17,8 @@ class modelo_naves
 	public $texto_custo;
 	public $turno;
 
-	private $JSON_custo;	
+	private $JSON_custo;
+	private $JSON_atributos;
 	
 	/***********************
 	function __construct()
@@ -99,8 +100,6 @@ class modelo_naves
 		return $html;
 	}
 	
-}
-
 	/***********************
 	function JSON_custo()
 	----------------------
@@ -122,5 +121,25 @@ class modelo_naves
 		$this->JSON_custo = $custo_modelo_temp;
 		return $this->JSON_custo;
 	}
+	
+	function JSON_atributos() {
+		global $wpdb;
 
+		$atributos_modelo = explode(";", $this->texto_nave);
+		$atributos_modelo_temp = [];
+		foreach ($atributos_modelo as $chave => $valor) {
+			$valor_explode = explode(":", $valor);
+			$chave_nome_atributo = strtolower(str_replace(" ","_", trim($valor_explode[0])));
+			//Hardcoded -- tirar o acento do pdf_projétil
+			if ($chave_nome_atributo == "pdf_projétil") {
+				$chave_nome_atributo = "pdf_projetil";
+			}
+			if (intval(trim($valor_explode[1])) != 0) {
+				$atributos_modelo_temp[$chave_nome_atributo] = intval(trim($valor_explode[1]));
+			}
+		}
+		
+		return $atributos_modelo_temp;		
+	}
+}
 ?>

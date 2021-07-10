@@ -412,6 +412,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			aureum = aureum + nave.mk_camuflagem*1 - 4;
 			texto_aureum = " | Aureum: "+aureum;
 		} else {
+			alert('Para instalar Camuflagem Mk V ou melhor é necessário ter Escudos Mk V instalados na nave.');
 			if (objeto.type == "number") {
 				objeto.value = 4;
 			}

@@ -545,7 +545,8 @@ class acoes
 			$nivel = $plugin_colonization->html_mk($this->nivel_instalacao[$chave]);
 			
 			if ($instalacao[$this->id_instalacao[$chave]]->desguarnecida == 0) {
-				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
+				$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onchange='return valida_acao(event, this, true);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
+				//$exibe_acoes = "<input data-atributo='pop' data-ajax='true' data-valor-original='{$this->pop[$chave]}' type='range' min='0' max='10' value='{$this->pop[$chave]}' oninput='return altera_acao(event, this);' onmouseup='return valida_acao(event, this);' ontouchend='return valida_acao(event, this);' {$this->disabled}></input>&nbsp;&nbsp;&nbsp;<label data-atributo='pop' style='width: 30px;'>{$this->pop[$chave]}</label>";
 			} elseif ($instalacao[$this->id_instalacao[$chave]]->pode_desativar == 1) {
 				//Instalações Desguarnecidas podem ser desativadas
 				if ($this->desativado[$chave] == 0) {

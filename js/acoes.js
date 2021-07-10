@@ -11,10 +11,16 @@ function altera_acao(evento, objeto) {
 	let selects = linha.getElementsByTagName("SELECT");
 	let labels = linha.getElementsByTagName("LABEL");
 	let tds = linha.getElementsByTagName("TD");
-
+	let label_pop = "";
+	
+	for (let index=0; index<labels.length; index++) {
+		if (labels[index].getAttribute('data-atributo') == 'pop') {
+			label_pop = labels[index];
+		}
+	}
 	if ((!range_em_edicao || range_em_edicao == objeto)) {
-		range_em_edicao = objeto;
-		objeto_em_edicao = true;
+		//range_em_edicao = objeto;
+		//objeto_em_edicao = true;
 		
 		//***
 		for(let index=0; index<tds.length; index++) {
@@ -27,17 +33,13 @@ function altera_acao(evento, objeto) {
 				}
 			}
 		}
+		
+		label_pop.innerText = objeto.value;
 		//***/
-		
-		for (let index=0; index<labels.length; index++) {
-			if (labels[index].getAttribute('data-atributo') == 'pop') {
-				labels[index].innerText = objeto.value;
-			}
-		}
-		
 	} else {
 		alert('Já existe uma ação em edição!');
-		objeto.value = objeto.getAttribute('data-valor-original');
+		//objeto.value = objeto.getAttribute('data-valor-original');
+		objeto.value = label_pop.innerText*1;
 		
 		evento.preventDefault();
 		return false;
@@ -57,6 +59,8 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	let inputs = linha.getElementsByTagName('INPUT');
 	let labels = linha.getElementsByTagName('LABEL');
 	let dados = []; //Dados que serão enviados para a validação
+	
+	console.log("valida_acao => mdo: "+objeto.value);
 	
 	let div_gerenciar = "";
 	for (let index=0; index<divs.length; index++) {
@@ -87,7 +91,7 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 	if (objeto.type == "checkbox") {
 		dados['pop'] = 0;
 	}
-	
+
 	if (dados['pop_original'] == dados['pop']) {
 		div_gerenciar.style.visibility = "hidden";
 		range_em_edicao = false;
@@ -96,33 +100,37 @@ function valida_acao(evento, objeto, forcar_valida_acao = false) {
 		return false;
 	}
 
-	let retorno = new Promise((resolve, reject) => {
-		let dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
-		console.log(dados_ajax);
-		objeto_em_edicao = true;
-		range_em_edicao = true;
-		resolve(processa_xhttp_resposta(dados_ajax));
-	});
 	
-	retorno.then((successMessage) => {
-		console.log(successMessage);
-		if (successMessage.resposta_ajax == "OK!") {
-			if (successMessage.balanco_acao != "") {
-				alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+successMessage.balanco_acao);
+	let retorno = false;
+	if (!range_em_edicao && !objeto_em_edicao) {	
+		retorno = new Promise((resolve, reject) => {
+			let dados_ajax = "post_type=POST&action=valida_acao&turno="+dados['turno']+"&id_imperio="+dados['id_imperio']+"&id_instalacao="+dados['id_instalacao']+"&id_planeta_instalacoes="+dados['id_planeta_instalacoes']+"&id_planeta="+dados['id_planeta']+"&desativado="+dados['desativado']+"&pop="+dados['pop']+"&pop_original="+dados['pop_original'];
+			console.log(dados_ajax);
+			objeto_em_edicao = true;
+			range_em_edicao = true;
+			resolve(processa_xhttp_resposta(dados_ajax));
+		});
+		
+		retorno.then((successMessage) => {
+			console.log(successMessage);
+			if (successMessage.resposta_ajax == "OK!") {
+				if (successMessage.balanco_acao != "") {
+					alert("Não é possível realizar esta ação! Estão faltando os seguintes recursos: "+successMessage.balanco_acao);
+					efetua_acao(evento, objeto, false);
+					return false;
+				}
+				let resposta = {};
+				resposta.resposta = successMessage;
+				resposta.retorno = true;
+				efetua_acao(evento, objeto, resposta);
+				return true;
+			} else {
+				alert(successMessage.resposta_ajax);
 				efetua_acao(evento, objeto, false);
 				return false;
-			}
-			let resposta = {};
-			resposta.resposta = successMessage;
-			resposta.retorno = true;
-			efetua_acao(evento, objeto, resposta);
-			return true;
-		} else {
-			alert(successMessage.resposta_ajax);
-			efetua_acao(evento, objeto, false);
-			return false;
-		}		
-	});
+			}		
+		});
+	}
 
 	
 	/***
@@ -469,4 +477,10 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_inst
 			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
 		}
 	//}
+}
+
+function registra_acao(evento, objeto) {
+	console.log(objeto.value);
+
+	return false;
 }

@@ -257,7 +257,11 @@ class imperio
 	***********************/
 	public function __get($name)
 	{
-		$this->popula_variaveis_imperio();
+		if (method_exists($this, $name)) {
+			$this->$name();
+		} else {
+			$this->popula_variaveis_imperio();
+		}
 		
 		return $this->$name;
 	}
