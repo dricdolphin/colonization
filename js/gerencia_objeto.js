@@ -549,6 +549,8 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 					//input_pop.click();
 					altera_acao(event, input_pop);
 					let retorno = new Promise((resolve, reject) => {
+						//objeto_em_edicao = true;
+						//range_em_edicao = true;
 						resolve(valida_acao(event, input_pop, true));
 					});
 
@@ -556,12 +558,15 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 						if (!successMessage) {
 							input_pop.value = 0;
 							label_pop.innerHTML = input_pop.value;
+							objeto_em_edicao = false;
+							range_em_edicao = false;
 							altera_acao(event, input_pop);
 							valida_acao(event, input_pop, true);
 						}
 					});
 					//Se der um erro no balanço na hora de ajustar a Instalação, DESATIVA para que o jogador possa refazer o balanço.
 				} else {
+					console.log("Upgrade de Instalação com Checkbox");
 					//if (checkbox_desativa_instalacao.value == 0) {
 						//checkbox_desativa_instalacao.click();
 						//altera_acao(event, checkbox_desativa_instalacao);
@@ -597,7 +602,7 @@ function upgrade_instalacao(evento,objeto,nivel_maximo=0) {
 				retorno = false;
 			}
 			
-			objeto_em_edicao = false;
+			//objeto_em_edicao = false;
 		}
 	};
 	xhttp.open("POST", ajaxurl, true); //A variável "ajaxurl" contém o caminho que lida com o AJAX no WordPress

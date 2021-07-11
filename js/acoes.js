@@ -39,7 +39,11 @@ function altera_acao(evento, objeto) {
 	} else {
 		alert('Já existe uma ação em edição!');
 		//objeto.value = objeto.getAttribute('data-valor-original');
-		objeto.value = label_pop.innerText*1;
+		console.log(objeto.type);
+		if (objeto.type == "range") {
+			console.log(objeto.value + " => " + label_pop.innerText);
+			objeto.value = label_pop.innerText*1;
+		}
 		
 		evento.preventDefault();
 		return false;
@@ -193,8 +197,9 @@ function desativar_instalacao(evento, objeto, id_acao) {
 	
 	if (range_em_edicao || range_em_edicao == objeto) {
 		alert('Já existe uma ação em edição!');
-		objeto.value = objeto.getAttribute('data-valor-original');
-		
+		console.log(objeto.checked );
+		objeto.checked = !objeto.checked;		
+		//objeto.value = objeto.getAttribute('data-valor-original');
 		evento.preventDefault();
 		return false;
 	}
@@ -204,8 +209,8 @@ function desativar_instalacao(evento, objeto, id_acao) {
 	let divs=linha.getElementsByTagName("DIV");
 	//var dados_ajax = "post_type=POST&action=desativar_instalacao";
 
-	range_em_edicao = objeto;
-	objeto_em_edicao = true;
+	//range_em_edicao = objeto;
+	//objeto_em_edicao = true;
 	
 	for (let index = 0; index < inputs.length; index++) {
 		if (inputs[index].getAttribute('data-atributo') == "desativado") {
@@ -477,10 +482,4 @@ function atualiza_produtos_acao(id_imperio,id_planeta,id_estrela,id_planeta_inst
 			div_mdo_sistema[index].innerHTML = resposta.mdo_sistema;
 		}
 	//}
-}
-
-function registra_acao(evento, objeto) {
-	console.log(objeto.value);
-
-	return false;
 }
