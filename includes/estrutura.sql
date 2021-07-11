@@ -379,3 +379,9 @@ id_estrela INT(6) NOT NULL,
 id_nave INT(6) NOT NULL,
 processado BOOLEAN DEFAULT FALSE
 )
+
+--Tabela que impede modificações de ações simultâneas
+CREATE TABLE colonization_semaforo (
+id_imperio INT(6) NOT NULL,
+data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+)

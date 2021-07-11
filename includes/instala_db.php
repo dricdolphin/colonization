@@ -396,6 +396,12 @@ class instala_db {
 		processado BOOLEAN DEFAULT FALSE
 		)");
 		
+		//Tabela que impede modificações de ações simultâneas
+		$wpdb->query("CREATE TABLE colonization_semaforo (
+		id_imperio INT(6) NOT NULL,
+		data_modifica TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+		)");
+		
 		//Cria as duas configurações que NÃO podem ser deletadas
 		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=1, descricao='Page ID do Fórum', id_post=357, page_id=1, deletavel=0");
 		$wpdb->query("INSERT IGNORE INTO colonization_referencia_forum SET id=2, descricao='ID do Tópico de Missões', id_post=321, page_id=0, deletavel=0");

@@ -2359,7 +2359,9 @@ if (!empty($imperios[0])) {
 				$custo_reparo = intval(($nave->HP_max - $nave->HP)/10) + 1;
 				$link_repara = "<a href='#' onclick='return repara_nave(event, this, {$nave->id}, {$custo_reparo});'><span class='tooltip'><i class='fas fa-tools'></i><span class='tooltiptext'>Reparar Nave</span></span></a>&nbsp;";
 				$icone_dano = "fas fa-claw-marks";
+				$estilo_dano = "";
 				if ($nivel_dano == 10) {
+					$nivel_dano = "";
 					//Sem danos!
 				} elseif ($nivel_dano >= 9) {
 					$estilo_dano = "style='color: #124612;'";
@@ -2380,8 +2382,10 @@ if (!empty($imperios[0])) {
 					$icone_dano = "fas fa-skull-crossbones";
 					$nivel_dano = "DESTRUÍDA!!!";					
 				}
-				
-				$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>&nbsp;";
+				$html_danos = "";
+				if ($nivel_dano != "") {
+					$html_danos = "<div class='{$icone_dano} tooltip' {$estilo_dano}><span class='tooltiptext'>{$nivel_dano}</span></div>&nbsp;";
+				}
 			}
 			
 			if (!empty($nave->id_estrela_destino) && $turno == $turno_atual->turno) {

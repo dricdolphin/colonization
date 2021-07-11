@@ -908,7 +908,7 @@ function repara_nave(evento, objeto, id_nave, custo_reparo) {
 	
 	resposta.then((successMessage) => {
 		if (successMessage.resposta_ajax != "OK!") {
-			alert(successMessage);
+			alert(successMessage.resposta_ajax);
 		} else {
 			window.setTimeout(function(){document.location.reload();},1000);
 		}
