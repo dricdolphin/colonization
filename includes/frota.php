@@ -189,7 +189,7 @@ class frota
 		
 		$imperio = new imperio($this->id_imperio);
 		$html_nave = $this->html_nave($imperio);
-		$html = "<div>O Império '{$imperio->nome}' deseja enviar {$html_qtd} <span class='tooltip'>'{$this->nome}'<span class='tooltiptext'>{$html_nave}</span></span> de {$estrela_origem->nome} ({$estrela_origem->X};{$estrela_origem->Y};{$estrela_origem->Z}) para {$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
+		$html = "<div>O Império '{$imperio->nome}' deseja enviar {$html_qtd} <span class='tooltip'>'{$this->nome}'<span class='tooltiptext'>{$html_nave}</span></span> de {$estrela_origem->icone_stargate}{$estrela_origem->nome} ({$estrela_origem->X};{$estrela_origem->Y};{$estrela_origem->Z}) para {$estrela_destino->icone_stargate}{$estrela_destino->nome} ({$estrela_destino->X};{$estrela_destino->Y};{$estrela_destino->Z})</div>
 		{$post_autoriza}
 		<div><a href='#' style='font-weight: bold !important;' onclick='return processa_viagem_nave(this, event,{$this->id});'>OK, autorizado!</a></div>";
 
@@ -336,7 +336,7 @@ class frota
 				$tamanho_alcance_local = $planeta_estrela->tamanho_alcance_local;
 			}
 		
-			if ($planeta_estrela->buraco_de_minhoca == 1) {
+			if ($planeta_estrela->buraco_de_minhoca == 1 || $planeta_estrela->stargate == true) {
 				$this->destinos_buracos_minhoca = $this->estrela->destinos_buracos_minhoca;
 			}
 		}

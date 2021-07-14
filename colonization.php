@@ -2343,15 +2343,19 @@ if (!empty($imperios[0])) {
 			}
 			
 			if ($nave->anti_dobra == 1) {
-				$icone_anti_dobra = "<div class='fas fa-anchor tooltip'><span class='tooltiptext'>Nave sob efeito de Anti-Dobra</span></div>";
+				$icone_anti_dobra = "<div class='fas fa-anchor tooltip' data-atributo='icone_anti_dobra'><span class='tooltiptext'>Nave sob efeito de Anti-Dobra</span></div>";
 			}
 			
 			if (isset($nave->partes_nave->anti_dobra) && $nave->anti_dobra == 0 && $estrela[$id_estrela]->anti_dobra == 0 && $nave->id_estrela_destino == 0) {
 				$link_anti_dobra = "<a href='#' onclick='return ativa_anti_dobra(this,event,{$nave->id_estrela},{$nave->id});'><span class='tooltip'><i class='fas fa-anchor'></i><span class='tooltiptext'>Ativar Sistema Anti-Dobra</span></span></a>&nbsp;";
 			}
 
-			if (isset($nave->partes_nave->reforco_dobra_local) && $nave->anti_dobra == 1 && $nave->id_estrela_destino == 0) {
-				$link_anti_dobra = "<a href='#' onclick='return desativa_anti_dobra(this,event,{$nave->id});'><span class='tooltip'><i class='fas fa-wind'></i><span class='tooltiptext'>Desativar Anti-Dobra</span></span></a>&nbsp;";
+			if ((isset($nave->partes_nave->reforco_dobra_local) || $roles == "administrator") && $nave->anti_dobra == 1 && $nave->id_estrela_destino == 0) {
+				$estilo_admin = "";
+				if (!isset($nave->partes_nave->reforco_dobra_local) && $roles == "administrator") {
+					$estilo_admin = "style='color: red;'";	
+				}
+				$link_anti_dobra = "<a href='#' onclick='return desativa_anti_dobra(this,event,{$nave->id});' {$estilo_admin}><span class='tooltip'><i class='fas fa-wind'></i><span class='tooltiptext'>Desativar Anti-Dobra</span></span></a>&nbsp;";
 			}	
 			
 			if ($nave->HP < $nave->HP_max && $turno == $turno_atual->turno) {

@@ -506,20 +506,25 @@ function popula_selects_estrelas_frotas() {
 					if (valor_destino.id_estrela == id_estrela_destino[posicao_nave_na_lista]) {
 					selecionado = 'selected';
 				}
+				
+				icone_pesquisa = '';
 				if (id_estrela_pesquisa[valor_destino.id_estrela] == 1) {
 					icone_pesquisa = '&#xf002; ';
-				} else {
-					icone_pesquisa = '';
 				}
 				
+				icone_nunca_visitado = '';
 				if (id_estrela_nunca_visitada[valor_destino.id_estrela] == 1) {
 					icone_nunca_visitado = '&#xf60b; ';
-				} else {
-					icone_nunca_visitado = '';
+				}
+				
+				
+				icone_buraco_de_minhoca = '';
+				if (buracos_de_minhoca[posicao_nave_na_lista].includes(valor_destino.id_estrela)) {
+					icone_buraco_de_minhoca = '&#xf908; ';	
 				}
 				
 				distancia = Math.ceil(calcula_distancia(false, estrela_atual, valor_destino.id_estrela));
-				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ icone_nunca_visitado + icone_pesquisa + valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela + ' - ' + distancia + 'pc</option>';
+				html_lista = html_lista + '<option value=\"'+valor_destino.id_estrela+'\" '+selecionado+'>'+ icone_nunca_visitado + icone_pesquisa + icone_buraco_de_minhoca + valor_destino.nome_estrela +' '+ valor_destino.posicao_estrela + ' - ' + distancia + 'pc</option>';
 				
 				//distancia[chave_destino] = true;
 			});

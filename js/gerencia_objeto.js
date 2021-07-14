@@ -1777,6 +1777,43 @@ function ativa_anti_dobra(objeto, evento, id_estrela, id_nave = 0) {
 }
 
 /******************
+function desativa_anti_dobra(id=0)
+--------------------
+Desativa o Campo Anti-Dobra afetando uma nave
+******************/
+function desativa_anti_dobra(objeto, evento, id_nave) {
+	let div_parent = pega_ascendente(objeto,"DIV");
+	let divs = div_parent.getElementsByTagName("DIV");
+	let div_icone_anti_dobra = "";
+	
+	for (let index=0; index < divs.length; index++) {
+		if (divs[index].getAttribute("data-atributo") == "icone_anti_dobra") {
+			div_icone_anti_dobra = divs[index];
+			break;
+		}
+	}
+	
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave+"&desativa=true";
+		resolve(processa_xhttp_basico(dados_ajax));
+	});
+	
+	retorno.then((successMessage) => {
+		objeto_em_edicao = false;
+		objeto_em_edicao = false;
+		if (successMessage) {
+			alert('Nave liberada!');
+			div_icone_anti_dobra.remove();
+			objeto.remove();
+		}
+	});
+
+	evento.preventDefault();
+	return false;
+}
+
+
+/******************
 function criar_pop(evento, objeto, id_colonia, tipo_pop)
 --------------------
 Cria Pop em uma Colônia específica
@@ -1813,30 +1850,6 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 			console.error(error);
 		});
 	}
-
-	evento.preventDefault();
-	return false;
-}
-
-/******************
-function ativa_anti_dobra(id=0)
---------------------
-Desativa o Campo Anti-Dobra afetando uma nave
-******************/
-function desativa_anti_dobra(objeto, evento, id_nave) {
-	let retorno = new Promise((resolve, reject) => {
-		let dados_ajax = "post_type=POST&action=ativa_anti_dobra&id_nave="+id_nave+"&desativa=true";
-		resolve(processa_xhttp_basico(dados_ajax));
-	});
-	
-	retorno.then((successMessage) => {
-		objeto_em_edicao = false;
-		objeto_em_edicao = false;
-		if (successMessage) {
-			alert('Nave liberada!');
-			objeto.remove();
-		}
-	});
 
 	evento.preventDefault();
 	return false;

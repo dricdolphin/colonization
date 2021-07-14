@@ -55,6 +55,7 @@ class colonization_ajax {
 		add_action('wp_ajax_recursos_atuais_imperio', array ($this, 'recursos_atuais_imperio'));//Retorna o HTML com os recursos atuais do Império
 		add_action('wp_ajax_salva_diplomacia', array ($this, 'salva_diplomacia')); //Valida o evento de diplomacia
 		add_action('wp_ajax_valida_nave', array ($this, 'valida_nave')); //Valida os dados de uma nave
+		add_action('wp_ajax_valida_upgrade_nave', array ($this, 'valida_upgrade_nave')); //Valida um upgrade de nave
 		add_action('wp_ajax_muda_nome_colonia', array ($this, 'muda_nome_colonia')); //Muda o nome de um planeta
 		add_action('wp_ajax_muda_nome_nave', array ($this, 'muda_nome_nave')); //Muda o nome de uma nave
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
@@ -142,10 +143,17 @@ class colonization_ajax {
 	function ativa_anti_dobra() {
 		global $wpdb;
 		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
 		$estrela = new estrela($_POST['id_estrela']);
 		$slots = 0;
 		if ($_POST['id_nave'] != 0) {
 			$nave = new frota($_POST['id_nave']);
+			$imperio = new imperio($nave->id_imperio);
 			$slots = $nave->tamanho;
 		}
 		
@@ -591,9 +599,10 @@ class colonization_ajax {
 		
 		//TODO -- Verifica a diferença de custo
 		
+		$dados_salvos['resposta_ajax'] == "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta		
 	}
-
-
 
 	/***********************
 	function valida_nave()
@@ -603,8 +612,8 @@ class colonization_ajax {
 	function valida_nave() {
 		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
-		error_reporting(E_ALL); 
-		ini_set("display_errors", 1);
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
 		
 		$custo = json_decode(stripslashes($_POST['custo']),true);
 		$upgrade = array_key_exists("upgrade", $custo);
@@ -3221,7 +3230,7 @@ class colonization_ajax {
 			$imperio = new imperio($id_imperio, true);
 		}
 		$turno = new turno($_POST['turno']);
-		if ($roles != "administrator" && $turno->encerrado == 1 ) {
+		if ($turno->encerrado == 1 && $roles != "administrator" ) {
 			$dados_salvos['resposta_ajax'] = "O Turno {$turno->turno} foi ENCERRADO e não pode mais receber alterações!";
 		
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON

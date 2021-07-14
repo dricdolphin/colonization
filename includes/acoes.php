@@ -83,16 +83,19 @@ class acoes
 				cat.pop AS pop, cat.desativado AS desativado, cat.data_modifica AS data_modifica
 				FROM colonization_planeta_instalacoes AS cpi
 				JOIN colonization_imperio_colonias AS cic 
-				ON cpi.id_planeta = cic.id_planeta
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$this->turno->turno}
 				LEFT JOIN 
-				(SELECT id, id_planeta, id_instalacao, id_planeta_instalacoes, id_imperio, pop, desativado, data_modifica
-				 FROM colonization_acoes_turno
-				 WHERE id_imperio={$this->id_imperio} AND turno={$this->turno->turno} GROUP BY id_planeta_instalacoes
+				(SELECT cat.id, cat.id_planeta, cat.id_instalacao, cat.id_planeta_instalacoes, cat.id_imperio, cat.pop, cat.desativado, cat.data_modifica, cat.turno
+				 FROM colonization_acoes_turno AS cat
+				 WHERE cat.id_imperio={$this->id_imperio} AND cat.turno={$this->turno->turno} 
+				 GROUP BY cat.id_planeta_instalacoes
 				) AS cat
 				ON cat.id_planeta = cic.id_planeta
 				AND cat.id_instalacao = cpi.id_instalacao
 				AND cat.id_planeta_instalacoes = cpi.id
 				AND cat.id_imperio = cic.id_imperio
+				AND cat.turno = cic.turno
 				JOIN colonization_instalacao AS ci
 				ON ci.id = cpi.id_instalacao
 				JOIN colonization_planeta AS cp

@@ -37,6 +37,7 @@ class planeta
 	private $max_slots = 0;
 	private $alcance_local = 0;
 	private $buraco_de_minhoca = 0;
+	private $stargate = 0;
 	private $tamanho_alcance_local = 0;
 	private $terraforma = 0;
 	private $pop_inospito;
@@ -228,6 +229,15 @@ class planeta
 			if (!empty($buraco_de_minhoca)) {
 				$buraco_de_minhoca_valor = explode("=",$buraco_de_minhoca[0]);
 				$this->buraco_de_minhoca = $buraco_de_minhoca_valor[1];
+			}
+
+			//Especiais: stargate=true
+			$stargate = array_values(array_filter($especiais, function($value) {
+				return strpos($value, 'stargate') !== false;
+			}));
+			
+			if (!empty($stargate)) {
+				$this->stargate = true;
 			}
 			
 			//Especiais: escudo=1
