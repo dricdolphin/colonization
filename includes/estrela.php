@@ -9,6 +9,7 @@ Cria o objeto "estrela" e mostra os dados da estrela
 //Contém os dados da estrela
 class estrela
 {
+	//Dados provenientes do DB
 	public $id;
 	public $nome;
 	public $descricao;
@@ -17,12 +18,17 @@ class estrela
 	public $Y;
 	public $Z;
 	public $tipo;
-	public $colonias;
 	public $ids_estrelas_destino;
-	public $destinos_buracos_minhoca = [];
 	public $anti_dobra = false;
-	public $tem_stargate = false;
-	public $icone_stargate = "";
+	
+	//Dados derivados de outras informações
+	private $tem_stargate = false;
+	private $icone_stargate = "";
+	private $destinos_buracos_minhoca = [];
+
+	//Flags de funções processadas
+	public $processou_tem_stargate = false;
+	public $processou_destinos_buracos_minhoca = false;
 	
 	/***********************
 	function __construct($id_estrela)
@@ -65,84 +71,33 @@ class estrela
 		$this->cerco = $resultado->cerco;
 		$this->anti_dobra = $resultado->anti_dobra;
 		$this->ids_estrelas_destino = $resultado->ids_estrelas_destino;
-		//$this->destinos_buracos_minhoca = explode(";",$this->ids_estrelas_destino);
-
-		$user = wp_get_current_user();
-		$roles = "";
-		if (!empty($user->ID)) {
-			$roles = $user->roles[0];
-		}
-
-		
-		$ids_estrelas_com_stargate = [];
-		//Verifica se tem um StarGate no sistema
-		$turno = new turno();
-		$id_stargate = $wpdb->get_var("SELECT ci.id FROM colonization_instalacao AS ci WHERE ci.especiais LIKE '%stargate=true%'");
-		
-		$tem_stargate = $wpdb->get_var("
-		SELECT COUNT(cpi.id)
-		FROM colonization_planeta_instalacoes AS cpi
-		JOIN colonization_imperio_colonias AS cic
-		ON cic.id_planeta = cpi.id_planeta
-		AND cic.turno = {$turno->turno}
-		JOIN colonization_planeta AS cp
-		ON cp.id = cic.id_planeta
-		AND cp.id_estrela = {$this->id}
-		WHERE cpi.id_instalacao = {$id_stargate}
-		AND cic.turno = {$turno->turno}
-		");
-		
-		if ($tem_stargate > 0) {
-			$this->tem_stargate = true;
-			$this->icone_stargate = "<i class='fad fa-galaxy'></i>";
-			//Se tiver, o StarGate está ligado a TODOS os outros StarGates do Império
-			$id_imperio_na_estrela = $wpdb->get_var("
-			SELECT cic.id_imperio
-			FROM colonization_imperio_colonias AS cic
-			JOIN colonization_planeta AS cp
-			ON cp.id = cic.id_planeta
-			AND cp.id_estrela = {$this->id}
-			WHERE cic.turno = {$turno->turno}
-			");
-			
-			if (!empty($id_imperio_na_estrela)) {
-				$ids_stargates = $wpdb->get_results("
-				SELECT cp.id_estrela
-				FROM colonization_planeta_instalacoes AS cpi
-				JOIN colonization_imperio_colonias AS cic
-				ON cic.id_planeta = cpi.id_planeta
-				AND cic.turno = {$turno->turno}
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				WHERE cpi.id_instalacao = {$id_stargate}
-				AND cic.id_imperio = {$id_imperio_na_estrela}
-				AND cic.turno = {$turno->turno}
-				AND cp.id_estrela != {$this->id}
-				");	
-				
-				foreach ($ids_stargates as $id_stargates) {
-					$ids_estrelas_com_stargate[] = $id_stargates->id_estrela;
-				}
-			}
-		}
-
-		$this->destinos_buracos_minhoca = array_values(array_filter(array_unique(array_merge(explode(";",$this->ids_estrelas_destino),$ids_estrelas_com_stargate))));
-		
-		//$JSON_buracos_de_minhoca = json_encode($this->destinos_buracos_minhoca);
-		//if ($roles == "administrator") {
-		//	echo $JSON_buracos_de_minhoca;
-		//	echo "<br>";
-		//}
-
-		$this->colonias = $wpdb->get_var("
-		SELECT COUNT(ce.id) FROM 
-		colonization_planeta AS cp
-		JOIN colonization_estrela AS ce
-		ON ce.id = cp.id_estrela
-		AND ce.id = {$this->id}
-		JOIN colonization_imperio_colonias AS cic
-		ON cic.id_planeta = cp.id"); //Pega se tem colônias
 	}
+	
+
+	/***********************
+	function __set()
+	----------------------
+	Seta o valor de uma variável privada
+	***********************/
+	function __set($name, $value) {
+		
+		$this->$name = $value;
+	}
+
+	/***********************
+	function __get()
+	----------------------
+	Popula e retorna o valor de variáveis privadas
+	***********************/
+	function __get($name) {
+		global $wpdb;
+		
+		if (method_exists($this, $name)) {
+			$this->$name();
+		}
+		
+		return $this->$name;
+	}	
 	
 	/***********************
 	function lista_dados()
@@ -153,7 +108,7 @@ class estrela
 		global $wpdb;
 		
 		$estilo_colonias = "";
-		if ($this->colonias > 0  ) {
+		if (count($this->colonias_na_estrela()) > 0  ) {
 			$estilo_colonias = "style='font-weight: bold;'";
 		}
 
@@ -296,6 +251,114 @@ class estrela
 			$html_planetas .= "Espaço Profundo em {$this->nome}";
 		}
 		return $html_planetas."</div>";
+	}
+	
+	/******************
+	function tem_stargate()
+	-----------
+	Popula a variável
+	******************/	
+	function tem_stargate() {
+		global $wpdb;
+		
+		if ($this->processou_tem_stargate) {
+			return $this->tem_stargate;
+		}
+		
+		//Verifica se tem um StarGate no sistema
+		$turno = new turno();
+		$id_stargate = $wpdb->get_var("SELECT ci.id FROM colonization_instalacao AS ci WHERE ci.especiais LIKE '%stargate=true%'");
+		
+		$tem_stargate = $wpdb->get_var("
+		SELECT COUNT(cpi.id)
+		FROM colonization_planeta_instalacoes AS cpi
+		JOIN colonization_imperio_colonias AS cic
+		ON cic.id_planeta = cpi.id_planeta
+		AND cic.turno = {$turno->turno}
+		JOIN colonization_planeta AS cp
+		ON cp.id = cic.id_planeta
+		AND cp.id_estrela = {$this->id}
+		WHERE cpi.id_instalacao = {$id_stargate}
+		AND cic.turno = {$turno->turno}
+		");
+
+		if ($tem_stargate > 0) {
+			$this->tem_stargate = true;
+			$this->icone_stargate = "<i class='fad fa-galaxy'></i>";
+		}
+
+		$this->processou_tem_stargate = true;
+		return $this->tem_stargate;
+	}
+	
+	/******************
+	function icone_stargate()
+	-----------
+	Popula a variável
+	******************/	
+	function icone_stargate() {
+		//Essa variável é populada pela função tem_stargate
+		if ($this->processou_tem_stargate) {
+			return $this->icone_stargate;
+		}
+		
+		$this->tem_stargate();
+		return $this->icone_stargate;
+	}
+
+
+	/******************
+	function destinos_buracos_minhoca()
+	-----------
+	Popula a variável, pegando todos os buracos de minhoca E StarGates
+	******************/
+	function destinos_buracos_minhoca() {
+		global $wpdb;
+		
+		if ($this->processou_destinos_buracos_minhoca) {
+			return $this->destinos_buracos_minhoca;
+		}
+		
+		$turno = new turno();
+		$id_stargate = $wpdb->get_var("SELECT ci.id FROM colonization_instalacao AS ci WHERE ci.especiais LIKE '%stargate=true%'");
+		
+		$ids_estrelas_com_stargate = [];
+		if ($this->tem_stargate() > 0) {
+			//Se tiver, o StarGate está ligado a TODOS os outros StarGates do Império
+			$id_imperio_na_estrela = $wpdb->get_var("
+			SELECT cic.id_imperio
+			FROM colonization_imperio_colonias AS cic
+			JOIN colonization_planeta AS cp
+			ON cp.id = cic.id_planeta
+			AND cp.id_estrela = {$this->id}
+			WHERE cic.turno = {$turno->turno}
+			");
+			
+			if (!empty($id_imperio_na_estrela)) {
+				$ids_stargates = $wpdb->get_results("
+				SELECT cp.id_estrela
+				FROM colonization_planeta_instalacoes AS cpi
+				JOIN colonization_imperio_colonias AS cic
+				ON cic.id_planeta = cpi.id_planeta
+				AND cic.turno = {$turno->turno}
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				WHERE cpi.id_instalacao = {$id_stargate}
+				AND cic.id_imperio = {$id_imperio_na_estrela}
+				AND cic.turno = {$turno->turno}
+				AND cp.id_estrela != {$this->id}
+				");	
+				
+				foreach ($ids_stargates as $id_stargates) {
+					$ids_estrelas_com_stargate[] = $id_stargates->id_estrela;
+				}
+			}
+		}
+
+		$this->destinos_buracos_minhoca = array_values(array_filter(array_unique(array_merge(explode(";",$this->ids_estrelas_destino),$ids_estrelas_com_stargate))));
+		
+		$this->processou_destinos_buracos_minhoca = true;
+		return $this->destinos_buracos_minhoca;
 	}
 }
 ?>
