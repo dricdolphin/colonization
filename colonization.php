@@ -791,7 +791,7 @@ class colonization {
 			if (empty($estrela[$id_estrela->id])) {
 				$estrela[$id_estrela->id] = new estrela($id_estrela->id);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_acoes_imperio => new estrela({$id_estrela->id}){$diferenca}ms');</script>";				
+				echo "<script>console.log('colonization_exibe_mapa_naves => new estrela({$id_estrela->id}){$diferenca}ms');</script>";				
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -814,6 +814,8 @@ class colonization {
 				} else {
 					if (empty($imperios[$id_imperio->id_imperio])) {
 						$imperios[$id_imperio->id_imperio] = new imperio($id_imperio->id_imperio, true);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$id_imperio->id_imperio}, true){$diferenca}ms');</script>";															
 					}
 					$nomes_imperios .= "{$id_imperio->nome_imperio}; ";
 				}
@@ -840,7 +842,7 @@ class colonization {
 				if (!$mini_mapa) {
 					$html_planetas_na_estrela[$estrela[$id_estrela->id]->id] = $estrela[$id_estrela->id]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos, $id_estrela->turno);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";
+					echo "<script>console.log('colonization_exibe_mapa_naves => pega_html_planetas_estrela{$diferenca}ms');</script>";
 				}
 			}
 			
@@ -849,7 +851,7 @@ class colonization {
 				if (empty($nave_temp[$id_frota->id])) {
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_frota->id}){$diferenca}ms');</script>";
+					echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_frota->id}){$diferenca}ms');</script>";
 				}
 				$nave = $nave_temp[$id_frota->id];
 				if ($nave->id_imperio == 0) {
@@ -865,6 +867,8 @@ class colonization {
 						if ($nave->id_imperio != 0) {
 							if (empty($imperios[$nave->id_imperio])) {
 								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+								$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+								echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave->id_imperio}, true){$diferenca}ms');</script>";
 							}							
 							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
 						}
@@ -882,6 +886,8 @@ class colonization {
 						if ($nave->id_imperio != 0) {
 							if (empty($imperios[$nave->id_imperio])) {
 								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+								$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+								echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave->id_imperio}, true){$diferenca}ms');</script>";								
 							}							
 							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
 						}
@@ -893,6 +899,8 @@ class colonization {
 						if ($nave->id_imperio != 0) {
 							if (empty($imperios[$nave->id_imperio])) {
 								$imperios[$nave->id_imperio] = new imperio($nave->id_imperio, true);
+								$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+								echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave->id_imperio}, true){$diferenca}ms');</script>";								
 							}
 							$html_nave = $nave->html_nave($imperios[$nave->id_imperio], true);
 						}
@@ -907,16 +915,17 @@ class colonization {
 			if (empty($nave_temp[$id_nave->id])) {
 				$nave_temp[$id_nave->id] = new frota($id_nave->id);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_nave->id}){$diferenca}ms');</script>";
+				echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_nave->id}){$diferenca}ms');</script>";
 			}
 			$nave = $nave_temp[$id_nave->id];
-			//$nave = new frota($id_nave->id);
-			//$nave->__construct($id_nave->id);
 			$id_estrela = $wpdb->get_var("SELECT id FROM colonization_estrela WHERE X={$nave->X} AND Y={$nave->Y} AND Z={$nave->Z}");
+			if (empty($id_estrela)) {//Pula as naves que não estão em nenhuma estrela
+				continue;
+			}
 			if (empty($estrela[$id_estrela])) {
 				$estrela[$id_estrela] = new estrela($id_estrela);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_acoes_imperio => new estrela({$id_estrela}){$diferenca}ms');</script>";
+				echo "<script>console.log('colonization_exibe_mapa_naves => new estrela({$id_estrela}){$diferenca}ms');</script>";
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -939,6 +948,8 @@ class colonization {
 				} else {
 					if (empty($imperios[$id_imperio->id_imperio])) {
 						$imperios[$id_imperio->id_imperio] = new imperio($id_imperio->id_imperio, true);
+						$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+						echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$id_imperio->id_imperio}, true){$diferenca}ms');</script>";
 					}
 					$nomes_imperios .= "{$id_imperio->nome_imperio}; ";
 				}
@@ -956,7 +967,7 @@ class colonization {
 				if (!$mini_mapa) {
 					$html_planetas_na_estrela[$estrela[$id_estrela]->id] = $estrela[$id_estrela]->pega_html_planetas_estrela($apenas_recursos, $apenas_recursos);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					echo "<script>console.log('colonization_exibe_acoes_imperio => pega_html_planetas_estrela{$diferenca}ms');</script>";				
+					echo "<script>console.log('colonization_exibe_mapa_naves => pega_html_planetas_estrela{$diferenca}ms');</script>";				
 				}
 			}
 			
@@ -965,10 +976,9 @@ class colonization {
 				if (empty($nave_temp[$id_frota->id])) {
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-					echo "<script>console.log('colonization_exibe_acoes_imperio => new frota({$id_frota->id}){$diferenca}ms');</script>";
+					echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_frota->id}){$diferenca}ms');</script>";
 				}
 				$nave_na_estrela = $nave_temp[$id_frota->id];				
-				//$nave_na_estrela = new frota($id_frota->id);
 				if ($nave_na_estrela->id_imperio == 0) {
 					$nome_imperio = $nave_na_estrela->nome_npc;
 				} else {
@@ -983,6 +993,8 @@ class colonization {
 							if ($nave_na_estrela->id_imperio != 0) {
 								if (empty($imperios[$nave_na_estrela->id_imperio])) {
 									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+									$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+									echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave_na_estrela->id_imperio}, true){$diferenca}ms');</script>";									
 								}						
 								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
 							}
@@ -996,6 +1008,8 @@ class colonization {
 							if ($nave_na_estrela->id_imperio != 0) {
 								if (empty($imperios[$nave_na_estrela->id_imperio])) {
 									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+									$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+									echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave_na_estrela->id_imperio}, true){$diferenca}ms');</script>";																		
 								}								
 								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
 							}						
@@ -1007,6 +1021,8 @@ class colonization {
 							if ($nave_na_estrela->id_imperio != 0) {
 								if (empty($imperios[$nave_na_estrela->id_imperio])) {
 									$imperios[$nave_na_estrela->id_imperio] = new imperio($nave_na_estrela->id_imperio, true);
+									$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+									echo "<script>console.log('colonization_exibe_mapa_naves => new imperio({$nave_na_estrela->id_imperio}, true){$diferenca}ms');</script>";																		
 								}
 								$html_nave = $nave_na_estrela->html_nave($imperios[$nave_na_estrela->id_imperio], true);
 							}							
@@ -1029,7 +1045,6 @@ class colonization {
 			ORDER by cr.nome");
 			$html_options = "<option value=''></option>";
 			foreach ($id_recursos_conhecidos as $id_recurso) {
-				//$recurso = new recurso($id_recurso->id_recurso);
 				$html_options .= "<option value={$id_recurso->id_recurso}>{$id_recurso->nome}</option> \n";
 			}
 			if (!isset($atts['id_estrela'])) {

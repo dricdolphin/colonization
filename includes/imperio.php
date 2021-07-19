@@ -511,7 +511,7 @@ class imperio
 	----------------------
 	Popula as variáveis do Império
 	***********************/
-	function popula_variaveis_imperio() {
+	private function popula_variaveis_imperio() {
 		global $wpdb;
 		
 		if ($this->processou_popula_variaveis_imperio) {
@@ -539,154 +539,6 @@ class imperio
 		
 		foreach ($especiais_lista AS $id) {
 			$especiais = explode(";",$id->especiais);
-			
-			//Todos os MKs
-			$mks = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'mk_') !== false;
-			}));
-			
-			if (!empty($mks)) {
-				//mk_[parte_nave]=valor
-				$mks_valor = explode("=",$mks[0]);
-
-				$propriedade = $mks_valor[0];
-				if ($mks_valor[1] > $this->$propriedade) {
-					$this->$propriedade = $mks_valor[1];
-				}
-			}
-
-			//nivel_estacao_orbital
-			$nivel_estacao_orbital = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'nivel_estacao_orbital') !== false;
-			}));
-			
-			if (!empty($nivel_estacao_orbital)) {
-				$nivel_estacao_orbital_valor = explode("=",$nivel_estacao_orbital[0]);
-
-				if ($nivel_estacao_orbital_valor[1] > $this->nivel_estacao_orbital) {
-					$this->nivel_estacao_orbital = $nivel_estacao_orbital_valor[1];
-				}
-			}
-			
-			//camuflagem_grande
-			$camuflagem_grande = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'camuflagem_grande') !== false;
-			}));
-			
-			if (!empty($camuflagem_grande)) {
-				$this->camuflagem_grande = true;
-			}
-			
-			//tricobalto_torpedo
-			$tricobalto_torpedo = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'tricobalto_torpedo') !== false;
-			}));
-			
-			if (!empty($tricobalto_torpedo)) {
-				$this->tricobalto_torpedo = true;
-			}
-			
-			//tritanium_blindagem;
-			$tritanium_blindagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'tritanium_blindagem') !== false;
-			}));
-			
-			if (!empty($tritanium_blindagem)) {
-				$this->tritanium_blindagem = true;
-			}
-			
-			//neutronium_blindagem;
-			$neutronium_blindagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'neutronium_blindagem') !== false;
-			}));
-			
-			if (!empty($neutronium_blindagem)) {
-				$this->neutronium_blindagem = true;
-			}			
-			
-			//Especiais -- consome_poluicao
-			$consome_poluicao = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'consome_poluicao') !== false;
-			}));
-			
-			if (!empty($consome_poluicao)) {
-				$consome_poluicao_valor = explode("=",$consome_poluicao[0]);
-				$this->consome_poluicao = $this->consome_poluicao + $consome_poluicao_valor[1];
-			}
-			
-			//Especiais -- anti_camuflagem
-			$anti_camuflagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'anti_camuflagem') !== false;
-			}));
-			
-			if (!empty($anti_camuflagem)) {
-				$anti_camuflagem_valor = explode("=",$anti_camuflagem[0]);
-				$this->anti_camuflagem = $this->anti_camuflagem + $anti_camuflagem_valor[1];
-			}
-			
-			//Especiais -- bonus_alcance
-			$bonus_alcance = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_alcance') !== false;
-			}));
-			
-			if (!empty($bonus_alcance)) {
-				$bonus_alcance_valor = explode("=",$bonus_alcance[0]);
-				if ($this->bonus_alcance < $bonus_alcance_valor[1]) {
-					$this->bonus_alcance = $bonus_alcance_valor[1];
-				}
-			}			
-
-			//Especiais -- bonus_comercio
-			$bonus_comercio = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_comercio') !== false;
-			}));
-			
-			if (!empty($bonus_comercio)) {
-				$bonus_comercio_valor = explode("=",$bonus_comercio[0]);
-				if ($this->bonus_comercio < $bonus_comercio_valor[1]) {
-					$this->bonus_comercio = $bonus_comercio_valor[1];
-				}
-			}	
-			
-			//Especiais -- limite_poluicao
-			$limite_poluicao = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'limite_poluicao') !== false;
-			}));
-			
-			if (!empty($limite_poluicao)) {
-				$limite_poluicao_valor = explode("=",$limite_poluicao[0]);
-				$this->limite_poluicao = $this->limite_poluicao + $limite_poluicao_valor[1];
-			}
-			
-			//Especiais -- bonus_pesquisa_naves
-			$bonus_pesquisa_naves = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_pesquisa_naves') !== false;
-			}));
-			
-			if (!empty($bonus_pesquisa_naves)) {
-				$bonus_pesquisa_naves = explode("=",$bonus_pesquisa_naves[0]);
-				$this->bonus_pesquisa_naves = $this->bonus_pesquisa_naves + $bonus_pesquisa_naves[1];
-			}			
-			
-			//Especiais -- coloniza_inospito
-			$coloniza_inospito = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'coloniza_inospito') !== false;
-			}));
-			
-			if (!empty($coloniza_inospito)) {
-				$coloniza_inospito_valor = explode("=",$coloniza_inospito[0]);
-				$this->coloniza_inospito = $coloniza_inospito_valor[1];
-			}
-
-			//Especiais -- alimento_inospito
-			$alimento_inospito = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'alimento_inospito') !== false;
-			}));
-			
-			if (!empty($alimento_inospito)) {
-				$alimento_inospito_valor = explode("=",$alimento_inospito[0]);
-				$this->alimento_inospito = $alimento_inospito_valor[1];
-			}			
 			
 			//Atributos de defesa planetária
 			//Especiais -- pdf_planetario
@@ -1471,7 +1323,7 @@ class imperio
 		$icone_html = [];
 		
 		if (!$this->processou_popula_variaveis_imperio) {
-			$this->popula_variaveis_imperio();
+			//$this->popula_variaveis_imperio();
 		}		
 		
 		foreach ($icones AS $icone) {
@@ -1508,7 +1360,7 @@ class imperio
 		}
 
 		
-		if ($this->bonus_pop >0) {
+		if ($this->bonus_pop > 0) {
 			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->bonus_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
 		}
 		
