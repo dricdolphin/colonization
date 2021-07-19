@@ -2151,8 +2151,8 @@ class colonization_ajax {
 			
 			$colonia_dentro_logistica = false;
 			foreach ($estrelas_colonias_imperio as $dados_colonia) {
-				$dados_salvos['debug'] .= "distância: {$estrela->distancia_estrela($dados_colonia->id_estrela)} || {$imperio->alcance_logistica}\n";
-				if ($estrela->distancia_estrela($dados_colonia->id_estrela) <= $imperio->alcance_logistica) {
+				$dados_salvos['debug'] .= "distância: {$estrela->distancia_estrela($dados_colonia->id_estrela)} || {$imperio->logistica}\n";
+				if ($estrela->distancia_estrela($dados_colonia->id_estrela) <= $imperio->logistica) {
 					$colonia_dentro_logistica = true;
 					break;
 				}

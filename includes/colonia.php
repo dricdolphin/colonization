@@ -398,8 +398,8 @@ class colonia
 				if ($this->poluicao <= $imperio->limite_poluicao) {//Se a poluição for maior que o limite de poluição do Império, a população não cresce
 					$limite_pop_planeta = $this->planeta->tamanho()*10; 
 					//Caso o Império tenha uma Tech de Bônus Populacional...
-					if ($imperio->max_pop >0) {
-						$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->max_pop/100));
+					if ($imperio->bonus_pop >0) {
+						$limite_pop_planeta	= $limite_pop_planeta*(1+($imperio->bonus_pop/100));
 						if ($this->planeta->tamanho() == 0) {//Planetas que não são planetas (i.e. destroços) não permitem o crescimento natural da Pop
 							$limite_pop_planeta	= 0; 
 						}									
@@ -418,7 +418,7 @@ class colonia
 							$fator_cresce = $fator_cresce*2;
 						}
 						
-						$nova_pop = $this->pop + ceil($fator_cresce*$imperio->crescimento_pop);
+						$nova_pop = $this->pop + ceil($fator_cresce*$imperio->bonus_crescimento_pop);
 						if ($nova_pop > $limite_pop_planeta) {
 							$nova_pop = $limite_pop_planeta;
 						}

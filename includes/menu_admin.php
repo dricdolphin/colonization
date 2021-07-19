@@ -255,7 +255,7 @@ class menu_admin {
 			<div>
 			<table class='wp-list-table widefat tabela_admin fixed striped users' data-tabela='colonization_imperio'>
 			<thead>
-			<tr class='th_linha_1'><th>ID</th><th>Usuário</th><th>Nome do Império</th><th>Prestígio</th><th>População</th><th>Pontuação</th><th>&nbsp;</th></tr>
+			<tr class='th_linha_1'><th>ID</th><th>Usuário</th><th>Nome do Império</th><th>Prestígio</th><th>&nbsp;</th></tr>
 			</thead>
 			<tbody>";
 			
@@ -295,8 +295,7 @@ class menu_admin {
 		global $wpdb;
 		$html = $this->html_header;
 
-		
-		if (isset($_GET['id'])) {	
+		if (isset($_GET['id'])) {
 			$estrela = new estrela($_GET['id']);
 			
 			$html .= "<div><h2>COLONIZATION - Sistema Estelar da estrela '{$estrela->nome}' - {$estrela->X};{$estrela->Y};{$estrela->Z} </h2></div>

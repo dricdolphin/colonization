@@ -628,7 +628,7 @@ class frota
 		$poder_abordagem = $this->tamanho + floor((($imperio->bonus_abordagem + $this->bonus_abordagem)*$this->tamanho)/100);
 		$html_nave .= "<div class='fas fa-running' style='display: inline-block; margin: 2px;'><span style='font-weight: normal; font-size: 0.9em;'>&nbsp;{$poder_abordagem}</span></div>";
 		
-		$defesa_abordagem = $this->tamanho + floor((($imperio->defesa_abordagem)*$this->tamanho)/100);
+		$defesa_abordagem = $this->tamanho + floor((($imperio->bonus_defesa_abordagem)*$this->tamanho)/100);
 		if ($this->nivel_estacao_orbital > 0) {
 			$defesa_abordagem = $defesa_abordagem*10;
 		}

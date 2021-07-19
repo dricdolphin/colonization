@@ -577,7 +577,7 @@ class instalacao
 		$qtd_colonias = 0;
 		foreach($ids_colonia_imperio as $ids_colonia) {
 			if ($ids_colonia->id_planeta != $colonia_atual->id_planeta || $colonia_atual->capital == 1) {//O próprio planeta não conta para o bônus, exceto se for a Capital.
-				if ($estrela_atual->distancia_estrela($ids_colonia->id_estrela) <= $imperio->alcance_logistica) { //Só colônias dentro do Alcance Logístico contam
+				if ($estrela_atual->distancia_estrela($ids_colonia->id_estrela) <= $imperio->logistica) { //Só colônias dentro do Alcance Logístico contam
 					$qtd_colonias++;
 					$this->recursos_produz_qtd_comercio[$chave_pesquisa] = $this->recursos_produz_qtd_comercio[$chave_pesquisa] + $this->comercio;
 					$this->recursos_produz_qtd_comercio[$chave_industrializaveis] = $this->recursos_produz_qtd_comercio[$chave_industrializaveis] + $this->comercio;

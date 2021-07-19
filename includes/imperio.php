@@ -13,50 +13,44 @@ class imperio
 	public $nome;
 	public $id_jogador;
 	public $prestigio;
-	public $pop = 0;
-	public $pontuacao = 0;
-	public $pontuacao_tech = 0;
-	public $pontuacao_colonia = 0;
-	public $pontuacao_desenvolvimento = 0;
-	public $pontuacao_belica = 0;
-	public $espalhamento = 0;
-	public $html_header;
 	public $turno;
 	public $acoes;
-	public $id_estrela_capital = 0;
 	public $debug = "";
-	public $popula_variaveis_imperio = false;
-	
-	private $attributes = []; //Array privado com todas as propriedades "mágicas"
 	
 	//Todos esses atributos são na verdade relativos à Techs do Império e em teoria deveriam estar no objeto Imperio_Techs
 	//*** Por serem "custosas", estou passando esses atributos para as funções "mágicas" __get e __set ***
-	private $icones_html = "";
-	private $max_pop = 0;
-	private $limite_poluicao = 100;
-	private $alcance_logistica = 0;
-	private $bonus_alcance_logistica = 0;
+	private $pop = 0;
+	private $pontuacao = 0;
+	private $pontuacao_tech = 0;
+	private $pontuacao_colonia = 0;
+	private $pontuacao_desenvolvimento = 0;
+	private $pontuacao_belica = 0;
+	private $espalhamento = 0;
+	private $id_estrela_capital = 0;
+	private $bonus_pop = 0;
+	private $logistica = 0;
+	private $bonus_logistica = 0;
 	private $bonus_alcance = 0;
 	private $bonus_comercio = 0;
-	private $bonus_recurso = [];
-	private $sinergia = [];
-	private $extrativo = [];
 	private $bonus_todos_recursos = 0;
-	private $max_bonus_recurso = [];
 	private $bonus_pesquisa_naves = 0;
-	private $crescimento_pop = 1;
-	private $sensores = 0;
 	private $anti_camuflagem = 0;
 	private $coloniza_inospito = 0;
 	private $alimento_inospito = 0;
-	private $consome_poluicao = 0;
+	private $bonus_consome_poluicao = 0;
+	private $consome_poluicao = 25;
+	private $limite_poluicao = 100;
+	private $bonus_crescimento_pop = 1;
 	private $bonus_invasao = 1;
 	private $bonus_abordagem = 0;
-	private $defesa_abordagem=0;
-	private $camuflagem_grande=false;
-	private $tricobalto_torpedo=false;
-	private $tritanium_blindagem=false;
-	private $neutronium_blindagem=false;
+	private $sensores = 0;
+	private $bonus_defesa_abordagem = 0;
+	private $icones_html = "";
+	private $contatos_imperio = [];
+
+	//Não sei como isso é acessado!
+	private $bonus_recurso = [];
+	private $extrativo = [];
 	
 	private $mk_laser = 0;
 	private $mk_torpedo = 0;
@@ -69,6 +63,10 @@ class imperio
 	private $mk_bombardeamento = 0;
 	private $mk_camuflagem = 0;
 	private $nivel_estacao_orbital = 0;
+	private $camuflagem_grande = false;
+	private $tricobalto_torpedo = false;
+	private $tritanium_blindagem = false;
+	private $neutronium_blindagem = false;
 	
 	//Atributos de defesa planetária
 	private $pdf_planetario = 10;
@@ -80,6 +78,17 @@ class imperio
 	private $torpedeiros_sistema_estelar = false;
 	private $icone_torpedeiros_sistema_estelar = "";
 	//***/
+
+	private $processou_popula_variaveis_imperio = false;
+	private $processou_pop = false;
+	private $processou_pontuacao = false;
+	private $processou_id_estrela_capital = false;
+	private $processou_contatos_imperio = false;
+	private $processou_logistica = false;
+	private $processou_consome_poluicao = false;
+	private $processou_bonus_recurso = false;
+	
+	private $processou_especial = [];
 
 	/***********************
 	function __construct($id, $super=false)
@@ -124,6 +133,118 @@ class imperio
 		$this->id_jogador = $resultado->id_jogador;
 		$this->nome = $resultado->nome;
 		$this->prestigio = $resultado->prestigio;
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para setar variáveis
+	//***********************/
+	public function __set($name, $value)
+	{
+		$this->$name = $value;
+	}
+
+	/***********************
+	function __set($name, $value)
+	----------------------
+	Método mágico para pegar variáveis
+	***********************/
+	public function __get($name)
+	{
+		if (method_exists($this, $name)) {
+			$this->$name();
+		} else {
+			$this->popula_especial($name);
+		}
+		
+		return $this->$name;
+	}
+	//***/
+
+	/******************
+	function popula_especial($nome_especial)
+	-----------
+	Popula variáveis especiais (baseados em Techs)
+	$nome_especial -- nome da variável
+	******************/	
+	function popula_especial($nome_especial) {
+		global $wpdb, $plugin_colonization;
+
+		if (isset($this->processou_especial[$nome_especial])) {
+			if ($this->processou_especial[$nome_especial]) {
+				return $this->$nome_especial;
+			}
+		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$query = "SELECT ct.id AS id, ct.especiais AS especiais, ct.icone
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id = cit.id_tech
+		WHERE cit.id_imperio={$this->id} 
+		AND cit.custo_pago = 0
+		AND ct.especiais LIKE '%{$nome_especial}%'
+		AND ct.parte_nave = false
+		AND turno <= {$this->turno->turno}";
+		
+		$especiais_lista = $wpdb->get_results($query);
+
+		if (!empty($especiais_lista)) {
+			if ($this->$nome_especial === false) {
+				$this->$nome_especial = true;
+			} else {
+				foreach($especiais_lista as $especial) {
+					$array_especiais = $plugin_colonization->converter_para_array($especial->especiais);
+					if (isset($array_especiais[$nome_especial])) {
+						if (str_contains($nome_especial,"bonus")) {
+							$this->$nome_especial = $this->$nome_especial + $array_especiais[$nome_especial];
+						} elseif ($this->$nome_especial < $array_especiais[$nome_especial]) {
+							$this->$nome_especial = $array_especiais[$nome_especial];
+						}
+					}
+				}
+			}
+		}
+		
+		$this->processou_especial[$nome_especial] = true;
+		
+		return $this->$nome_especial;
+	}
+
+	/******************
+	function consome_poluicao()
+	-----------
+	Popula a variável
+	******************/	
+	function consome_poluicao() {
+		global $wpdb;
+		
+		if ($this->consome_poluicao) {
+			return $this->consome_poluicao;
+		}
+		
+		$this->popula_especial('bonus_consome_poluicao');
+		$this->processou_consome_poluicao = true;
+		return $this->consome_poluicao + $this->bonus_consome_poluicao;
+	}
+	
+	/******************
+	function pop()
+	-----------
+	Popula a variável
+	******************/	
+	function pop() {
+		global $wpdb;
+		
+		if ($this->processou_pop) {
+			return $this->pop;
+		}
 		
 		$this->pop = $wpdb->get_var("SELECT 
 		(CASE 
@@ -133,7 +254,24 @@ class imperio
 		FROM colonization_imperio_colonias
 		WHERE id_imperio={$this->id}
 		AND turno={$this->turno->turno}");
+		
+		$this->processou_pop = true;
+		
+		return $this->pop;
+	}
+	
+	/******************
+	function pontuacao()
+	-----------
+	Popula a variável
+	******************/	
+	function pontuacao() {
+		global $wpdb;
 
+		if ($this->processou_pontuacao) {
+			return true;
+		}
+		
 		$pontuacao = $wpdb->get_var("
 		SELECT COUNT(ce.id)*100 FROM (
 			SELECT DISTINCT ce.id
@@ -207,16 +345,6 @@ class imperio
 		$this->pontuacao = $this->pontuacao + $pontuacao;
 		$this->pontuacao_tech = $this->pontuacao_tech + $pontuacao;
 
-		$this->id_estrela_capital = $wpdb->get_var("
-		SELECT ce.id
-		FROM colonization_imperio_colonias AS cit
-		JOIN colonization_planeta AS cp
-		ON cp.id = cit.id_planeta
-		JOIN colonization_estrela AS ce
-		ON ce.id=cp.id_estrela
-		WHERE cit.turno = {$this->turno->turno}
-		AND cit.capital=true AND id_imperio = {$this->id}");
-
 		$this->espalhamento = $wpdb->get_var("SELECT CEIL(SUM(POW(POW(estrela_capital.X - estrelas_colonias.X,2) + POW(estrela_capital.Y - estrelas_colonias.Y,2) + POW(estrela_capital.Z - estrelas_colonias.Z,2),0.5))) AS espalhamento
 		FROM (SELECT ce.X, ce.Y, ce.Z, cit.id_imperio, cit.turno
 		FROM colonization_imperio_colonias AS cit
@@ -237,36 +365,147 @@ class imperio
 		AND cit.capital=false AND cit.vassalo=false AND id_imperio = {$this->id}) AS estrelas_colonias
 		ON estrelas_colonias.id_imperio = estrela_capital.id_imperio AND estrelas_colonias.turno = estrela_capital.turno");
 	
-		//$this->popula_variaveis_imperio();
+		$this->processou_pontuacao = true;
+		return true;
 	}
-
-	/***********************
-	function __set($name, $value)
-	----------------------
-	Método mágico para setar variáveis
-	//***********************/
-	public function __set($name, $value)
-	{
-		$this->$name = $value;
-	}
-
-	/***********************
-	function __set($name, $value)
-	----------------------
-	Método mágico para pegar variáveis
-	***********************/
-	public function __get($name)
-	{
-		if (method_exists($this, $name)) {
-			$this->$name();
-		} else {
-			$this->popula_variaveis_imperio();
+	
+	/******************
+	function id_estrela_capital()
+	-----------
+	Popula a variável
+	******************/	
+	function id_estrela_capital() {
+		global $wpdb;
+		
+		if ($this->processou_id_estrela_capital) {
+			return $this->id_estrela_capital;
 		}
 		
-		return $this->$name;
+		$this->id_estrela_capital = $wpdb->get_var("
+		SELECT ce.id
+		FROM colonization_imperio_colonias AS cit
+		JOIN colonization_planeta AS cp
+		ON cp.id = cit.id_planeta
+		JOIN colonization_estrela AS ce
+		ON ce.id=cp.id_estrela
+		WHERE cit.turno = {$this->turno->turno}
+		AND cit.capital=true AND id_imperio = {$this->id}");
+		
+		$this->processou_id_estrela_capital = true;
+		return $this->id_estrela_capital;
 	}
-	//***/
 
+	/******************
+	function logistica()
+	-----------
+	Popula a variável
+	******************/	
+	function logistica() {
+		global $wpdb, $plugin_colonization;
+
+		if ($this->processou_logistica) {
+			return $this->logistica;
+		}
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		if (!isset($this->processou_especial['logistica']) || !isset($this->processou_especial['bonus_logistica'])) {
+			$this->popula_especial('logistica');
+			$this->popula_especial('bonus_logistica');
+		}
+		
+		//Depois de pegar o alcance e o bônus de logística, soma os dois
+		$this->logistica = $this->logistica + $this->bonus_logistica;
+		
+		$this->processou_logistica = true;
+		return $this->logistica;
+	}
+	
+	
+	/******************
+	function bonus_recurso()
+	-----------
+	Retorna o valor do bônus dos Recursos do Império
+	$id_recurso - recurso desejado, '*' para todos
+	******************/		
+	function bonus_recurso($id_recurso) {
+		global $wpdb, $plugin_colonization;
+
+		if ($this->processou_bonus_recurso) {
+			if (isset($this->bonus_recurso[$id_recurso])) {
+				return $this->bonus_recurso[$id_recurso];
+			}
+			return false;
+		}
+		
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		$query = "SELECT ct.id AS id, ct.especiais AS especiais, ct.icone
+		FROM colonization_imperio_techs AS cit
+		JOIN colonization_tech AS ct
+		ON ct.id = cit.id_tech
+		WHERE cit.id_imperio={$this->id} 
+		AND cit.custo_pago = 0
+		AND ct.especiais LIKE '%produz_recurso%'
+		AND ct.parte_nave = false
+		AND turno <= {$this->turno->turno}";
+		
+		$especiais_lista = $wpdb->get_results($query);
+
+		if (!empty($especiais_lista)) {
+				foreach($especiais_lista as $especial) {
+					$array_especiais = $plugin_colonization->converter_para_array($especial->especiais);
+					if (isset($array_especiais['id_recurso'])) {
+						//Sempre tem um id_recurso
+						$ids_recurso = explode(",",$array_especiais['id_recurso']);
+
+						//Popula o array
+						foreach ($ids_recurso as $chave => $id_recurso) {
+							if (empty($this->bonus_recurso[$id_recurso])) {
+								$this->bonus_recurso[$id_recurso] = $array_especiais['produz_recurso'];
+							} else {
+								$this->bonus_recurso[$id_recurso] = $this->bonus_recurso[$id_recurso] + $array_especiais['produz_recurso'];
+							}
+							
+							//O atributo 'extrativo' se aplica como TRUE quando o bônus for SÓ para extrativos, e não houver nenhuma outra Tech que tenha colocado esse atributo como FALSE
+							if (isset($array_especiais['extrativo']) && !isset($this->extrativo[$id_recurso])) {
+								$this->extrativo[$id_recurso] = true;
+							} else {
+								$this->extrativo[$id_recurso] = false;
+							}
+						}
+					}				
+				}
+			}
+
+		$this->processou_bonus_recurso = true;
+		return $this->bonus_recurso[$id_recurso];
+	}
+	
+	
+	/******************
+	function extrativo()
+	-----------
+	Retorna o valor da variável extrativo
+	$id_recurso - recurso desejado, '*' para todos
+	******************/			
+	function extrativo($id_recurso) {
+		$this->bonus_recurso($id_recurso);
+		
+		if (isset($this->extrativo[$id_recurso])) {
+			return $this->extrativo[$id_recurso];
+		}
+		return false;
+	}
+	
 	/***********************
 	function popula_variaveis_imperio()
 	----------------------
@@ -275,8 +514,8 @@ class imperio
 	function popula_variaveis_imperio() {
 		global $wpdb;
 		
-		if ($this->popula_variaveis_imperio) {
-			return;
+		if ($this->processou_popula_variaveis_imperio) {
+			return true;
 		}
 
 		$user = wp_get_current_user();
@@ -365,56 +604,6 @@ class imperio
 				$this->neutronium_blindagem = true;
 			}			
 			
-			//defesa_abordagem
-			$defesa_abordagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'defesa_abordagem') !== false;
-			}));
-			
-			if (!empty($defesa_abordagem)) {
-				$defesa_abordagem_valor = explode("=",$defesa_abordagem[0]);
-				$this->defesa_abordagem = $this->defesa_abordagem + $defesa_abordagem_valor[1];
-			}
-			
-			//bonus_abordagem
-			$bonus_abordagem = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_abordagem') !== false;
-			}));
-			
-			if (!empty($bonus_abordagem)) {
-				$bonus_abordagem_valor = explode("=",$bonus_abordagem[0]);
-				$this->bonus_abordagem = $this->bonus_abordagem	+ $bonus_abordagem_valor[1];
-			}
-
-			//bonus_invasao
-			$bonus_invasao = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_invasao') !== false;
-			}));
-			
-			if (!empty($bonus_invasao)) {
-				$bonus_invasao_valor = explode("=",$bonus_invasao[0]);
-				$this->bonus_invasao = $this->bonus_invasao	+ $bonus_invasao_valor[1];
-			}
-			
-			//Especiais -- max_pop
-			$max_pop = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'max_pop') !== false;
-			}));
-			
-			if (!empty($max_pop)) {
-				$max_pop_valor = explode("=",$max_pop[0]);
-				$this->max_pop = $this->max_pop	+ $max_pop_valor[1];
-			}
-			
-			//Especiais -- crescimento_pop
-			$crescimento_pop = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'crescimento_pop') !== false;
-			}));
-			
-			if (!empty($crescimento_pop)) {
-				$crescimento_pop_valor = explode("=",$crescimento_pop[0]);
-				$this->crescimento_pop = $this->crescimento_pop	+ $crescimento_pop_valor[1];
-			}
-
 			//Especiais -- consome_poluicao
 			$consome_poluicao = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'consome_poluicao') !== false;
@@ -425,16 +614,6 @@ class imperio
 				$this->consome_poluicao = $this->consome_poluicao + $consome_poluicao_valor[1];
 			}
 			
-			//Especiais -- sensores
-			$sensores = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'sensores') !== false;
-			}));
-			
-			if (!empty($sensores)) {
-				$sensores_valor = explode("=",$sensores[0]);
-				$this->sensores = $this->sensores	+ $sensores_valor[1];
-			}	
-
 			//Especiais -- anti_camuflagem
 			$anti_camuflagem = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'anti_camuflagem') !== false;
@@ -443,18 +622,6 @@ class imperio
 			if (!empty($anti_camuflagem)) {
 				$anti_camuflagem_valor = explode("=",$anti_camuflagem[0]);
 				$this->anti_camuflagem = $this->anti_camuflagem + $anti_camuflagem_valor[1];
-			}
-			
-			//Especiais -- logistica
-			$logistica = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'logistica') !== false;
-			}));
-			
-			if (!empty($logistica)) {
-				$logistica_valor = explode("=",$logistica[0]);
-				if ($this->alcance_logistica < $logistica_valor[1]) {
-					$this->alcance_logistica = $logistica_valor[1];
-				}
 			}
 			
 			//Especiais -- bonus_alcance
@@ -481,16 +648,6 @@ class imperio
 				}
 			}	
 			
-			//Especiais -- bonus_logistica
-			$bonus_logistica = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'bonus_logistica') !== false;
-			}));
-			
-			if (!empty($bonus_logistica)) {
-				$bonus_logistica_valor = explode("=",$bonus_logistica[0]);
-				$this->bonus_alcance_logistica = $this->bonus_alcance_logistica + $bonus_logistica_valor[1];
-			}
-
 			//Especiais -- limite_poluicao
 			$limite_poluicao = array_values(array_filter($especiais, function($value) {
 				return strpos($value, 'limite_poluicao') !== false;
@@ -531,76 +688,6 @@ class imperio
 				$this->alimento_inospito = $alimento_inospito_valor[1];
 			}			
 			
-			//Especiais -- produz_recursos
-			$bonus_recurso = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'produz_recurso') !== false;
-			}));
-			
-			if (!empty($bonus_recurso)) {
-				$bonus_recurso = explode("=",$bonus_recurso[0]);
-				$bonus_recurso = $bonus_recurso[1];
-
-				//Sempre tem um id_recurso
-				$id_recurso = array_values(array_filter($especiais, function($value) {
-				return strpos($value, 'id_recurso') !== false;
-				}));
-				
-				$id_recurso = explode("=",$id_recurso[0]);
-				$id_recurso = explode(",",$id_recurso[1]);
-				
-				//Atributos opcionais
-				$sinergia = array_search("sinergia",$especiais);
-				if ($sinergia !== false) {
-					$sinergia = true;
-				}
-				
-				$extrativo = array_search("extrativo",$especiais);
-				if ($extrativo !== false) {
-					$extrativo = true;
-				}
-				
-				$max_bonus_recurso = array_values(array_filter($especiais, function($value) {
-					return strpos($value, 'max_bonus_recurso') !== false;
-				}));
-				
-				if (!empty($max_bonus_recurso)) {
-					$max_bonus_recurso = explode("=",$max_bonus_recurso[0]);
-					$max_bonus_recurso = $max_bonus_recurso[1];
-				} else {
-					$max_bonus_recurso = false;
-				}
-
-
-				//Popula o array
-				foreach ($id_recurso as $chave => $valor) {
-					if (empty($this->bonus_recurso[$valor])) {
-						$this->bonus_recurso[$valor] = $bonus_recurso;
-					} else {
-						$this->bonus_recurso[$valor] = $this->bonus_recurso[$valor]+$bonus_recurso;
-					}
-					$this->sinergia[$valor] = $sinergia;
-					$this->extrativo[$valor] = $extrativo;
-					
-					if ($valor == "*" && !$extrativo) {
-						$this->bonus_todos_recursos = 1;
-					}
-					
-					if (empty($this->max_bonus_recurso[$valor])) {
-						$this->max_bonus_recurso[$valor] = 0;
-					}
-					
-					if (!$max_bonus_recurso || !$this->max_bonus_recurso[$valor]) {//Se alguma Tech tem bônus SEM restrições, então NÃO HÁ RESTRIÇÕES
-						$this->max_bonus_recurso[$valor] = $max_bonus_recurso;	
-					} else {
-						if (!empty($this->max_bonus_recurso[$valor])) { //O max_bônus vai crescendo conforme há outras Techs com max_bonus
-							$this->max_bonus_recurso[$valor] = $this->max_bonus_recurso[$valor] + $max_bonus_recurso;
-						} else {
-							$this->max_bonus_recurso[$valor] = $max_bonus_recurso;
-						}
-					}
-				}
-			}
-		
 			//Atributos de defesa planetária
 			//Especiais -- pdf_planetario
 			$pdf_planetario = array_values(array_filter($especiais, function($value) {
@@ -630,7 +717,7 @@ class imperio
 			if (!empty($pdf_plasma)) {
 				$pdf_plasma_valor = explode("=",$pdf_plasma[0]);
 				$this->pdf_plasma = $this->pdf_plasma	+ $pdf_plasma_valor[1];
-			}			
+			}	
 
 			//Especiais -- defesa_invasao
 			$defesa_invasao = array_values(array_filter($especiais, function($value) {
@@ -639,7 +726,7 @@ class imperio
 			
 			if (!empty($defesa_invasao)) {
 				$defesa_invasao_valor = explode("=",$defesa_invasao[0]);
-				$this->defesa_invasao = $this->defesa_invasao	+ $defesa_invasao_valor[1];
+				$this->defesa_invasao = $this->defesa_invasao + $defesa_invasao_valor[1];
 			}
 			
 			//Especiais -- torpedos_sistema_estelar
@@ -665,10 +752,8 @@ class imperio
 				$this->icone_torpedeiros_sistema_estelar = " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
 			}
 		}
-		//Depois de pegar o alcance e o bônus de logística, soma os dois
-		$this->alcance_logistica = $this->alcance_logistica + $this->bonus_alcance_logistica;
 		
-		$this->popula_variaveis_imperio = true;
+		$this->processou_popula_variaveis_imperio = true;
 		
 		if ($roles == "administrator" && $this->id == 0) {
 			foreach ($this as $chave => $valor) {
@@ -678,7 +763,6 @@ class imperio
 			}
 			$this->nivel_estacao_orbital = 10;			
 		}
-	
 	}
 
 	/***********************
@@ -703,8 +787,6 @@ class imperio
 			<td><div data-atributo='nome_jogador'>{$user->display_name}{$this->icones_html()}</div></td>
 			<td><div data-atributo='nome' data-valor-original='{$this->nome}' data-editavel='true'>{$this->nome}</div></td>
 			<td><div data-atributo='prestigio' data-valor-original='{$this->prestigio}' data-editavel='true' data-style='width: 40px;'>{$this->prestigio}</div></td>
-			<td><div data-atributo='pop' data-valor-original=''>{$this->pop}</div></td>
-			<td><div data-atributo='pontuacao' data-valor-original=''>{$this->pontuacao}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 
 		return $html;
@@ -718,11 +800,19 @@ class imperio
 	function contatos_imperio() {
 		global $wpdb;
 		
-		return $wpdb->get_results("SELECT DISTINCT ci.id, ci.nome 
-			FROM colonization_imperio AS ci
-			JOIN (SELECT DISTINCT id_imperio_contato FROM colonization_diplomacia WHERE id_imperio={$this->id}) AS cd
-			ON ci.id = cd.id_imperio_contato
-			ORDER BY ci.nome");
+		if ($this->processou_contatos_imperio) {
+			return $this->contatos_imperio;
+		}
+		
+		$this->contatos_imperio = $wpdb->get_results("
+		SELECT DISTINCT ci.id, ci.nome 
+		FROM colonization_imperio AS ci
+		JOIN (SELECT DISTINCT id_imperio_contato FROM colonization_diplomacia WHERE id_imperio={$this->id}) AS cd
+		ON ci.id = cd.id_imperio_contato
+		ORDER BY ci.nome");
+		
+		$this->processou_contatos_imperio = true;
+		return $this->contatos_imperio;
 	}
 
 	/***********************
@@ -737,16 +827,24 @@ class imperio
 			return;
 		}		
 		
+		if (!$this->processou_pop) {
+			$this->pop();
+		}
+		
+		if (!$this->processou_pontuacao) {
+			$this->pontuacao();
+		}
+		
 		$total_colonias = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_colonias WHERE id_imperio={$this->id} AND turno={$this->turno->turno}");
 		//Exibe os dados básicos do Império
 		$html = "<div>
 		<h3>{$this->nome}</h3> 
 		<b>População:</b> {$this->pop} - <b>Total de Colônias:</b> {$total_colonias}<br>
 		<b>Pontuação:</b> {$this->pontuacao}<br>
-		Desenvolvimento: {$this->pontuacao_desenvolvimento}<br>			
+		Desenvolvimento: {$this->pontuacao_desenvolvimento}<br>
 		Colônias: {$this->pontuacao_colonia}<br>
 		Techs: {$this->pontuacao_tech}<br>
-		Bélica: {$this->pontuacao_belica}<br>		
+		Bélica: {$this->pontuacao_belica}<br>
 		</div>";
 		return $html;
 	}
@@ -763,7 +861,7 @@ class imperio
 			return;
 		}
 		
-		if (!$this->popula_variaveis_imperio) {
+		if (!$this->processou_popula_variaveis_imperio) {
 			$this->popula_variaveis_imperio();
 		}
 		
@@ -796,9 +894,7 @@ class imperio
 			$resultados = array_merge($resultados,$resultados_temp);
 		}
 		
-		$html = $this->html_header;
-		
-		$html .= "<table class='lista_colonias_imperio'>
+		$html = "<table class='lista_colonias_imperio'>
 		<thead>
 		<tr><th style='width: 22%;'>Estrela (X;Y;Z;P)</th><th style='width: 23%;'>Planeta</th><th style='width: 30%;'>Defesas</th><th style='width: 10%;'>Pop.</th><th style='width: 15%;'>Poluição</th></tr>
 		</thead>
@@ -912,66 +1008,6 @@ class imperio
 		return $html;
 	}
 	
-	
-	/***********************
-	function pop_mdo_sistema()
-	----------------------
-	Exibe o MdO de um Sistema Estelar que o Império controla
-	***********************
-	function pop_mdo_sistema ($id_estrela) {
-		global $wpdb;
-		
-		$resultados = $wpdb->get_results("
-		SELECT cic.id AS id_colonia
-		FROM colonization_imperio_colonias AS cic
-		JOIN colonization_planeta AS cp
-		ON cp.id=cic.id_planeta
-		JOIN colonization_estrela AS ce
-		ON ce.id=cp.id_estrela
-		WHERE cic.id_imperio = {$this->id}
-		AND cic.turno = {$this->turno->turno}
-		AND cp.id_estrela={$id_estrela}
-		ORDER BY cic.capital DESC, ce.X, ce.Y, ce.Z, cp.posicao, cic.id_planeta
-		");
-
-		if (!empty($resultados)) {
-			//$imperio = new imperio($this->id, false, $this->turno->turno);
-			if (empty($this->acoes)) {
-				$this->acoes = new acoes($this->id, $this->turno->turno);
-			}
-			//$acoes = new acoes($this->id, $this->turno->turno);
-		} else {
-			$resposta = [];
-			$resposta['pop'] = 0;
-			$resposta['mdo'] = 0;
-
-			return $resposta;
-		}
-
-		foreach ($resultados as $resultado) {
-			$colonia = new colonia ($resultado->id_colonia);
-			$planeta = $colonia->planeta;
-			$estrela = $colonia->estrela;
-
-			$mdo = $this->acoes->mdo_planeta($planeta->id);
-			
-			if (empty($mdo_sistema)) {
-				$mdo_sistema = $mdo;
-				$pop_sistema = $colonia->pop + $colonia->pop_robotica;
-			} else {
-				$mdo_sistema = $mdo_sistema + $mdo;
-				$pop_sistema = $pop_sistema + $colonia->pop + $colonia->pop_robotica;
-			}
-		}
-
-		$resposta = [];
-		$resposta['pop'] = $pop_sistema;
-		$resposta['mdo'] = $mdo_sistema;
-		
-		return $resposta;
-	}
-	//***********************/	
-
 	/***********************
 	function pega_qtd_recurso_imperio($id_recurso)
 	----------------------
@@ -1007,10 +1043,6 @@ class imperio
 			$roles = $user->roles[0];
 		}
 
-		if (!$this->popula_variaveis_imperio) {
-			$this->popula_variaveis_imperio();
-		}
-		
 		$this->debug = "";
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "imperio->exibe_lista_colonias:  {$diferenca}ms \n";
@@ -1159,6 +1191,7 @@ class imperio
 				$qtd_defesas_sistema[$planeta_id_estrela[$colonia[$resultado->id]->id_planeta]] = $this->acoes->defesa_sistema($colonia[$resultado->id]->id_estrela);
 			}
 			
+			$this->popula_especial('limite_poluicao');
 			if ($colonia[$resultado->id]->poluicao < round($this->limite_poluicao*0.33,0)) {
 				$poluicao = "<span style='color: #007426;'>{$colonia[$resultado->id]->poluicao}</span>";
 			} elseif ($colonia[$resultado->id]->poluicao < round($this->limite_poluicao*0.66,0)) {
@@ -1437,7 +1470,7 @@ class imperio
 
 		$icone_html = [];
 		
-		if (!$this->popula_variaveis_imperio) {
+		if (!$this->processou_popula_variaveis_imperio) {
 			$this->popula_variaveis_imperio();
 		}		
 		
@@ -1447,7 +1480,7 @@ class imperio
 			if ($icone->custo_pago == 0) {
 				$mostra_logistica = "";
 				if (strpos($tech_icone->especiais,"logistica") !== false && strpos($tech_icone->especiais,"bonus_logistica") === false) {
-					$mostra_logistica = " ".$this->alcance_logistica."pc";
+					$mostra_logistica = " ".$this->logistica()."pc";
 				}
 				if ($tech_icone->id_tech_parent != 0) {
 					$tech_parent = new tech ($tech_icone->id_tech_parent);
@@ -1475,8 +1508,8 @@ class imperio
 		}
 
 		
-		if ($this->max_pop >0) {
-			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->max_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
+		if ($this->bonus_pop >0) {
+			$this->icones_html .= " <div class='fas fa-user-plus tooltip'>{$this->bonus_pop}%<span class='tooltiptext'>Bônus de população</span></div>";
 		}
 		
 		return $this->icones_html;

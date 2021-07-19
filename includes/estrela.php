@@ -27,8 +27,8 @@ class estrela
 	private $destinos_buracos_minhoca = [];
 
 	//Flags de funções processadas
-	public $processou_tem_stargate = false;
-	public $processou_destinos_buracos_minhoca = false;
+	private $processou_tem_stargate = false;
+	private $processou_destinos_buracos_minhoca = false;
 	
 	/***********************
 	function __construct($id_estrela)

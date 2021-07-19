@@ -1254,7 +1254,7 @@ class colonization {
 		}
 		
 		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
-		$resultados = $imperio->contatos_imperio();
+		$resultados = $imperio->contatos_imperio;
 		if ($roles == "administrator") {
 			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
 		}
@@ -1404,7 +1404,7 @@ class colonization {
 		}
 		
 		$html_lista_imperios = "<select data-atributo='id_imperio_destino' style='width: 100%'>";
-		$resultados = $imperio->contatos_imperio();
+		$resultados = $imperio->contatos_imperio;
 		if ($roles == "administrator") {
 			$resultados = $wpdb->get_results("SELECT id, nome FROM colonization_imperio");
 		}
@@ -3295,6 +3295,12 @@ var id_imperio_atual = {$imperio->id};
 	}
 
 	
+	/***********************
+	function html_mk($nivel)
+	----------------------
+	Mostra o nível de uma Instalação (ou Tech ou qualquer outra coisa) em numerais romanos
+	$nivel - nível da Instalação
+	***********************/	
 	function html_mk($nivel) {
 		switch ($nivel) {
 			case 1:
@@ -3328,6 +3334,38 @@ var id_imperio_atual = {$imperio->id};
 		return $html_mk;
 	}
 
+
+	/***********************
+	function converter_para_array($string_desejada)
+	----------------------
+	Converte uma string no padrão chave=valor;chave_2=valor_2 numa array
+	$string_desejada - string a ser convertida
+	***********************/	
+	function converter_para_array($string_desejada) {
+		$user = wp_get_current_user();
+		$roles = "";
+		$banido = false;
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+			$banido = get_user_meta($user->ID, 'asgarosforum_role', true);			
+		}
+	
+		$converter_para_array = explode(';', $string_desejada);
+		$qtd_array = count($converter_para_array);
+		
+		for($i=0; $i < $qtd_array; $i++){
+			$chave_valor = explode('=', $converter_para_array[$i]);
+			if (isset($array_final[$chave_valor[0]])) {
+				if ($array_final[$chave_valor[0]] < $chave_valor[1]) {
+					$array_final[$chave_valor[0]] = $chave_valor[1];
+				}
+			} else {
+				$array_final[$chave_valor[0]] = $chave_valor[1];
+			}
+		}
+		
+		return $array_final;
+	}
 }
 //Cria o plugin
 $plugin_colonization = new colonization();
