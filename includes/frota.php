@@ -137,6 +137,7 @@ class frota
 		
 		
 		$this->partes_nave = JSON_decode($this->string_nave);
+		
 		if (!empty($this->partes_nave)) {
 			foreach ($this->partes_nave as $parte_nave => $valor) {
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);

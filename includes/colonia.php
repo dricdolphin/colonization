@@ -294,7 +294,6 @@ class colonia
 	Calcula o consumo de Alimentos de um planeta por sua Pop
 	***********************/		
 	function pega_alimentos_consumidos_planeta ($imperio_alimento_inospito, $imperio_limite_poluicao) {
-
 		if (empty($this->planeta)) {
 			$this->planeta = new planeta ($this->id_planeta);
 		}
@@ -471,6 +470,231 @@ class colonia
 		}
 	
 		return $minas_subespaciais;
-	}	
+	}
+	
+	
+	/***********************
+	function html_poluicao()
+	----------------------
+	Exibe o HTML da Poluição
+	***********************/
+	function html_poluicao($limite = 100) {
+		global $wpdb;
+		
+		if ($this->poluicao < round($limite*0.33,0)) {
+			$poluicao = "<span class='poluicao_baixa'>{$this->poluicao}</span>";
+		} elseif ($this->poluicao < round($limite*0.66,0)) {
+			$poluicao = "<span class='poluicao_media'>{$this->poluicao}</span>";
+		} elseif ($this->poluicao < $limite) {				
+			$poluicao = "<span class='poluicao_alta'>{$this->poluicao}</span>";
+		} else {
+			$poluicao = "<span class='poluicao_muito_alta'>{$this->poluicao}</span>";
+		}
+		
+		return $poluicao;
+	}
+	
+	function html_nova_pop($nova_pop) {
+		global $wpdb;
+		
+		$html_nova_pop = "";
+		if ($nova_pop > 0) {
+			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext' style='font-size: 0.7em'>Crescimento Populacional</span><span style='color: green; font-family: Verdana, Tahoma, sans-serif;'>+{$nova_pop}</span></span>)";	
+		} elseif ($nova_pop < 0) {
+			$html_nova_pop = " (<span class='tooltip'><span class='tooltiptext' style='font-size: 0.7em'>Crescimento Populacional</span><span style='color: red; font-family: Verdana, Tahoma, sans-serif;'>{$nova_pop}</span></span>)";	
+		}		
+	
+		return $html_nova_pop;
+	}
+	
+	/***********************
+	function html_icones_planeta()
+	----------------------
+	Exibe o HTML com os ícones da Colônia
+	***********************/
+	function html_icones_planeta() {
+		global $wpdb;
+
+		$id_instalacoes = $wpdb->get_results(
+		"SELECT cpi.id_instalacao, ci.id AS id, ci.icone, ci.nome 
+		FROM colonization_planeta_instalacoes AS cpi 
+		JOIN colonization_instalacao AS ci
+		ON ci.id = cpi.id_instalacao
+		WHERE cpi.id_planeta = {$this->id_planeta} AND cpi.turno <= {$this->turno->turno}
+		AND (cpi.turno_destroi IS NULL or cpi.turno_destroi = 0)
+		AND ci.icone != ''
+		ORDER BY ci.nome");
+				
+		$icones_planeta = [];
+		$qtd_instalacao_icone = [];
+		foreach ($id_instalacoes as $id_instalacao) {
+			if (empty($instalacao[$id_instalacao->id_instalacao])) {
+				//$instalacao[$id_instalacao->id_instalacao] = new instalacao($id_instalacao->id_instalacao);
+				$instalacao[$id_instalacao->id_instalacao] = $id_instalacao;
+			}
+			
+			if (!empty($instalacao[$id_instalacao->id_instalacao]->icone)) {
+				if (empty($icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id])) {
+					$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id] = 1;
+					$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'><span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>";
+				} else {
+					$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]++;
+					$icones_planeta[$instalacao[$id_instalacao->id_instalacao]->id] = " <div class='{$instalacao[$id_instalacao->id_instalacao]->icone} tooltip'><span class='tooltiptext'>{$instalacao[$id_instalacao->id_instalacao]->nome}</span></div>x{$qtd_instalacao_icone[$instalacao[$id_instalacao->id_instalacao]->id]}";
+				}
+			}
+		}
+		
+		$html_icones_planeta = "";
+		foreach ($icones_planeta as $id_instalacao => $html) {
+			$html_icones_planeta .= $html;
+		}
+		
+		return $html_icones_planeta;
+	}
+	
+	/***********************
+	function html_pdf_planetario($imperio)
+	----------------------
+	Exibe o HTML da defesa da colônia
+	$imperio - dados do Império
+	***********************/
+	function html_pdf_planetario($imperio) {
+		global $wpdb;
+
+		$html_pdf_planetario = "";
+		if ($this->qtd_defesas > 0) {
+			$this->pdf_planetario = round(($imperio->pdf_planetario*$this->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
+			$html_pdf_planetario .= "<div class='mini_instalacao_ataque far fa-shield tooltip' style='display: inline;'><span class='tooltiptext'>PdF Planetário</span>:{$this->pdf_planetario}</div>";
+		}
+		
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta ($this->id_planeta);
+		}
+		
+		if (!$this->planeta->popula_instalacoes_planeta) {
+			$this->planeta->popula_instalacoes_planeta();
+		}
+
+		if (!$this->planeta->popula_instalacoes_ataque) {
+			$this->planeta->popula_instalacoes_ataque();
+		}
+		
+		foreach ($this->planeta->mini_html_instalacao_ataque as $chave => $html_instalacao) {
+			$html_pdf_planetario .= $html_instalacao;
+		}
+				
+		if ($html_pdf_planetario != "") {
+			$html_pdf_planetario = " ({$html_pdf_planetario})";
+		}
+		
+		return $html_pdf_planetario;
+	}
+
+	/***********************
+	function balanco_poluicao_planeta($balanco_poluicao_planeta)
+	----------------------
+	Exibe o HTML com o balanço da poluição
+	$balanco_poluicao_planeta - balanço da poluição do planeta
+	***********************/
+	function balanco_poluicao_planeta($balanco_poluicao_planeta) {
+		global $wpdb;
+		
+		if ($balanco_poluicao_planeta > 0) {
+			$balanco_poluicao_planeta = "(<span style='color: red;'>+{$balanco_poluicao_planeta}</span>)";
+		} elseif ($balanco_poluicao_planeta < 0) {
+			$balanco_poluicao_planeta = "(<span style='color: green;'>{$balanco_poluicao_planeta}</span>)";
+		} else {
+			$balanco_poluicao_planeta = "";
+		}
+
+		return $balanco_poluicao_planeta;
+	}
+
+	/***********************
+	function lista_colonias_imperio($imperio)
+	----------------------
+	Exibe o HTML com a lista básica das colônias do Império no formato de tabela
+	$imperio - dados do Império
+	***********************/
+	function lista_colonias_imperio($imperio) {
+		
+		
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta ($this->id_planeta);
+		}
+		
+		if (!$this->planeta->popula_instalacoes_planeta) {
+			$this->planeta->popula_instalacoes_planeta();
+		}
+		
+		$estrela = new estrela($this->planeta->id_estrela);
+
+		$html_defesas = "";
+		if (!empty($this->planeta->escudos)) {
+			$html_defesas .= $this->planeta->escudos."<br>";
+		}
+			
+		if ($this->qtd_defesas > 0) {
+			$this->pdf_planetario = round(($imperio->pdf_planetario*$this->qtd_defesas/10),0,PHP_ROUND_HALF_DOWN);
+			$this->defesa_invasao = $imperio->bonus_defesa_invasao*$this->qtd_defesas;
+
+			$html_defesas .= "PdF Planetário: {$this->pdf_planetario}<br>Defesa Invasão: {$this->defesa_invasao}";
+			
+			if ($imperio->torpedos_sistema_estelar) {
+				$pdf_torpedo_sistema_estelar = (($imperio->pdf_torpedo*2)-1);
+				$html_defesas .= "<br>{$imperio->icone_torpedos_sistema_estelar} x{$this->qtd_defesas} (Pdf: {$pdf_torpedo_sistema_estelar})";
+			}
+			
+			if ($imperio->torpedeiros_sistema_estelar !== false) {
+				$nivel = $plugin_colonization->html_mk($imperio->torpedeiros_sistema_estelar);
+				$html_defesas .= "<br>{$imperio->icone_torpedeiros_sistema_estelar} {$nivel} x{$this->qtd_defesas} ";
+			}
+		}
+			
+		if ($html_defesas != "") {
+			$html_defesas .= "<br>";
+		}
+			
+		if (!$this->planeta->popula_instalacoes_ataque) {
+			$this->planeta->popula_instalacoes_ataque();
+		}
+		
+		foreach ($this->planeta->html_instalacao_ataque as $chave => $html_instalacao) {
+			$html_defesas .= $html_instalacao;
+		}
+		
+		if ($html_defesas == "") {
+			$html_defesas = "&nbsp;";
+		}
+			
+		return "<tr>
+		<td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$this->planeta->posicao})</td>
+		<td>{$this->icone_capital}{$this->planeta->nome}&nbsp;".$this->planeta->icone_habitavel()."</td>
+		<td>{$html_defesas}</td>
+		<td>{$this->html_pop_colonia}</td><td>{$this->poluicao}</td>
+		</tr>";
+	}
+
+	/***********************
+	function html_colonia($imperio, $mdo_colonia, $nova_pop, $balanco_poluicao_planeta)
+	----------------------
+	Exibe o HTML básico da colônia
+	$imperio - dados do Império
+	$mdo_colonia - MdO alocada na Colônia
+	$nova_pop - pop que será criada na Colônia no próximo Turno
+	$balanco_poluicao_planeta - balanço da poluição
+	***********************/
+	function html_colonia($imperio, $mdo_colonia, $nova_pop, $balanco_poluicao_planeta) {
+		global $wpdb;
+		
+		if (empty($this->planeta)) {
+			$this->planeta = new planeta ($this->id_planeta);
+		}
+
+		return "<div class='dados_planeta' onclick='return ir_para_planeta(event, {$this->id_planeta});'><span style='font-style: italic;'>
+				{$this->icone_capital}{$this->planeta->nome}&nbsp;{$this->icone_vassalo}".$this->planeta->icone_habitavel()."
+				".$this->html_icones_planeta()."</span> - MdO/Pop: {$mdo_colonia}/{$this->html_pop_colonia}".$this->html_nova_pop($nova_pop)."
+				".$this->html_pdf_planetario($imperio)." - Poluição: ".$this->html_poluicao($imperio->limite_poluicao)."".$this->balanco_poluicao_planeta($balanco_poluicao_planeta)."</div>";
+	}
 }
 ?>

@@ -44,6 +44,7 @@ class planeta
 	private $icone_habitavel;	
 	
 	public $popula_instalacoes_planeta = false;
+	public $popula_instalacoes_ataque = false;
 	public $debug = "";
 	
 	function __construct($id, $turno=0) {
@@ -276,8 +277,18 @@ class planeta
 		$this->popula_instalacoes_planeta = true;
 	}
 	
+	
+	/***********************
+	function popula_instalacoes_ataque()
+	----------------------
+	Popula os dados do Planeta que dependem de Instalações de Ataque
+	***********************/	
 	function popula_instalacoes_ataque() {
 		$this->popula_instalacoes_planeta();
+		
+		if ($this->popula_instalacoes_ataque) {
+			return;
+		}
 		
 		$qtd_instalacao_ataque_id = [];
 		foreach ($this->instalacoes_ataque as $chave => $id_instalacao) {
@@ -308,7 +319,9 @@ class planeta
 			
 			$this->html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='{$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome}</span><span style='font-family: Verdana, Tahoma, sans-serif;'>PdF Planetário:{$pdf_instalacoes}</span></div><br>";
 			$this->mini_html_instalacao_ataque[$id_instalacao] = "{$qtd_instalacao}<div class='mini_instalacao_ataque {$instalacao_ataque->icone} tooltip'><span class='tooltiptext'>{$instalacao_ataque->nome} | PdF Planetário</span>:{$pdf_instalacoes}</div>";
-		}		
+		}
+
+		$this->popula_instalacoes_ataque = true;
 	}
 	
 	

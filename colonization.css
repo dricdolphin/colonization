@@ -721,6 +721,22 @@ tr.th_linha_3 th {
     z-index: 99;
 }
 
+.poluicao_baixa {
+	color: #007426;	
+}
+
+.poluicao_media {
+	color: #ffce00;
+}
+
+.poluicao_alta {
+	color: #f1711d;
+}
+
+.poluicao_muito_alta {
+	color: #ee1509;
+}
+
 @media only screen and (max-width: 1209px) {
 	.icone_topico {
 		/*visibility: hidden;*/
