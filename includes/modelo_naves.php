@@ -81,23 +81,26 @@ class modelo_naves
 			$roles = $user->roles[0];
 		}		
 
-		$html_nome_imperio = "";
-		if ($this->id_imperio != 0 && $roles == "administrator") {
-			$imperio = new imperio($this->id_imperio);
-			$html_nome_imperio = "Império '{$imperio->nome}'<br>";
-		}
-		
 		$string_nave = json_decode(stripslashes($this->string_nave),true, JSON_UNESCAPED_UNICODE);
 		$string_nave['nome_modelo'] = $this->nome_modelo;
 		$string_nave['id'] = $this->id;
 		$this->string_nave = json_encode($string_nave, JSON_UNESCAPED_UNICODE);
 		
 		$link_deleta_modelo = "";
+		$html_nome_imperio = "<b>Modelo em uso</b><br>";
 		$data_modelo_em_uso = "true";
-		if (!$this->modelo_em_uso() && $roles != "administrator") {
+		if (!$this->modelo_em_uso() || $roles == "administrator") {
 			$link_deleta_modelo = "<br><a href='#' onclick='return deleta_modelo_nave(event, this, {$this->id});'>Deletar Modelo</a></td>";
 			$data_modelo_em_uso = "false";
+			if (!$this->modelo_em_uso()) {
+				$html_nome_imperio = "";
+			}
 		}
+
+		if ($this->id_imperio != 0 && $roles == "administrator") {
+			$imperio = new imperio($this->id_imperio);
+			$html_nome_imperio .= "Império '{$imperio->nome}'<br>";
+		}		
 		
 		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome_modelo}</td>
 		<td>{$this->texto_nave}</td>

@@ -909,6 +909,35 @@ function deleta_modelo_nave(evento, objeto, id_nave) {
 	return false;
 }
 
+
+/******************
+function reseta_modelo
+--------------------
+Reseta os dados para um modelo em branco
+******************/
+function reseta_modelo(evento, objeto) {
+	let confirma = confirm('Todos os dados modificados serão PERDIDOS. Deseja continuar?');
+	if (!confirma) {
+		evento.preventDefault();
+		return false;
+	}
+
+	let input_string_construcao = document.getElementById('input_string_construcao');
+	let nome_modelo = document.getElementById('nome_modelo');
+	let link_salva_modelo_nave = document.getElementById("link_salva_modelo_nave");
+	let link_salva_novo_modelo_nave = document.getElementById("link_salva_novo_modelo_nave");	
+	
+	input_string_construcao.value = '{"mk_impulso":"1","mk_dobra":"1"}';
+	nome_modelo.value = '';
+	link_salva_modelo_nave.style.display = "inline";
+	link_salva_novo_modelo_nave.style.display = "none";	
+	processa_string(evento,objeto);
+	
+	evento.preventDefault();
+	return false;
+	
+}
+
 /******************
 function repara_nave
 --------------------

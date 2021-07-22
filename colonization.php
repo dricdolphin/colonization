@@ -3244,6 +3244,8 @@ var id_imperio_atual = {$imperio->id};
 			}
 		}
 		
+		//{"mk_impulso":"1","mk_dobra":"1"}
+		
 		$html = "<script type='text/javascript'>
 		{$html_javascript}
 		</script>
@@ -3254,7 +3256,8 @@ var id_imperio_atual = {$imperio->id};
 			<label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 30%; display: inline-block; margin: 5px;'></input>
 			<input type='hidden' value='' id='id'></input>
 			<a href='#' id='link_salva_modelo_nave' data-id_imperio='{$imperio->id}' onclick='return salva_modelo_nave(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
-			<a href='#' id='link_salva_novo_modelo_nave' data-id_imperio='{$imperio->id}' onclick='return salva_modelo_nave(event, this, true);' style='width: 20%; display: none; margin: 5px;'>Salvar como NOVO Modelo</a>
+			<a href='#' id='link_salva_novo_modelo_nave' data-id_imperio='{$imperio->id}' onclick='return salva_modelo_nave(event, this, true);' style='width: 20%; display: none; margin: 5px;'>Salvar como NOVO Modelo</a><br>
+			<a href='#' id='link_criar_modelo_em_branco' data-id_imperio='{$imperio->id}' onclick='return reseta_modelo(event, this);' style='width: 20%; display: inline; margin: 5px;'>Resetar modelo</a><br>
 		</div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>

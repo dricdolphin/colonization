@@ -691,6 +691,11 @@ class frota
 	}
 	
 	
+	/***********************
+	function html_modelo_nave()
+	----------------------
+	Retorna o HTML do modelo da nave
+	***********************/
 	function html_modelo_nave() {
 		global $wpdb;
 		
@@ -700,14 +705,49 @@ class frota
 			$html_nome_imperio = "Império '{$nome_imperio}'<br>";
 		}
 		
+		if (!$this->pega_modelo_nave()) {
+			$html_nome_imperio = "<span class='vermelho_bold'>Nave sem modelo</span><br>". $html_nome_imperio;
+		}
+		
 		$turno = new turno();
 		return "<tr>
-		<td><input type='hidden' data-atributo='string_nave' value='{$string_nave}'></input>{$html_nome_imperio}{$this->nome}</td>
+		<td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome}</td>
 		<td>".$this->texto_nave()."</td>
 		<td>".$this->texto_custo()."</td>
 		<td>{$turno->turno}</td>
 		<td><a href='#' onclick='return carrega_modelo_nave(event, this, {$this->id_imperio});'>Carregar Modelo</a></td>
 		</tr>";
+	}
+	
+	/***********************
+	function pega_modelo_nave()
+	----------------------
+	Retorna o ID do modelo utilizado na nave, false caso não tenha um modelo
+	***********************/
+	function pega_modelo_nave() {
+		global $wpdb;
+		
+		$query = "SELECT cmn.string_nave, cmn.id
+		FROM colonization_modelo_naves AS cmn
+		WHERE cmn.id_imperio = {$this->id_imperio}";
+		
+		$modelos_naves_em_uso = $wpdb->get_results($query);
+		$json_modelo_atual = json_decode(stripslashes($this->string_nave),true, JSON_UNESCAPED_UNICODE);
+		unset($json_modelo_atual['id']);
+		unset($json_modelo_atual['nome_modelo']);
+
+		foreach ($modelos_naves_em_uso as $modelo_nave_em_uso) {
+			$json_modelo_em_uso = json_decode(stripslashes($modelo_nave_em_uso->string_nave),true, JSON_UNESCAPED_UNICODE);
+			unset($json_modelo_em_uso['id']);
+			unset($json_modelo_em_uso['nome_modelo']);
+			
+			if  ($json_modelo_atual == $json_modelo_em_uso) {
+				return $modelo_nave_em_uso->id;
+			}
+		}
+
+		return false;
+
 	}
 	
 	/***********************

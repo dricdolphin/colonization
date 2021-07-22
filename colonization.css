@@ -430,6 +430,11 @@ tr.th_linha_3 th {
 	color: #660000;
 }
 
+.vermelho_bold {
+	color: #660000;
+	font-weight: bold;
+}
+
 .azul_escuro {
 	color: #00008B;
 }
