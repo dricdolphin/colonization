@@ -542,7 +542,7 @@ class imperio
 	----------------------
 	Popula as variáveis do Império
 	***********************/
-	private function popula_variaveis_imperio() {
+	function popula_variaveis_combate() {
 		global $wpdb;
 		
 		if ($this->processou_popula_variaveis_imperio) {

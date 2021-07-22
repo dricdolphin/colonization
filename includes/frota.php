@@ -645,12 +645,76 @@ class frota
 		return $html_nave;
 	}
 	
+
+	/***********************
+	function texto_nave()
+	----------------------
+	Retorna os dados da nave no padrão do modelo_nave
+	***********************/
+	function texto_nave() {
+		return "Tamanho: {$this->tamanho}; Velocidade: {$this->velocidade}; Alcance: {$this->alcance}; 
+		pdf Laser: {$this->pdf_laser}; pdf Torpedo: {$this->pdf_torpedo}; pdf Projétil: {$this->pdf_projetil}; Blindagem: {$this->blindagem}; Escudos: {$this->escudos}; HP: ".$this->tamanho*10;
+	}
+
+	/***********************
+	function texto_custo()
+	----------------------
+	Retorna os custo da nave no padrão do modelo_nave
+	***********************/	
+	function texto_custo() {
+		
+		$JSON_custo = [];
+		if ($this->custo != '') {
+			$JSON_custo = json_decode($this->custo, true);
+		}
+		
+		if (!isset($JSON_custo['Industrializáveis'])) {
+			$JSON_custo['Industrializáveis'] = 0;
+		}
+		if (!isset($JSON_custo['Enérgium'])) {
+			$JSON_custo['Enérgium'] = 0;
+		}
+		if (!isset($JSON_custo['Dillithium'])) {
+			$JSON_custo['Dillithium'] = 0;
+		}
+		if (!isset($JSON_custo['Duranium'])) {
+			$JSON_custo['Duranium'] = 0;
+		}		
+		
+		$texto = "";
+		foreach ($JSON_custo as $nome_recurso => $valor) {
+			$texto .= "{$nome_recurso}: {$valor} | ";
+		}
+		$texto = substr($texto,0, -3);
+		
+		return $texto;
+	}
+	
+	
+	function html_modelo_nave() {
+		global $wpdb;
+		
+		$html_nome_imperio = "";
+		if ($this->id_imperio != 0) {
+			$nome_imperio = $wpdb->get_var("SELECT ci.nome FROM colonization_imperio AS ci WHERE ci.id = {$this->id_imperio}");
+			$html_nome_imperio = "Império '{$nome_imperio}'<br>";
+		}
+		
+		$turno = new turno();
+		return "<tr>
+		<td><input type='hidden' data-atributo='string_nave' value='{$string_nave}'></input>{$html_nome_imperio}{$this->nome}</td>
+		<td>".$this->texto_nave()."</td>
+		<td>".$this->texto_custo()."</td>
+		<td>{$turno->turno}</td>
+		<td><a href='#' onclick='return carrega_modelo_nave(event, this, {$this->id_imperio});'>Carregar Modelo</a></td>
+		</tr>";
+	}
 	
 	/***********************
 	function html_categoria()
 	----------------------
 	Retorna a Categoria de uma nave
-	***********************/	
+	***********************/
 	function html_categoria($chassi) {
 		if ($chassi <= 10) {
 			return "Corveta";

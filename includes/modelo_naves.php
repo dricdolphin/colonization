@@ -92,10 +92,21 @@ class modelo_naves
 		$string_nave['id'] = $this->id;
 		$this->string_nave = json_encode($string_nave, JSON_UNESCAPED_UNICODE);
 		
-		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome_modelo}</td><td>{$this->texto_nave}</td><td>{$this->texto_custo}</td><td>{$this->turno}</td>
+		$link_deleta_modelo = "";
+		$data_modelo_em_uso = "true";
+		if (!$this->modelo_em_uso() && $roles != "administrator") {
+			$link_deleta_modelo = "<br><a href='#' onclick='return deleta_modelo_nave(event, this, {$this->id});'>Deletar Modelo</a></td>";
+			$data_modelo_em_uso = "false";
+		}
+		
+		$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$html_nome_imperio}{$this->nome_modelo}</td>
+		<td>{$this->texto_nave}</td>
+		<td>{$this->texto_custo}</td>
+		<td>{$this->turno}</td>
 		<td>
-		<a href='#' onclick='return carrega_nave(event, this, {$this->id_imperio});'>Carregar Modelo</a><br>
-		<a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Modelo</a></td></tr>";
+		<a href='#' onclick='return carrega_modelo_nave(event, this, {$this->id_imperio});' data-modelo_em_uso='{$data_modelo_em_uso}'>Carregar Modelo</a>
+		{$link_deleta_modelo}
+		</tr>";
 	
 		return $html;
 	}
@@ -122,6 +133,11 @@ class modelo_naves
 		return $this->JSON_custo;
 	}
 	
+	/***********************
+	function JSON_custo()
+	----------------------
+	Inicializa a varíável JSON_custo
+	***********************/	
 	function JSON_atributos() {
 		global $wpdb;
 
@@ -129,17 +145,107 @@ class modelo_naves
 		$atributos_modelo_temp = [];
 		foreach ($atributos_modelo as $chave => $valor) {
 			$valor_explode = explode(":", $valor);
-			$chave_nome_atributo = strtolower(str_replace(" ","_", trim($valor_explode[0])));
-			//Hardcoded -- tirar o acento do pdf_projétil
-			if ($chave_nome_atributo == "pdf_projétil") {
-				$chave_nome_atributo = "pdf_projetil";
-			}
+			$chave_nome_atributo = remove_accents(strtolower(str_replace(" ","_", trim($valor_explode[0]))));
+
 			if (intval(trim($valor_explode[1])) != 0) {
 				$atributos_modelo_temp[$chave_nome_atributo] = intval(trim($valor_explode[1]));
 			}
 		}
 		
 		return $atributos_modelo_temp;		
+	}
+
+	/***********************
+	function modelo_em_uso()
+	----------------------
+	Verifica se o Modelo está sendo usado em alguma nave do Império
+	***********************/	
+	function modelo_em_uso() {
+		global $wpdb;
+		
+		$query = "SELECT cif.string_nave 
+		FROM colonization_imperio_frota AS cif 
+		WHERE cif.id_imperio = {$this->id_imperio} 
+		AND cif.turno_destruido = 0";
+		
+		$modelos_naves_em_uso = $wpdb->get_results($query);
+		
+		$array_json_naves = [];
+		foreach ($modelos_naves_em_uso as $modelo_nave_em_uso) {
+			$json_modelo_em_uso = json_decode(stripslashes($modelo_nave_em_uso->string_nave),true, JSON_UNESCAPED_UNICODE);
+			unset($json_modelo_em_uso['id']);
+			unset($json_modelo_em_uso['nome_modelo']);
+			
+			$array_json_naves[] = $json_modelo_em_uso;
+		}
+		
+		$json_modelo_atual = json_decode(stripslashes($this->string_nave),true, JSON_UNESCAPED_UNICODE);
+		unset($json_modelo_atual['id']);
+		unset($json_modelo_atual['nome_modelo']);
+		
+		if (in_array($json_modelo_atual, $array_json_naves)) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	/***********************
+	function modelo_ja_existe()
+	----------------------
+	Verifica se o Modelo já existe
+	***********************/
+	function modelo_ja_existe() {
+		global $wpdb;
+		
+		$query = "SELECT cmn.string_nave 
+		FROM colonization_modelo_naves AS cmn
+		WHERE cmn.id_imperio = {$this->id_imperio} 
+		AND cmn.id !={$this->id}";
+		
+		$modelos_naves_em_uso = $wpdb->get_results($query);
+		
+		$array_json_naves = [];
+		foreach ($modelos_naves_em_uso as $modelo_nave_em_uso) {
+			$json_modelo_em_uso = json_decode(stripslashes($modelo_nave_em_uso->string_nave),true, JSON_UNESCAPED_UNICODE);
+			unset($json_modelo_em_uso['id']);
+			unset($json_modelo_em_uso['nome_modelo']);
+			
+			$array_json_naves[] = $json_modelo_em_uso;
+		}
+		
+		$json_modelo_atual = json_decode(stripslashes($this->string_nave),true, JSON_UNESCAPED_UNICODE);
+		unset($json_modelo_atual['id']);
+		unset($json_modelo_atual['nome_modelo']);
+		
+		if (in_array($json_modelo_atual, $array_json_naves)) {
+			return true;
+		}
+
+		return false;
+	}	
+
+	/***********************
+	function modelo_mesmo_nome()
+	----------------------
+	Verifica se já existe um modelo com o mesmo nome
+	***********************/
+	function modelo_mesmo_nome() {
+		global $wpdb;
+		
+		$query = "SELECT COUNT(cmn.nome_modelo)
+		FROM colonization_modelo_naves AS cmn
+		WHERE cmn.id_imperio = {$this->id_imperio} 
+		AND cmn.id !={$this->id}
+		AND cmn.nome_modelo='{$this->nome_modelo}'";
+		
+		$modelos_naves_em_uso = $wpdb->get_var($query);
+		
+		if ($modelos_naves_em_uso > 0) {
+			return true;
+		}
+
+		return false;
 	}
 }
 ?>

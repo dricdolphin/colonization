@@ -859,7 +859,7 @@ function salva_diplomacia(evento, objeto, id_imperio_atual, id_imperio_contato, 
 	return false;
 }
 
-function salvar_nave_jogador(evento, objeto) {
+function salva_modelo_nave_jogador(evento, objeto) {
 	let div_tabela_frota = document.getElementById("tabela_frota");
 	let ahrefs = div_tabela_frota.getElementsByTagName("A");
 	let selects = document.getElementsByTagName("SELECT");

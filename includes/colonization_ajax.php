@@ -60,7 +60,8 @@ class colonization_ajax {
 		add_action('wp_ajax_muda_nome_nave', array ($this, 'muda_nome_nave')); //Muda o nome de uma nave
 		add_action('wp_ajax_tirar_cerco', array ($this, 'tirar_cerco'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
-		add_action('wp_ajax_deletar_nave', array ($this, 'deletar_nave'));//Deleta uma nave MODELO
+		add_action('wp_ajax_deleta_modelo_nave', array ($this, 'deleta_modelo_nave'));//Deleta uma nave MODELO
+		add_action('wp_ajax_valida_modelo_nave', array ($this, 'valida_modelo_nave'));//Valida um modelo de nave (apenas os dados básicos)
 		add_action('wp_ajax_coloniza_planeta', array ($this, 'coloniza_planeta'));//coloniza_planeta
 		add_action('wp_ajax_repara_nave', array ($this, 'repara_nave'));//repara_nave
 		add_action('wp_ajax_remove_aviso', array ($this, 'remove_aviso'));//remove_aviso
@@ -396,13 +397,72 @@ class colonization_ajax {
 		wp_die(); //Termina o script e envia a resposta			
 	}
 
+	/***********************
+	function valida_modelo_nave()
+	----------------------
+	Valida um Modelo de nave
+	***********************/
+	function valida_modelo_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
+		//dados_ajax_valida = "post_type=POST&action=valida_modelo_nave&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
+		//+"&string_nave="+dados['string_nave']+dados_ajax_where;		
+		
+		$id_modelo = 0;
+		$dados_salvos['debug'] = "";
+		if (isset($_POST['where_value'])) { //Está ATUALIZANDO um modelo. Deve verificar se o modelo está em uso
+			$id_modelo = $_POST['where_value'];
+			$modelo_nave = new modelo_naves($id_modelo);
+			$dados_salvos['debug'] .= "#{$id_modelo}: id_imperio: {$modelo_nave->id_imperio} \n {$modelo_nave->string_nave}\n modelo_em_uso: ".$modelo_nave->modelo_em_uso()."\n";
+			if ($modelo_nave->modelo_em_uso() && $roles != "administrator") {
+				$dados_salvos['resposta_ajax'] = "Não é possível alterar um Modelo que esteja em uso!";
+				
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta
+			}
+		}
+		
+		//Verifica se existe um modelo com o mesmo nome
+		$modelo_nave = new modelo_naves($id_modelo);
+		$modelo_nave->id_imperio = $_POST['id_imperio'];
+		$modelo_nave->string_nave = stripslashes($_POST['string_nave']);
+		$modelo_nave->nome_modelo = $_POST['nome_modelo'];
+		$dados_salvos['debug'] .= "#{$id_modelo}: id_imperio: {$_POST['id_imperio']} \n {$modelo_nave->string_nave}\n";
+
+		if ($modelo_nave->modelo_mesmo_nome()) {
+			$dados_salvos['resposta_ajax'] = "Já existe um Modelo com esse nome!";
+				
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta						
+		}
+		
+		//Verifica se existe um modelo com as mesmas partes
+		if ($modelo_nave->modelo_ja_existe()) {
+			$dados_salvos['resposta_ajax'] = "Já existe um Modelo idêntico ao que está sendo salvo!";
+				
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta									
+		}
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta			
+	}
 
 	/***********************
-	function deletar_nave()
+	function deleta_modelo_nave()
 	----------------------
 	Deleta uma nave
 	***********************/
-	function deletar_nave() {
+	function deleta_modelo_nave() {
 		global $wpdb;
 		// Report all PHP errors
 		//error_reporting(E_ALL); 
@@ -418,6 +478,14 @@ class colonization_ajax {
 		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
 			$imperio = new imperio($modelo_nave->id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode deletar um modelo de nave que ele criou!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
+		}
+		
+		//Verifica se o modelo está em uso. Se estiver, NÃO libera para deletar
+		if ($modelo_nave->modelo_em_uso() && $roles != "administrator") {
+			$dados_salvos['resposta_ajax'] = "Não é possível deletar um Modelo que esteja em uso!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 			wp_die(); //Termina o script e envia a resposta			

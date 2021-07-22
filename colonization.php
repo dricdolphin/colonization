@@ -849,6 +849,8 @@ class colonization {
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela->id]->X} AND Y={$estrela[$id_estrela->id]->Y} AND Z={$estrela[$id_estrela->id]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL)");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				if (empty($nave_temp[$id_frota->id])) {
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_mapa_naves => ANTES de new frota({$id_frota->id}){$diferenca}ms');</script>";
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 					echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_frota->id}){$diferenca}ms');</script>";
@@ -913,6 +915,8 @@ class colonization {
 		
 		foreach ($ids_naves as $id_nave) {
 			if (empty($nave_temp[$id_nave->id])) {
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				echo "<script>console.log('colonization_exibe_mapa_naves => ANTES de new frota({$id_nave->id}){$diferenca}ms');</script>";
 				$nave_temp[$id_nave->id] = new frota($id_nave->id);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_nave->id}){$diferenca}ms');</script>";
@@ -974,6 +978,8 @@ class colonization {
 			$ids_naves_na_estrela = $wpdb->get_results("SELECT id FROM colonization_imperio_frota WHERE X={$estrela[$id_estrela]->X} AND Y={$estrela[$id_estrela]->Y} AND Z={$estrela[$id_estrela]->Z} AND turno_destruido=0 AND (id_estrela_destino = 0 OR id_estrela_destino IS NULL) ORDER BY id_imperio");
 			foreach ($ids_naves_na_estrela AS $id_frota) {
 				if (empty($nave_temp[$id_frota->id])) {
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					echo "<script>console.log('colonization_exibe_mapa_naves => ANTES de new frota({$id_frota->id}){$diferenca}ms');</script>";
 					$nave_temp[$id_frota->id] = new frota($id_frota->id);
 					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 					echo "<script>console.log('colonization_exibe_mapa_naves => new frota({$id_frota->id}){$diferenca}ms');</script>";
@@ -3082,7 +3088,7 @@ var id_imperio_atual = {$imperio->id};
 		<select class='select_frota' data-atributo='modelo_nave' onchange='return atualiza_nave_modelo(event,this);'>{$html_options}</select>
 		<div id='texto_nave'><b>Dados da Nave:</b> {$texto_nave}</div>
 		<div id='texto_custo'><b>Custo:</b> {$texto_custo}</div>
-		<div><a href='#' onclick='return salvar_nave_jogador(event, this);'>Criar Nave</a></div>
+		<div><a href='#' onclick='return salva_modelo_nave_jogador(event, this);'>Criar Nave</a></div>
 		<div {$estilo} id='tabela_frota'>
 			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$imperio->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
@@ -3182,6 +3188,9 @@ var id_imperio_atual = {$imperio->id};
 			$imperio = new imperio($atts['id'],false);
 		} else {
 			$imperio = new imperio();
+			if ($roles == "administrator") {
+				$imperio->popula_variaveis_combate();
+			}
 		}		
 
 		//$imperio = new imperio();
@@ -3202,7 +3211,7 @@ var id_imperio_atual = {$imperio->id};
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves ORDER BY id_imperio, turno, id");
 			$estilo_plasma = "";
-			$imperio->popula_variaveis_imperio();
+			//$imperio->popula_variaveis_imperio();
 		} else {
 			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
 			$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id} ORDER BY id_imperio, turno, id");
@@ -3244,7 +3253,8 @@ var id_imperio_atual = {$imperio->id};
 		<div id='nome_nave'>
 			<label>Nome da Nave: </label><input type='text' value='' id='nome_modelo' style='width: 30%; display: inline-block; margin: 5px;'></input>
 			<input type='hidden' value='' id='id'></input>
-			<a href='#' id='link_salvar_nave' data-id_imperio='{$imperio->id}' onclick='return salvar_nave(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
+			<a href='#' id='link_salva_modelo_nave' data-id_imperio='{$imperio->id}' onclick='return salva_modelo_nave(event, this);' style='width: 20%; display: inline-block; margin: 5px;'>Salvar esse Modelo</a>
+			<a href='#' id='link_salva_novo_modelo_nave' data-id_imperio='{$imperio->id}' onclick='return salva_modelo_nave(event, this, true);' style='width: 20%; display: none; margin: 5px;'>Salvar como NOVO Modelo</a>
 		</div>
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
@@ -3286,13 +3296,81 @@ var id_imperio_atual = {$imperio->id};
 		
 		//Pega todas os modelos de nave do Império e mostra
 		$html_modelos_nave = "";
+		$array_json_modelos = [];
+		$index_array_json_modelos = 0;
 		foreach ($ids_modelos_nave as $id_modelo) {
 			$modelo_nave = new modelo_naves($id_modelo->id);
 			$html_modelos_nave .= $modelo_nave->lista_dados() . "\n";
+			$array_json_modelos[] = json_decode(stripslashes($modelo_nave->string_nave),true, JSON_UNESCAPED_UNICODE);
+			unset($array_json_modelos[$index_array_json_modelos]['id']);
+			unset($array_json_modelos[$index_array_json_modelos]['nome_modelo']);
+			$index_array_json_modelos++;
+		}
+		
+		//Pega as naves ATUAIS (desde que não tenham um modelo na lista de modelos
+		$where_imperio = "AND cif.id_imperio={$imperio->id}";
+		if ($imperio->id == 0 && $roles == "administrator") {
+			$where_imperio = "";
+		}
+		
+		//***
+		$query = "SELECT DISTINCT cif.id_imperio, cif.string_nave AS string_nave
+		FROM colonization_imperio_frota AS cif
+		WHERE cif.turno_destruido = 0
+		AND cif.id_imperio != 0 {$where_imperio}
+		AND cif.string_nave != ''
+		ORDER BY cif.id_imperio, cif.turno";
+		
+		/***
+		if ($roles == "administrator") {
+			foreach ($array_json_modelos as $chave => $valor) {
+				echo json_encode($valor)."<br>";	
+			}
+		}
+		//***/
+		
+		$modelos_em_uso = $wpdb->get_results($query);
+		$ids_naves_modelo = [];
+		foreach ($modelos_em_uso as $modelo_em_uso) {
+			$query = "SELECT cif.id 
+			FROM colonization_imperio_frota AS cif 
+			WHERE cif.id_imperio = {$modelo_em_uso->id_imperio} 
+			AND cif.string_nave = '".addslashes($modelo_em_uso->string_nave)."'
+			AND cif.turno_destruido = 0";
+			
+			$json_modelo_em_uso = json_decode(stripslashes($modelo_em_uso->string_nave),true, JSON_UNESCAPED_UNICODE);
+			unset($json_modelo_em_uso['id']);
+			unset($json_modelo_em_uso['nome_modelo']);
+			
+			/***
+			if ($roles == "administrator") {
+				echo json_encode($json_modelo_em_uso)."<br>";
+			}
+			//***/
+			
+			if (in_array($json_modelo_em_uso, $array_json_modelos)) {
+				continue; //Pula a nave
+			}
+			
+			$ids_naves_modelo[] = $wpdb->get_var($query);
 		}
 
-		//$html = "<tr><td><input type='hidden' data-atributo='string_nave' value='{$this->string_nave}'></input>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td>{$this->nome_modelo}</td><td><a href='#' onclick='return carrega_nave(event, this);'>Carregar Nave</a><br><a href='#' onclick='return deleta_nave(event, this, {$this->id});'>Deletar Nave</a></td></tr>";
-		
+		foreach ($ids_naves_modelo as $chave => $id_nave_modelo) {
+			$frota = new frota($id_nave_modelo);
+
+			$string_nave = json_decode(stripslashes($frota->string_nave),true, JSON_UNESCAPED_UNICODE);
+			if (isset($string_nave['id'])) {
+				unset($string_nave['id']);
+			}
+			
+			$string_nave['nome_modelo'] = $frota->nome;
+			$string_nave = json_encode($string_nave, JSON_UNESCAPED_UNICODE);
+			
+			$html_modelos_nave .= $frota->html_modelo_nave();
+			
+		}
+		//***/
+
 		$html .= "<br><hr><br><div><h4>Modelos de Naves</h4></div>
 		<div>
 		<table class='lista_techs_imperio' style='width: 800px;'>

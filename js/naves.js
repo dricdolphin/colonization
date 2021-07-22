@@ -790,11 +790,11 @@ function processa_string_admin (evento, objeto, jogador=false) {
 
 
 /******************
-function salvar_nave
+function salva_modelo_nave
 --------------------
-Salva uma nave
+Salva um modelo de uma nave
 ******************/
-function salvar_nave(evento, objeto, id_imperio) {
+function salva_modelo_nave(evento, objeto, modelo_em_uso = false) {
 	//let inputs = document.getElementById("simulador_nave").getElementsByTagName("INPUT");
 	if (objeto_em_edicao) {
 		alert('Já existe um objeto em edição!');
@@ -818,44 +818,71 @@ function salvar_nave(evento, objeto, id_imperio) {
 		}
 	}
 	
-	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
-	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual;
 	
 	dados_nave = JSON.parse(dados['string_nave']);
+	dados_ajax_where = "";
 	if (dados_nave['id'] != undefined) {
+		if (modelo_em_uso) {
+		//Remove o ID e o Nome do Modelo antes de salvar
+			delete dados_nave.id;
+			delete dados_nave.nome_modelo;
+			dados['string_nave'] = JSON.stringify(dados_nave);
+		} else {
+			dados_ajax_where = "&where_clause=id&where_value="+dados_nave['id'];
+		}
 		//let salva_edicao = "&where_clause=id&where_value="+dados_nave['id'];
 		//console.log(salva_edicao);
-		let confirma = confirm("Para SOBRESCREVER o modelo carregado, clique em OK.\nPara salvar um NOVO modelo, clique em CANCELAR.");
-		if (confirma) {
-			dados_ajax = dados_ajax + "&where_clause=id&where_value="+dados_nave['id'];
-		}
+		//let confirma = confirm("Para SOBRESCREVER o modelo carregado, clique em OK.\nPara salvar um NOVO modelo, clique em CANCELAR.");
+		//if (confirma) {
+		//	dados_ajax = dados_ajax + "&where_clause=id&where_value="+dados_nave['id'];
+		//}
 	}
 	
-	let resposta = new Promise((resolve, reject) => {
+	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
+	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual
+	+ dados_ajax_where;
+	
+	let valida_modelo_nave = new Promise((resolve, reject) => {
 		objeto_em_edicao = true;
-		resolve(processa_xhttp_resposta(dados_ajax));
+		let dados_ajax_valida = "post_type=POST&action=valida_modelo_nave&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
+		+"&string_nave="+dados['string_nave']+dados_ajax_where;
+		resolve(processa_xhttp_resposta(dados_ajax_valida));
 		//resolve(dados_ajax);
 	});
 	
-	resposta.then((successMessage) => {
-		console.log(successMessage);
-		if (successMessage.resposta_ajax != "SALVO!") {
-			alert(successMessage.resposta_ajax);
+	valida_modelo_nave.then((successMessage) => {
+		if (successMessage.resposta_ajax == "OK!") {
+			let resposta = new Promise((resolve, reject) => {
+				objeto_em_edicao = true;
+				resolve(processa_xhttp_resposta(dados_ajax));
+				//resolve(dados_ajax);
+			});
+			
+			resposta.then((successMessage) => {
+				console.log(successMessage);
+				if (successMessage.resposta_ajax != "SALVO!") {
+					alert(successMessage.resposta_ajax);
+				} else {
+					document.location.reload();
+				}
+			});		
 		} else {
-			document.location.reload();
+			alert(successMessage.resposta_ajax);
+			objeto_em_edicao = false;
 		}
 	});
+	
 	
 	evento.preventDefault();
 	return false;
 }
 
 /******************
-function deleta_nave
+function deleta_modelo_nave
 --------------------
 Deleta uma nave
 ******************/
-function deleta_nave(evento, objeto, id_nave) {
+function deleta_modelo_nave(evento, objeto, id_nave) {
 	let confirma = confirm("Tem certeza que deseja excluir essa nave?");
 	
 	if (!confirma) {
@@ -863,7 +890,7 @@ function deleta_nave(evento, objeto, id_nave) {
 		return false;		
 	}
 	
-	let dados_ajax = "post_type=POST&action=deletar_nave&id=" + id_nave;
+	let dados_ajax = "post_type=POST&action=deleta_modelo_nave&id=" + id_nave;
 	
 	let resposta = new Promise((resolve, reject) => {
 		resolve(processa_xhttp_resposta(dados_ajax));
@@ -919,18 +946,28 @@ function repara_nave(evento, objeto, id_nave, custo_reparo) {
 }
 
 /******************
-function carrega_nave
+function carrega_modelo_nave
 --------------------
 Carrega a string de uma nave salva e a processa
 ******************/
-function carrega_nave(evento, objeto, id_imperio) {
+function carrega_modelo_nave(evento, objeto, id_imperio) {
 	let tabela = pega_ascendente(objeto,"TABLE");
 	let linha = pega_ascendente(objeto,"TR");
 	let inputs_linha = linha.getElementsByTagName("INPUT");
 	let string_nave = "";
 	
-	let link_salvar_nave = document.getElementById("link_salvar_nave");
-	link_salvar_nave.setAttribute("data-id_imperio",id_imperio);
+	let link_salva_modelo_nave = document.getElementById("link_salva_modelo_nave");
+	let link_salva_novo_modelo_nave = document.getElementById("link_salva_novo_modelo_nave");
+	link_salva_modelo_nave.setAttribute("data-id_imperio",id_imperio);
+	link_salva_novo_modelo_nave.setAttribute("data-id_imperio",id_imperio);
+	link_salva_novo_modelo_nave.style.display = "inline";
+	
+	console.log(objeto.getAttribute("data-modelo_em_uso"));
+	if (objeto.getAttribute("data-modelo_em_uso") == "true") {
+		link_salva_modelo_nave.style.display = "none";
+	} else {
+		link_salva_modelo_nave.style.display = "inline";
+	}
 	
 	for (let index=0; index<inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute("data-atributo") == "string_nave") {
