@@ -818,7 +818,6 @@ function salva_modelo_nave(evento, objeto, modelo_em_uso = false) {
 		}
 	}
 	
-	
 	dados_nave = JSON.parse(dados['string_nave']);
 	dados_ajax_where = "";
 	if (dados_nave['id'] != undefined) {
@@ -837,7 +836,7 @@ function salva_modelo_nave(evento, objeto, modelo_em_uso = false) {
 		//	dados_ajax = dados_ajax + "&where_clause=id&where_value="+dados_nave['id'];
 		//}
 	}
-	
+	processa_string(evento, objeto); //Garante que o string será processado ANTES de salvá-lo
 	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
 	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual
 	+ dados_ajax_where;
@@ -1016,6 +1015,31 @@ function carrega_modelo_nave(evento, objeto, id_imperio) {
 	return false;
 }
 
+
+
+
+/******************
+function carrega_nave
+--------------------
+Carrega uma nave do banco de dados, adicionando-a à tabela de naves
+******************/
+function carrega_nave(id_nave) {
+	let dados_ajax = "post_type=POST&action=carrega_nave&id=" + id_nave;
+	
+	let resposta = new Promise((resolve, reject) => {
+		resolve(processa_xhttp_resposta(dados_ajax));
+	});
+	
+	return resposta.then((successMessage) => {
+		if (successMessage.resposta_ajax == "OK!") {
+			console.log(successMessage.lista_dados);
+			return successMessage.lista_dados;
+		} else {
+			alert(successMessage.resposta_ajax);
+		}
+	});
+}
+
 /******************
 function copiar_nave(evento, objeto, id_imperio, upgrade=false)
 --------------------
@@ -1025,7 +1049,8 @@ id_imperio -- Império dono dessa nave
 upgrade = false -- se é um upgrade, edita os dados necessários, salva e cria uma nova nave
 ******************/
 function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
-	let tabela = document.getElementsByTagName('TABLE');
+	//let tabela = document.getElementsByTagName('TABLE');
+	let tabela = pega_ascendente(objeto, "TABLE");
 	
 	for (let index_tabelas = 0; index_tabelas < tabela.length; index_tabelas++) {
 		if (tabela[index_tabelas].getAttribute('data-id-imperio') == id_imperio) {
@@ -1039,7 +1064,6 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 	let inputs = [];
 
 	if (upgrade) {
-		//O upgrade só pode ser feito na Capital
 		let objeto_editado = edita_objeto(evento, objeto);
 		let input = [];
 		
@@ -1060,16 +1084,6 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 			evento.preventDefault();
 			return false;
 		}
-		//TODO -- Verificar TODAS as estrelas...
-		/***
-		else if(input['X'].value != tabela.getAttribute("data-X") || input['Y'].value != tabela.getAttribute("data-Y") || input['Z'].value != tabela.getAttribute("data-Z")) {
-			alert('Só é possível fazer o upgrade de uma nave que esteja na Capital!');
-			salva_objeto(evento, objeto, true);
-			
-			evento.preventDefault();
-			return false;			
-		}
-		//***/
 		
 		custo_nave['upgrade'] = true;
 		input['custo'].value = JSON.stringify(custo_nave);
@@ -1082,11 +1096,12 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 			resolve(salva_objeto(evento, objeto));
 		});
 		
-		retorno_salva_objeto.then((successMessage) => {
+		return retorno_salva_objeto.then((successMessage) => {
 			//console.log("Nave foi destruída e custos devolvidos!");
 			if (successMessage) {
-				let nave_upgrade = copiar_nave(evento, objeto, id_imperio);
-				let inputs_nave_upgrade = nave_upgrade.getElementsByTagName("INPUT");
+				console.log("Nave foi removida com sucesso, criando nova linha para receber os dados do upgrade!");
+				let nova_nave = copiar_nave(evento, objeto, id_imperio);
+				let inputs_nave_upgrade = nova_nave.getElementsByTagName("INPUT");
 				
 				for (let index_input = 0; index_input < inputs_nave_upgrade.length; index_input++) {
 					if (inputs_nave_upgrade[index_input].getAttribute('data-atributo') == "turno") {
@@ -1096,13 +1111,15 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 					}
 				}
 				objeto.remove();
+				return nova_nave;
 			} else {
-				salva_objeto(evento, objeto, true)
+				salva_objeto(evento, objeto, true);
+				return false;
 			}
-			//nave_upgrade.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+			//nova_nave.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
 		});
 		
-		return false;
+		//return false;
 	}
 	
 	let linha_nova = tabela.insertRow(-1);
@@ -1128,11 +1145,12 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 			delete custo_nave.upgrade;
 			inputs[index_input].value = JSON.stringify(custo_nave);
 		}  else if (id_imperio !=0) {
-			if (inputs[index_input].getAttribute('data-atributo') == "X" 
-				|| inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
-				let string_data = 'data-' + inputs[index_input].getAttribute('data-atributo');
-				inputs[index_input].value = tabela.getAttribute(string_data);
-			} else if (inputs[index_input].getAttribute('data-atributo') == "turno") {
+			//if (inputs[index_input].getAttribute('data-atributo') == "X" 
+			//	|| inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
+			//	let string_data = 'data-' + inputs[index_input].getAttribute('data-atributo');
+			//	inputs[index_input].value = tabela.getAttribute(string_data);
+			//} else if (inputs[index_input].getAttribute('data-atributo') == "turno") {
+			if (inputs[index_input].getAttribute('data-atributo') == "turno") {
 				inputs[index_input].value = turno_atual;
 			}
 		}

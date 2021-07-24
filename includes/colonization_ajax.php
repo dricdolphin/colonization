@@ -62,6 +62,7 @@ class colonization_ajax {
 		add_action('wp_ajax_lista_techs_ocultas', array ($this, 'lista_techs_ocultas'));//Tira o status de Cerco de uma colônia
 		add_action('wp_ajax_deleta_modelo_nave', array ($this, 'deleta_modelo_nave'));//Deleta uma nave MODELO
 		add_action('wp_ajax_valida_modelo_nave', array ($this, 'valida_modelo_nave'));//Valida um modelo de nave (apenas os dados básicos)
+		add_action('wp_ajax_carrega_nave', array ($this, 'carrega_nave'));//Puxa os dados de uma nave
 		add_action('wp_ajax_coloniza_planeta', array ($this, 'coloniza_planeta'));//coloniza_planeta
 		add_action('wp_ajax_repara_nave', array ($this, 'repara_nave'));//repara_nave
 		add_action('wp_ajax_remove_aviso', array ($this, 'remove_aviso'));//remove_aviso
@@ -498,6 +499,40 @@ class colonization_ajax {
 	}
 
 	/***********************
+	function carrega_nave()
+	----------------------
+	Carrega os dados de uma nave
+	***********************/
+	function carrega_nave() {
+		global $wpdb;
+		// Report all PHP errors
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+	
+		$frota = new frota($_POST['id']);
+		$imperio = new imperio ($frota->id_imperio);
+		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($modelo_nave->id_imperio,true);
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta			
+		}		
+		
+		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['lista_dados'] = $frota->lista_dados();
+		
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta					
+	
+	}
+
+	/***********************
 	function lista_techs_ocultas()
 	----------------------
 	Exibe a lista com as Techs ocultas
@@ -660,14 +695,67 @@ class colonization_ajax {
 	***********************/
 	function valida_upgrade_nave() {
 		global $wpdb, $plugin_colonization;
-		
-		
+		// Report all PHP errors
+		error_reporting(E_ALL); 
+		ini_set("display_errors", 1);
+
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}		
+
 		$modelo_nave = new modelo_naves($_POST['id_modelo']);
+		$string_nave = json_decode(stripslashes($modelo_nave->string_nave),true);
+		$atributos_modelo_nave = $modelo_nave->JSON_atributos();
+		
 		$nave_upgrade = new frota($_POST['id_nave']);
+
+		$imperio = new imperio($nave_upgrade->id_imperio);
+		$dados_salvos['resposta_ajax'] = "OK!";
+		$dados_salvos['debug'] = "";
 		
-		//TODO -- Verifica a diferença de custo
+		if ($imperio->id != $nave_upgrade->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($nave_upgrade->id_imperio,true);
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta				
+		}		
 		
-		$dados_salvos['resposta_ajax'] == "OK!";
+		//Valida o modelo e a nave
+		$valida_nave = new valida_nave($imperio);
+		$dados_salvos['resposta_ajax'] = $valida_nave->valida_nave($atributos_modelo_nave['tamanho'], $nave_upgrade->X, $nave_upgrade->Y, $nave_upgrade->Z, $string_nave, true);		
+		
+		//Verifica a diferença de custo
+		$JSON_custo_nave = json_decode($nave_upgrade->custo, true);
+		$JSON_custo_modelo = $modelo_nave->JSON_custo();
+		
+		foreach ($JSON_custo_modelo as $nome_recurso => $qtd) {
+			if (!isset($JSON_custo_nave[$nome_recurso])) {
+				$JSON_custo_nave[$nome_recurso] = 0;
+			}
+			
+			$diferenca_custo = $JSON_custo_modelo[$nome_recurso] - $JSON_custo_nave[$nome_recurso];
+			if ($nome_recurso == "industrializaveis") {
+				$nome_recurso = "Industrializáveis";
+			} elseif ($nome_recurso == "energium") {
+				$nome_recurso = "Enérgium";
+			} elseif ($nome_recurso == "nor_duranium") {
+				$nome_recurso = "Nor-Duranium";
+			} elseif ($nome_recurso == "upgrade") {
+				continue;
+			}
+			
+			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
+			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+			if ($qtd_recurso_imperio < $diferenca_custo) {
+				$qtd_faltante = $diferenca_custo - $qtd_recurso_imperio;
+				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes! Faltam {$qtd_faltante} unidade(s) de {$nome_recurso}";
+				break;
+			}
+		}
+		
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta		
 	}
@@ -680,8 +768,8 @@ class colonization_ajax {
 	function valida_nave() {
 		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
-		//error_reporting(E_ALL); 
-		//ini_set("display_errors", 1);
+		error_reporting(E_ALL); 
+		ini_set("display_errors", 1);
 		
 		$custo = json_decode(stripslashes($_POST['custo']),true);
 		$upgrade = array_key_exists("upgrade", $custo);
@@ -741,31 +829,18 @@ class colonization_ajax {
 		//TODO -- Valida os ATRIBUTOS da nave caso não seja um Admin
 		//if ($roles != "administrator") {
 			$string_nave_com_slashes = addslashes($_POST['string_nave']);
-			$tem_modelo = $wpdb->get_var("
-			SELECT COUNT(cmn.id) 
-			FROM colonization_modelo_naves AS cmn
-			WHERE cmn.id_imperio={$imperio->id}
-			AND cmn.string_nave='{$string_nave_com_slashes}'");
+			$frota_temp = new frota();
+			$frota_temp->string_nave = stripcslashes($_POST['string_nave']);
+			$frota_temp->id_imperio = $imperio->id;
 			
-			$dados_salvos['debug'] .= "SELECT COUNT(cmn.id) 
-			FROM colonization_modelo_naves AS cmn
-			WHERE cmn.id_imperio={$imperio->id}
-			AND cmn.string_nave='{$string_nave_com_slashes}'\n";
-			
-			if ($tem_modelo == 0) {
+			if ($frota_temp->pega_modelo_nave() == false) {
 				$dados_salvos['resposta_ajax'] = "Não há nenhum modelo que corresponda aos dados dessa nave! Por favor, entre em contato com o Admin!";
 				
 				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 				wp_die(); //Termina o script e envia a resposta						
 			}
 			
-			$id_modelo = $wpdb->get_var("
-			SELECT cmn.id
-			FROM colonization_modelo_naves AS cmn
-			WHERE cmn.id_imperio={$imperio->id}
-			AND cmn.string_nave='{$string_nave_com_slashes}'");
-			
-			$modelo_nave = new modelo_naves($id_modelo);
+			$modelo_nave = new modelo_naves($frota_temp->pega_modelo_nave());
 			$custo_modelo = $modelo_nave->JSON_custo;
 			
 			$custo_modificado = $custo;
@@ -859,181 +934,9 @@ class colonization_ajax {
 		}
 
 		//Valida os dados da Nave de acordo com a Tech do Império
-		/***
-		var nave_template = {
-			'qtd_laser' : 0,
-			'qtd_torpedo' : 0,
-			'qtd_projetil' :0,
-			'tritanium_blindagem' : 0,
-			'neutronium_blindagem' : 0,
-			'tricobalto_torpedo' : 0,
-			'qtd_combustivel' : 0,
-			'qtd_pesquisa' : 0,
-			'nivel_estacao_orbital' : 0,
-			'qtd_tropas' : 0,
-			'qtd_bombardeamento' : 0,
-			'qtd_slots_extra' : 0,
-			'qtd_hp_extra' : 0,
-			'mk_laser' : 0,
-			'mk_torpedo' : 0,
-			'mk_projetil' : 0,
-			'mk_blindagem' : 0,
-			'mk_escudos' : 0,
-			'mk_impulso' : 0,
-			'mk_dobra' : 0,
-			'mk_bombardeamento' : 0,
-			'mk_camuflagem' : 0
-		};
-		//***/
-		
 		if ($_POST['id_imperio'] != 0) {//Só valida se for um Jogador
-			//Todas as novas naves surgem na Capital, EXCETO Estações Orbitais
-			//Primeiro verifica se tem uma Estação Orbital na CAPITAL do Império...
-			//Naves acima de CORVETAS requerem uma Estação Orbital de nível adequado...
-			$nivel_estacao_orbital_requerida = 0;
-
-			if ($_POST['nivel_estacao_orbital'] == 0) {//Estações Orbitais podem ter qualquer tamanho...
-				if ($_POST['tamanho'] > 5000) {
-					$nivel_estacao_orbital_requerida = 10;
-				} elseif ($_POST['tamanho'] > 1000) {
-					$nivel_estacao_orbital_requerida = 8;
-				} elseif ($_POST['tamanho'] > 500) {
-					$nivel_estacao_orbital_requerida = 7;
-				} elseif ($_POST['tamanho'] > 300) {
-					$nivel_estacao_orbital_requerida = 6;
-				} elseif ($_POST['tamanho'] > 200) {
-					$nivel_estacao_orbital_requerida = 5;
-				} elseif ($_POST['tamanho'] > 100) {
-					$nivel_estacao_orbital_requerida = 4;
-				} elseif ($_POST['tamanho'] > 50) {
-					$nivel_estacao_orbital_requerida = 3;
-				} elseif ($_POST['tamanho'] > 20) {
-					$nivel_estacao_orbital_requerida = 2;
-				} else {
-					$nivel_estacao_orbital_requerida = 1;
-				}
-				
-				//Verifica se tem uma Estação Orbital, e se a Estação tem nivel_estacao_orbital suficiente para construir a nave
-				$id_estrela_capital = $wpdb->get_var("
-				SELECT cp.id_estrela
-				FROM colonization_imperio_colonias AS cic
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				WHERE cic.id_imperio={$imperio->id}
-				AND cic.turno={$imperio->turno->turno}
-				AND cic.capital=true");
-				
-				$dados_salvos['debug'] .= "\n
-				SELECT cp.id_estrela
-				FROM colonization_imperio_colonias AS cic
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				WHERE cic.id_imperio={$imperio->id}
-				AND cic.turno={$imperio->turno->turno}
-				AND cic.capital=true\n";
-				
-				$estrela_capital = new estrela($id_estrela_capital);
-				
-				if ($_POST['tamanho'] > 10) {
-					$estacao_orbital_na_estrela = $wpdb->get_var("
-					SELECT COUNT(cif.id) 
-					FROM colonization_imperio_frota AS cif
-					WHERE cif.X={$_POST['X']} AND cif.Y={$_POST['Y']} AND cif.Z={$_POST['Z']}
-					AND cif.nivel_estacao_orbital >= {$nivel_estacao_orbital_requerida}
-					AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)");
-					
-					$dados_salvos['debug'] .= "SELECT COUNT(cif.id) 
-					FROM colonization_imperio_frota AS cif
-					WHERE cif.X={$_POST['X']} AND cif.Y={$_POST['Y']} AND cif.Z={$_POST['Z']}
-					AND cif.nivel_estacao_orbital >= {$nivel_estacao_orbital_requerida}
-					AND (cif.turno_destruido IS NULL OR cif.turno_destruido = 0)\n";
-					
-					if ($estacao_orbital_na_estrela == 0) {
-						$html_mk = $plugin_colonization->html_mk($nivel_estacao_orbital_requerida);
-						$dados_salvos['resposta_ajax'] = "É necessário ter uma Estação Orbital{$html_mk} no Sistema para poder construir essa nave!";
-						echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-						wp_die(); //Termina o script e envia a resposta					
-					}
-				}
-
-				$colonias_imperio = $wpdb->get_var("
-				SELECT COUNT(cic.id) 
-				FROM colonization_imperio_colonias AS cic
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				JOIN colonization_estrela AS ce
-				ON ce.id = cp.id_estrela
-				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}
-				AND cic.id_imperio = {$_POST['id_imperio']} AND cic.turno={$_POST['turno']}");		
-
-				$dados_salvos['debug'] .= "SELECT COUNT(cic.id) 
-				FROM colonization_imperio_colonias AS cic
-				JOIN colonization_planeta AS cp
-				ON cp.id = cic.id_planeta
-				JOIN colonization_estrela AS ce
-				ON ce.id = cp.id_estrela
-				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}
-				AND cic.id_imperio = {$_POST['id_imperio']} AND cic.turno={$_POST['turno']}";
-				
-				if ($colonias_imperio == 0) {
-					$dados_salvos['resposta_ajax'] = "Só é possível criar novas naves em suas Colônias!";
-					if ($upgrade) {
-						$dados_salvos['resposta_ajax'] = "Só é possível criar atualizar suas naves em suas Colônias!";
-					}
-					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-					wp_die(); //Termina o script e envia a resposta										
-				}
-				
-				$sob_cerco = $wpdb->get_var("SELECT ce.cerco FROM colonization_estrela AS ce
-				WHERE ce.X={$_POST['X']} AND ce.Y={$_POST['Y']} AND ce.Z={$_POST['Z']}");
-				
-				if ($sob_cerco == 1) {
-					$dados_salvos['resposta_ajax'] = "Não é possível criar ou atualizar naves em um sistema sob ataque!";
-					echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-					wp_die(); //Termina o script e envia a resposta															
-				}
-			}
-			
-			foreach ($string_nave as $chave_tech => $valor) {
-				if (str_contains($chave_tech, "mk_") || str_contains($chave_tech, "nivel_estacao_orbital")) {//Todas as chaves "mk_" representam alguma Tech
-					$tem_tech = $wpdb->get_var("
-					SELECT cit.id
-					FROM colonization_imperio_techs AS cit
-					JOIN colonization_tech AS ct
-					ON ct.id = cit.id_tech
-					WHERE cit.id_imperio = {$imperio->id}
-					AND cit.custo_pago = 0
-					AND ct.especiais LIKE '%{$chave_tech}={$valor}%'
-					");
-					
-					if (empty($tem_tech)) {
-						$nome_tech = $wpdb->get_var("SELECT nome FROM colonization_tech WHERE especiais LIKE '%{$chave_tech}={$valor}%'");
-						$dados_salvos['resposta_ajax'] = "{$chave_tech}\nÉ necessário ter a Tech '{$nome_tech}' para poder construir essa nave!";
-						if ($nome_tech == "") {
-							$dados_salvos['resposta_ajax'] = "{$chave_tech}={$valor} \nNão existe Tech que permita construir essa nave!";
-						}
-						break;
-					}
-				} elseif (str_contains($chave_tech, "qtd_") || str_contains($chave_tech, "nome_modelo") || str_contains($chave_tech, "id")) {//Pula chaves de qtd, nome_modelo e id
-					continue;
-				} else {
-					$tem_tech = $wpdb->get_var("
-					SELECT cit.id
-					FROM colonization_imperio_techs AS cit
-					JOIN colonization_tech AS ct
-					ON ct.id = cit.id_tech
-					WHERE cit.id_imperio = {$imperio->id}
-					AND cit.custo_pago = 0
-					AND ct.especiais LIKE '%id={$chave_tech}%'
-					");
-					
-					if (empty($tem_tech)) {
-						$nome_tech = $wpdb->get_var("SELECT nome FROM colonization_tech WHERE especiais LIKE '%id={$chave_tech}%'");
-						$dados_salvos['resposta_ajax'] = "{$chave_tech}\nÉ necessário ter a Tech '{$nome_tech}' para poder construir essa nave!";
-						break;
-					}
-				}
-			}
+			$valida_nave = new valida_nave($imperio);
+			$dados_salvos['resposta_ajax'] = $valida_nave->valida_nave($_POST['tamanho'], $_POST['X'], $_POST['Y'], $_POST['Z'], $string_nave, $upgrade);
 		}
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {

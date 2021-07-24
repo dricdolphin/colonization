@@ -40,6 +40,7 @@ include_once('includes/configuracao.php');
 include_once('includes/missoes.php');
 include_once('includes/estrelas_historico.php');
 include_once('includes/modelo_naves.php');
+include_once('includes/valida_nave.php');
 
 //Classe "colonization"
 //Classe principal do plugin
@@ -69,6 +70,7 @@ class colonization {
 		add_shortcode('colonization_exibe_autoriza_reabastece_imperio',array($this,'colonization_exibe_autoriza_reabastece_imperio')); //Exibe a tela de autorização de reabastecimento
 		add_shortcode('colonization_exibe_constroi_naves',array($this,'colonization_exibe_constroi_naves')); //Exibe uma página de construção de naves
 		add_shortcode('colonization_exibe_produz_naves',array($this,'colonization_exibe_produz_naves')); //Exibe uma página que permite o Jogador construir suas próprias naves
+		add_shortcode('colonization_exibe_upgrade_naves',array($this,'colonization_exibe_upgrade_naves')); //Exibe uma página que permite o Jogador realizar upgrade de suas naves
 		add_shortcode('colonization_exibe_distancia_estrelas',array($this,'colonization_exibe_distancia_estrelas')); //Exibe uma página com a distância entre duas estrelas
 		add_shortcode('colonization_exibe_hyperdrive',array($this,'colonization_exibe_hyperdrive')); //Exibe uma página com a distância entre duas estrelas via Hyperdrive
 		add_shortcode('colonization_exibe_techtree',array($this,'colonization_exibe_techtree')); //Exibe a Tech Tree do Colonization
@@ -3023,7 +3025,7 @@ var id_imperio_atual = {$imperio->id};
 		}
 
 		$estilo = "style='display: none;'";
-		if ($roles = "administrator") {
+		if ($roles == "administrator") {
 			//$estilo = "";
 		}
 		
@@ -3065,7 +3067,7 @@ var id_imperio_atual = {$imperio->id};
 			$html_options .= "<option data-X='{$id_estrela->X}' data-Y='{$id_estrela->Y}' data-Z='{$id_estrela->Z}' data-nome='{$id_estrela->nome} ({$id_estrela->X};{$id_estrela->Y};{$id_estrela->Z})'>{$id_estrela->nome} ({$id_estrela->X};{$id_estrela->Y};{$id_estrela->Z}){$html_estacao_orbital}</option>";
 		}
 		
-		$html = "<h3>Produção de Naves</h3>
+		$html = "<div><h3>Produção de Naves</h3>
 		<script type='text/javascript'>
 		{$html_javascript}
 		</script>		
@@ -3081,14 +3083,21 @@ var id_imperio_atual = {$imperio->id};
 				$texto_nave = $modelo_nave->texto_nave;
 				$texto_custo = $modelo_nave->texto_custo;
 			}
-			$html_options .= "<option data-string-nave='{$modelo_nave->string_nave}' data-texto-custo='{$modelo_nave->texto_custo}' data-texto-nave='{$modelo_nave->texto_nave}'>{$modelo_nave->nome_modelo}</option>";
+			$html_estacao_orbital = "";
+			$JSON_atributos = json_decode(stripslashes($modelo_nave->string_nave),true, JSON_UNESCAPED_UNICODE);
+			if (isset($JSON_atributos['nivel_estacao_orbital'])) {
+				$html_mk = $this->html_mk($JSON_atributos['nivel_estacao_orbital']);
+				$html_estacao_orbital = " &#xf85f; {$html_mk}";	
+			}
+
+		$html_options .= "<option data-string-nave='{$modelo_nave->string_nave}' data-texto-custo='{$modelo_nave->texto_custo}' data-texto-nave='{$modelo_nave->texto_nave}' data-nome-nave='{$modelo_nave->nome_modelo}'>{$modelo_nave->nome_modelo}{$html_estacao_orbital}</option>";
 		}		
 		
 		$html .= "<label>Modelo a ser produzido:</label>
 		<select class='select_frota' data-atributo='modelo_nave' onchange='return atualiza_nave_modelo(event,this);'>{$html_options}</select>
-		<div id='texto_nave'><b>Dados da Nave:</b> {$texto_nave}</div>
-		<div id='texto_custo'><b>Custo:</b> {$texto_custo}</div>
-		<div><a href='#' onclick='return salva_modelo_nave_jogador(event, this);'>Criar Nave</a></div>
+		<div data-id='texto_nave'><b>Dados da Nave:</b> {$texto_nave}</div>
+		<div data-id='texto_custo'><b>Custo:</b> {$texto_custo}</div>
+		<div><a href='#' onclick='return constroi_nave_jogador(event, this);'>Criar Nave</a></div>
 		<div {$estilo} id='tabela_frota'>
 			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$imperio->id}' data-tabela='colonization_imperio_frota'>
 			<thead>
@@ -3117,7 +3126,8 @@ var id_imperio_atual = {$imperio->id};
 			<tr class='th_linha_2'><th style='width: 40px;'>X</th><th style='width: 40px;'>Y</th><th style='width: 40px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
 			</thead>
 			<tbody>
-			<td>
+			<tr>
+				<td>
 				<input type='hidden' data-atributo='id' data-valor-original='' value=''></input>
 				<input type='hidden' data-atributo='id_imperio' data-ajax='true' data-valor-original='{$imperio->id}' value='{$imperio->id}'></input>
 				<input type='hidden' data-atributo='where_clause' value='id'></input>
@@ -3157,9 +3167,155 @@ var id_imperio_atual = {$imperio->id};
 				<td><div data-atributo='gerenciar'>
 				</div>
 				</td>
+			</tr>
 			</tbody>
 			</table>
 		</div>
+		</div>
+		<hr>
+		";
+		
+		
+		echo $html;
+	}
+
+	/***********************
+	function colonization_exibe_upgrade_naves($atts = [], $content = null)
+	----------------------
+	Chamado pelo shortcode [colonization_exibe_upgrade_naves]
+	$atts = [] - lista de atributos dentro do shortcode 
+	***********************/	
+	function colonization_exibe_upgrade_naves($atts = [], $content = null) {
+		global $wpdb;
+		$user = wp_get_current_user();
+		
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+
+		$estilo = "";
+		
+		$tech = new tech();
+		if (isset($atts['id'])) {
+			$imperio = new imperio($atts['id']);
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'", $imperio->id);
+		} else {
+			$imperio = new imperio();
+			$ids_techs = $tech->query_tech(" AND ct.parte_nave = true AND ct.especiais LIKE '%id=%'");
+		}		
+		
+		$html_javascript = "";
+		foreach ($ids_techs AS $id_tech) {
+			$tech = new tech($id_tech->id);
+			$especiais = explode(";",$tech->especiais);
+			foreach ($especiais as $chave => $especial) {
+				if (str_contains($especial,"id=")) {
+					$valor_especial = explode("=",$especial);
+					$html_javascript .= "descricao_parte['{$valor_especial[1]}'] = \"{$tech->nome}\";\n";
+					break;
+				}
+			}
+		}
+
+		$estilo = "style='display: none;'";
+		if ($roles == "administrator") {
+			//$estilo = "";
+		}
+		
+		$html_options = "";
+		$lista_frota_imperio = $wpdb->get_results("SELECT DISTINCT cif.id 
+		FROM colonization_imperio_frota AS cif 
+		LEFT JOIN colonization_estrela AS ce
+		ON ce.X=cif.X AND ce.Y=cif.Y AND ce.Z=cif.Z
+		WHERE cif.id_imperio={$imperio->id} AND cif.turno_destruido=0
+		ORDER BY cif.nivel_estacao_orbital DESC, (CASE WHEN cif.id_estrela_destino = 0 THEN 0 ELSE 1 END),
+		(CASE WHEN cif.turno = {$imperio->turno->turno} THEN 0 ELSE 1 END), cif.tamanho, cif.nome, cif.id");
+		foreach ($lista_frota_imperio as $id_frota) {
+			$frota = new frota($id_frota->id);
+			if ($html_options == "") {
+				$nave_string = stripslashes($frota->string_nave);
+				$texto_nave = $frota->texto_nave();
+				$texto_custo = $frota->texto_custo();
+			}
+			
+			$html_estacao_orbital = "";
+			$JSON_atributos = json_decode(stripslashes($frota->string_nave),true, JSON_UNESCAPED_UNICODE);
+			if (isset($JSON_atributos['nivel_estacao_orbital'])) {
+				$html_mk = $this->html_mk($JSON_atributos['nivel_estacao_orbital']);
+				$html_estacao_orbital = " &#xf85f; {$html_mk}";	
+			}			
+			$html_options .= "<option data-id='{$frota->id}' data-id-modelo='".$frota->pega_modelo_nave()."' data-string-nave='{$frota->string_nave}' data-texto-custo='".$frota->texto_custo()."' data-texto-nave='".$frota->texto_nave()."' data-nome-nave='{$frota->nome}'>{$frota->nome}{$html_estacao_orbital}</option>";
+		}
+		
+		$html = "<div data-atributo='div_upgrade'><h3>Upgrade de Naves</h3>
+		<script type='text/javascript'>
+		{$html_javascript}
+		</script>		
+		<label>Nave a ser atualizada:</label>
+		<select class='select_frota' data-atributo='nave_upgrade' onchange='return atualiza_texto_nave(event,this, true);'>{$html_options}</select>
+		<div data-id='texto_nave_upgrade'><b>Dados da Nave:</b> {$texto_nave}</div>
+		<div data-id='texto_custo_upgrade'><b>Custo:</b> {$texto_custo}</div>		
+		<br>";
+		
+		$html_options = "";
+		$ids_modelos_nave = $wpdb->get_results("SELECT id FROM colonization_modelo_naves WHERE id_imperio={$imperio->id} ORDER BY id_imperio, turno, id");
+		foreach ($ids_modelos_nave as $id_modelo) {
+			$modelo_nave = new modelo_naves($id_modelo->id);
+			if ($html_options == "") {
+				$nave_string = stripslashes($modelo_nave->string_nave);
+				$texto_nave = $modelo_nave->texto_nave;
+				$texto_custo = $modelo_nave->texto_custo;
+			}
+			
+			$html_estacao_orbital = "";
+			$JSON_atributos = json_decode(stripslashes($modelo_nave->string_nave),true, JSON_UNESCAPED_UNICODE);
+			if (isset($JSON_atributos['nivel_estacao_orbital'])) {
+				$html_mk = $this->html_mk($JSON_atributos['nivel_estacao_orbital']);
+				$html_estacao_orbital = " &#xf85f; {$html_mk}";	
+			}
+			
+			$html_options .= "<option data-id-modelo='{$modelo_nave->id}' data-string-nave='{$modelo_nave->string_nave}' data-texto-custo='{$modelo_nave->texto_custo}' data-texto-nave='{$modelo_nave->texto_nave}' data-nome-nave='{$modelo_nave->nome_modelo}'>{$modelo_nave->nome_modelo}{$html_estacao_orbital}</option>";
+		}	
+		
+		$html .= "<label>Modelo do Upgrade:</label>
+		<select class='select_frota' data-atributo='modelo_upgrade' onchange='return atualiza_nave_modelo(event,this);'>{$html_options}</select>
+		<div data-id='texto_nave'><b>Dados da Nave:</b> {$texto_nave}</div>
+		<div data-id='texto_custo'><b>Custo:</b> {$texto_custo}</div>
+		<div><a href='#' onclick='return realiza_upgrade_nave_jogador(event, this, {$imperio->id});'>Atualizar Nave</a></div>
+		<div {$estilo} id='tabela_frota_upgrade'>
+			<table class='wp-list-table widefat tabela_admin fixed striped users' data-id-imperio='{$imperio->id}' data-tabela='colonization_imperio_frota'>
+			<thead>
+			<tr class='th_linha_1'><th rowspan='2' style='width: 140px;'>Nome da nave</th>
+			<th rowspan='2' style='width: 100px;'>Categoria</th>
+			<th rowspan='2' style='width: 30px;'>Qtd</th>
+			<th colspan='3' style='width: 120px;'>Posição</th>
+			<th rowspan='2' style='width: 90px;'>String da Nave</th>
+			<th rowspan='2' style='width: 70px;'>Tamanho</th>
+			<th rowspan='2' style='width: 40px;'>HP</th>
+			<th rowspan='2' style='width: 75px;'>Velocidade</th>
+			<th rowspan='2' style='width: 60px;'>Alcance</th>
+			<th colspan='3' style='width: 220px;'>Poder de Fogo</th>
+			<th rowspan='2' style='width: 75px;'>Blindagem</th>
+			<th rowspan='2' style='width: 60px;'>Escudos</th>
+			<th rowspan='2' style='width: 70px;'>Bombard.</th>
+			<th rowspan='2' style='width: 60px;'>Invasão</th>
+			<th rowspan='2' style='width: 70px;'>Pesquisa</th>
+			<th rowspan='2' style='width: 70px;'>Camufl.</th>
+			<th rowspan='2' style='width: 100px;'>Estação Orbital</th>
+			<th rowspan='2' style='width: 120px;'>Especiais</th>
+			<th rowspan='2' style='width: 40px;'>Turno</th>
+			<th rowspan='2' style='width: 40px;'>Dest.</th>
+			<th rowspan='2' style='width: 80px;'>&nbsp;</th>
+			</tr>
+			<tr class='th_linha_2'><th style='width: 40px;'>X</th><th style='width: 40px;'>Y</th><th style='width: 40px;'>Z</th><th style='width: 60px;'>Laser</th><th style='width: 60px;'>Torpedo</th><th style='width: 60px;'>Projétil</th></tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+		</div>
+		</div>
+		<hr>
 		";
 		
 		

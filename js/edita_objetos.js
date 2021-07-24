@@ -859,7 +859,12 @@ function salva_diplomacia(evento, objeto, id_imperio_atual, id_imperio_contato, 
 	return false;
 }
 
-function salva_modelo_nave_jogador(evento, objeto) {
+/******************
+function constroi_nave_jogador(evento, objeto)
+--------------------
+Constrói a nave do Jogador
+******************/	
+function constroi_nave_jogador(evento, objeto) {
 	let div_tabela_frota = document.getElementById("tabela_frota");
 	let ahrefs = div_tabela_frota.getElementsByTagName("A");
 	let selects = document.getElementsByTagName("SELECT");
@@ -890,13 +895,12 @@ function salva_modelo_nave_jogador(evento, objeto) {
 		return false;		
 	}
 	
-	let confirma = confirm("Tem certeza que deseja construir a nave '"+ select_modelo_nave.options[select_modelo_nave.selectedIndex].text +"' em "+ select_estrela_construcao.options[select_estrela_construcao.selectedIndex].getAttribute("data-nome") +"?");
+	let confirma = confirm("Tem certeza que deseja construir a nave '"+ select_modelo_nave.options[select_modelo_nave.selectedIndex].getAttribute('data-nome-nave') +"' em "+ select_estrela_construcao.options[select_estrela_construcao.selectedIndex].getAttribute("data-nome") +"?");
 
 	if (!confirma) {
 		evento.preventDefault();
 		return false;		
 	}
-	
 
 	//Abre para edição
 	edita_objeto(evento, link_editar);
@@ -909,7 +913,7 @@ function salva_modelo_nave_jogador(evento, objeto) {
 			inputs[index].value = select_modelo_nave.options[select_modelo_nave.selectedIndex].text;
 		}
 	}
-	//TODO -- E manda salvar o objeto
+	//E manda salvar o objeto
 	//***
 	let valida_dados = new Promise((resolve, reject) => {
 		resolve(salva_objeto(evento, link_processa_string));
@@ -926,4 +930,151 @@ function salva_modelo_nave_jogador(evento, objeto) {
 	
 	evento.preventDefault();
 	return false;
+}
+
+
+/******************
+function realiza_upgrade_nave_jogador(evento, objeto, id_imperio)
+--------------------
+Realiza o upgrade da nave do Jogador
+******************/	
+function realiza_upgrade_nave_jogador(evento, objeto, id_imperio) {
+	if (objeto_em_edicao || objeto_em_salvamento) {
+		alert("Já existe um objeto sendo processado!");
+		
+		evento.preventDefault();
+		return false;		
+	}
+	
+	let div_parent = objeto;
+	while (div_parent.getAttribute("data-atributo") != "div_upgrade") {
+		div_parent = div_parent.parentElement;
+	}
+	
+	let selects = div_parent.getElementsByTagName("SELECT");
+	let nave_upgrade = "";
+	let modelo_upgrade = "";
+
+	for (let index = 0; index<selects.length; index++) {
+		if (selects[index].getAttribute('data-atributo') == "nave_upgrade") {
+			nave_upgrade = selects[index].options[selects[index].selectedIndex];
+		} else if (selects[index].getAttribute('data-atributo') == "modelo_upgrade") {
+			modelo_upgrade = selects[index].options[selects[index].selectedIndex];
+		}
+	}
+	
+	if (!valida_nave_upgrade(nave_upgrade,modelo_upgrade)) {
+		evento.preventDefault();
+		return false;
+	}
+
+	let confirma = confirm("Tem certeza que deseja realizar o upgrade da nave '"+ nave_upgrade.getAttribute('data-nome-nave') +"' para o modelo '"+ modelo_upgrade.getAttribute("data-nome-nave") +"'?");
+
+	if (!confirma) {
+		evento.preventDefault();
+		return false;	
+	}
+	objeto_em_edicao = true;
+	//Carrega a nave na tabela
+	let div_tabela_frota_upgrade = document.getElementById("tabela_frota_upgrade");
+	let tabela_frota_upgrade = div_tabela_frota_upgrade.getElementsByTagName("TABLE");
+	
+	for (let index=0; index<tabela_frota_upgrade.length; index++) {
+		if (tabela_frota_upgrade[index].getAttribute("data-tabela") == "colonization_imperio_frota") {
+			tabela_frota_upgrade = tabela_frota_upgrade[index];
+			break;
+		}
+	}
+	
+	let pega_nave = new Promise((resolve, reject) => {
+		resolve(carrega_nave(nave_upgrade.getAttribute("data-id")));
+	});
+	
+	pega_nave.then((successMessage) => {
+		let nova_linha = tabela_frota_upgrade.insertRow(-1);
+		nova_linha.innerHTML = successMessage;
+		let ahrefs = nova_linha.getElementsByTagName("A");
+		let link_upgrade = "";
+		for (let index=0; index<ahrefs.length; index++) {
+			if (ahrefs[index].text == "Upgrade") {
+				link_upgrade = ahrefs[index];
+				break;
+			}
+		}		
+		
+		//Valida o Upgrade no AJAX
+		let validou_upgrade = new Promise((resolve, reject) => {
+			let dados_ajax = "post_type=POST&action=valida_upgrade_nave&id_nave=" + nave_upgrade.getAttribute("data-id") + "&id_modelo=" + modelo_upgrade.getAttribute("data-id-modelo");
+			console.log("Validando nave...");
+			resolve(processa_xhttp_resposta(dados_ajax));
+		});
+		
+		validou_upgrade.then((successMessage) => {
+			console.log("Processou validação! " + successMessage);
+			if (successMessage.resposta_ajax != "OK!") {
+				alert(successMessage.resposta_ajax);
+				objeto_em_edicao = false;
+			} else {
+				//document.location.reload();
+				//Se o Upgrade foi validado, clica em "upgrade" e faz o sistema processar o upgrade
+				objeto_em_edicao = false;
+				let retorno_upgrade = new Promise((resolve, reject) => {
+					if (link_upgrade == "") {
+						alert('Não foi possível realizar o upgrade dessa nave! Favor contatar o ADMIN!');
+						
+						evento.preventDefault();
+						return false;
+					}			
+					console.log("Realizando o Upgrade!");
+					resolve(copiar_nave(evento, link_upgrade, id_imperio, true));
+				});
+				
+				retorno_upgrade.then((successMessage) => {
+					console.log("Voltou do Upgrade! successMessage=" + successMessage);
+					if (successMessage != false) {
+						//Remove a linha com a nave original da tabela
+						//nova_linha.remove();
+						
+						//Depois, pega a NOVA linha que foi criada, altera a nave_string com o string do modelo, processa e então salva
+						//Coloca o string do modelo e processa
+						let textarea_string_nave = successMessage.getElementsByTagName("TEXTAREA");
+						for (let index=0; index<textarea_string_nave.length; index++) {
+							if (textarea_string_nave[index].getAttribute("data-atributo") == "string_nave") {
+								textarea_string_nave = textarea_string_nave[index];
+								break;
+							}
+						}		
+						
+						console.log(textarea_string_nave.innerHTML);
+						console.log(modelo_upgrade.getAttribute("data-string-nave").replaceAll("\\",""));
+						textarea_string_nave.innerHTML = modelo_upgrade.getAttribute("data-string-nave").replaceAll("\\","");
+						
+						ahrefs = successMessage.getElementsByTagName("A");
+						let link_processa_string = "";
+						let link_salva_nave = "";
+						for (let index=0; index<ahrefs.length; index++) {
+							if (ahrefs[index].text == "Processa String") {
+								link_processa_string = ahrefs[index];
+							} else if(ahrefs[index].text == "Salvar") {
+								link_salva_nave = ahrefs[index];
+							}
+						}
+
+						processa_string_admin(evento, link_processa_string, true);
+						let salva_nave = new Promise((resolve, reject) => {
+							resolve(link_salva_nave.click());
+						});
+						
+						salva_nave.then((successMessage) => {
+							document.location.reload();
+						});
+						
+					}
+				});				
+			}
+		});
+	});
+	
+	evento.preventDefault();
+	return false;	
 }

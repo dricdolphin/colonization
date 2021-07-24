@@ -368,7 +368,6 @@ class frota
 		$href_upgrade_nave = "";
 		if ($roles == "administrator") {
 			$href_calcula_distancia = " &nbsp; <a href='#' onclick='return calcula_distancia_reabastece(event, this, false, {$this->id});'>Custo e Trajeto</a>";
-			$href_upgrade_nave = "<a href='#' onclick='return realiza_upgrade_nave_jogador(event, this);'>Realiza Upgrade</a>";
 		}
 
 		$html = "<td>

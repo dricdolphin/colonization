@@ -137,9 +137,9 @@ class modelo_naves
 	}
 	
 	/***********************
-	function JSON_custo()
+	function JSON_atributos()
 	----------------------
-	Inicializa a varíável JSON_custo
+	Inicializa a varíável JSON_atributos
 	***********************/	
 	function JSON_atributos() {
 		global $wpdb;

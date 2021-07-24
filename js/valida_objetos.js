@@ -660,3 +660,50 @@ function valida_nave(objeto){
 	
 	return processa_xhttp_basico(dados_ajax);
 }
+
+function valida_nave_upgrade(nave_upgrade, modelo_upgrade) {
+	let json_partes_nave = JSON.parse(nave_upgrade.getAttribute("data-string-nave").replaceAll("\\",""));
+	let json_partes_modelo = JSON.parse(modelo_upgrade.getAttribute("data-string-nave").replaceAll("\\",""));
+	
+	//***
+	let json_custo_nave = nave_upgrade.getAttribute("data-texto-custo").trim().split('|');
+	let json_custo_modelo = modelo_upgrade.getAttribute("data-texto-custo").trim().split('|');
+	let json_texto_nave = nave_upgrade.getAttribute("data-texto-nave").trim().split(';');
+	let json_texto_modelo = modelo_upgrade.getAttribute("data-texto-nave").trim().split(';');	
+	
+	json_custo_nave = converte_texto_para_JSON(json_custo_nave,":");
+	json_custo_modelo = converte_texto_para_JSON(json_custo_modelo,":");
+	json_texto_nave = converte_texto_para_JSON(json_texto_nave,":");
+	json_texto_modelo = converte_texto_para_JSON(json_texto_modelo,":");
+	//***/
+	
+	/***
+	let json_custo_nave = JSON.parse("{"+nave_upgrade.getAttribute("data-texto-custo").trim().replaceAll("|",",")+"}");
+	let json_custo_modelo = JSON.parse("{"+modelo_upgrade.getAttribute("data-texto-custo").trim().replaceAll("|",",")+"}");
+	let json_texto_nave = JSON.parse("{"+nave_upgrade.getAttribute("data-texto-nave").trim().replaceAll("|",",")+"}");
+	let json_texto_modelo = JSON.parse("{"+modelo_upgrade.getAttribute("data-texto-nave").trim().replaceAll("|",",")+"}");
+	//***/
+	
+	if ((json_partes_nave['nivel_estacao_orbital'] != undefined && json_partes_modelo['nivel_estacao_orbital'] == undefined)
+		|| (json_partes_nave['nivel_estacao_orbital'] == undefined && json_partes_modelo['nivel_estacao_orbital'] != undefined)) {
+		alert('Não é possível transformar uma Estação Orbital em uma nave, ou vice-versa!');
+
+		return false;
+	}
+	
+	console.log(json_texto_nave['Tamanho'] + " || " + json_texto_modelo['Tamanho']);
+	if (json_texto_nave['Tamanho']*1 > json_texto_modelo['Tamanho']*1) {
+		alert('Não é possível realizar o "downgrade" de uma nave! Escolha um modelo que tenha o mesmo tamanho, ou maior, que a nave sendo atualizada.');
+		
+		return false;
+	}
+	
+	
+	if (nave_upgrade.getAttribute("data-id-modelo") == modelo_upgrade.getAttribute("data-id-modelo")) {
+		alert('É necessário selecionar um modelo diferente ao que está atualmente sendo utilizado nesta nave.');
+		
+		return false;		
+	}
+	
+	return true;
+}

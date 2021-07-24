@@ -1585,11 +1585,12 @@ Muda o nome de uma Nave
 id_nave = id da nave
 ******************/	
 function muda_nome_nave(evento, objeto, id_nave) {
-	let confirma = confirm("Tem certeza que deseja mudar o nome da Nave '"+objeto.text+"'?");
+	let nome_original = objeto.text;
+	let confirma = confirm("Tem certeza que deseja mudar o nome da Nave '"+nome_original+"'?");
 	let novo_nome = "";
 	
 	if (confirma) {
-		novo_nome = prompt('Qual será o novo nome do Nave?', objeto.text);
+		novo_nome = prompt('Qual será o novo nome do Nave?', nome_original);
 	} else {
 		evento.preventDefault();
 		return false;
@@ -1604,6 +1605,25 @@ function muda_nome_nave(evento, objeto, id_nave) {
 			objeto_em_edicao = false;
 			if (successMessage) {
 				objeto.text = novo_nome;
+				//Procura se tem um select que possa ter o nome da nave
+				let selects = document.getElementsByTagName("SELECT");
+				let select_nave_upgrade = "";
+				for (let index=0; index<selects.length; index++) {
+					if (selects[index].getAttribute("data-atributo") == "nave_upgrade") {
+						select_nave_upgrade = selects[index]
+						break;
+					}
+				}
+
+				if (select_nave_upgrade != "") {
+					for (let index=0; index<select_nave_upgrade.options.length; index++) {
+						if (select_nave_upgrade.options[index].getAttribute("data-id") == id_nave) {
+							select_nave_upgrade.options[index].setAttribute("data-nome-nave",novo_nome);
+							select_nave_upgrade.options[index].text = select_nave_upgrade.options[index].text.replaceAll(nome_original, novo_nome);
+						}
+					}
+				}
+				
 				//document.location.reload();
 			}
 		});		

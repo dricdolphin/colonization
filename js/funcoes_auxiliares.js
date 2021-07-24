@@ -713,17 +713,50 @@ function atualiza_nave_modelo(evento, objeto)
 --------------------
 Atualiza os dados de um Modelo de Nave
 ******************/
-function atualiza_nave_modelo(evento, objeto) {
-	let div_tabela_frota = document.getElementById("tabela_frota");
-	let divs = div_tabela_frota.getElementsByTagName("DIV");
-	let div_texto_nave = document.getElementById("texto_nave");
-	let div_texto_custo = document.getElementById("texto_custo");
+function atualiza_nave_modelo(evento, objeto, upgrade=false) {
+	let texto_tabela_frota = "tabela_frota";
+	if (!upgrade) {
+		let div_tabela_frota = document.getElementById(texto_tabela_frota);
+		let divs = div_tabela_frota.getElementsByTagName("DIV");
+	
+		for (let index = 0; index<divs.length; index++) {
+			if (divs[index].getAttribute("data-atributo") == "string_nave") {
+				let string_nave = objeto.options[objeto.selectedIndex].getAttribute("data-string-nave").replaceAll("\\","");
+				divs[index].innerHTML = string_nave;
+				divs[index].setAttribute("data-valor-original", string_nave);
+			}
+		}
+	}
+
+	atualiza_texto_nave(evento, objeto, upgrade);
+
+	evento.preventDefault();
+	return false;
+}
+
+/******************
+function atualiza_texto_nave(evento, objeto)
+--------------------
+Atualiza os dados de uma Nave
+******************/
+function atualiza_texto_nave(evento, objeto, upgrade=false) {
+	let texto_nave = "texto_nave";
+	let texto_custo = "texto_custo";
+	if (upgrade) {
+		texto_nave = texto_nave + "_upgrade";
+		texto_custo = texto_custo + "_upgrade";
+	}
+	
+	let div_ascendente = pega_ascendente(objeto, "DIV");
+	let divs = div_ascendente.getElementsByTagName("DIV");
+	let div_texto_nave = "";
+	let div_texto_custo = "";
 	
 	for (let index = 0; index<divs.length; index++) {
-		if (divs[index].getAttribute("data-atributo") == "string_nave") {
-			let string_nave = objeto.options[objeto.selectedIndex].getAttribute("data-string-nave").replaceAll("\\","");
-			divs[index].innerHTML = string_nave;
-			divs[index].setAttribute("data-valor-original", string_nave);
+		if (divs[index].getAttribute("data-id") == texto_nave) {
+			div_texto_nave = divs[index];
+		} else if(divs[index].getAttribute("data-id") == texto_custo) {
+			div_texto_custo	= divs[index];
 		}
 	}
 	
@@ -732,4 +765,21 @@ function atualiza_nave_modelo(evento, objeto) {
 	
 	evento.preventDefault();
 	return false;
+}
+
+/******************
+function converte_texto_para_JSON(texto, separador_1, separador_2)
+--------------------
+Converte um array de texto para JSON
+******************/
+function converte_texto_para_JSON(texto, separador) {
+	let objeto_temp = {};
+	texto.forEach((elemento) => {
+		let custo_nave = elemento.split(separador);
+		let chave = custo_nave[0].trim();
+		let valor = custo_nave[1].trim();
+		objeto_temp[chave] = valor;
+	});	
+	
+	return objeto_temp;
 }
