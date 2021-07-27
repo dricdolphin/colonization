@@ -636,8 +636,12 @@ function processa_string(evento, objeto) {
 				nave["mk_projetil"] = 1;
 			} else if (property.search("qtd_plasma") !== -1) {
 				nave["mk_plasma"] = 1;
-			}	
-		} else if (typeof(nave[property]) == "boolean") {
+			} else if (property == "id" || property == "nome_modelo") {
+				nave[property] = "";
+			}
+		} 
+		
+		if (typeof(nave_elementos[property]) == "boolean") {
 			nave_elementos[property].checked = nave[property];
 		} else {
 			nave_elementos[property].value = nave[property];
@@ -656,7 +660,7 @@ function processa_string(evento, objeto) {
 					nave_elementos[property].value = 0;
 				}			
 			}
-		}
+		}		
 	}
 	
 	/*** CÓDIGO ANTIGO ANTES DO JSON ***
@@ -817,6 +821,11 @@ function salva_modelo_nave(evento, objeto, modelo_em_uso = false) {
 			return false;
 		}
 	}
+
+	calcula_custos(evento, objeto);
+	//let input_string_construcao = document.getElementById("input_string_construcao");	
+	//input_string_construcao.value = dados['string_nave'];
+	//processa_string(evento, objeto);
 	
 	dados_nave = JSON.parse(dados['string_nave']);
 	dados_ajax_where = "";
@@ -836,7 +845,7 @@ function salva_modelo_nave(evento, objeto, modelo_em_uso = false) {
 		//	dados_ajax = dados_ajax + "&where_clause=id&where_value="+dados_nave['id'];
 		//}
 	}
-	processa_string(evento, objeto); //Garante que o string será processado ANTES de salvá-lo
+	
 	let dados_ajax = "post_type=POST&action=salva_objeto&tabela=colonization_modelo_naves&id_imperio="+dados['id_imperio']+"&nome_modelo="+dados['nome_modelo']
 	+"&string_nave="+dados['string_nave']+"&texto_nave="+dados['texto_nave']+"&texto_custo="+dados['texto_custo']+"&turno="+turno_atual
 	+ dados_ajax_where;
