@@ -1077,23 +1077,36 @@ function copiar_nave(evento, objeto, id_imperio, upgrade=false) {
 		let input = [];
 		
 		inputs = linha.getElementsByTagName("INPUT");
+		let HP = "";
+		let tamanho = "";
 		
 		for (let index_input = 0; index_input < inputs.length; index_input++) {
 			if (inputs[index_input].getAttribute('data-atributo') == "custo" || inputs[index_input].getAttribute('data-atributo') == "turno_destruido"
 				|| inputs[index_input].getAttribute('data-atributo') == "X" || inputs[index_input].getAttribute('data-atributo') == "Y" || inputs[index_input].getAttribute('data-atributo') == "Z") {
 				input[inputs[index_input].getAttribute('data-atributo')] = inputs[index_input];
+			} else if (inputs[index_input].getAttribute('data-atributo') == "HP") {
+				HP = inputs[index_input];
+			} else if (inputs[index_input].getAttribute('data-atributo') == "tamanho") {
+				tamanho = inputs[index_input];
 			}
 		}
 		
-		let custo_nave = JSON.parse(input['custo'].value);
 		if (input['turno_destruido'].value != 0) {
 			alert('Não é possível realizar o upgrade de uma nave que já tenha sido destruída!');
 			salva_objeto(evento, objeto, true);
 			
 			evento.preventDefault();
 			return false;
+		} else if (HP.value*1 < tamanho.value*10) {
+			alert('Não é possível realizar o upgrade de uma nave danificada!');
+			salva_objeto(evento, objeto, true);
+			
+			evento.preventDefault();
+			return false;			
 		}
 		
+		processa_string_admin(evento, objeto, true); //Processa a string da nave para corrigir eventuais diferenças de custo
+		let custo_nave = JSON.parse(input['custo'].value);
 		custo_nave['upgrade'] = true;
 		input['custo'].value = JSON.stringify(custo_nave);
 		input['turno_destruido'].value = turno_atual;
