@@ -1014,6 +1014,7 @@ function realiza_upgrade_nave_jogador(evento, objeto, id_imperio) {
 			if (successMessage.resposta_ajax != "OK!") {
 				alert(successMessage.resposta_ajax);
 				objeto_em_edicao = false;
+				nova_linha.remove(); //Não validou, pode remover a linha
 			} else {
 				//document.location.reload();
 				//Se o Upgrade foi validado, clica em "upgrade" e faz o sistema processar o upgrade
@@ -1062,7 +1063,7 @@ function realiza_upgrade_nave_jogador(evento, objeto, id_imperio) {
 
 						processa_string_admin(evento, link_processa_string, true);
 						let salva_nave = new Promise((resolve, reject) => {
-							resolve(link_salva_nave.click());
+							resolve(salva_objeto(evento, link_salva_nave));
 						});
 						
 						salva_nave.then((successMessage) => {

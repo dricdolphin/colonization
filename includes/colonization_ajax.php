@@ -516,8 +516,8 @@ class colonization_ajax {
 	
 		$frota = new frota($_POST['id']);
 		$imperio = new imperio ($frota->id_imperio);
-		if ($imperio->id != $modelo_nave->id_imperio && $roles != "administrator") {
-			$imperio = new imperio($modelo_nave->id_imperio,true);
+		if ($imperio->id != $frota->id_imperio && $roles != "administrator") {
+			$imperio = new imperio($frota->id_imperio,true);
 			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
 			
 			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
@@ -900,6 +900,12 @@ class colonization_ajax {
 				wp_die(); //Termina o script e envia a resposta							
 			}
 		//}
+
+		//Valida os dados da Nave de acordo com a Tech do Império
+		if ($_POST['id_imperio'] != 0) {//Só valida se for um Jogador
+			$valida_nave = new valida_nave($imperio);
+			$dados_salvos['resposta_ajax'] = $valida_nave->valida_nave($_POST['tamanho'], $_POST['X'], $_POST['Y'], $_POST['Z'], $string_nave, $upgrade);
+		}
 		
 		foreach ($custo as $nome_recurso => $qtd) {
 			if ($qtd == 0) {
@@ -919,7 +925,7 @@ class colonization_ajax {
 			$id_recurso = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}'");
 			$dados_salvos['debug'] .= "SELECT id FROM colonization_recurso WHERE nome='{$nome_recurso}' => id_recurso: {$id_recurso}\n";
 			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
-			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio}";
+			$dados_salvos['debug'] .= "\n {$id_recurso}:{$qtd_recurso_imperio} || {$qtd} && upgrade:{$upgrade}\n";
 			if ($qtd_recurso_imperio < $qtd && !$upgrade) {
 				$qtd_faltante = $qtd - $qtd_recurso_imperio;
 				$dados_salvos['resposta_ajax'] = "Os recursos do Império são insuficientes! Faltam {$qtd_faltante} unidade(s) de {$nome_recurso}";
@@ -931,12 +937,6 @@ class colonization_ajax {
 				$soma_ou_subtrai = "+";
 			}
 			$queries[] = "UPDATE colonization_imperio_recursos SET qtd=qtd{$soma_ou_subtrai}{$qtd} WHERE id_recurso={$id_recurso} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}";
-		}
-
-		//Valida os dados da Nave de acordo com a Tech do Império
-		if ($_POST['id_imperio'] != 0) {//Só valida se for um Jogador
-			$valida_nave = new valida_nave($imperio);
-			$dados_salvos['resposta_ajax'] = $valida_nave->valida_nave($_POST['tamanho'], $_POST['X'], $_POST['Y'], $_POST['Z'], $string_nave, $upgrade);
 		}
 		
 		if ($dados_salvos['resposta_ajax'] == "OK!") {

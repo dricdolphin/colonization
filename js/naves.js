@@ -641,7 +641,6 @@ function processa_string(evento, objeto) {
 			}
 		} 
 		
-		console.log(nave_elementos[property].id + " " + nave_elementos[property].type);
 		if (nave_elementos[property].type == "checkbox") {
 			nave_elementos[property].checked = nave[property];
 		} else {
