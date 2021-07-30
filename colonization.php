@@ -3418,7 +3418,7 @@ var id_imperio_atual = {$imperio->id};
 		<div id='dados'>Tamanho: 2; Velocidade: 5; Alcance: 10; <br>
 		PdF Laser: 0/ PdF Torpedo: 0/ PdF Projétil: 0; Blindagem: 0/ Escudos: 0; HP: 20</div>
 		<h4>Custos</h4>
-		<div id='custos'>Industrializáveis: 2 | Enérgium: 0 | Dillithium: 1 | Duranium: 0</div><br>
+		<div id='custos'>Industrializáveis: 2 | Enérgium: 1 | Dillithium: 1 | Duranium: 0</div><br>
 		<div id='chassi'>Chassi: 2 - Categoria: Corveta</div>
 		<div id='armas'>
 		<div id='laser'>Laser: <input type='number' id='qtd_laser' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_laser' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_laser}' style='width: 50px;'></input></div>
