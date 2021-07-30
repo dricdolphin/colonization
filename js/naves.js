@@ -626,7 +626,7 @@ function processa_string(evento, objeto) {
 		/***/
 	
 	for (const property in nave_elementos) {
-		if (typeof nave[property] === "undefined") {
+		if (typeof(nave[property]) === "undefined") {
 			nave[property] = 0;
 			if (property.search("qtd_laser") !== -1) {
 				nave["mk_laser"] = 1;
@@ -641,7 +641,8 @@ function processa_string(evento, objeto) {
 			}
 		} 
 		
-		if (typeof(nave_elementos[property]) == "boolean") {
+		console.log(nave_elementos[property].id + " " + nave_elementos[property].type);
+		if (nave_elementos[property].type == "checkbox") {
 			nave_elementos[property].checked = nave[property];
 		} else {
 			nave_elementos[property].value = nave[property];

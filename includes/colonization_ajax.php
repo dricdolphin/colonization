@@ -1655,7 +1655,8 @@ class colonization_ajax {
 		if ($_POST['id_imperio_origem'] != 0) { //Não é um NPC! Tem que validar!
 			$imperio = new imperio($_POST['id_imperio_origem']);
 			if ($imperio->id != $_POST['id_imperio_origem']) {
-				$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império pode realizar essa ação!";
+				$imperio = new imperio($_POST['id_imperio_origem'],true);
+				$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
 			} else {
 				$turno = new turno();
 				$recursos_disponivel = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$imperio->id} AND id_recurso={$_POST['id_recurso']} AND turno={$turno->turno}");
