@@ -617,7 +617,7 @@ class colonia
 	$imperio - dados do Império
 	***********************/
 	function lista_colonias_imperio($imperio) {
-		
+		global $wpdb, $plugin_colonization;
 		
 		if (empty($this->planeta)) {
 			$this->planeta = new planeta ($this->id_planeta);

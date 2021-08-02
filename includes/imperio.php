@@ -89,6 +89,7 @@ class imperio
 	private $processou_bonus_recurso = false;
 	
 	private $processou_especial = [];
+	private $id_tech_especial = [];
 
 	/***********************
 	function __construct($id, $super=false)
@@ -191,11 +192,14 @@ class imperio
 		AND cit.custo_pago = 0
 		AND ct.especiais LIKE '%{$nome_especial}%'
 		AND ct.parte_nave = false
-		AND turno <= {$this->turno->turno}";
+		AND turno <= {$this->turno->turno}
+		ORDER BY ct.nivel";
 		
 		$especiais_lista = $wpdb->get_results($query);
 
 		if (!empty($especiais_lista)) {
+			$max_id_tech = count($especiais_lista)-1;
+			$this->id_tech_especial[$nome_especial] = $especiais_lista[$max_id_tech]->id;
 			if ($this->$nome_especial === false) {
 				$this->$nome_especial = true;
 			} else {
@@ -512,11 +516,14 @@ class imperio
 	Retorna o valor da variável
 	******************/		
 	function icone_torpedos_sistema_estelar() {
+		global $wpdb;
 		$this->popula_especial('torpedos_sistema_estelar');
 		
 		if ($this->torpedos_sistema_estelar) {
-			$this->icone_torpedeiros_sistema_estelar = " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
-			return " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
+			$tech_icone = new tech($this->id_tech_especial['torpedos_sistema_estelar']);
+			
+			$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
+			return " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
 		}
 		return "";
 	}
@@ -528,11 +535,14 @@ class imperio
 	Retorna o valor da variável
 	******************/		
 	function icone_torpedeiros_sistema_estelar() {
+		global $wpdb;
 		$this->popula_especial('torpedeiros_sistema_estelar');
 		
 		if ($this->torpedeiros_sistema_estelar) {
-			$this->icone_torpedeiros_sistema_estelar = " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
-			return " <div class='{$id->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
+			$tech_icone = new tech($this->id_tech_especial['torpedeiros_sistema_estelar']);
+			
+			$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
+			return " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedeiros Espaciais</span></div>";
 		}
 		return "";
 	}
