@@ -3426,6 +3426,8 @@ var id_imperio_atual = {$imperio->id};
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_projetil}' style='width: 50px;'></input></div>
 		<div id='plasma' {$estilo_plasma}>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_plasma}' style='width: 50px;'></input></div>
 		</div>
+		<div id='texto_especiais'>Especiais: &nbsp;</div>
+		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>		
 		<div>---------------------------------------------------</div>
 		<div id='defesas'>
 		<div id='blindagem'>Blindagem: Mk: <input type='number' id='mk_blindagem' onchange='return calcula_custos(event, this);' value='0' min='0' max='{$imperio->mk_blindagem}' style='width: 50px;'></input> {$html_tritanium_blindagem}{$html_neutronium_blindagem}</div>
@@ -3448,8 +3450,6 @@ var id_imperio_atual = {$imperio->id};
 		<div {$estilo}><label>HP Extra: </label><input type='number' onchange='return calcula_custos(event, this);' id='qtd_hp_extra' value='0' min='0' style='width: 50px;'></input></div>
 		{$outras_partes_nave}
 		</div>
-		<div id='texto_especiais'>Especiais: &nbsp;</div>
-		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>
 		</div>
 		";
 		

@@ -351,34 +351,14 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	let aureum = 0;
 	let capirotum = 0;
 	let trillithium = 0;
+	let protomateria = 0;
 	let texto_tricobalto = "";
 	let texto_corasita = "";
 	let texto_aureum = "";
 	let texto_capirotum = "";
 	let texto_trillithium = "";
+	let texto_protomateria = "";
 	
-	if (nave.tricobalto_torpedo) {
-		tricobalto = 1*nave.qtd_torpedo;
-		pdf_torpedo = pdf_torpedo*3;
-		texto_tricobalto = " | Tricobalto: "+tricobalto;
-	}
-
-	if (nave.hasOwnProperty('capacitores_capirotum')) {
-		if (nave.capacitores_capirotum) {
-			capirotum = nave.qtd_laser*1;
-			texto_capirotum = " | Capirotum: "+capirotum;
-			pdf_laser = pdf_laser*10;
-		}
-	}
-	
-
-	if (nave.hasOwnProperty('enxame_abordagem')) {
-		if (nave.enxame_abordagem) {
-			trillithium = trillithium + (Math.trunc(chassi*1/5,0)+1);
-			texto_trillithium = " | Trillithium: "+trillithium;
-		}
-	}	
-
 	let energium_escudos = qtd_escudos*1;
 	if (energium_escudos < qtd_escudos) {
 		energium_escudos = qtd_escudos;
@@ -469,6 +449,40 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		trillithium = trillithium + dillithium;
 		texto_trillithium = " | Trillithium: "+ trillithium;
 	}	
+	
+	if (nave.tricobalto_torpedo) {
+		tricobalto = 1*nave.qtd_torpedo;
+		pdf_torpedo = pdf_torpedo*3;
+		texto_tricobalto = " | Tricobalto: "+tricobalto;
+	}
+
+	if (nave.hasOwnProperty('capacitores_capirotum')) {
+		if (nave.capacitores_capirotum) {
+			capirotum = nave.qtd_laser*1;
+			texto_capirotum = " | Capirotum: "+capirotum;
+			pdf_laser = pdf_laser*10;
+		}
+	}
+	
+
+	if (nave.hasOwnProperty('enxame_abordagem')) {
+		if (nave.enxame_abordagem) {
+			prot = trillithium + (Math.trunc(chassi*1/5,0)+1);
+			texto_trillithium = " | Trillithium: "+trillithium;
+		}
+	}
+
+	if (nave.hasOwnProperty('bomba_implosao_estelar')) {
+		if (nave.bomba_implosao_estelar) {
+			protomateria = protomateria + 1;
+			industrializaveis = industrializaveis + 1000;
+			aureum = aureum + 1;
+			corasita = corasita + 1;
+			texto_aureum = " | Aureum: "+aureum;
+			texto_corasita = " | Corasita: "+corasita;
+			texto_protomateria = " | Protomatéria: "+trillithium;
+		}
+	}
 
 	let dados_nave = {
 		'tamanho' : chassi,
@@ -501,7 +515,8 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'Neutronium': neutronium*1,
 		'Tricobalto': tricobalto*1,
 		'Aureum': aureum*1,
-		'Capirotum': capirotum*1
+		'Capirotum': capirotum*1,
+		'Protomatéria': protomateria*1
 	};
 
 	//Remove os itens em branco ou zerados
@@ -531,7 +546,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		+"pdf Laser: "+pdf_laser+"; pdf Torpedo: "+pdf_torpedo+"; pdf Projétil: "+pdf_projetil+"; Blindagem: "+blindagem+"; Escudos: "+escudos+"; HP: "+hp;
 		chassi_div.innerHTML = "Chassi: "+chassi+" - Categoria: "+categoria;
 		custos_div.innerHTML = "Industrializáveis: "+industrializaveis+" | Enérgium: "+energium+" | Dillithium: "+dillithium+" | Duranium: "+ duranium 
-		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum + texto_capirotum;
+		+ texto_nor_duranium + texto_corasita + texto_trillithium + texto_tritanium + texto_neutronium + texto_tricobalto + texto_aureum + texto_capirotum + texto_protomateria;
 	
 		/***
 		texto_partes_nave_div.innerHTML = nave.qtd_laser+"="+nave.mk_laser+";"+nave.qtd_torpedo+"="+nave.mk_torpedo+";"+nave.qtd_projetil+"="+nave.mk_projetil+";"
