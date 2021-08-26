@@ -451,9 +451,16 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}	
 	
 	if (nave.tricobalto_torpedo) {
-		tricobalto = 1*nave.qtd_torpedo;
+		tricobalto = tricobalto+ 1*nave.qtd_torpedo;
 		pdf_torpedo = pdf_torpedo*3;
 		texto_tricobalto = " | Tricobalto: "+tricobalto;
+	}
+	
+	if (nave.hasOwnProperty('torpedos_subespaciais')) {
+		if (nave.torpedos_subespaciais) {
+			aureum = aureum + 1*nave.qtd_torpedo;
+			texto_aureum = " | Aureum: "+aureum;
+		}	
 	}
 
 	if (nave.hasOwnProperty('capacitores_capirotum')) {
