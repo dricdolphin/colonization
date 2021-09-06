@@ -75,8 +75,8 @@ class imperio
 	private $bonus_defesa_invasao = 1;
 	private $torpedos_sistema_estelar = false;
 	private $torpedeiros_sistema_estelar = false;
-	private $icone_torpedeiros_sistema_estelar = "";
 	private $icone_torpedos_sistema_estelar = "";
+	private $icone_torpedeiros_sistema_estelar = "";
 	//***/
 
 	private $processou_popula_variaveis_imperio = false;
@@ -192,7 +192,7 @@ class imperio
 		AND cit.custo_pago = 0
 		AND ct.especiais LIKE '%{$nome_especial}%'
 		AND ct.parte_nave = false
-		AND turno <= {$this->turno->turno}
+		AND cit.turno <= {$this->turno->turno}
 		ORDER BY ct.nivel";
 		
 		$especiais_lista = $wpdb->get_results($query);
@@ -522,7 +522,7 @@ class imperio
 		if ($this->torpedos_sistema_estelar) {
 			$tech_icone = new tech($this->id_tech_especial['torpedos_sistema_estelar']);
 			
-			$this->icone_torpedeiros_sistema_estelar = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
+			$this->icone_torpedos_sistema_estelar = " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
 			return " <div class='{$tech_icone->icone} tooltip'><span class='tooltiptext'>Torpedos Espaciais</span></div>";
 		}
 		return "";
@@ -530,7 +530,7 @@ class imperio
 
 
 	/******************
-	function icone_torpedos_sistema_estelar()
+	function icone_torpedeiros_sistema_estelar()
 	-----------
 	Retorna o valor da variável
 	******************/		
@@ -987,18 +987,20 @@ class imperio
 			$json_lista_colonias = addslashes(json_encode($dados_html_para_salvar, JSON_UNESCAPED_UNICODE));
 			$wpdb->query("DELETE FROM colonization_lista_colonias_turno WHERE id_imperio = {$this->id} AND turno = {$this->turno->turno}");
 			$wpdb->query("INSERT INTO colonization_lista_colonias_turno SET json_balancos = '{$json_lista_colonias}', id_imperio = {$this->id}, turno = {$this->turno->turno}");
-
-			if ($roles == "administrator") {
-				//TODO -- Debug
-			}
 		}
 
+		//Popula os ícones de Torpedos e Torpedeiros
+		$this->icone_torpedos_sistema_estelar();
+		$this->icone_torpedeiros_sistema_estelar();
+		//Popula o PdF dos Torpedos
+		$this->popula_especial('pdf_torpedo');
+		
 		foreach ($html_planeta AS $id_planeta => $html) {
 			if (empty($html_sistema[$planeta_id_estrela[$id_planeta]])) {
 				if (empty($estrela[$planeta_id_estrela[$id_planeta]])) {
 					$estrela[$planeta_id_estrela[$id_planeta]] = new estrela($planeta_id_estrela[$id_planeta]);
 				}
-				
+
 				$html_defesas_sistema = "";
 				if (!is_array($qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]])) {
 					$torpedos = $qtd_defesas_sistema[$planeta_id_estrela[$id_planeta]];
