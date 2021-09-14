@@ -37,6 +37,7 @@ var nave_template = {
 	'qtd_pesquisa' : 0,
 	'nivel_estacao_orbital' : 0,
 	'qtd_tropas' : 0,
+	'qtd_baia_de_torpedeiros' : 0,
 	'qtd_bombardeamento' : 0,
 	'qtd_slots_extra' : 0,
 	'qtd_hp_extra' : 0,
@@ -190,7 +191,17 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		}
 	}
 	
-	chassi = nave.qtd_bombardeamento*10 + nave.qtd_tropas*7 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + nave.qtd_plasma*nave.mk_plasma + qtd_pesquisa*1;
+	if (nave.qtd_baia_de_torpedeiros != 0) {
+		if (especiais == 1) {
+			texto_especiais = "(1) - Carrega "+nave.qtd_baia_de_torpedeiros+" Baias de Torpedeiros";
+			especiais++;
+		} else {
+			texto_especiais = texto_especiais + "; ("+especiais+") - Carrega "+nave.qtd_baia_de_torpedeiros+" Baias de Torpedeiros";
+			especiais++;
+		}
+	}	
+	
+	chassi = nave.qtd_bombardeamento*10 + nave.qtd_tropas*7 + nave.qtd_baia_de_torpedeiros*1 + nave.qtd_slots_extra*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + nave.qtd_plasma*nave.mk_plasma + qtd_pesquisa*1;
 	
 	let capacidade_dobra = nave.mk_dobra*5;
 	let capacidade_impulso = nave.mk_impulso*5;
@@ -439,9 +450,9 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 	}
 
 	industrializaveis = nave.qtd_bombardeamento*nave.mk_bombardeamento*10 + custo_estacao_orbital*1 + nave.qtd_laser*nave.mk_laser + nave.qtd_torpedo*nave.mk_torpedo + nave.qtd_projetil*nave.mk_projetil + nave.qtd_plasma*nave.mk_plasma
-	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1  + nave.mk_camuflagem*1;
+	+ qtd_impulso*nave.mk_impulso + qtd_dobra*nave.mk_dobra + nave.qtd_combustivel*1 + custo_blindagem*1 + custo_escudos*1 + nave.qtd_pesquisa*1 + nave.qtd_slots_extra*1 + nave.qtd_tropas*1  + nave.mk_camuflagem*1 + nave.qtd_baia_de_torpedeiros*1;
 	
-	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_plasma*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1;
+	energium = Math.ceil(custo_estacao_orbital/4) + nave.qtd_laser*1 + nave.qtd_torpedo*1 + nave.qtd_plasma*1 + nave.qtd_combustivel*1 + energium_escudos*1 + qtd_impulso*1 + nave.qtd_baia_de_torpedeiros*1;
 	dillithium = qtd_dobra*nave.mk_dobra;
 	duranium = duranium*1 + nave.qtd_projetil*1;
 
@@ -474,7 +485,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 
 	if (nave.hasOwnProperty('enxame_abordagem')) {
 		if (nave.enxame_abordagem) {
-			prot = trillithium + (Math.trunc(chassi*1/5,0)+1);
+			trillithium = trillithium + (Math.trunc(chassi*1/5,0)+1);
 			texto_trillithium = " | Trillithium: "+trillithium;
 		}
 	}
@@ -488,6 +499,12 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 			texto_aureum = " | Aureum: "+aureum;
 			texto_corasita = " | Corasita: "+corasita;
 			texto_protomateria = " | Protomatéria: "+trillithium;
+		}
+	}
+	
+	if (nave.hasOwnProperty('drones_de_defesa')) {
+		if (nave.drones_de_defesa) {
+			industrializaveis = industrializaveis + chassi*1;
 		}
 	}
 
@@ -507,6 +524,7 @@ function calcula_custos(evento, objeto, nave={}, exibe_resultados = true) {
 		'pesquisa' : nave.qtd_pesquisa,
 		'nivel_estacao_orbital' : nave.nivel_estacao_orbital,
 		'qtd_tropas': nave.qtd_tropas,
+		'qtd_baia_de_torpedeiros': nave.qtd_baia_de_torpedeiros,
 		'mk_camuflagem' : nave.mk_camuflagem
 	}
 
@@ -796,6 +814,7 @@ function processa_string_admin (evento, objeto, jogador=false) {
 		'pesquisa' : document.getElementById('pesquisa'),
 		'nivel_estacao_orbital' : document.getElementById('nivel_estacao_orbital'),
 		'qtd_tropas' : document.getElementById('qtd_tropas'),
+		'qtd_baia_de_torpedeiros' : document.getElementById('qtd_baia_de_torpedeiros'),
 		'mk_camuflagem' : document.getElementById('mk_camuflagem'),
 		'custo' : document.getElementById('custo')
 	};

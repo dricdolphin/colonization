@@ -3359,6 +3359,7 @@ var id_imperio_atual = {$imperio->id};
 		$html_javascript = "";
 		$tech = new tech();
 		$estilo_plasma = $estilo;
+		$estilo_baia_de_torpedeiros = $estilo;
 		$html_tricobalto_torpedo = "<label>Tricobalto: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tricobalto_torpedo' value='1'></input>";
 		$html_tritanium_blindagem = "<label>Tritânium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='tritanium_blindagem' value='1'></input>";
 		$html_neutronium_blindagem = "<label>Neutrônium: </label><input type='checkbox' onchange='return calcula_custos(event, this);' id='neutronium_blindagem' value='1'></input>";
@@ -3374,6 +3375,9 @@ var id_imperio_atual = {$imperio->id};
 			if ($imperio->pdf_plasma > 0) {
 				$estilo_plasma = "";
 			}
+			if ($imperio->baia_de_torpedeiros > 0) {
+				$estilo_baia_de_torpedeiros = "";
+			}			
 			if (!$imperio->tricobalto_torpedo) {
 				$html_tricobalto_torpedo = "";
 			}
@@ -3425,6 +3429,7 @@ var id_imperio_atual = {$imperio->id};
 		<div id='torpedo'>Torpedo: <input type='number' id='qtd_torpedo' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_torpedo' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_torpedo}' style='width: 50px;'></input> {$html_tricobalto_torpedo}</div>
 		<div id='projetil'>Projétil: <input type='number' id='qtd_projetil' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_projetil' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_projetil}' style='width: 50px;'></input></div>
 		<div id='plasma' {$estilo_plasma}>Plasma: <input type='number' id='qtd_plasma' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input> Mk: <input type='number' id='mk_plasma' onchange='return calcula_custos(event, this);' value='1' min='1' max='{$imperio->mk_plasma}' style='width: 50px;'></input></div>
+		<div id='baia_de_torpedeiros' {$estilo_baia_de_torpedeiros}>Baia de Torpedeiros: <input type='number' id='qtd_baia_de_torpedeiros' onchange='return calcula_custos(event, this);' value='0' min='0' style='width: 50px;'></input></div>		
 		</div>
 		<div id='texto_especiais'>Especiais: &nbsp;</div>
 		<div id='texto_partes_nave' {$estilo}>{\"mk_impulso\":\"1\",\"mk_dobra\":\"1\"}</div>		

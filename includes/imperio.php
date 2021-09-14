@@ -48,7 +48,6 @@ class imperio
 	private $icones_html = "";
 	private $contatos_imperio = [];
 
-	//Não sei como isso é acessado!
 	private $bonus_recurso = [];
 	private $extrativo = [];
 	
@@ -67,6 +66,7 @@ class imperio
 	private $tricobalto_torpedo = false;
 	private $tritanium_blindagem = false;
 	private $neutronium_blindagem = false;
+	private $baia_de_torpedeiros = false;
 	
 	//Atributos de defesa planetária
 	private $pdf_planetario = 10;
