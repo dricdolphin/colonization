@@ -878,6 +878,9 @@ class imperio
 			if (empty($lista_colonias_db['html_planeta'])) {
 				$lista_colonias_db['html_planeta'] = [];
 			}
+			if (empty($lista_colonias_db['planeta_id_estrela'])) {
+				$lista_colonias_db['planeta_id_estrela'] = [];
+			}
 			if (empty($lista_colonias_db['mdo_sistema'])) {
 				$lista_colonias_db['mdo_sistema'] = [];
 			}
