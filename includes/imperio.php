@@ -875,9 +875,21 @@ class imperio
 		} else {
 			$flag_nova_lista = false;
 			$lista_colonias_db = json_decode($lista_colonias_db, true, 512, JSON_UNESCAPED_UNICODE);
+			if (empty($lista_colonias_db['html_planeta'])) {
+				$lista_colonias_db['html_planeta'] = [];
+			}
+			if (empty($lista_colonias_db['mdo_sistema'])) {
+				$lista_colonias_db['mdo_sistema'] = [];
+			}
 			if (empty($lista_colonias_db['mdo_colonia'])) {
 				$lista_colonias_db['mdo_colonia'] = [];
+			}			
+			if (empty($lista_colonias_db['pop_sistema'])) {
+				$lista_colonias_db['pop_sistema'] = [];
 			}
+			if (empty($lista_colonias_db['qtd_defesas_sistema'])) {
+				$lista_colonias_db['qtd_defesas_sistema'] = [];
+			}			
 			
 			$html_planeta_temp = $lista_colonias_db['html_planeta'];
 			//$html_transfere_pop_planeta_temp = $lista_colonias_db['html_transfere_pop_planeta'];
