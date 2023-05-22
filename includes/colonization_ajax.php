@@ -365,7 +365,7 @@ class colonization_ajax {
 		if ($dados_salvos['resposta_ajax'] == "SALVO!") {
 			//Se chegamos até aqui, pode criar a Base Colonial na nova Colônia
 			$id_colonia = $wpdb->get_var("
-			SELET cic.id
+			SELET cic.idcoloniza_planeta
 			FROM colonization_imperio_colonias AS cic
 			WHERE cic.id_planeta = {$_POST['id_planeta']} AND cic.turno = {$_POST['turno']} AND cic.id_imperio = {$_POST['id_imperio']}
 			");
@@ -2098,6 +2098,12 @@ class colonization_ajax {
 			$dados_salvos['resposta_ajax'] = "Este planeta já é a colônia de outro Império!";
 		}
 
+		$user = wp_get_current_user();
+		$roles = "";
+		if (!empty($user->ID)) {
+			$roles = $user->roles[0];
+		}
+		
 		if ($_POST['id_imperio'] != 0) {
 			$estrelas_colonias_imperio = $wpdb->get_results("
 			SELECT DISTINCT cp.id_estrela
@@ -2138,8 +2144,7 @@ class colonization_ajax {
 			if (count($estrela->colonias_na_estrela()) == 0) {//É a primeira colônia no sistema!
 				$nave_no_sistema = $wpdb->get_var("SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}");
 				$dados_salvos['debug'] .= "SELECT COUNT(id) FROM colonization_imperio_frota WHERE X={$estrela->X} AND Y={$estrela->Y} AND Z={$estrela->Z} AND id_imperio={$_POST['id_imperio']}\n";
-				if ($nave_no_sistema == 0) {
-					$dados_salvos['resposta_ajax'] = "É necessário ter uma nave no sistema para permitir sua Colonização!";
+				if ($nave_no_sistema == 0 && $roles != "administrator") {
 					$dados_salvos['resposta_ajax'] = "É necessário ter uma nave no sistema para permitir sua Colonização!";
 				}
 				
