@@ -124,7 +124,7 @@ class tech
 	$id_imperio -- se for para pegar um império específico
 	***********************/
 
-	function query_tech($where="", $id_imperio=0, $libera_techs_secretas = false, $order_by="ORDER BY ct.belica, ct.lista_requisitos, ct.nome") {
+	function query_tech($where="", $id_imperio=0, $libera_techs_secretas = false, $order_by="ORDER BY ct.publica DESC, ct.belica, ct.lista_requisitos, ct.nome") {
 		global $wpdb;
 
 

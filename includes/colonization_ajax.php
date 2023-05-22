@@ -1864,12 +1864,12 @@ class colonization_ajax {
 				$dados_salvos['debug'] .= "POST_custo_pago \n";
 			}
 		}
-		$dados_salvos['debug'] .= "\$_POST['custo_pago']: {$_POST['custo_pago']} || \$tech->custo: {$tech->custo} || \$custo_a_pagar: {$custo_a_pagar}\n";
+		$dados_salvos['debug'] .= "\$_POST['custo_pago']: {$_POST['custo_pago']} || \$tech->custo: {$tech->custo} || \$custo_a_pagar: {$custo_a_pagar} || \$_POST['tech_inicial']:{$_POST['tech_inicial']} \n";
 		
 		$turno = new turno();
 		$pesquisas_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$_POST['id_imperio']} AND turno={$turno->turno} AND id_recurso={$id_recurso_pesquisa}");
 		
-		if ($pesquisas_imperio < $custo_a_pagar && $_POST['tech_inicial'] != 1) {
+		if (($pesquisas_imperio < $custo_a_pagar) && $_POST['tech_inicial'] != 1) {
 			if (empty($dados_salvos['resposta_ajax'])) {
 				$dados_salvos['resposta_ajax'] = "O {$imperio->nome} precisa de {$custo_a_pagar} Pesquisa(s) para concluir essa ação, porém tem apenas {$pesquisas_imperio} Pesquisas(s). {$_POST['tech_inicial']}";
 				$dados_salvos['custo_pago'] = $pesquisas_imperio;
@@ -2103,7 +2103,7 @@ class colonization_ajax {
 		if (!empty($user->ID)) {
 			$roles = $user->roles[0];
 		}
-		
+
 		if ($_POST['id_imperio'] != 0) {
 			$estrelas_colonias_imperio = $wpdb->get_results("
 			SELECT DISTINCT cp.id_estrela
@@ -2136,7 +2136,7 @@ class colonization_ajax {
 				}
 			}
 			
-			if (!$colonia_dentro_logistica && $_POST['vassalo'] != 1) {
+			if (!$colonia_dentro_logistica && $_POST['vassalo'] != 1 && count($estrelas_colonias_imperio) != 0) {
 				$dados_salvos['resposta_ajax'] = "Esta estrela está além do Alcance Logístico do Império!";
 			}
 			

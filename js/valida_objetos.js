@@ -189,9 +189,12 @@ function valida_tech_imperio(objeto, somente_valida=false, tech_permitida=false)
 	for (let index = 0; index < inputs_linha.length; index++) {
 		if (inputs_linha[index].getAttribute('data-atributo') == "id_imperio" 
 		|| inputs_linha[index].getAttribute('data-atributo') == "id"
+		|| inputs_linha[index].getAttribute('data-atributo') == "tech_inicial"
 		) {
 			if (inputs_linha[index].type == "checkbox" && !inputs_linha[index].checked) {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"=0";
+			} else if (inputs_linha[index].type == "checkbox" && inputs_linha[index].checked) {
+				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+inputs_linha[index].value;
 			} else {
 				dados_ajax = dados_ajax +"&"+inputs_linha[index].getAttribute('data-atributo')+"="+encodeURIComponent(inputs_linha[index].value);
 			}
