@@ -738,7 +738,12 @@ class colonization {
 				//$somente_pesquisa = " AND pesquisa=1";
 				
 				$ids_estrelas = $wpdb->get_results("
-				SELECT DISTINCT ce.id,(CASE WHEN cic.id_imperio = {$imperio->id} THEN {$turno->turno} ELSE MAX(cihp.turno) END) AS turno
+				SELECT DISTINCT id, turno 
+				FROM 
+				(
+				SELECT DISTINCT ce.id,
+				(CASE WHEN cic.id_imperio = {$imperio->id} THEN {$turno->turno} ELSE MAX(cihp.turno) END) AS turno,
+				cic.id_imperio, cic.nome_npc, cic.capital, ce.nome, ce.X, ce.Y, ce.Z
 				FROM colonization_imperio_historico_pesquisa AS cihp
 				JOIN colonization_estrela AS ce
 				ON ce.id = cihp.id_estrela
@@ -748,8 +753,21 @@ class colonization {
 				ON cic.id_planeta = cp.id
 				WHERE cihp.id_imperio = {$imperio->id}{$query_estrela}
 				GROUP BY ce.id, cihp.turno
-				ORDER BY ISNULL(cic.id_imperio), cic.id_imperio, cic.nome_npc, cic.capital DESC, ce.nome, ce.X, ce.Y, ce.Z
-				");									
+				
+				UNION
+				
+				SELECT DISTINCT ce.id, {$turno->turno} as turno,
+				cic.id_imperio, cic.nome_npc, cic.capital, ce.nome, ce.X, ce.Y, ce.Z
+				FROM colonization_imperio_colonias AS cic
+				JOIN colonization_planeta AS cp
+				ON cp.id = cic.id_planeta
+				JOIN colonization_estrela AS ce
+				ON ce.id = cp.id_estrela
+				WHERE cic.id_imperio = {$imperio->id}{$query_estrela}
+				AND cic.turno = {$turno->turno} AND cic.vassalo = 0
+				) AS tabela_com_colonias
+				ORDER BY ISNULL(id_imperio), id_imperio, nome_npc, capital DESC, nome, X, Y, Z
+				");
 			} else {
 				$ids_naves = $wpdb->get_results("
 				SELECT cif.id , {$turno->turno} as turno
@@ -785,7 +803,7 @@ class colonization {
 		$html_planetas_na_estrela = [];
 		$exibiu_nave = [];
 		$estrela = [];
-		
+
 		//$nave = new frota($id_nave->id);
 		$imperio_nave = [];
 		$nave_temp = [];
@@ -793,7 +811,7 @@ class colonization {
 			if (empty($estrela[$id_estrela->id])) {
 				$estrela[$id_estrela->id] = new estrela($id_estrela->id);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_mapa_naves => new estrela({$id_estrela->id}){$diferenca}ms');</script>";				
+				echo "<script>console.log('colonization_exibe_mapa_naves loop ids_estrelas => new estrela({$id_estrela->id}){$diferenca}ms');</script>";				
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -931,7 +949,7 @@ class colonization {
 			if (empty($estrela[$id_estrela])) {
 				$estrela[$id_estrela] = new estrela($id_estrela);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				echo "<script>console.log('colonization_exibe_mapa_naves => new estrela({$id_estrela}){$diferenca}ms');</script>";
+				echo "<script>console.log('colonization_exibe_mapa_naves loop ids_naves => new estrela({$id_estrela}){$diferenca}ms');</script>";
 			}
 			
 			$ids_imperios = $wpdb->get_results("
@@ -1056,9 +1074,26 @@ class colonization {
 				$html_options .= "<option value={$id_recurso->id_recurso}>{$id_recurso->nome}</option> \n";
 			}
 			if (!isset($atts['id_estrela'])) {
-				$html_final = "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
+				$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome LIKE 'Espaçoporto%'");
+				$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome LIKE 'Base Colonial%'");
+				$instalacao = new instalacao($id_espacoporto);
+				$html_final = "
+				<div style='font-size: x-small;'>
+				 <div style='display: inline-block; border: 1px solid #054d98; margin: 2px; padding: 2px;'>
+					<div>".$instalacao->nome."</div>".
+					"<div>".$instalacao->html_custo()."</div>
+				 </div>";
+				
+				$instalacao->__construct($id_base_colonial);
+				$html_final .= "
+				  <div style='display: inline-block; border: 1px solid #054d98; margin: 2px; padding: 2px;'>
+					<div>".$instalacao->nome."</div>".
+					"<div>".$instalacao->html_custo()."</div>
+				  </div>
+				</div><br>";
+				$html_final .= "<label>Destacar Recurso:</label><select class='destacar_recurso' data-atributo='destacar_recurso' onchange='return destacar_recurso(this);'>
 				{$html_options}
-				</select>";
+				</select><br><br>";
 			}
 		}
 		

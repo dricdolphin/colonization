@@ -181,6 +181,7 @@ class colonization_ajax {
 	function remove_aviso() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -215,6 +216,7 @@ class colonization_ajax {
 	function repara_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -297,6 +299,7 @@ class colonization_ajax {
 	function coloniza_planeta() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -310,7 +313,7 @@ class colonization_ajax {
 		$estrela = new estrela($planeta->id_estrela);
 		$imperio = new imperio($_POST['id_imperio']);
 		$turno = new turno();
-		$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
+		$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome LIKE 'Base Colonial%'");
 		
 		if ($imperio->id != $_POST['id_imperio'] && $roles != "administrator") {
 			$imperio = new imperio($_POST['id_imperio'],true);
@@ -339,6 +342,8 @@ class colonization_ajax {
 		$_POST['pop_robotica'] = 0;
 		$_POST['poluicao'] = 0;
 		$_POST['satisfacao'] = 100;
+		$_POST['saude'] = 100;
+		$_POST['seguranca'] = 100;
 		$_POST['turno'] = $turno->turno;
 		$dados_salvos['resposta_ajax'] = $this->valida_colonia(false);
 		
@@ -348,16 +353,6 @@ class colonization_ajax {
 			FROM colonization_planeta_instalacoes AS cpi
 			WHERE cpi.id_planeta = {$_POST['id_planeta']} AND cpi.id_instalacao = {$id_base_colonial}
 			");
-			
-			$id_industrializaveis = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Industrializáveis'");
-			$qtd_recurso_imperio = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_recurso={$id_industrializaveis} AND id_imperio={$imperio->id} AND turno={$turno->turno}");
-			
-			if (empty($base_colonial) && $qtd_recurso_imperio == 0) {//Se não tiver uma Base Colonial, verifica se o Império tem 1 Industrializável.
-				$dados_salvos['resposta_ajax'] = "O Império não tem recursos suficientes para construir uma nova Base Colonial.\nNão é possível colonizar esse Planeta devido a falta de recursos";
-				
-				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
-				wp_die(); //Termina o script e envia a resposta						
-			}
 
 			$dados_salvos = $this->salva_objeto(false);
 		}
@@ -365,7 +360,7 @@ class colonization_ajax {
 		if ($dados_salvos['resposta_ajax'] == "SALVO!") {
 			//Se chegamos até aqui, pode criar a Base Colonial na nova Colônia
 			$id_colonia = $wpdb->get_var("
-			SELET cic.idcoloniza_planeta
+			SELECT cic.id
 			FROM colonization_imperio_colonias AS cic
 			WHERE cic.id_planeta = {$_POST['id_planeta']} AND cic.turno = {$_POST['turno']} AND cic.id_imperio = {$_POST['id_imperio']}
 			");
@@ -376,6 +371,8 @@ class colonization_ajax {
 			unset($_POST['pop_robotica']);
 			unset($_POST['poluicao']);
 			unset($_POST['satisfacao']);
+			unset($_POST['saude']);
+			unset($_POST['seguranca']);
 
 			$_POST['nivel'] = 1;
 			$_POST['instalacao_inicial'] = 0;
@@ -391,6 +388,11 @@ class colonization_ajax {
 			if ($dados_salvos['resposta_ajax'] == "OK!") {
 				unset($_POST['id_imperio']);
 				$dados_salvos = $this->salva_objeto();
+			} else {
+				//Remove a colônia que foi salva
+				$wpdb->query("DELETE FROM colonization_imperio_colonias WHERE id = {$id_colonia}");
+				echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+				wp_die(); //Termina o script e envia a resposta	
 			}
 		}
 		
@@ -406,6 +408,7 @@ class colonization_ajax {
 	function valida_modelo_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -466,6 +469,7 @@ class colonization_ajax {
 	function deleta_modelo_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -506,6 +510,7 @@ class colonization_ajax {
 	function carrega_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -593,6 +598,7 @@ class colonization_ajax {
 	function tirar_cerco() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -620,6 +626,7 @@ class colonization_ajax {
 	function muda_nome_colonia() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -662,6 +669,7 @@ class colonization_ajax {
 	function muda_nome_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);
 		$user = wp_get_current_user();
@@ -696,8 +704,9 @@ class colonization_ajax {
 	function valida_upgrade_nave() {
 		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
-		error_reporting(E_ALL); 
-		ini_set("display_errors", 1);
+		$wpdb->hide_errors();
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
 
 		$user = wp_get_current_user();
 		$roles = "";
@@ -768,8 +777,9 @@ class colonization_ajax {
 	function valida_nave() {
 		global $wpdb, $plugin_colonization;
 		// Report all PHP errors
-		error_reporting(E_ALL); 
-		ini_set("display_errors", 1);
+		$wpdb->hide_errors();
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
 		
 		$custo = json_decode(stripslashes($_POST['custo']),true);
 		$upgrade = array_key_exists("upgrade", $custo);
@@ -978,6 +988,7 @@ class colonization_ajax {
 		global $wpdb;
 		$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -1070,6 +1081,7 @@ class colonization_ajax {
 	function lista_instalacoes_imperio() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -1269,6 +1281,7 @@ class colonization_ajax {
 	function envia_nave() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -2044,6 +2057,9 @@ class colonization_ajax {
 			if ($ids_colonia_reabastece->id_imperio != 0) {
 				 $ids_colonia_reabastece->nome_npc = "";
 			}
+			if ($_POST['id_imperio'] == $ids_colonia_reabastece->id_imperio) {
+				break;
+			}
 			$contato_imperio = $wpdb->get_var("SELECT id FROM colonization_diplomacia WHERE id_imperio={$_POST['id_imperio']} AND nome_npc='{$ids_colonia_reabastece->nome_npc}' AND id_imperio_contato={$ids_colonia_reabastece->id_imperio}");
 			$dados_salvos['debug'] = "\nSELECT id FROM colonization_diplomacia WHERE id_imperio={$_POST['id_imperio']} AND nome_npc='{$ids_colonia_reabastece->nome_npc}' AND id_imperio_contato={$ids_colonia_reabastece->id_imperio}";			
 			if (!empty($contato_imperio)) {
@@ -2051,7 +2067,7 @@ class colonization_ajax {
 			}
 		}
 		
-		if (!empty($contato_imperio)) {
+		if (!empty($contato_imperio) || ($_POST['id_imperio'] == $ids_colonia_reabastece->id_imperio)) {
 			if (empty($resposta)) {//Não existe o ponto, pode adicionar
 				$resposta = $wpdb->query("INSERT INTO {$_POST['tabela']} SET id_estrela={$_POST['id_estrela']}, id_imperio={$_POST['id_imperio']}");
 			} else {//Existe o ponto, é para remover
@@ -2369,7 +2385,10 @@ class colonization_ajax {
 	***********************/	
 	function valida_colonia_instalacao($resposta_ajax = true) {
 		global $wpdb; 
+		// Report all PHP errors
 		$wpdb->hide_errors();
+		//error_reporting(E_ALL); 
+		//ini_set("display_errors", 1);
 		
 		$dados_salvos['debug'] = "";
 		
@@ -2487,8 +2506,8 @@ class colonization_ajax {
 		} else {
 			//Verifica se é a primeira Instalação da Colônia. Se for, TEM que ser um Espaçoporto ou uma Base Colonial
 			if ($imperio->id != 0) {
-				$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Espaçoporto'");
-				$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome='Base Colonial'");
+				$id_espacoporto = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome LIKE 'Espaçoporto%'");
+				$id_base_colonial = $wpdb->get_var("SELECT id FROM colonization_instalacao WHERE nome LIKE 'Base Colonial%'");
 				
 				$tem_espacoporto = $wpdb->get_var("
 				SELECT cpi.id
@@ -2868,8 +2887,8 @@ class colonization_ajax {
 	***********************/	
 	function salva_objeto($resposta_ajax = true) {
 		global $wpdb; 
-		$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);		
 		
@@ -2962,8 +2981,8 @@ class colonization_ajax {
 	***********************/	
 	function destruir_instalacao() {
 		global $wpdb; 
-		//$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -3087,8 +3106,8 @@ class colonization_ajax {
 	***********************/	
 	function desmonta_instalacao() {
 		global $wpdb; 
-		//$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -3184,8 +3203,8 @@ class colonization_ajax {
 	***********************/	
 	function valida_acao() {
 		global $wpdb, $debug, $start_time; 
-		//$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);
 		
@@ -3381,8 +3400,8 @@ class colonization_ajax {
 	***********************/
 	function produtos_acao($imperio=0, $id_planeta_instalacoes=0, $colonias = []) {
 		global $wpdb, $start_time;
-		//$wpdb->hide_errors();
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL);
 		//ini_set("display_errors", 1);		
 		
@@ -3447,6 +3466,7 @@ class colonization_ajax {
 	function roda_turno() {
 		global $wpdb;
 		// Report all PHP errors
+		$wpdb->hide_errors();
 		//error_reporting(E_ALL); 
 		//ini_set("display_errors", 1);		
 		$html = [];

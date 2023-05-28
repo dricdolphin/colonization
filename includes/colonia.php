@@ -22,6 +22,8 @@ class colonia
 	public $mdo;
 	public $poluicao;
 	public $satisfacao;
+	public $saude;
+	public $seguranca;
 	public $turno;
 	public $planeta;
 	public $estrela;
@@ -46,7 +48,7 @@ class colonia
 		
 		$this->id = $id;
 
-		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, vassalo, pop, pop_robotica, poluicao, satisfacao FROM colonization_imperio_colonias WHERE id=".$this->id);
+		$resultados = $wpdb->get_results("SELECT id_imperio, nome_npc, id_planeta, capital, vassalo, pop, pop_robotica, poluicao, satisfacao, saude, seguranca FROM colonization_imperio_colonias WHERE id=".$this->id);
 		$resultado = $resultados[0];				
 		
 		$this->id_imperio = $resultado->id_imperio;
@@ -60,6 +62,8 @@ class colonia
 		$this->pop_robotica = $resultado->pop_robotica;
 		$this->poluicao = $resultado->poluicao;
 		$this->satisfacao = $resultado->satisfacao;
+		$this->satisfacao = $resultado->saude;
+		$this->satisfacao = $resultado->seguranca;
 		$this->instalacoes = $wpdb->get_var("SELECT SUM(ci.slots) 
 		FROM colonization_planeta_instalacoes AS cpi
 		JOIN colonization_instalacao AS ci
@@ -172,6 +176,8 @@ class colonia
 			<td><div data-atributo='pop_robotica' data-editavel='true' data-valor-original='{$this->pop_robotica}' data-style='width: 60px;'>{$this->pop_robotica}</div></td>
 			<td><div data-atributo='poluicao' data-editavel='true' data-valor-original='{$this->poluicao}' data-style='width: 30px;'>{$this->poluicao}</div></td>
 			<td><div data-atributo='satisfacao' data-editavel='true' data-valor-original='{$this->satisfacao}' data-style='width: 30px;'>{$this->satisfacao}</div></td>
+			<td><div data-atributo='saude' data-editavel='true' data-valor-original='{$this->saude}' data-style='width: 30px;'>{$this->saude}</div></td>
+			<td><div data-atributo='seguranca' data-editavel='true' data-valor-original='{$this->seguranca}' data-style='width: 30px;'>{$this->seguranca}</div></td>
 			<td><div data-atributo='turno' data-editavel='true' data-valor-original='{$this->turno->turno}' data-style='width: 30px;'>{$this->turno->turno}</div></td>
 			<td><div data-atributo='gerenciar'><a href='#' onclick='return gerenciar_objeto(event, this);'>Gerenciar Objeto</a></div></td>";
 		
@@ -423,7 +429,9 @@ class colonia
 				$nova_pop = round(0.9*$this->pop) - $this->pop;
 			}
 		}
-		return $nova_pop;
+		
+		//Leva em consideração também a Saúde e a Segurança da Colônia
+		return round(($this->saude/100)*($this->seguranca/100)*$nova_pop);
 	}
 	
 	/***********************
@@ -669,7 +677,8 @@ class colonia
 			
 		return "<tr>
 		<td>{$estrela->nome} ({$estrela->X};{$estrela->Y};{$estrela->Z};{$this->planeta->posicao})</td>
-		<td>{$this->icone_capital}{$this->planeta->nome}&nbsp;".$this->planeta->icone_habitavel()."</td>
+		<td>{$this->icone_capital}{$this->planeta->nome}&nbsp;".$this->planeta->icone_habitavel()."
+		<br><span style='font-size: x-small;'>{$this->planeta->classe}&nbsp;{$this->planeta->subclasse}</span></td>
 		<td>{$html_defesas}</td>
 		<td>{$this->html_pop_colonia}</td><td>{$this->poluicao}</td>
 		</tr>";
