@@ -644,9 +644,9 @@ class instalacao
 	}
 
 	/***********************
-	function html_produz_droids()
+	function html_produz_clones()
 	----------------------
-	Pega o HTML com o link para produzir Droids
+	Pega o HTML com o link para produzir Clones
 	***********************/	
 	function html_produz_clones($id_colonia, $max_pop = 10) {
 		global $wpdb;
