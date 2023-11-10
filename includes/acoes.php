@@ -568,6 +568,8 @@ class acoes
 			if ($instalacao[$this->id_instalacao[$chave]]->html_especial != "") {
 				$qtd_pop = false;
 				$chama_funcao = $instalacao[$this->id_instalacao[$chave]]->html_especial;
+				$this->debug .= "acao: verifica_html_especial: {$instalacao[$this->id_instalacao[$chave]]->html_especial}";
+				
 				if ($instalacao[$this->id_instalacao[$chave]]->produz_droids) {
 					$chave_industrializaveis = array_search($id_industrializaveis, $imperio_recursos->id_recurso);				
 					$qtd_pop = $imperio_recursos->qtd[$chave_industrializaveis]/10;
