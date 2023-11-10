@@ -582,6 +582,9 @@ class acoes
 				} elseif ($instalacao[$this->id_instalacao[$chave]]->anti_dobra) {
 					$div_html_especial = $instalacao[$this->id_instalacao[$chave]]->$chama_funcao($planetas[$this->id_planeta[$chave]]->id_estrela);
 					$div_html_especial = "<div>{$div_html_especial}</div>";					
+				} elseif ($instalacao[$this->id_instalacao[$chave]]->usar_fumie) {
+					$div_html_especial = $instalacao[$this->id_instalacao[$chave]]->$chama_funcao($this->id_imperio);
+					$div_html_especial = "<div>{$div_html_especial}</div>";						
 				}
 			}
 			

@@ -53,6 +53,7 @@ class instalacao
 	private $produz_droids = false;
 	private $produz_clones = false;
 	private $anti_dobra = false;
+	private $usar_fumie = false;
 	
 	public $popula_especiais_instalacao = false;
 	
@@ -192,7 +193,18 @@ class instalacao
 		if (!empty($anti_dobra)) {
 			$this->anti_dobra = true;
 			$this->html_especial = 'html_anti_dobra';
-		}		
+		}	
+		
+		//usar_fumie=1
+		$usar_fumie = array_values(array_filter($especiais, function($value) {
+			return strpos($value, 'usar_fumie') !== false;
+		}));
+			
+		if (!empty($usar_fumie)) {
+			$this->usar_fumie = true;
+			$this->html_especial = 'html_usar_fumie';
+		}	
+
 	}
 
 	/***********************
@@ -668,6 +680,24 @@ class instalacao
 		$anti_dobra = $wpdb->get_var("SELECT anti_dobra FROM colonization_estrela WHERE id={$id_estrela}");
 		if ($anti_dobra == 0) {
 			$html = "<a href='#' onclick=\"return ativa_anti_dobra(this, event, {$id_estrela});\">Ativar Anti-Dobra</a>";
+		}
+		
+		return $html;
+	}	
+
+	/***********************
+	function html_usar_fumie()
+	----------------------
+	Pega o HTML com o link para consumir Fumiê e produzir alimentos
+	***********************/	
+	function html_usar_fumie($id_imperio) {
+		global $wpdb;
+		
+		$id_fumie = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Fumiê'");;
+		$imperio_tem_fumie = $wpdb->get_var("SELECT qtd FROM colonization_imperio_recursos WHERE id_imperio={$id_imperio} AND id_recurso={$id_fumie}");
+		$html = "";
+		if ($imperio_tem_fumie > 0) {
+			$html = "<a href='#' onclick=\"return usar_fumie(event, this, {$id_imperio});\">Usar Fumiê</a>";
 		}
 		
 		return $html;
