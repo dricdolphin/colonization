@@ -458,7 +458,7 @@ class imperio
 		ON ct.id = cit.id_tech
 		WHERE cit.id_imperio={$this->id} 
 		AND cit.custo_pago = 0
-		AND ct.especiais LIKE '%produz_recurso%'
+		AND ct.especiais LIKE '%bonus_recurso%'
 		AND ct.parte_nave = false
 		AND turno <= {$this->turno->turno}";
 		
@@ -474,9 +474,9 @@ class imperio
 						//Popula o array
 						foreach ($ids_recurso as $chave => $id_recurso) {
 							if (empty($this->bonus_recurso[$id_recurso])) {
-								$this->bonus_recurso[$id_recurso] = $array_especiais['produz_recurso'];
+								$this->bonus_recurso[$id_recurso] = $array_especiais['bonus_recurso'];
 							} else {
-								$this->bonus_recurso[$id_recurso] = $this->bonus_recurso[$id_recurso] + $array_especiais['produz_recurso'];
+								$this->bonus_recurso[$id_recurso] = $this->bonus_recurso[$id_recurso] + $array_especiais['bonus_recurso'];
 							}
 							
 							//O atributo 'extrativo' se aplica como TRUE quando o bônus for SÓ para extrativos, e não houver nenhuma outra Tech que tenha colocado esse atributo como FALSE
