@@ -1874,3 +1874,34 @@ function criar_pop(evento, objeto, id_colonia, tipo_pop) {
 	evento.preventDefault();
 	return false;
 }
+
+/******************
+function usar_fumie(evento, objeto, id_imperio)
+--------------------
+Transforma Fumiê em Alimentos
+******************/
+function usar_fumie(evento, objeto, id_imperio) {
+
+	let confirma = confirm("Esta ação irá transformar um lote de Fumiê em 100 lotes de Alimentos. Deseja continuar?");
+		
+	if (!confirma) {
+		evento.preventDefault();
+		return false;			
+	}
+		
+	let retorno = new Promise((resolve, reject) => {
+		let dados_ajax = "post_type=POST&action=usar_fumie&id_imperio="+id_imperio;
+		resolve(processa_xhttp_basico(dados_ajax));
+	});
+		
+	retorno.then((successMessage) => {
+		objeto_em_edicao = false;
+		objeto_em_edicao = false;
+		if (successMessage) {
+			document.location.reload();
+		}
+	});
+	retorno.catch((error) => {
+		console.error(error);
+	});
+}

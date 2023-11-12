@@ -68,8 +68,44 @@ class colonization_ajax {
 		add_action('wp_ajax_remove_aviso', array ($this, 'remove_aviso'));//remove_aviso
 		add_action('wp_ajax_ativa_anti_dobra', array ($this, 'ativa_anti_dobra'));//ativa_anti_dobra
 		add_action('wp_ajax_criar_pop', array ($this, 'criar_pop'));//criar_pop
+		add_action('wp_ajax_usar_fumie', array ($this, 'usar_fumie'));//usar_fumie
 	}
 
+	/***********************
+	function usar_fumie()
+	----------------------
+	Transforma 1 Fumiê em 100 Alimentos
+	***********************/
+	function usar_fumie() {
+		global $wpdb;
+
+		$imperio = new imperio($_POST['id_imperio']);
+		if ($imperio->id != $_POST['id_imperio'] && $roles != "administrator") {
+			$imperio = new imperio($_POST['id_imperio'],true);
+			$dados_salvos['resposta_ajax'] = "Somente o Jogador do Império '{$imperio->nome}' pode realizar essa ação!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta	
+		}
+		
+		$id_fumie = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Fumiê'");
+		$id_alimentos = $wpdb->get_var("SELECT id FROM colonization_recurso WHERE nome='Alimentos'");
+		if ($imperio->pega_qtd_recurso_imperio($id_fumie) < $custo) {
+			$dados_salvos['resposta_ajax'] = "O custo para efetuar essa ação é de 1 Fumiê mas o Império não tem os Recursos suficientes!";
+			
+			echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+			wp_die(); //Termina o script e envia a resposta							
+		}
+
+		$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd-1 WHERE id_recurso={$id_fumie} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+		$dados_ajax['debug'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd-1 WHERE id_recurso={$id_fumie} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno} \n";
+		$wpdb->query("UPDATE colonization_imperio_recursos SET qtd=qtd+100 WHERE id_recurso={$id_alimentos} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno}");
+		$dados_ajax['debug'] .= "UPDATE colonization_imperio_recursos SET qtd=qtd+100 WHERE id_recurso={$id_alimentos} AND id_imperio={$imperio->id} AND turno={$imperio->turno->turno} \n";
+
+		$dados_salvos['resposta_ajax'] = "OK!";
+		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
+		wp_die(); //Termina o script e envia a resposta						
+	}
 
 	/***********************
 	function criar_pop()
@@ -133,8 +169,6 @@ class colonization_ajax {
 		$dados_salvos['resposta_ajax'] = "OK!";
 		echo json_encode($dados_salvos); //Envia a resposta via echo, codificado como JSON
 		wp_die(); //Termina o script e envia a resposta						
-		
-	
 	}
 
 	/***********************
