@@ -1302,8 +1302,15 @@ class acoes
 			if ($recurso[$id_recurso]->local == 0) {
 				$this->recursos_balanco[$id_recurso] = floor($this->recursos_produzidos[$id_recurso] - $this->recursos_consumidos[$id_recurso]);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
-				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso {$this->recursos_balanco_nome[$id_recurso]}: {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso Não-Local {$this->recursos_balanco_nome[$id_recurso]}: ({$this->recursos_balanco[$id_recurso]}) = {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
+			} else {
+				//Recursos LOCAIS são acumulados SOMENTE no planeta onde estão sendo produzidos e/ou consumidos
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$this->debug .= "acoes->pega_balanco_recursos() -> Balanço Recurso Local {$this->recursos_balanco_nome[$id_recurso]}: 0 = {$this->recursos_produzidos[$id_recurso]} - {$this->recursos_consumidos[$id_recurso]} {$diferenca}ms \n";
+				$this->recursos_balanco[$id_recurso] = 0; 
 			}
+
+			
 		}
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$this->debug .= "acoes->pega_balanco_recursos() -> foreach() Balanço {$diferenca}ms \n";
@@ -1330,7 +1337,7 @@ class acoes
 			//$balancos_db['recursos_produzidos'] = $this->recursos_produzidos;
 			//$balancos_db['recursos_consumidos'] = $this->recursos_consumidos;
 			//$balancos_db['recursos_balanco'] = $this->recursos_balanco;
-			//$balancos_db['recursos_balanco_planeta'] = $this->recursos_balanco_planeta;		
+			//$balancos_db['recursos_balanco_planeta'] = $this->recursos_balanco_planeta;	
 			
 			$balancos_db = json_encode($balancos_db, JSON_UNESCAPED_UNICODE);
 			$wpdb->query("DELETE FROM colonization_balancos_turno WHERE id_imperio = {$this->id_imperio} AND turno = {$this->turno->turno}");

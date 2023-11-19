@@ -3348,6 +3348,7 @@ class colonization_ajax {
 		$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 		$debug .= "valida_acao() -> new Imperio_Recursos {$diferenca}ms \n";
 		
+		//Valida os recursos NÃO-LOCAIS (ou seja, GLOBAIS)
 		foreach ($acoes->recursos_balanco as $id_recurso => $valor) {
 			if (empty($recurso[$id_recurso])) {
 				$recurso[$id_recurso] = new recurso($id_recurso);
@@ -3355,8 +3356,14 @@ class colonization_ajax {
 				$debug .= "valida_acao() -> Verifica Estoque Império: new Recurso {$diferenca}ms \n";
 			}
 			
-			if ($recurso[$id_recurso]->acumulavel == 1) {
+			/***
+			if (empty($acoes->recursos_balanco[$id_recurso])) {
+				$acoes->recursos_balanco[$id_recurso] = 0;
+			}		
+			$valor = $acoes->recursos_balanco[$id_recurso];
+			***/
 
+			if ($recurso[$id_recurso]->acumulavel == 1) {
 				$chave_id_recurso = array_search($id_recurso,$imperio_recursos->id_recurso);
 				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 				$debug .= "valida_acao() -> Verifica Estoque Império: array_search {$diferenca}ms \n";
@@ -3365,13 +3372,31 @@ class colonization_ajax {
 				$balanco = $valor;
 			}
 			
-			if ($balanco < 0 && $recurso[$id_recurso]->nome != "Poluição") {//A poluição pode ser negativa pois isso significa redução na poluição do planeta
+				$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+				$debug .= "valida_acao() -> Verifica Balanço do Recurso {$recurso[$id_recurso]->nome}: {$balanco} {$diferenca}ms \n";
+			if ($balanco < 0) {
 				$dados_salvos['balanco_acao'] .= "{$recurso[$id_recurso]->nome} ({$balanco}), ";
 			}
 		}
 			$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
 			$debug .= "valida_acao() -> Verifica Estoque Império {$diferenca}ms \n";
 
+		//Precisa validar o balanço dos Recursos LOCAIS
+		foreach ($acoes->recursos_balanco_nome as $id_recurso => $nome) {
+			if ($recurso[$id_recurso]->local == 1) {
+				foreach ($acoes->recursos_consumidos_planeta[$id_recurso] as $id_planeta => $valor) {
+					
+					$balanco = $acoes->recursos_produzidos_planeta[$id_recurso][$id_planeta] - $valor;
+					$diferenca = round((hrtime(true) - $start_time)/1E+6,0);
+					$debug .= "valida_acao() -> Verifica Balanço do Recurso {$nome} no Planeta {$id_planeta}: {$balanco} {$diferenca}ms \n";
+					
+					if ($balanco < 0 && $nome != "Poluição") {//A Poluição pode ser negativa
+						$dados_salvos['balanco_acao'] .= "{$recurso[$id_recurso]->nome} ({$balanco}) no Planeta '{$planeta->nome}', ";
+					}
+				}
+			}
+		}
+		
 		if ($dados_salvos['balanco_acao'] != "") {
 			$dados_salvos['balanco_acao'] = substr($dados_salvos['balanco_acao'],0,-2);
 		}
